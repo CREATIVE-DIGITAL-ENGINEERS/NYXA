@@ -173,8 +173,8 @@ class BgDemoPolishTranslationsTest {
     List<Path> files;
     try (Stream<Path> walk = Files.walk(suite)) {
       files =
-          walk.filter(p -> p.toString().contains("/src/main/"))
-              .filter(p -> !p.toString().contains("/i18n/"))
+          walk.filter(p -> unix(p).contains("/src/main/"))
+              .filter(p -> !unix(p).contains("/i18n/"))
               .filter(
                   p ->
                       p.toString().endsWith(".xml")
@@ -185,7 +185,7 @@ class BgDemoPolishTranslationsTest {
     for (Path file : files) {
       for (String line : read(file)) {
         if (use.matcher(line).find()) {
-          uses.add(suite.relativize(file) + ": " + line.trim());
+          uses.add(unix(suite.relativize(file)) + ": " + line.trim());
         }
       }
     }
@@ -193,6 +193,11 @@ class BgDemoPolishTranslationsTest {
         expected,
         uses.stream().sorted().collect(Collectors.toList()),
         "„" + key + "“ има нова употреба — проверете дали новият текст ѝ подхожда");
+  }
+
+  /** Пътят с „/“ — на Windows {@link Path#toString()} дава „\“ и филтрите не биха хванали нищо. */
+  private static String unix(Path path) {
+    return path.toString().replace('\\', '/');
   }
 
   private static List<String> read(Path file) throws IOException {

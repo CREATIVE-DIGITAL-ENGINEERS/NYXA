@@ -123,8 +123,8 @@ class BgUiMenuTranslationsTest {
     List<Path> files;
     try (Stream<Path> walk = Files.walk(suite)) {
       files =
-          walk.filter(p -> p.toString().contains("/src/main/"))
-              .filter(p -> !p.toString().contains("/i18n/"))
+          walk.filter(p -> unix(p).contains("/src/main/"))
+              .filter(p -> !unix(p).contains("/i18n/"))
               .filter(p -> p.toString().endsWith(".xml") || p.toString().endsWith(".java"))
               .collect(Collectors.toList());
     }
@@ -132,7 +132,7 @@ class BgUiMenuTranslationsTest {
       List<String> lines = read(file);
       for (int i = 0; i < lines.size(); i++) {
         if (lines.get(i).contains("Accounting.toAccount")) {
-          uses.add(suite.relativize(file) + ": " + lines.get(i).trim());
+          uses.add(unix(suite.relativize(file)) + ": " + lines.get(i).trim());
         }
       }
     }
@@ -224,6 +224,11 @@ class BgUiMenuTranslationsTest {
     }
     assertEquals(1, found.size(), what + ": очаквам точно един ред");
     return found.get(0);
+  }
+
+  /** Пътят с „/“ — на Windows {@link Path#toString()} дава „\“ и филтрите не биха хванали нищо. */
+  private static String unix(Path path) {
+    return path.toString().replace('\\', '/');
   }
 
   private static List<String> read(Path file) throws IOException {
