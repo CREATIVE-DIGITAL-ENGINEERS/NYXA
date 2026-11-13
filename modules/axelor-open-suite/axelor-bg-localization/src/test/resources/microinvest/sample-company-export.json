@@ -1,0 +1,175 @@
+{
+  "company": {
+    "name": "ТЕСТОВА ФИРМА ЕООД",
+    "bulstat": "000000000",
+    "vatId": "BG000000000",
+    "mol": "Тестов Тестов Тестов",
+    "ekatteCode": "00000"
+  },
+  "officials": [
+    {
+      "officialId": 1,
+      "employeeId": 1,
+      "positionId": 2,
+      "positionName": "Управител/Представляващо лице",
+      "positionIdentifier": "2"
+    },
+    {
+      "officialId": 2,
+      "employeeId": 2,
+      "positionId": 4,
+      "positionName": "Главен счетоводител",
+      "positionIdentifier": "4"
+    }
+  ],
+  "contractReasons": [
+    { "contractReasonId": 1, "identifier": "001", "description": "Безсрочен трудов договор по чл.67 ал.1 т.1 от КТ" },
+    { "contractReasonId": 2, "identifier": "007", "description": "Трудов договор със срок за изпитване по чл.70 от КТ" },
+    { "contractReasonId": 3, "identifier": "019", "description": "Допълнително споразумение по чл. 119, ал. 1 КТ за изменение на основното трудово възнаграждение" }
+  ],
+  "employees": [
+    {
+      "employeeId": 1,
+      "name": "Иван Тестов Проверков",
+      "egn": "7501011234",
+      "isForeigner": false,
+      "birthDate": "1975-01-01",
+      "birthPlace": "София",
+      "idNumber": "000000000",
+      "idIssueDate": "2015-01-01",
+      "idIssuedFrom": "МВР София",
+      "workPhone": "0000000000",
+      "phone": "0000000000",
+      "email": "test@example.invalid",
+      "isDeleted": false,
+      "number": "1",
+      "addresses": [
+        { "city": "София", "postalCode": "1000", "street": "тестова 1", "district": "тест", "municipality": "София" }
+      ],
+      "bankAccounts": [
+        { "bankBic": "BNBGBGSD", "iban": "BG00BNBG00000000000000" }
+      ],
+      "payrolls": [
+        {
+          "payrollId": 100,
+          "employeeId": 1,
+          "annexPayrollId": 100,
+          "contractId": 1,
+          "contractName": "Трудов договор / Универсален",
+          "contractReasonId": 1,
+          "contractNumber": "1",
+          "contractDate": "2024-01-01",
+          "fromDate": "2024-01-01",
+          "toDate": null,
+          "contrractEndDate": null,
+          "contrractTermDate": null,
+          "positionId": 5,
+          "positionName": "Тестова длъжност",
+          "ekatteCode": "00000",
+          "isDeleted": false
+        },
+        {
+          "payrollId": 101,
+          "employeeId": 1,
+          "annexPayrollId": 100,
+          "contractId": 1,
+          "contractName": "Трудов договор / Универсален",
+          "contractReasonId": 3,
+          "contractNumber": "1",
+          "contractDate": "2024-06-01",
+          "fromDate": "2024-06-01",
+          "toDate": null,
+          "contrractEndDate": null,
+          "contrractTermDate": null,
+          "positionId": 5,
+          "positionName": "Тестова длъжност",
+          "ekatteCode": "00000",
+          "isDeleted": false
+        }
+      ],
+      "declaredServiceMonths": null,
+      "payslipValues": [
+        { "payrollId": 100, "date": "2024-07-01", "formulaName": "Аванс", "value": 200.00 },
+        { "payrollId": 100, "date": "2024-07-01", "formulaName": "Основно възнаграждение", "value": 1000.00 }
+      ],
+      "priorPeriodValues": [],
+      "d1Values": [
+        { "payrollId": 100, "date": "2024-07-01", "fieldName": "21. Осигурителен доход", "formRefNo": "21", "value": "1000.00" },
+        { "payrollId": 100, "date": "2024-07-01", "fieldName": "29. Брутно трудово възнаграждение", "formRefNo": "29", "value": "1000.00" }
+      ]
+    },
+    {
+      "employeeId": 2,
+      "name": "Мария Тестова Проверкова",
+      "egn": "8002020000",
+      "isForeigner": false,
+      "birthDate": "1980-02-02",
+      "birthPlace": "Пловдив",
+      "idNumber": "000000001",
+      "idIssueDate": "2016-01-01",
+      "idIssuedFrom": "МВР Пловдив",
+      "workPhone": null,
+      "phone": "0000000001",
+      "email": null,
+      "isDeleted": false,
+      "number": "2",
+      "addresses": [],
+      "bankAccounts": [],
+      "payrolls": [
+        {
+          "payrollId": 200,
+          "employeeId": 2,
+          "annexPayrollId": 200,
+          "contractId": 2,
+          "contractName": "Трудов договор / Стандартен",
+          "contractReasonId": 2,
+          "contractNumber": "2",
+          "contractDate": "2024-03-01",
+          "fromDate": "2024-03-01",
+          "toDate": null,
+          "contrractEndDate": null,
+          "contrractTermDate": null,
+          "positionId": 4,
+          "positionName": "Главен счетоводител",
+          "ekatteCode": "00000",
+          "isDeleted": false
+        }
+      ],
+      "declaredServiceMonths": 24,
+      "payslipValues": [],
+      "priorPeriodValues": [],
+      "d1Values": []
+    }
+  ],
+  "hospitalEvents": [
+    {
+      "eventId": 1,
+      "payrollId": 100,
+      "enumEventTypeId": 9,
+      "eventTypeName": "Болничен",
+      "isHospital": true,
+      "isVacation": false,
+      "startDate": "2024-07-01",
+      "endDate": "2024-07-05",
+      "absenseExportDetailId": 1
+    }
+  ],
+  "sickLeaveDetails": [
+    {
+      "absenseExportDetailId": 1,
+      "sickNote": "0000000001",
+      "series": "Т",
+      "year": 2024,
+      "realStartDate": "2024-07-01",
+      "releaseDate": "2024-07-05",
+      "registerDate": "2024-07-06",
+      "registerNum": "1",
+      "isContinued": false
+    }
+  ],
+  "d6Values": [
+    { "date": "2024-07-01", "fieldName": "Наименование на осигурителя", "section1": "ТЕСТОВА ФИРМА ЕООД", "section2": "ТЕСТОВА ФИРМА ЕООД", "section3": null, "section4": null },
+    { "date": "2024-07-01", "fieldName": "Дължими вноски за ДОО", "section1": "100.00", "section2": "0", "section3": null, "section4": null },
+    { "date": "2024-07-01", "fieldName": "Дата на изплащане", "section1": "31.07.2024", "section2": "31.07.2024", "section3": null, "section4": null }
+  ]
+}

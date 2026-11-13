@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="account" package="com.axelor.apps.account.db"/>
+
+  <!-- Bulgarian localization: VAT credit type per PURCHASE line, merged into com.axelor.apps.account.db.InvoiceLine.
+    The entity opening tag replicates the original InvoiceLine attributes exactly (implements) so the merge
+    keeps them. Drives which POKUPKI value column the line's base/VAT lands in (к.10/к.11 full, к.12/к.13
+    partial, к.9 none). importId is inherited — do NOT redeclare it here. -->
+  <entity name="InvoiceLine"
+    implements="com.axelor.apps.account.db.repo.AnalyticLine,com.axelor.apps.base.interfaces.Currenciable,com.axelor.apps.base.interfaces.GlobalDiscounterLine">
+
+    <string name="bgVatCreditType" title="Данъчен кредит (ДДС)"
+      selection="bg.vat.credit.type.select"/>
+
+    <!-- ═══ ВИДЪТ ДОХОД ПО ЗДДФЛ — НА РЕДА, А НЕ НА ФАКТУРАТА ═══
+
+      Пълни се САМО когато получателят е ФИЗИЧЕСКО ЛИЦЕ и доставчикът е той: тогава плащането по
+      фактурата е негов доход и влиза в регистъра BgIndividualIncomePayment, а оттам — в справката
+      по чл. 73 ал. 1 и в декларацията по чл. 55. За фактура към дружество полето стои празно и
+      нищо не го чете.
+
+      ⚠️ НА РЕДА, ЗАЩОТО КОЛОНА 11 СЕ ГРУПИРА ПО КОД. Една фактура от физическо лице може да носи и
+      наем на помещение (401, чл. 31, шаблон B), и консултантска услуга (3073, чл. 29, шаблон A) —
+      два различни члена, две различни разходни ставки и ДВА РЕДА на образеца. Сложено на
+      фактурата, полето би принудило единия от двата да се подаде с чуждия си код: 25 на сто
+      разходи върху наем или 10 на сто върху услуга — правдоподобни числа, за които няма норма.
+
+      ⚠️ И ЗАЩО НЕ СЕ ДОБАВИ ПО-КЪСНО „КОГАТО ПОТРЯБВА“. Поле на фактурата, преместено после на
+      реда, оставя вече заведените фактури двусмислени: за тях не се знае дали празният ред значи
+      „кодът е на заглавието“ или „никой не е попълнил“. Мястото се избира веднъж.
+
+      ⚠️ ПОДРАЗБИРАНЕ ОТ ПРОДУКТА (Product.bgIncomeType) — ОБЯВЕНА ГРАНИЦА, не пропуск. То би
+      спестило въвеждане на всеки ред, но иска СВОЙ прочит на темпоралния каталог и свое решение
+      какво става, когато продуктът и редът се разминават. Отделно подобрение; днес операторът
+      маркира реда, а ред без вид доход НЕ поражда запис и се БРОИ в границите на прогона.
+
+      ⚠️ ВРЪЗКАТА СОЧИ ЕДНА ВЕРСИЯ НА РЕДА, А КАТАЛОГЪТ Е ТЕМПОРАЛЕН (уникалност по code+validFrom)
+      — същото обявено ограничение, което носи и EmploymentContract.bgIncomeType. Фактурата е
+      краткоживуща по устройство и се плаща близо до датата си, тоест разминаването е тясно. -->
+    <many-to-one name="bgIncomeType" title="Вид доход по ЗДДФЛ (за физическо лице)"
+      ref="com.axelor.apps.bglocalization.db.BgIncomeType"/>
+
+    <!-- ═══ РЕДЪТ ЗА ПРИСПАДАНЕ НА АВАНС (окончателната фактура) ═══
+
+      Попълва ги бутонът „Приспадни авансите“ (BgVatAdvanceService.deduct). По тях — не по текста
+      на реда — се познава приспадането: проверката преди осчетоводяване, статията при сума 0,
+      лентирането на 412 и спирането на О.Д. на AOS. Текстът „Приспадане на аванс по ф-ра № … от …“
+      е само за печат: минава през превода и операторът може да го редактира. -->
+    <boolean name="bgAdvanceDeduction" title="Приспадане на аванс"/>
+    <many-to-one name="bgAdvanceInvoice" title="Приспадната авансова фактура"
+      ref="com.axelor.apps.account.db.Invoice"/>
+
+  </entity>
+
+</domain-models>

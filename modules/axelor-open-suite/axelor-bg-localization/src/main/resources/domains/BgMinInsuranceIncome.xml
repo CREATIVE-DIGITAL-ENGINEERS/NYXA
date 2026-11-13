@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Ред от Приложение №1 към ЗБДОО (МОД по основни икономически дейности). Един ред групира сумите
+    по квалификационни групи (bgAmountList). bgRow е поредният номер на реда в приложението ("01".."86")
+    с водещи нули — това е ключът, по който КИД/длъжност се мапва към МОД. -->
+  <entity name="BgMinInsuranceIncome" cacheable="true">
+    <!-- БЕЗ unique="true" на полето. Ключът е (bgRow, validFrom) — виж unique-constraint по-долу. Глобално
+      unique на bgRow прави втори период невъзможен: ЗБДОО 2026 (ДВ бр.68/28.07.2026) дава Приложение №1 за
+      01.01–31.07.2026 и Приложение №1А за 01.08–31.12.2026, тоест същите номера на редове се повтарят с друг
+      период. -->
+    <string name="bgRow" title="Ред по Приложение №1" required="true"
+      help="Пореден номер на реда в Приложение №1 към ЗБДОО, с водещи нули (напр. 01, 49, 86)."/>
+    <string name="bgName" title="Икономическа дейност"/>
+    <integer name="bgActivityCount" title="Брой обхванати дейности"/>
+    <date name="validFrom" title="В сила от" required="true"/>
+    <date name="validTo" title="В сила до"/>
+
+    <one-to-many name="bgAmountList" title="Суми по квалификационни групи"
+      ref="com.axelor.apps.bglocalization.db.BgMinInsuranceIncomeAmount"
+      mappedBy="bgMinInsuranceIncome"/>
+
+    <!-- едно правило за (ред × период) -->
+    <unique-constraint columns="bgRow,validFrom"/>
+
+  </entity>
+
+</domain-models>

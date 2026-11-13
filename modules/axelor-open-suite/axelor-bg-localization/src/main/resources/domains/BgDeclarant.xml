@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Per-company ДДС/NAP declarant. Replaces the old flat Company.bgDeclarant* fields and the AppBgLocalization
+    firm-default. НЕ ПОВЕЧЕ от един isDefault на дружество, и това се пази на ДВЕ места, защото
+    пътищата на записа са два: BgDeclarantManagementRepository.save сваля другите при пряк запис на
+    декларанта, а BgCompanyManagementRepository.save ОТКАЗВА запис на дружество с два вдигнати —
+    през решетката на формата Дружество децата минават по JPA cascade и репозиторията на декларанта
+    изобщо не се вика. Разграничението е изписано в BgDeclarantResolver.
+    NOTE: importId is inherited from com.axelor.db.Model — do NOT declare it. -->
+  <entity name="BgDeclarant">
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"
+      required="true"/>
+    <string name="declarantEgn" title="ЕГН"/>
+    <string name="declarantNames" title="Имена" required="true"/>
+    <string name="declarantCity" title="Град"/>
+    <string name="declarantPostCode" title="Пощенски код"/>
+    <string name="declarantAddress" title="Адрес"/>
+    <string name="declarantCapacity" title="Качество"
+      selection="bg.vat.declarant.capacity.select"/>
+    <!-- ДЛЪЖНОСТТА на декларатора — текст, НЕ кодът „Качество“. ⚠️ Двете отговарят на различни
+      въпроси: „Качество“ (R/A) е законен представител или пълномощник и си остава за своята точка в
+      ДДС и НАП; длъжността е „Управител“, „Главен счетоводител“ — тя влиза в т. „длъжност“ на
+      длъжностното лице в Приложение № 9 (Representative/Position, 2–100 знака по XSD). Дотук
+      Прил. 9 четеше „Качество“ и записваше „R“, а XSD-то го отхвърля. Празно → износът отказва
+      поименно; тихо попълване няма. Ново поле, nullable. -->
+    <string name="declarantPosition" title="Длъжност" min="2" max="100"
+      help="Длъжността на лицето, напр. „Управител“ (2–100 знака). Влиза в Приложение № 9 като длъжност на длъжностното лице. Различно от „Качество“ (законен представител/пълномощник)."/>
+    <boolean name="isDefault" title="По подразбиране" default="false"/>
+
+    <!-- Computed display name: "Имена (ЕГН)"; ако няма ЕГН → само "Имена". -->
+    <string name="fullName" title="Наименование" namecolumn="true"
+      search="declarantNames,declarantEgn" depends="declarantNames,declarantEgn">
+      <![CDATA[
+      return (declarantEgn != null && !declarantEgn.trim().isEmpty())
+          ? declarantNames + " (" + declarantEgn + ")" : declarantNames;
+      ]]>
+    </string>
+
+  </entity>
+
+</domain-models>

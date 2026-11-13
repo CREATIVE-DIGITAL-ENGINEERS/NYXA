@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- BG exact-postcode validation (see BgCityPostcodeService): Address.zip is made readonly when
+    the selected City has exactly one known valid postcode, and the entered value is checked against
+    the exact allowed set when a City has more than one. A City with NO rows in BgCityPostcode (no
+    validation data at all, e.g. the ~20 EKATTE-less special/locality rows) is left exactly as before
+    — editable, unvalidated. Wired onto the SHARED incl-address-main-panel-form so it applies
+    everywhere Address is used (Partner, Supplier Invoice, etc.), not just one screen. -->
+
+  <action-method name="action-aiocr-address-method-update-zip-readonly">
+    <call class="com.axelor.apps.aiocr.web.BgAddressPostcodeController" method="updateZipReadonly"/>
+  </action-method>
+
+  <action-method name="action-aiocr-address-method-validate-zip">
+    <call class="com.axelor.apps.aiocr.web.BgAddressPostcodeController" method="validateZip"/>
+  </action-method>
+
+  <form name="incl-address-main-panel-form" title="Address"
+    id="aiocr-incl-address-postcode-form" model="com.axelor.apps.base.db.Address"
+    extension="true">
+    <extend target="/">
+      <attribute name="onLoad"
+        value="action-group-base-address-onload,action-aiocr-address-method-update-zip-readonly"/>
+    </extend>
+    <extend target="//field[@name='city']">
+      <attribute name="onChange"
+        value="action-address-change-city,action-address-validate-change-city,action-aiocr-address-method-update-zip-readonly"/>
+    </extend>
+    <extend target="//field[@name='zip']">
+      <attribute name="onChange"
+        value="action-address-method-autocomplete-address,action-aiocr-address-method-validate-zip"/>
+    </extend>
+  </form>
+
+</object-views>

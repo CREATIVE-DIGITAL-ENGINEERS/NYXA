@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ РОДИТЕЛСКОТО МЕНЮ „MOVES“ ПОЛУЧАВА СОБСТВЕН КЛЮЧ ═══
+
+    Механизмът е ЕДИН И СЪЩ с Menu-account-hide.xml: `id` ражда втори ред в meta_menu със същото
+    `name`, приоритет `other.getPriority() + 1`, MenuUtils#fetchMetaMenu подрежда по приоритет
+    низходящо и оставя по един ред на име — преопределящият ред ЗАМЕСТВА чуждия изцяло.
+
+    ⚠️ ПРИЧИНАТА, за разлика от Menu-account-hide.xml, НЕ Е скриване — тук се сменя САМО `title`,
+    защото axelor-account/Menu.xml (ред 141-156) дефинира ТРИ различни възела с ЕДНАКВИЯ буквален
+    низ "Moves": родителското меню (account-root-move), детското меню (account-root-move-move) и
+    action-view-то (account.root.move.move). Axelor превежда по буквалния текст на `title` като
+    ключ в MetaTranslation — един и същ низ носи ЕДИН И СЪЩ превод навсякъде, без значение за
+    контекста. Детето и action-view-то сочат РЕАЛНАТА статия (Move) и вече имат правилния,
+    одобрен превод „Статии“ (BG-2c, messages_bg.csv). Родителят обаче е само група в навигацията,
+    не статия — и споделяйки „Moves“ с детето си, наследяваше СЪЩИЯ превод: „Счетоводство › Статии
+    › Статии“, повторение, което няма смисъл на български.
+
+    ⚠️ РЕШЕНИЕТО Е НОВ АНГЛИЙСКИ КЛЮЧ, НЕ НОВ ПРЕВОД. MetaTranslation няма понятие за "родител"
+    срещу "дете" — единственият начин двата възела да получат РАЗЛИЧНИ български текстове е двата
+    възела да носят РАЗЛИЧНИ буквални `title` низа. Затова родителят тук получава título "Accounting
+    operations" (потвърдено с grep, че низът не се среща никъде другаде като title/key в целия
+    репозиторий) вместо стандартния "Moves". Детето и action-view-то в axelor-account/Menu.xml НЕ СЕ
+    пипат — ключът "Moves" и одобреният му превод „Статии“ остават непроменени.
+
+    ⚠️ `parent` и `order` са същите, за да остане записът в базата на същото място в дървото. -->
+  <menuitem id="bg-override-account-root-move" name="account-root-move" parent="account-root"
+    title="Accounting operations" order="100"/>
+
+</object-views>

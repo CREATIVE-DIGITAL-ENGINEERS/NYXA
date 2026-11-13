@@ -1,0 +1,354 @@
+/* AI Accountant floating assistant. Uses axelor-ui CSS variables so it follows the active theme. */
+
+/* The button and the panel get their edge offsets inline from the component (see
+   floating-position.ts); both default to 24px from the bottom-right corner. */
+.fab {
+  position: fixed;
+  z-index: 1040;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background-color: var(--bs-primary, #0275d8);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
+  transition: transform 0.15s ease-in-out;
+  /* A finger on the button drags it instead of scrolling the page; elsewhere scrolling is untouched. */
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover {
+    transform: scale(1.06);
+  }
+
+  &:hover .dragCue,
+  &:focus-visible .dragCue,
+  &.dragging .dragCue {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &.dragging {
+    cursor: grabbing;
+    transform: scale(1.06);
+    box-shadow: 0 8px 20px rgb(0 0 0 / 35%);
+  }
+}
+
+/* The "this can be moved" hint: a small move badge on the button's shoulder, shown on hover/focus
+   and while dragging so it does not clutter the button the rest of the time. */
+.dragCue {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: var(--bs-primary, #0275d8);
+  background-color: var(--bs-body-bg, #fff);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 30%);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 0.15s ease-in-out,
+    transform 0.15s ease-in-out;
+
+  > * {
+    font-size: 15px;
+  }
+}
+
+.panel {
+  position: fixed;
+  z-index: 1041;
+  /* Anchor for the resize grip. */
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+
+  /* Width/height come from the component as inline styles so the drag grip can set them;
+     the caps here are a backstop for a viewport that changed before React re-clamped. */
+  width: 400px;
+  height: 560px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 16px);
+  /* Never wider than a phone: min-width beats max-width, so it has to give way itself. */
+  min-width: min(320px, calc(100vw - 48px));
+  min-height: min(320px, calc(100vh - 48px));
+  overflow: hidden;
+  border: 1px solid var(--bs-border-color, rgb(0 0 0 / 12%));
+  border-radius: 10px;
+  background-color: var(--bs-body-bg, #fff);
+  color: var(--bs-body-color, #212529);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 28%);
+}
+
+.panel.dragging {
+  user-select: none;
+
+  .header {
+    cursor: grabbing;
+  }
+}
+
+/* Corner grab handle, in the corner away from the pinned edges — the one that moves when the
+   panel is resized (`data-grip`: t/b + l/r). Sits above the header so it stays clickable. */
+.resizeGrip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  touch-action: none;
+
+  /* Two short strokes, like the usual corner gripper, drawn away from the rounded border. */
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    background-color: var(--bs-body-color, #212529);
+    opacity: 0.35;
+  }
+
+  &::before {
+    top: 5px;
+    left: 5px;
+    width: 9px;
+    height: 2px;
+  }
+
+  &::after {
+    top: 5px;
+    left: 5px;
+    width: 2px;
+    height: 9px;
+  }
+
+  &:hover::before,
+  &:hover::after {
+    opacity: 0.75;
+  }
+}
+
+/* The other three corners mirror the top-left default. */
+.panel[data-grip="tr"] .resizeGrip,
+.panel[data-grip="br"] .resizeGrip {
+  left: auto;
+  right: 0;
+
+  &::before,
+  &::after {
+    left: auto;
+    right: 5px;
+  }
+}
+
+.panel[data-grip="bl"] .resizeGrip,
+.panel[data-grip="br"] .resizeGrip {
+  top: auto;
+  bottom: 0;
+
+  &::before,
+  &::after {
+    top: auto;
+    bottom: 5px;
+  }
+}
+
+.panel[data-grip="tr"] .resizeGrip,
+.panel[data-grip="bl"] .resizeGrip {
+  cursor: nesw-resize;
+}
+
+/* Keep the header and composer content clear of the grip. */
+.panel[data-grip="tl"] .header {
+  padding-left: 24px;
+}
+
+.panel[data-grip="tr"] .header {
+  padding-right: 24px;
+}
+
+.panel[data-grip="bl"] .composer {
+  padding-left: 22px;
+}
+
+.panel[data-grip="br"] .composer {
+  padding-right: 22px;
+}
+
+/* The whole header is the move handle; its buttons keep their own pointer. */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--bs-border-color, rgb(0 0 0 / 12%));
+  font-weight: 600;
+  cursor: grab;
+  touch-action: none;
+}
+
+.dragHandle {
+  opacity: 0.45;
+  margin-inline-end: -4px;
+}
+
+.header:hover .dragHandle {
+  opacity: 0.8;
+}
+
+.title {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.headerButton {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.context {
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  border-bottom: 1px solid var(--bs-border-color, rgb(0 0 0 / 8%));
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.empty {
+  margin: auto;
+  text-align: center;
+  font-size: 0.875rem;
+  opacity: 0.6;
+  padding: 0 16px;
+}
+
+/* A refusal the user must read, above the composer. Sits outside the message list because it has to
+   survive the transcript being replaced by another company's. */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  border-top: 1px solid var(--bs-border-color, rgba(0, 0, 0, 0.12));
+  background: var(--bs-warning-bg-subtle, #fff3cd);
+  color: var(--bs-warning-text-emphasis, #664d03);
+}
+
+/* Shown beside the load error. A link, not a button: the panel is small and the action is a retry,
+   not a decision. */
+.retry {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--bs-link-color, #0d6efd);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.message {
+  max-width: 85%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.user {
+  align-self: flex-end;
+  color: #fff;
+  background-color: var(--bs-primary, #0275d8);
+}
+
+.assistant {
+  align-self: flex-start;
+  background-color: var(--bs-secondary-bg, rgb(0 0 0 / 6%));
+}
+
+.failed {
+  align-self: flex-start;
+  background-color: rgb(220 53 69 / 12%);
+  color: var(--bs-danger, #dc3545);
+}
+
+.tools {
+  margin-top: 4px;
+  font-size: 0.6875rem;
+  opacity: 0.65;
+}
+
+.composer {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding: 10px;
+  border-top: 1px solid var(--bs-border-color, rgb(0 0 0 / 12%));
+}
+
+.input {
+  flex: 1;
+  resize: none;
+  max-height: 120px;
+  padding: 8px;
+  border: 1px solid var(--bs-border-color, rgb(0 0 0 / 20%));
+  border-radius: 6px;
+  background-color: var(--bs-body-bg, #fff);
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--bs-primary, #0275d8);
+  }
+}
+
+.send {
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 8px 10px;
+  color: #fff;
+  background-color: var(--bs-primary, #0275d8);
+  display: flex;
+  align-items: center;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}

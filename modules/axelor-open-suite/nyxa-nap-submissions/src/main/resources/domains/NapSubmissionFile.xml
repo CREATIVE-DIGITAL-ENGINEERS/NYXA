@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="napsubmissions" package="com.axelor.apps.napsubmissions.db"/>
+
+  <!-- One file inside a НАП submission (a submission may carry multiple files — e.g. the Declarations
+    API `files[]`). This entity holds only METADATA + references to immutable NapArtifacts (payload and optional
+    detached signature). It NEVER stores file bytes itself; the bytes live once in NapArtifact. -->
+  <entity name="NapSubmissionFile">
+
+    <many-to-one name="submission" title="Submission" ref="NapSubmission"
+      required="true"/>
+
+    <!-- Immutable bytes: the payload and (optionally) its detached PKCS#7 signature artifact. -->
+    <many-to-one name="payloadArtifact" title="Payload" ref="NapArtifact"
+      required="true"/>
+    <many-to-one name="signatureArtifact" title="Signature" ref="NapArtifact"/>
+
+    <integer name="sequence" title="Position" default="0"/>
+    <string name="submittedFileName" title="Submitted filename"/>
+    <!-- НАП per-file document type (e.g. DEC_1, DEC_6, DEC_ETZ62, DEC_FISC_RISK_*). -->
+    <string name="fileDocumentTypeSelect" title="File document type"
+      selection="nap.declarations.file.document.type.select"/>
+    <string name="fileTypeSelect" title="File type" selection="nap.file.type.select"/>
+    <long name="fileSize" title="File size (bytes)"/>
+    <integer name="numRecords" title="Record count"/>
+
+    <string name="fileStatusSelect" title="File status"
+      selection="nap.submission.file.status.select" default="pending" readonly="true"/>
+    <string name="fileError" title="File error" large="true" multiline="true" readonly="true"/>
+
+    <!-- ===== QES signing state (per file) =====
+      Deliberately SEPARATE from fileStatusSelect: signing status and НАП processing status are two
+      different concepts (a file can be successfully SIGNED yet later REJECTED by НАП). None of these
+      fields ever holds a secret or any payload content. -->
+    <string name="qesProviderId" title="QES provider" readonly="true"/>
+    <string name="qesExternalRequestId" title="QES request ID" readonly="true"/>
+    <!-- The payload SHA-256 that was submitted for signing; re-verified on completion. -->
+    <string name="qesRequestedSha256" title="QES requested digest" readonly="true"/>
+    <string name="qesSigningStatusSelect" title="QES signing status"
+      selection="nap.qes.signing.status.select" default="not_started" readonly="true"/>
+    <datetime name="qesSigningStartedOn" title="Signing started" readonly="true"/>
+    <datetime name="qesSigningCompletedOn" title="Signing completed" readonly="true"/>
+    <!-- Failure/rejection reason WITHOUT any secret or payload content. -->
+    <string name="qesFailureReason" title="QES failure reason" large="true" multiline="true"
+      readonly="true"/>
+
+    <!-- The EXACT public certificate used for THIS submission, snapshotted at signing time as an
+      immutable artifact (do NOT rely on the user's current certificate, which may be renewed). Its
+      SHA-256 is kept inline so "all files in one submission share one signer certificate" is a cheap
+      comparison. -->
+    <many-to-one name="signerCertificateArtifact" title="Signer certificate"
+      ref="NapArtifact" readonly="true"/>
+    <string name="signerCertificateSha256" title="Signer certificate SHA-256" readonly="true"/>
+
+    <extra-code><![CDATA[
+      // fileStatusSelect (keep in sync with nap.submission.file.status.select)
+      public static final String FILE_STATUS_PENDING = "pending";
+      public static final String FILE_STATUS_ACCEPTED = "accepted";
+      public static final String FILE_STATUS_REJECTED = "rejected";
+      public static final String FILE_STATUS_ERROR = "error";
+      public static final String FILE_STATUS_UNKNOWN = "unknown";
+
+      // qesSigningStatusSelect (keep in sync with nap.qes.signing.status.select).
+      // SEPARATE from fileStatusSelect by design: QES signing != НАП processing.
+      public static final String QES_STATUS_NOT_STARTED = "not_started";
+      public static final String QES_STATUS_PENDING = "pending";
+      public static final String QES_STATUS_COMPLETED = "completed";
+      public static final String QES_STATUS_REJECTED = "rejected";
+      public static final String QES_STATUS_FAILED = "failed";
+      public static final String QES_STATUS_EXPIRED = "expired";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

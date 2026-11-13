@@ -1,0 +1,839 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Nyxa BG localization (ДДС · протокол по чл. 117 ЗДДС)</property>
+    <property name="units">in</property>
+    <text-property name="description"><![CDATA[Печатна форма на протокола по чл. 117 ЗДДС (ВОП, услуга по чл. 82, чл. 163а, внос по чл. 167а). Законен образец няма — законът изброява реквизитите (ал. 2 т. 1–10), затова всеки ред носи номера на точката. ⚠️ БЕЗ НАБОР ДАННИ ОТ БАЗАТА: всичко е параметър от BgVatProtocolPrint.params(), вече форматирано — номерът, датата, основата и данъкът са тези на реда в PRODAGBI/POKUPKI. Редовете на т. 3 идват през скриптовия набор Items от параметъра ItemsData (ред на ред, полета с табулация). ⚠️ В CDATA на скриптовете няма entity-та и няма знаци за сравнение.]]></text-property>
+    <parameters>
+        <scalar-parameter name="ProtocolNumber" id="101">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="ProtocolDate" id="102">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="IssuedUnder" id="103">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="KindLabel" id="104">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="IssuerName" id="105">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="IssuerVatNumber" id="106">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="SupplierName" id="107">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="SupplierIdPoint" id="108">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="SupplierIdLabel" id="109">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="SupplierId" id="110">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="InvoiceRef" id="111">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="CustomsRef" id="112">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="ItemsData" id="113">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="TaxEventDate" id="114">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="TaxBase" id="115">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="TaxRate" id="116">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="Basis" id="117">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="TaxAmount" id="118">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="Currency" id="119">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="DiaryPeriod" id="120">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="SupplyType" id="121">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="Warnings" id="122">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="GenDate" id="123">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <script-data-source name="Items Source" id="124"/>
+    </data-sources>
+    <data-sets>
+        <script-data-set name="Items" id="125">
+            <list-property name="resultSetHints">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">no</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">name</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">qty</property>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">unit</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">no</property>
+                </structure>
+                <structure>
+                    <property name="columnName">name</property>
+                </structure>
+                <structure>
+                    <property name="columnName">qty</property>
+                </structure>
+                <structure>
+                    <property name="columnName">unit</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">no</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">name</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">qty</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">unit</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Items Source</property>
+            <method name="open"><![CDATA[var nxData = params["ItemsData"].value + "";
+nxRows = nxData.length ? nxData.split("\n") : [];
+nxIndex = 0;]]></method>
+            <method name="fetch"><![CDATA[if (nxIndex == nxRows.length) {
+  return false;
+}
+var nxField = nxRows[nxIndex].split("\t");
+row["no"] = nxField[0];
+row["name"] = nxField[1];
+row["qty"] = nxField[2];
+row["unit"] = nxField[3];
+nxIndex++;
+return true;]]></method>
+        </script-data-set>
+    </data-sets>
+    <styles>
+        <style name="report" id="126">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">9pt</property>
+        </style>
+        <style name="title" id="127">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">14pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">center</property>
+        </style>
+        <style name="subtitle" id="128">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">10pt</property>
+            <property name="textAlign">center</property>
+            <property name="paddingBottom">6pt</property>
+        </style>
+        <style name="section" id="129">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="backgroundColor">#D9D9D9</property>
+            <property name="paddingTop">2pt</property>
+            <property name="paddingBottom">2pt</property>
+            <property name="paddingLeft">3pt</property>
+        </style>
+        <style name="pt" id="130">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="paddingTop">3pt</property>
+            <property name="paddingBottom">3pt</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">thin</property>
+            <property name="borderBottomColor">#CCCCCC</property>
+        </style>
+        <style name="lbl" id="131">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">9pt</property>
+            <property name="paddingTop">3pt</property>
+            <property name="paddingBottom">3pt</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">thin</property>
+            <property name="borderBottomColor">#CCCCCC</property>
+        </style>
+        <style name="val" id="132">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="paddingTop">3pt</property>
+            <property name="paddingBottom">3pt</property>
+            <property name="paddingLeft">3pt</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">thin</property>
+            <property name="borderBottomColor">#CCCCCC</property>
+        </style>
+        <style name="amount" id="133">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">10pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="textAlign">right</property>
+            <property name="paddingTop">3pt</property>
+            <property name="paddingBottom">3pt</property>
+            <property name="paddingRight">4pt</property>
+            <property name="borderStyle">solid</property>
+            <property name="borderWidth">thin</property>
+            <property name="borderColor">#000000</property>
+        </style>
+        <style name="th" id="134">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">8pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="backgroundColor">#EEEEEE</property>
+            <property name="paddingTop">2pt</property>
+            <property name="paddingBottom">2pt</property>
+            <property name="paddingLeft">3pt</property>
+            <property name="borderStyle">solid</property>
+            <property name="borderWidth">thin</property>
+            <property name="borderColor">#999999</property>
+        </style>
+        <style name="td" id="135">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">9pt</property>
+            <property name="paddingTop">2pt</property>
+            <property name="paddingBottom">2pt</property>
+            <property name="paddingLeft">3pt</property>
+            <property name="borderStyle">solid</property>
+            <property name="borderWidth">thin</property>
+            <property name="borderColor">#999999</property>
+        </style>
+        <style name="note" id="136">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">8pt</property>
+            <property name="color">#555555</property>
+            <property name="paddingTop">4pt</property>
+        </style>
+        <style name="warn" id="137">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">8pt</property>
+            <property name="color">#B00020</property>
+            <property name="fontWeight">bold</property>
+            <property name="paddingTop">4pt</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="138">
+            <property name="orientation">portrait</property>
+            <property name="type">a4</property>
+            <property name="topMargin">0.6in</property>
+            <property name="leftMargin">0.7in</property>
+            <property name="rightMargin">0.7in</property>
+            <property name="bottomMargin">0.6in</property>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <text id="139">
+            <property name="style">title</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[<value-of>"ПРОТОКОЛ № " + params["ProtocolNumber"] + " / " + params["ProtocolDate"]</value-of>]]></text-property>
+        </text>
+        <text id="140">
+            <property name="style">subtitle</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[<value-of>"по " + params["IssuedUnder"] + " — " + params["KindLabel"]</value-of>]]></text-property>
+        </text>
+        <grid id="141">
+            <property name="style">report</property>
+            <property name="width">100%</property>
+            <column id="142"><property name="width">9%</property></column>
+            <column id="143"><property name="width">46%</property></column>
+            <column id="144"><property name="width">45%</property></column>
+            <row id="145">
+                <cell id="146">
+                    <property name="colSpan">3</property>
+                    <property name="style">section</property>
+                    <label id="147"><text-property name="text">Издател на протокола</text-property></label>
+                </cell>
+            </row>
+            <row id="148">
+                <cell id="149">
+                    <property name="style">pt</property>
+                    <label id="150"><text-property name="text">т. 1</text-property></label>
+                </cell>
+                <cell id="151">
+                    <property name="style">lbl</property>
+                    <label id="152"><text-property name="text">Номер и дата на протокола</text-property></label>
+                </cell>
+                <cell id="153">
+                    <property name="style">val</property>
+                    <text id="154">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["ProtocolNumber"] + " / " + params["ProtocolDate"]</value-of>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="155">
+                <cell id="156">
+                    <property name="style">pt</property>
+                    <label id="157"><text-property name="text">т. 2</text-property></label>
+                </cell>
+                <cell id="158">
+                    <property name="style">lbl</property>
+                    <label id="159"><text-property name="text">Име и идентификационен номер по чл. 94, ал. 2 ЗДДС на лицето по чл. 117, ал. 1</text-property></label>
+                </cell>
+                <cell id="160">
+                    <property name="style">val</property>
+                    <text id="161">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["IssuerName"] + ", " + params["IssuerVatNumber"]</value-of>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="162">
+                <cell id="163">
+                    <property name="colSpan">3</property>
+                    <property name="style">section</property>
+                    <label id="164"><text-property name="text">Доставка</text-property></label>
+                </cell>
+            </row>
+            <row id="165">
+                <cell id="166">
+                    <property name="style">pt</property>
+                    <text id="167">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["SupplierIdPoint"]</value-of>]]></text-property>
+                    </text>
+                </cell>
+                <cell id="168">
+                    <property name="style">lbl</property>
+                    <text id="169">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["SupplierIdLabel"]</value-of>]]></text-property>
+                    </text>
+                </cell>
+                <cell id="170">
+                    <property name="style">val</property>
+                    <text id="171">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["SupplierName"]</value-of>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="172">
+                <cell id="173">
+                    <property name="style">pt</property>
+                    <label id="174"><text-property name="text"></text-property></label>
+                </cell>
+                <cell id="175">
+                    <property name="style">lbl</property>
+                    <label id="176"><text-property name="text"></text-property></label>
+                </cell>
+                <cell id="177">
+                    <property name="style">val</property>
+                    <text id="178">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["SupplierId"] + ((params["InvoiceRef"] + "").length ? "; фактура № " + params["InvoiceRef"] : "")</value-of>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="179">
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">all</property>
+                        <expression name="valueExpr" type="javascript">(params["CustomsRef"] + "").length == 0</expression>
+                    </structure>
+                </list-property>
+                <cell id="180">
+                    <property name="style">pt</property>
+                    <label id="181"><text-property name="text"></text-property></label>
+                </cell>
+                <cell id="182">
+                    <property name="style">lbl</property>
+                    <label id="183"><text-property name="text">Митнически документ за внос (ЗДДС чл. 57, ал. 6, т. 2)</text-property></label>
+                </cell>
+                <cell id="184">
+                    <property name="style">val</property>
+                    <text id="185">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["CustomsRef"]</value-of>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="186">
+                <cell id="187">
+                    <property name="style">pt</property>
+                    <label id="188"><text-property name="text">т. 3</text-property></label>
+                </cell>
+                <cell id="189">
+                    <property name="style">lbl</property>
+                    <label id="190"><text-property name="text">Количество и вид на стоката или вид на услугата</text-property></label>
+                </cell>
+                <cell id="191">
+                    <property name="style">val</property>
+                    <text id="192">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>""</value-of>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+        </grid>
+        <table id="193">
+            <property name="style">report</property>
+            <property name="width">100%</property>
+            <property name="dataSet">Items</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">no</property>
+                    <expression name="expression" type="javascript">dataSetRow["no"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">name</property>
+                    <expression name="expression" type="javascript">dataSetRow["name"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">qty</property>
+                    <expression name="expression" type="javascript">dataSetRow["qty"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">unit</property>
+                    <expression name="expression" type="javascript">dataSetRow["unit"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <column id="194"><property name="width">7%</property></column>
+            <column id="195"><property name="width">63%</property></column>
+            <column id="196"><property name="width">15%</property></column>
+            <column id="197"><property name="width">15%</property></column>
+            <header>
+                <row id="198">
+                    <cell id="199">
+                        <property name="style">th</property>
+                        <label id="200"><text-property name="text">№</text-property></label>
+                    </cell>
+                    <cell id="201">
+                        <property name="style">th</property>
+                        <label id="202"><text-property name="text">Вид на стоката / услугата</text-property></label>
+                    </cell>
+                    <cell id="203">
+                        <property name="style">th</property>
+                        <label id="204"><text-property name="text">Количество</text-property></label>
+                    </cell>
+                    <cell id="205">
+                        <property name="style">th</property>
+                        <label id="206"><text-property name="text">Мярка</text-property></label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="207">
+                    <cell id="208">
+                        <property name="style">td</property>
+                        <data id="209"><property name="resultSetColumn">no</property></data>
+                    </cell>
+                    <cell id="210">
+                        <property name="style">td</property>
+                        <data id="211"><property name="resultSetColumn">name</property></data>
+                    </cell>
+                    <cell id="212">
+                        <property name="style">td</property>
+                        <data id="213"><property name="resultSetColumn">qty</property></data>
+                    </cell>
+                    <cell id="214">
+                        <property name="style">td</property>
+                        <data id="215"><property name="resultSetColumn">unit</property></data>
+                    </cell>
+                </row>
+            </detail>
+        </table>
+        <grid id="216">
+            <property name="style">report</property>
+            <property name="width">100%</property>
+            <column id="217"><property name="width">9%</property></column>
+            <column id="218"><property name="width">46%</property></column>
+            <column id="219"><property name="width">45%</property></column>
+            <row id="220">
+                <cell id="221">
+                    <property name="colSpan">3</property>
+                    <property name="style">section</property>
+                    <label id="222"><text-property name="text">Данък</text-property></label>
+                </cell>
+            </row>
+            <row id="223">
+                <cell id="224">
+                    <property name="style">pt</property>
+                    <label id="225"><text-property name="text">т. 4</text-property></label>
+                </cell>
+                <cell id="226">
+                    <property name="style">lbl</property>
+                    <label id="227"><text-property name="text">Дата на възникване на данъчното събитие по доставката</text-property></label>
+                </cell>
+                <cell id="228">
+                    <property name="style">val</property>
+                    <text id="229">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["TaxEventDate"]</value-of>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="230">
+                <cell id="231">
+                    <property name="style">pt</property>
+                    <label id="232"><text-property name="text">т. 5</text-property></label>
+                </cell>
+                <cell id="233">
+                    <property name="style">lbl</property>
+                    <label id="234"><text-property name="text">Данъчна основа</text-property></label>
+                </cell>
+                <cell id="235">
+                    <property name="style">amount</property>
+                    <text id="236">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["TaxBase"] + " " + params["Currency"]</value-of>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="237">
+                <cell id="238">
+                    <property name="style">pt</property>
+                    <label id="239"><text-property name="text">т. 6</text-property></label>
+                </cell>
+                <cell id="240">
+                    <property name="style">lbl</property>
+                    <label id="241"><text-property name="text">Ставка на данъка</text-property></label>
+                </cell>
+                <cell id="242">
+                    <property name="style">val</property>
+                    <text id="243">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["TaxRate"]</value-of>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="244">
+                <cell id="245">
+                    <property name="style">pt</property>
+                    <label id="246"><text-property name="text">т. 7</text-property></label>
+                </cell>
+                <cell id="247">
+                    <property name="style">lbl</property>
+                    <label id="248"><text-property name="text">Основание за начисляване на данъка</text-property></label>
+                </cell>
+                <cell id="249">
+                    <property name="style">val</property>
+                    <text id="250">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["Basis"]</value-of>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="251">
+                <cell id="252">
+                    <property name="style">pt</property>
+                    <label id="253"><text-property name="text">т. 8</text-property></label>
+                </cell>
+                <cell id="254">
+                    <property name="style">lbl</property>
+                    <label id="255"><text-property name="text">Размер на данъка</text-property></label>
+                </cell>
+                <cell id="256">
+                    <property name="style">amount</property>
+                    <text id="257">
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<value-of>params["TaxAmount"] + " " + params["Currency"]</value-of>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+        </grid>
+        <text id="258">
+            <property name="style">note</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[<value-of>"Отразен в дневника за продажбите и в дневника за покупките за данъчен период " + params["DiaryPeriod"] + ((params["SupplyType"] + "").length ? ", к. 8а: " + params["SupplyType"] : "") + ". Основата и данъкът са тези на реда в дневниците."</value-of>]]></text-property>
+        </text>
+        <text id="259">
+            <property name="style">warn</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[<value-of format="html">params["Warnings"]</value-of>]]></text-property>
+        </text>
+        <text id="260">
+            <property name="style">note</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[<value-of>"Съставил: ...................................................          Подпис: ............................"</value-of>]]></text-property>
+        </text>
+        <text id="261">
+            <property name="style">note</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[<value-of>"Отпечатано от Nyxa на " + params["GenDate"]</value-of>]]></text-property>
+        </text>
+    </body>
+</report>

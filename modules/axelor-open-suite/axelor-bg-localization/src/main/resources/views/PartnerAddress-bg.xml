@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <form name="partner-address-form" title="Address" id="bg-localization-partner-address-form"
+    model="com.axelor.apps.base.db.PartnerAddress" extension="true">
+    <extend target="//field[@name='isDefaultAddr']">
+      <insert position="after">
+        <field name="bgIsPermanentAddress"/>
+      </insert>
+    </extend>
+  </form>
+
+  <grid name="partner-address-grid" title="Address list"
+    id="bg-localization-partner-address-grid" model="com.axelor.apps.base.db.PartnerAddress"
+    extension="true">
+    <extend target="//field[@name='isDefaultAddr']">
+      <insert position="after">
+        <field name="bgIsPermanentAddress"/>
+      </insert>
+    </extend>
+  </grid>
+
+</object-views>

@@ -1,0 +1,59 @@
+@import "flags.module.scss";
+
+.link {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  align-self: center;
+  margin-bottom: auto;
+  margin-top: auto;
+  height: 32px;
+  line-height: 32px;
+}
+
+.phone {
+  display: flex;
+  flex-direction: row;
+}
+
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.country {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border: 0;
+  padding: 0;
+  height: 32px;
+}
+
+.arrow {
+  opacity: 0.6;
+}
+
+.readonly {
+  .country {
+    opacity: 1;
+    margin-right: 0.5rem;
+  }
+}
+
+.dropdown {
+  position: fixed;
+}
+
+.input {
+  &.warning {
+    border-color: var(--bs-warning) !important;
+  }
+}
+
+:global {
+  .react-international-phone-country-selector-dropdown {
+    outline: white;
+    top: 7px;
+  }
+}

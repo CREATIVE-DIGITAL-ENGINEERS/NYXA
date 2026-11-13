@@ -1,0 +1,51 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="account" package="com.axelor.apps.account.db"/>
+
+  <!-- Български полета към стандартната FixedAssetCategory. Генераторът ги слива в
+    com.axelor.apps.account.db.FixedAssetCategory.
+
+    ЗАЩО ВЪОБЩЕ НОВИ ПОЛЕТА. Базовата категория носи ЕДИН набор параметри (computationMethodSelect,
+    numberOfDepreciation, periodicityTypeSelect, periodicityInMonth, durationInMonth, degressiveCoef,
+    isProrataTemporis) и НИТО ЕДНО fiscal* поле — пълният fiscal набор е на FixedAsset, не на
+    категорията. FixedAssetGenerationServiceImpl.copyInfos() слага този единствен набор в ДАНЪЧНИЯ
+    план и после copyFiscalPlanToEconomicPlan() го копира в счетоводния, а изгледът вдига
+    isEqualToFiscalDepreciation = true, когато планът съдържа и „1“ (fiscal), и „2“ (economic).
+    Тоест по подразбиране двата плана са ЕДНО И СЪЩО, а разминаването се отваря само за конкретен
+    актив. Категорията няма как да носи два различни срока.
+
+    ЗАЩО СТАВКА, А НЕ БРОЙ ВНОСКИ. Базовият модел изразява плана като БРОЙ периоди и дели 1/N
+    (AbstractFixedAssetLineComputationServiceImpl.computeDepreciationRate). Нормата по чл. 55 ал. 2
+    ЗКПО обаче е ГОДИШЕН ПРОЦЕНТ и е ТАВАН: за кат. II 30% точният срок е 3⅓ години, а с цели
+    годишни вноски излиза или 25% (4 вноски, подбива), или 33,33% (3 вноски, НАДХВЪРЛЯ тавана и е
+    данъчна грешка). Затова нормата се пази като ставка и месечният брой периоди се извежда от нея
+    (1200/ставка) — за всичките норми по чл. 55 това дава ЦЯЛО число месеци: 4% → 300, 10% → 120,
+    15% → 80, 25% → 48, 30% → 40, 50% → 24, 100% → 12. Виж BgFixedAssetLineTaxComputationServiceImpl.
+
+    ⚠️ Генерираният getter на BigDecimal НИКОГА не връща null (връща ZERO) — виж BgDefaultedGetterTest.
+    „Няма норма“ се проверява със signum() == 0, не с == null. -->
+  <entity name="FixedAssetCategory">
+
+    <!-- Explicit operator-maintained mapping. The importer never guesses a category or supplier. -->
+    <string name="bgMicroinvestSourceCategory" title="Microinvest категория"/>
+    <many-to-one name="bgMicroinvestSupplier" ref="com.axelor.apps.base.db.Partner"
+      title="Microinvest доставчик"/>
+
+    <!-- Категория по чл. 55 ал. 1 ЗКПО (I–VII). Групираща ос за ДАП и за ГДД — НЕ носи нормата.
+      Специалната норма до 50% по чл. 55 ал. 3 (фабрично нови машини, част от първоначална
+      инвестиция) остава категория II; разграничителят е ставката, не категорията. -->
+    <string name="bgTaxCategorySelect" title="Категория по чл. 55 ЗКПО"
+      selection="bg.tax.depreciation.category.select"/>
+
+    <!-- Годишна данъчна амортизационна норма (ГДАН) в проценти, по чл. 55 ал. 2 ЗКПО. ТАВАН:
+      по-висока стойност не се признава. Празно (0) значи неамортизируем данъчен актив —
+      напр. земя (чл. 50) — и тогава данъчен план не се строи. -->
+    <decimal name="bgTaxDepreciationRate" title="Данъчна норма ГДАН (% годишно)" precision="5"
+      scale="2"/>
+
+  </entity>
+
+</domain-models>

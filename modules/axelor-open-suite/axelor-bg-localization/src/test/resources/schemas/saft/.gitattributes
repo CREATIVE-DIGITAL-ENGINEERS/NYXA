@@ -1,0 +1,6 @@
+# ⚠️ ЕТАЛОНИТЕ НА НАП — БАЙТ ПО БАЙТ, както src/main/resources/schemas/.gitattributes пази схемите.
+#
+# Трите официални примерни файла са ЗЛАТНИ ЕТАЛОНИ: BgSaftXsdValidationTest ги валидира срещу
+# закованата схема. Публикувани са с CRLF; кореновият `* text=auto eol=lf` би ги пренаписал с LF и
+# отпечатъкът им в the NAP SAF-T 1.0.2 specification вече нямаше да сочи същите байтове.
+*.xml -text

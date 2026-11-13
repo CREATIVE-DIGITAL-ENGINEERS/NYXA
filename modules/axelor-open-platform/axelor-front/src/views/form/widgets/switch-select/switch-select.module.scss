@@ -1,0 +1,101 @@
+$borderThickness: 2px;
+$borderRadius: 0.5rem;
+$animationDuration: 300ms;
+
+.flex {
+  display: flex;
+}
+
+.inline {
+  display: inline-block;
+}
+
+.item {
+  position: relative;
+  cursor: pointer;
+
+  &.horizontal {
+    border-top: $borderThickness solid var(--bs-border-color);
+    border-bottom: $borderThickness solid var(--bs-border-color);
+  }
+
+  &.vertical {
+    border-left: $borderThickness solid var(--bs-border-color);
+    border-right: $borderThickness solid var(--bs-border-color);
+  }
+
+  &.first {
+    border-top-left-radius: $borderRadius;
+
+    &.horizontal {
+      border-bottom-left-radius: $borderRadius;
+      border-left: $borderThickness solid var(--bs-border-color);
+    }
+
+    &.vertical {
+      border-top-right-radius: $borderRadius;
+      border-top: $borderThickness solid var(--bs-border-color);
+    }
+  }
+
+  &.last {
+    border-bottom-right-radius: $borderRadius;
+
+    &.horizontal {
+      border-top-right-radius: $borderRadius;
+      border-right: $borderThickness solid var(--bs-border-color);
+    }
+
+    &.vertical {
+      border-bottom-left-radius: $borderRadius;
+      border-bottom: $borderThickness solid var(--bs-border-color);
+    }
+  }
+
+  &.active {
+    color: var(--bs-primary);
+  }
+
+  &.readonly {
+    cursor: default;
+  }
+
+  &:not(.first)::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    background-color: var(--bs-border-color);
+    width: 1px;
+    height: 1.5rem;
+    transition: opacity 0s;
+  }
+
+  &.vertical:not(.first)::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 5%;
+    background-color: var(--bs-border-color);
+    width: 90%;
+    height: 1px;
+    transition: opacity 0s;
+  }
+
+  &.active::before,
+  &.active + *::before {
+    opacity: 0;
+    transition-delay: $animationDuration !important;
+  }
+
+  &:not(.readonly):hover {
+    color: var(--bs-primary);
+  }
+}
+
+.highlighter {
+  z-index: 1;
+  position: absolute;
+  border-radius: $borderRadius;
+  border: $borderThickness solid var(--bs-primary);
+  transition: all $animationDuration ease;
+}

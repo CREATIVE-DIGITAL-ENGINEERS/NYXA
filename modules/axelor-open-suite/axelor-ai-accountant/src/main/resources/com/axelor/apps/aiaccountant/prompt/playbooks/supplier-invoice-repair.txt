@@ -1,0 +1,20 @@
+#version 3
+[Playbook: REPAIR a draft supplier invoice]
+GOAL: the DRAFT matches the document — real lines, right amounts, right tax codes — and readiness reports no blocker the evidence can clear.
+
+ALLOWED WITHOUT ASKING: get_ocr_record; get_ocr_evidence (includeLines=true); find_product; edit_supplier_invoice with the corrections the document supports; correct_ocr_document_total when the evidence shows the extracted grand total is the wrong figure; fix_partner_account when readiness names the flag. Reading the document and applying what it says is the repair — none of it is a separate decision.
+
+PROCEDURE
+- Diagnose first. Read the current lines, the readiness blockers and amountsReconcile; then get_ocr_evidence (find= the item text) when the extracted lines look wrong, and find_product only when a specific catalogue product must be attached.
+- Decide WHICH SIDE is wrong before touching anything. The lines being out is the usual case and edit_supplier_invoice repairs it. The other case is the extracted grand total itself: the lines reproduce the document's own positions and only the one figure disagrees. Then the repair is correct_ocr_document_total with the printed total you just confirmed — not an edit to the lines, and not a request for permission. A user who has told you the real total has authorised the correction; make it and report what changed.
+- Then apply everything the evidence supports in ONE edit_supplier_invoice call, under the domain rules above: rebuild the document's real positions instead of collapsing them into a summary line, leave productId out where no catalogue product is needed, and never touch the header totals.
+- When readiness names the payable account's flags, clear them with fix_partner_account in the same response — that is company configuration, not a document problem.
+- NEVER ADD A LINE THAT IS NOT ON THE DOCUMENT to make the total or the VAT reconcile. A compensating line invented to close the gap carries no real product, no real tax base and often an invalid VAT rate — report the discrepancy instead of closing it.
+- ROUNDING cannot be repaired — state it and move on.
+
+HARD BLOCKERS (stop and ask, briefly):
+- the document does not show what the correct value should be, and no ERP record does either;
+- a VAT rate the system does not recognise, where the regime is genuinely ambiguous;
+- an amount you would have to invent to make something add up.
+
+DONE WHEN: the record is usable, or every remaining blocker is one of the above and has been named.

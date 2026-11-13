@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ СКРИВАНЕ НА ЧУЖДИ HR МЕНЮТА, КОИТО НЕ СЕ ПРИЛАГАТ В БЪЛГАРИЯ ═══
+
+    Всеки ред по-долу ПРЕОПРЕДЕЛЯ съществуващо меню на axelor-human-resource — по ИМЕ, не по копие.
+    Тук няма нови екрани и нищо не се трие: чуждият модул остава непокътнат, а неговите действия,
+    изгледи и домейни продължават да съществуват. Скрит е само входът.
+
+    ═══ КАК РАБОТИ, ИЗМЕРЕНО В КОДА, А НЕ ПРЕДПОЛОЖЕНО ═══
+
+    ViewLoader#importMenu търси реда по xmlId. С `id` тук се ражда ВТОРИ ред в `meta_menu`
+    със същото `name` и с приоритет `other.getPriority() + 1`, а MenuUtils#fetchMetaMenu
+    подрежда по приоритет низходящо и оставя по ЕДИН ред на име — тоест печели нашият.
+    MenuChecker#canShow връща false при `hidden`, а MenuService прекратява обхода
+    на цялото поддърво (`preChildVisit` → TERMINATE). Затова е достатъчно да се скрие ГРУПОВИЯТ
+    възел: децата му падат с него и не се изброяват тук.
+
+    ⚠️ `id` Е ЗАДЪЛЖИТЕЛЕН И БЕЗ НЕГО НИЩО НЕ СЕ СЛУЧВА — ТИХО. AbstractLoader#isVisited
+    ключува по xmlId, ако го има, и по name, ако го няма. Без `id` вторият `<menuitem>` със същото
+    име се брои за ПОВТОРЕНИЕ: `importMenu` излиза веднага, чуждото меню остава видимо, а следата е
+    един ред в лога — „Duplicate MenuItem found without 'id'“. Приложението тръгва нормално.
+    Точно този провал пази BgHrMenuHideTest.
+
+    ⚠️ `title` е задължителен по XSD (MenuItem/@title use="required"). Оставено е ЧУЖДОТО заглавие
+    дословно — възелът и без това не се вижда, а така всеки ред тук се сверява с оригинала си на
+    един поглед.
+
+    ⚠️ `parent` се пази, макар да не е нужно за скриването. Преопределящият ред ЗАМЕСТВА чуждия
+    изцяло: без `parent` той става top-level (скрит) възел, а децата му се закачат за него, защото
+    MenuNode#searchNode сравнява по ИМЕ. Резултатът е същият, но записът в базата спира да
+    отговаря на действителността.
+
+    ⚠️ ЗА ВЕЧЕ СКРИТИТЕ ТУК НЯМА РЕДОВЕ. DPAE, обедните ваучери и бонусите на служителите вече не се
+    виждат — те висят на флагове (`hrConfig.enableDPAE`, `appEmployee.lunchVoucher`,
+    `appEmployee.employeeBonus`), които стоят изключени. Преопределящ ред за тях би ЗАМЕСТИЛ реда,
+    носещ условието, и би заменил един жив механизъм с наш дубликат.
+  -->
+
+  <!-- ФРЕНСКОТО ТРУДОВО ПРАВО: колективен трудов договор, квалификации и нива, ТАРИФНА РЕШЕТКА,
+    „Employments“ и SMIC. Групата се скрива ЦЯЛА и с нея падат шестте ѝ деца
+    (hr-root-configuration-collective-agreement, -qualification, -qualification-level, -pay-grid,
+    -employments-all, -smic-value). SMIC е френската минимална заплата — българският аналог е
+    скаларен параметър на модула, а МОД живее в „Заплати › Параметри › МОД по Приложение №1“. -->
+  <menuitem id="bg-hide-hr-root-configuration-employments"
+    name="hr-root-configuration-employments" parent="hr-root-emp-mgt-conf" title="Employments"
+    hidden="true"/>
+
+  <!-- ВЗАИМОСПОМАГАТЕЛНАТА КАСА (mutuelle) е френски институт: допълнително здравно покритие през
+    работодателя. В България здравното осигуряване е по ЗЗО и минава през осигурителните вноски.
+    С групата пада и единственото ѝ дете — „Health mutual rejection reasons“. -->
+  <menuitem id="bg-hide-hr-root-configuration-health-mutual"
+    name="hr-root-configuration-health-mutual" parent="hr-root-emp-mgt-conf" title="Health mutual"
+    hidden="true"/>
+
+  <!-- ДУБЛИКАТ, А НЕ ЧУЖД ИНСТИТУТ. `hr-root-configuration-contract-type` и
+    `hr-employment-contract-type` сочат ЕДИН И СЪЩ модел (com.axelor.apps.hr.db.EmploymentContractType)
+    и едни и същи изгледи (employment-contract-type-grid/-form) — два входа към една таблица, на две
+    места в конфигурацията. Скрит е вложеният; остава входът от първо ниво („Employment contract
+    type“, order 500), който е по-достъпният от двата. -->
+  <menuitem id="bg-hide-hr-root-configuration-contract-type"
+    name="hr-root-configuration-contract-type"
+    parent="hr-root-configuration-employment-contract-amendment" title="Contract types"
+    hidden="true"/>
+
+  <!-- ИЗПИТАТЕЛНИЯТ СРОК ПО ФРЕНСКИ МОДЕЛ (période d'essai) е отделна номенклатура с продължителности
+    и подновявания. По чл. 70 КТ срокът за изпитване е УГОВОРКА В САМИЯ ДОГОВОР — до 6 месеца, в
+    полза на едната или на двете страни — и се въвежда на трудовия договор, не се избира от списък. -->
+  <menuitem id="bg-hide-hr-root-emp-mgt-probation-period" name="hr-root-emp-mgt-probation-period"
+    parent="hr-root-configuration-employment-contract-amendment" title="Probation periods"
+    hidden="true"/>
+
+  <!-- СЧЕТОВОДНИТЕ ПЕРИОДИ, ДУБЛИРАНИ В HR. `hr.conf.fiscal.period` е Period с domain
+    `self.year.typeSelect = 1`, тоест точно периодите на СЧЕТОВОДНАТА година — те се управляват от
+    счетоводството и мястото им е там. Под HR това е трети вход към чужди данни, до който човек
+    стига, търсейки ЗАПЛАТНИ периоди (`hr-conf-payroll-period`, typeSelect = 2), и ги обърква.
+    ⚠️ Скрит е САМО фискалният: заплатните години и периоди остават — прекият път на модула
+    „Заплати › Заплатни години“ сочи именно `hr.conf.payroll.year`. -->
+  <menuitem id="bg-hide-hr-conf-fiscal-period" name="hr-conf-fiscal-period"
+    parent="hr-root-emp-mgt-conf" title="Fiscal periods" hidden="true"/>
+
+</object-views>

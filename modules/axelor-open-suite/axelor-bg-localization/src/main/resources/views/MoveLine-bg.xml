@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Adds the VAT credit type onto the move-line grid embedded in the Move form (manual posting). -->
+  <grid name="move-line-move-grid" title="Move Lines" id="bg-localization-move-line-move-grid"
+    model="com.axelor.apps.account.db.MoveLine" extension="true">
+    <extend target="/">
+      <insert position="inside">
+        <field name="bgVatCreditType"/>
+        <field name="bgSaftTaxCode"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <!-- Adds the VAT credit type onto the move-line form embedded in the Move form. -->
+  <form name="move-line-move-form" title="Move Line" id="bg-localization-move-line-move-form"
+    model="com.axelor.apps.account.db.MoveLine" extension="true">
+    <extend target="/">
+      <insert position="inside">
+        <panel name="bgVatPanel" title="Българска локализация (ДДС)" colSpan="12">
+          <field name="bgVatCreditType"/>
+        </panel>
+        <!-- G3b: отделен панел — друг закон (ЗКПО/ЗДДФЛ) и друг читател (SAF-T, не дневниците). -->
+        <panel name="bgSaftTaxPanel" title="SAF-T: данък върху разходите / при източника"
+          colSpan="12">
+          <field name="bgSaftTaxCode" colSpan="12"/>
+        </panel>
+      </insert>
+    </extend>
+  </form>
+
+</object-views>

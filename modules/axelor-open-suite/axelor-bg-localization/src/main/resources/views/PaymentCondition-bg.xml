@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Закача проверка след стоковата onSave верига на условията за плащане: махне ли потребителят
+    ред, който вече е закачен за осчетоводена фактура (fk от account_invoice_term), записът спира с
+    разбираемо съобщение вместо суровия PSQLException за нарушен външен ключ.
+    Вж. BgPaymentConditionController. -->
+  <form name="payment-condition-form" title="Payment Condition"
+    id="bg-localization-payment-condition-form"
+    model="com.axelor.apps.account.db.PaymentCondition" extension="true">
+    <extend target="/">
+      <attribute name="onSave"
+        value="action-group-payment-condition-on-save,action-bg-payment-condition-check-removed-lines"/>
+    </extend>
+  </form>
+
+  <action-method name="action-bg-payment-condition-check-removed-lines">
+    <call class="com.axelor.apps.bglocalization.web.BgPaymentConditionController"
+      method="checkRemovedLines"/>
+  </action-method>
+
+</object-views>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="napsubmissions" package="com.axelor.apps.napsubmissions.db"/>
+
+  <!-- One readiness/XSD/semantic problem found for a SAF-T report. Carries a pointer to the exact Axelor
+    record (targetModel + targetRecordId) so the UI can navigate to the source to fix it.
+    for the layers and the required issue shape. -->
+  <entity name="SaftValidationIssue">
+
+    <many-to-one name="saftReport" title="SAF-T report" ref="SaftReport" required="true"/>
+
+    <string name="severitySelect" title="Severity" selection="nap.saft.issue.severity.select"
+      required="true" default="warning"/>
+    <boolean name="blocking" title="Blocking" default="false"/>
+
+    <string name="sectionFieldId" title="SAF-T section/field"/>
+    <string name="period" title="Period"/>
+    <string name="message" title="Message" large="true" multiline="true" required="true"/>
+    <string name="suggestedFix" title="Suggested fix" large="true" multiline="true"/>
+
+    <!-- Navigation to the offending Axelor record (where one exists). -->
+    <string name="targetModel" title="Source model"/>
+    <long name="targetRecordId" title="Source record ID"/>
+
+    <extra-code><![CDATA[
+      public static final String SEVERITY_BLOCKING = "blocking";
+      public static final String SEVERITY_WARNING = "warning";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

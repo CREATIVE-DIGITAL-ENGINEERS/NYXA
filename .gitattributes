@@ -1,0 +1,23 @@
+# Auto-detect text files, normalize line endings to LF in the repo
+* text=auto eol=lf
+
+# Windows-specific scripts keep CRLF
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+
+# Binary files — never touch
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.jar    binary
+*.zip    binary
+*.pdf    binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+
+# NAP golden fixtures — raw CP1251 + CRLF, must never be normalized (autocrlf=input).
+# Files live nested under modules/, so the pattern is **/-anchored, not repo-root-anchored.
+**/src/test/resources/nap/*.txt binary

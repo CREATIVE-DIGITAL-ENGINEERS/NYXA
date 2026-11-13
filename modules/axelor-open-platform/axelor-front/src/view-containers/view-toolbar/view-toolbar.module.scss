@@ -1,0 +1,46 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--ax-theme-shell-view-toolbar-gap);
+  background-color: var(--ax-theme-shell-view-toolbar-bg);
+  padding: var(--ax-theme-shell-view-toolbar-padding);
+  border-bottom: var(--ax-theme-shell-view-toolbar-border);
+  height: 3rem;
+  .extra {
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+  }
+}
+
+.icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+i.icon {
+  line-height: 1;
+  font-size: 1.5rem;
+}
+
+.pageInfo {
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+[data-tab-container-size="xs"],
+[data-tab-container-size="sm"] {
+  .pageInfo {
+    display: none;
+  }
+}
+
+[data-tab-container-size="xs"] {
+  .farItems,
+  .viewSwitch,
+  .pageActions,
+  .helpLink {
+    display: none;
+  }
+}

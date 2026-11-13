@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="account" package="com.axelor.apps.account.db"/>
+
+  <!-- The marker that makes the automatic rounding correction idempotent. Merged into
+    com.axelor.apps.account.db.InvoiceLine by the code generator; the entity opening tag replicates
+    the original InvoiceLine attributes exactly (implements) so the merge keeps them.
+
+    WHY A MARKER AND NOT A HEURISTIC. The correction is a 0.01/0.02 line on account 609, and an
+    accountant may legitimately have a 609 line of their own on the same invoice — for a genuine
+    small expense, for the same amount, on the same account. Recognising the automatic line "by
+    looking like one" would either duplicate it on the second Validate or silently rewrite a
+    human's line. Stock Axelor has no adjustment-line facility and no spare flag on InvoiceLine
+    (typeSelect only distinguishes normal/title/pack rows, and only TYPE_NORMAL counts towards the
+    totals, so it cannot carry the amount), hence one boolean owned here.
+
+    Only OcrRoundingLineService sets it. -->
+  <entity name="InvoiceLine"
+    implements="com.axelor.apps.account.db.repo.AnalyticLine,com.axelor.apps.base.interfaces.Currenciable,com.axelor.apps.base.interfaces.GlobalDiscounterLine">
+
+    <boolean name="ocrRoundingAdjustment" title="Automatic rounding adjustment" readonly="true"/>
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,13 @@
+.count.light {
+  background: #eee !important;
+}
+
+.menu {
+  max-height: 300px;
+  max-width: 600px;
+  overflow: auto;
+
+  & > * {
+    pointer-events: none;
+  }
+}

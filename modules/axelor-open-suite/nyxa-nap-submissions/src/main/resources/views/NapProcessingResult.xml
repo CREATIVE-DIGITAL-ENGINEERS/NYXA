@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Резултатите от НАП на едно подаване. Само за четене: пише ги единствено заявката за резултат
+    (NapProcessingResultService). Отговорът на НАП се показва като ПОЧИСТЕНО копие (safeHtml,
+    NapResultHtmlSanitizer); суровите байтове са доказателството и се теглят от „Raw result“. -->
+  <grid name="nap-processing-result-grid" title="Processing results"
+    model="com.axelor.apps.napsubmissions.db.NapProcessingResult" orderBy="-fetchedAt"
+    canNew="false" canEdit="false" canDelete="false">
+    <field name="fetchedAt"/>
+    <field name="derivedOutcomeSelect"/>
+    <field name="resultFormatSelect"/>
+    <field name="safeSummary"/>
+  </grid>
+
+  <form name="nap-processing-result-form" title="Processing result"
+    model="com.axelor.apps.napsubmissions.db.NapProcessingResult" width="large"
+    canNew="false" canEdit="false" canDelete="false" canCopy="false">
+    <panel name="mainPanel" itemSpan="4">
+      <field name="fetchedAt"/>
+      <field name="derivedOutcomeSelect"/>
+      <field name="resultFormatSelect"/>
+      <field name="rawResultArtifact" canNew="false" canEdit="false"/>
+      <field name="parserVersion"/>
+    </panel>
+    <panel name="resultPanel" title="NAP response" showIf="safeHtml">
+      <field name="safeHtml" widget="html" showTitle="false" readonly="true" colSpan="12"/>
+    </panel>
+    <!-- Без почистен HTML (не-HTML отговор или твърде голям): само обобщението; суровият файл е
+      горе. -->
+    <panel name="summaryPanel" title="Summary" showIf="!safeHtml">
+      <field name="safeSummary" showTitle="false" colSpan="12"/>
+    </panel>
+  </form>
+
+</object-views>

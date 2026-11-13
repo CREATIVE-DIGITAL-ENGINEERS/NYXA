@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="aiocr" package="com.axelor.apps.aiocr.db"/>
+
+  <!-- Technical upload/job record for the AI-OCR pipeline. Tracks the processing lifecycle of ONE uploaded
+    file (queued -> processing -> completed | failed | duplicate). It is NOT an accounting document and carries
+    NO accounting logic: the real document is a DRAFT Supplier Invoice created by BgOcrIntakeService on success.
+    This entity exists because pre-invoice job state (retries, extraction errors, blob URL) has nowhere else
+    to live — a file that fails extraction never becomes an invoice. -->
+  <entity name="AiOcrUpload" sequential="true">
+
+    <!-- Lifecycle -->
+    <!-- The default is 'uploaded', NOT 'queued': a row that reaches the database before anything has
+      decided its status must not be drainable by the dispatcher. Resource.save persists (and flushes)
+      the record via JPA.manage BEFORE AiOcrUploadManagementRepository.save can correct it, so with a
+      'queued' default the background dispatcher could claim a half-created UI record and race the
+      form's own pending save into an OptimisticLockException.
+      Safe because every system creation path states its status explicitly — AiOcrArchiveExtractService
+      (queued / duplicate / the failed-child status) and AiOcrPdfSplitService (queued) — so no child
+      ever observes this default. That matters: a child
+      left 'uploaded' is in neither the terminal nor the problematic list of the carrier rollup and
+      would stall its carrier at 'processing' forever. Any new pipeline creation path MUST set the
+      status itself. -->
+    <string name="statusSelect" title="Status" selection="ai.ocr.upload.status.select"
+      default="uploaded"/>
+
+    <!-- Uploaded file + external references -->
+    <many-to-one name="originalFile" title="Uploaded file"
+      ref="com.axelor.meta.db.MetaFile"/>
+    <string name="fileName" title="File name" namecolumn="true"/>
+    <string name="blobUrl" title="Blob URL"/>
+
+    <!-- Ownership / scoping -->
+    <many-to-one name="company" title="Company" ref="com.axelor.apps.base.db.Company"/>
+    <many-to-one name="uploadedBy" title="Uploaded by" ref="com.axelor.auth.db.User"/>
+
+    <!-- Processing metadata -->
+    <string name="engineUsed" title="OCR engine"/>
+    <decimal name="confidence" title="Confidence %" precision="5" scale="2"/>
+    <datetime name="processedOn" title="Processed on"/>
+    <integer name="retryCount" title="Retry count" default="0"/>
+    <datetime name="lockedOn" title="Locked on"/>
+
+    <!-- Failure reason + audit snapshot of the extractor response -->
+    <string name="extractionErrors" title="Extraction errors" large="true" multiline="true"/>
+    <!-- Informational (non-error) notes shown to the user, e.g. adaptive Azure transport compression
+      that was applied to an oversized page for OCR only (the stored/attached PDF is untouched). -->
+    <string name="extractionInformation" title="Extraction information" large="true"
+      multiline="true"/>
+    <string name="rawExtractedJson" title="Raw extraction (audit)" large="true"
+      multiline="true"/>
+
+    <!-- The produced DRAFT invoice, or (on duplicate) the existing matched invoice. -->
+    <many-to-one name="invoice" title="Invoice" ref="com.axelor.apps.account.db.Invoice"/>
+
+    <!-- The produced DRAFT accounting Move when the document is NOT an invoice (no "фактура"). -->
+    <many-to-one name="move" title="Move" ref="com.axelor.apps.account.db.Move"/>
+
+    <!-- Optional ZIP archive: when set, this record is the "carrier". The "Extract archive" action runs
+      extraction in the background, creating one child AiOcrUpload per contained document (importArchive =
+      this carrier). The carrier is KEPT as the per-ZIP progress record. -->
+    <many-to-one name="archiveFile" title="Archive (.zip)"
+      ref="com.axelor.meta.db.MetaFile"/>
+
+    <!-- Carrier this document was extracted from (null for a normal single upload). Children of one
+      ZIP (or one split PDF) share the same importArchive, which drives the progress rollup. -->
+    <many-to-one name="importArchive" title="Import archive"
+      ref="com.axelor.apps.aiocr.db.AiOcrUpload"/>
+
+    <!-- Kind of carrier this record is (null for a normal single upload / a child). 'zip' = a ZIP archive
+      extracted file-by-file; 'pdfSplit' = a multi-document PDF split into per-document children from a SINGLE
+      Azure OCR call. Drives background dispatch + startup recovery. -->
+    <string name="carrierKind" title="Carrier kind" selection="ai.ocr.carrier.kind.select"/>
+
+    <!-- Split carrier only: the raw Azure analyzeResult JSON of the single OCR call. Stored so the PDF
+      split (and any re-split / crash recovery) reuses it and never calls Azure again. -->
+    <string name="splitSourceJson" title="Split source (raw OCR JSON)" large="true"
+      multiline="true"/>
+
+    <!-- Split child only: the serialized per-segment OcrExtractResult. process() reuses it instead of
+      calling Azure, so each slice is routed from the single OCR call (OCR-once). -->
+    <string name="cachedOcrJson" title="Cached OCR result" large="true" multiline="true"/>
+
+    <!-- Plain (non-split, non-child) upload only: the raw Azure analyzeResult JSON of this document's
+      single OCR call. Carriers keep the same payload in splitSourceJson and split children keep their per-segment
+      slice in cachedOcrJson, so exactly ONE of the three fields is populated per record and the JSON is never
+      stored twice. Retained so the document can be re-inspected (AI tools, support, audit) without a second
+      Azure call; it is read-only evidence and is never re-processed. -->
+    <string name="ocrResultJson" title="OCR result (raw)" large="true" multiline="true"/>
+
+    <!-- Split child only: how this segment should be routed. 'invoice' -> Supplier Invoice; 'move' ->
+      draft Move (recognized non-invoice document type); 'review' -> Supplier Invoice forced to Needs review
+      (ambiguous non-invoice section). -->
+    <string name="segmentType" title="Segment type" selection="ai.ocr.segment.type.select"/>
+
+    <!-- Split invoice child only: the "Стокова разписка" (stock receipt) slices matched to THIS invoice
+      by content (total + item overlap), NOT by document position. One invoice may receive several distinct
+      receipts; each creates NO record of its own and is attached to this invoice as a separate PDF alongside
+      originalFile. Duplicate physical copies are detected and excluded before this set is populated. -->
+    <many-to-many name="stockReceiptFileSet" title="Stock receipts (attachments)"
+      ref="com.axelor.meta.db.MetaFile"/>
+
+    <!-- Split invoice child only: the immediately-following POS / fiscal receipt slice. Like the stock
+      receipt it creates NO record of its own; it is attached to this invoice as a separate PDF attachment
+      (its own type/name). -->
+    <many-to-one name="posReceiptFile" title="POS/fiscal receipt (attachment)"
+      ref="com.axelor.meta.db.MetaFile"/>
+
+    <!-- DEPRECATED, superseded by stockReceiptFileSet. Do NOT use in new code and do NOT populate it.
+      It is mapped only so the column + foreign key that already exist in the database (stock_receipt_file)
+      are visible to OcrMetaFileReferenceScanner: an unmapped FK is invisible to a metamodel walk, and
+      MetaFiles.delete deletes the physical blob BEFORE the FK violation surfaces at flush, so a rollback
+      would restore the row but not the bytes. Mapping it keeps the reference scan authoritative. No DDL
+      change: the column and its FK are already present. Not referenced by any view. -->
+    <many-to-one name="stockReceiptFile" title="Stock receipt (legacy, unused)"
+      ref="com.axelor.meta.db.MetaFile"/>
+
+    <!-- Deterministic per-child key, unique within a carrier, so background extraction is restart-safe
+      and idempotent (crash recovery upserts/skips instead of duplicating). -->
+    <string name="extractionKey" title="Extraction key"/>
+
+    <!-- Carrier-only extraction bookkeeping (restart-safe background extraction). -->
+    <string name="extractionAttemptId" title="Extraction attempt"/>
+    <datetime name="extractionStartedOn" title="Extraction started on"/>
+    <datetime name="extractionFinishedOn" title="Extraction finished on"/>
+
+    <!-- Pre-OCR optimization audit (bytes): original vs the derived file sent to Azure. The original
+      MetaFile is never replaced. -->
+    <long name="originalSizeBytes" title="Original size (bytes)"/>
+    <long name="optimizedSizeBytes" title="Optimized size (bytes)"/>
+
+    <!-- Carrier progress %, recomputed from DB counts over children on each refresh/worker-completion
+      (a derived value, not a worker-incremented counter). Stored so the form shows it after reload. -->
+    <integer name="progressPercent" title="Progress %"/>
+
+    <!-- SHA-256 of the document bytes + its origin path (zip entry). Used to avoid importing the
+      same file twice from an archive. -->
+    <string name="fileHash" title="File hash (SHA-256)" index="true"/>
+    <string name="sourcePath" title="Source path"/>
+
+    <!-- Semantic duplicate key: company | supplier ЕИК/VAT | documentType | normalized invoice No. Set
+      post-OCR when all parts are reliable; used to detect the same document across re-scans. -->
+    <string name="docKey" title="Doc key" index="true"/>
+
+    <!-- Restart-safe idempotency: never two children with the same key under one carrier. -->
+    <index columns="importArchive,extractionKey" unique="true"/>
+
+    <track>
+      <field name="statusSelect"/>
+      <field name="fileName"/>
+      <field name="invoice"/>
+      <field name="move"/>
+      <field name="extractionErrors"/>
+    </track>
+
+    <extra-code><![CDATA[
+      // STATUS (string codes; keep in sync with selection ai.ocr.upload.status.select)
+      // Stored but not runnable: the dispatcher drains only 'queued', so a manual upload waits for
+      // the Process / Extract archive button (which enqueues it).
+      public static final String STATUS_UPLOADED = "uploaded";
+      public static final String STATUS_QUEUED = "queued";
+      public static final String STATUS_PROCESSING = "processing";
+      public static final String STATUS_COMPLETED = "completed";
+      public static final String STATUS_FAILED = "failed";
+      public static final String STATUS_DUPLICATE = "duplicate";
+      public static final String STATUS_CANCELLED = "cancelled";
+      public static final String STATUS_UNSUPPORTED = "unsupported";
+      public static final String STATUS_NEEDS_REVIEW = "needsReview";
+      // Carrier-only lifecycle states
+      public static final String STATUS_EXTRACTING = "extracting";
+      public static final String STATUS_COMPLETED_WITH_ISSUES = "completedWithIssues";
+      public static final String STATUS_ARCHIVE = "archive";
+      // NOTE: carrierKind / segmentType code constants live in the hand-written
+      // service/ocr/AiOcrUploadStatus class (the single source of truth for these codes).
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

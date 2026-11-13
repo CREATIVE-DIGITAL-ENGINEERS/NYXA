@@ -1,0 +1,25 @@
+// Single version for the whole application. Every module gets the same string, and it is the
+// same string as nyxa.image.version and the container image tag (see ci/build_container.yaml).
+//
+// The trailing component must change whenever a build is deployed: Axelor records a module's
+// version in MetaModule.moduleVersion, and that recorded value is what tells us whether the
+// views/menus/selections in the database came from the currently deployed code. It replaces the
+// hand-maintained per-module suffixes that used to be bumped by hand in individual build.gradle
+// files (and conflicted on every merge).
+//
+// CI passes the authoritative value (base + pipeline build counter) via NYXA_VERSION.
+// Local builds fall back to the base plus a timestamp, so an ordinary `./gradlew build` on a dev
+// machine also produces a version that differs from whatever is already in the local database.
+//
+// Computed once on the root project and reused: this file is applied by the root build and by
+// every module, and the timestamp fallback would otherwise differ between them.
+
+if (!rootProject.hasProperty("nyxaVersion")) {
+  def baseVersion = rootProject.file("modules/axelor-open-suite/version.txt").text.trim()
+  rootProject.ext.nyxaVersion =
+      System.getenv("NYXA_VERSION") ?: "${baseVersion}.${new Date().format('yyyyMMddHHmmss')}"
+}
+
+version = rootProject.nyxaVersion
+
+ext.openSuiteVersion = rootProject.nyxaVersion

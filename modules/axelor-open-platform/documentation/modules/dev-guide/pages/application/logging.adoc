@@ -1,0 +1,52 @@
+= Logging
+:toc:
+:toc-title:
+
+:url-logback: https://logback.qos.ch/
+
+{page-component-title} use {url-logback}[logback] as logging framework.
+
+== Configuration
+
+{page-component-title} will auto configure logging so there is no need
+for any custom logging configuration file `logback.xml` unless you want
+total control over how to log (it's still possible).
+
+Generally, we will configure logging from `axelor-config.properties` files:
+
+[source,properties]
+----
+# Storage path of logs files
+logging.path = {user.home}/.axelor/logs
+
+# Format of file log message
+logging.pattern.file = %d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } --- [%t] %-40.40logger{39} : %m%n
+
+# Format of console log message
+logging.pattern.console = %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n
+
+# Global logging level
+logging.level.root = error
+
+# Logging level for `com.axelor` package
+logging.level.com.axelor = info
+
+# Logging level for `org.hibernate` package
+logging.level.org.hibernate = warn
+----
+
+== Customization
+
+* If `logging.path` is given, log files will be stored under that directory
+* If `logging.pattern.file = OFF` then file logging will be disabled
+* If `logging.pattern.console = OFF` then console logging will be disabled
+
+Global log level can be changed with `logging.level.root` property. Package specific log levels
+can be configured with `logging.level.<package-name> = <level>` settings.
+
+The console logger may log with colors if terminal supports colors.
+
+We can by-pass auto configuration from `axelor-config.properties` by including `logback.xml`
+under `src/main/resources`. In that case, you have to configure it on your own. We can also
+specify an external config location with `logging.config = /path/to/logback.xml` if we don't
+want to include the config in war package.

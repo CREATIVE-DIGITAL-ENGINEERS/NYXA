@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ЗАПЛАТНИЯТ ЖУРНАЛ НА ЕКРАНА. Без него полето съществува в схемата и е недостижимо за човека,
+    тоест статия никога не се генерира и причината е „настройка, която не може да се попълне“.
+
+    ⚠️ СВОЙ ПАНЕЛ, А НЕ ПОЛЕ В expensePanel. Съседният панел се казва „Expense“ и обслужва разходните
+    отчети; заплатите не са разходен отчет и счетоводителят не би ги търсил там. Освен това expensePanel носи
+    if="__config__.app.isApp('expense')" — вмъкнато вътре, полето щеше да изчезва при изключено
+    приложение „Разходи“, тоест точно там, където заплатите пак се водят.
+
+    ⚠️ ДОМЕЙНЪТ ОГРАНИЧАВА ДО ЖУРНАЛИТЕ НА ТАЗИ ФИРМА. Без него списъкът показва журналите на всички
+    дружества и изборът на чужд се вижда чак когато статията се запише в чужд сметкоплан. -->
+  <form name="account-config-form" title="Account configuration"
+    id="bg-localization-account-config-form" model="com.axelor.apps.account.db.AccountConfig"
+    extension="true">
+    <extend target="//panel[@name='expensePanel']">
+      <insert position="after">
+        <panel name="bgPayrollPanel" title="Заплати (BG)" colSpan="12">
+          <field name="bgPayrollJournal" domain="self.company = :company"
+            grid-view="journal-grid" form-view="journal-form"/>
+
+          <!-- ⚠️ ДОМЕЙНЪТ ОГРАНИЧАВА ДО СМЕТКИТЕ НА ТАЗИ ФИРМА, по същия довод като при журнала
+            отгоре: без него списъкът показва сметките на всички дружества и изборът на чужда се
+            вижда чак когато преводът тръгне оттам. -->
+          <field name="bgPayrollBankDetails" domain="self.company = :company AND self.active = TRUE"
+            grid-view="bank-details-grid" form-view="bank-details-form"/>
+
+          <!-- ⚠️ ДОМЕЙНЪТ ОГРАНИЧАВА ДО SEPA ФОРМАТА. Начин на плащане с друг формат минава
+            валидацията на полето и се отказва чак при натискане на бутона — вярно, но късно. -->
+          <field name="bgPayrollPaymentMode"
+            domain="self.bankOrderFileFormat.orderFileFormatSelect = 'pain.001.001.03.sct'"
+            grid-view="payment-mode-grid" form-view="payment-mode-form"/>
+        </panel>
+
+        <!-- ПРОТОКОЛИТЕ ПО ЧЛ. 79/79а ЗДДС. Същият довод като при заплатния журнал, и същата цена:
+          и двете протоколни услуги (BgArt79ProtocolService при отписване, BgArt79aProtocolService
+          при годишната корекция) четат точно тези полета и при празно връщат null с бележка
+          „липсва настройка“. Без екран корекцията остава вечно „изчислена, но неначислена“.
+
+          ⚠️ В ЕДИН ПАНЕЛ, ЗАЩОТО СА ЕДИН ДОКУМЕНТ. ППЗДДС чл. 66 дава на двете посоки и на двата
+          члена едни и същи реквизити; разделени по екрани, половината настройка щеше да се открива
+          чак когато другата половина мълчи.
+
+          ⚠️ ДОМЕЙНИТЕ ОГРАНИЧАВАТ ДО ТАЗИ ФИРМА — избраната чужда сметка се вижда чак когато
+          протоколът легне в чужд сметкоплан. -->
+        <!-- ИЗП: журналът за изписване на материалните запаси. Празно не спира движението — то
+          остава неосчетоводено с грешка в списъка „Неосчетоводени изписвания“. -->
+        <panel name="bgStockIssuePanel" title="Изписване на МЗ (BG)" colSpan="12">
+          <field name="bgStockIssueJournal" domain="self.company = :company"
+            grid-view="journal-grid" form-view="journal-form"/>
+          <field name="bgAutoPostingUser" grid-view="user-grid" form-view="user-form"/>
+        </panel>
+
+        <panel name="bgVatProtocolPanel" title="ДДС протоколи по чл. 79/79а (BG)" colSpan="12">
+          <field name="bgVatCorrectionJournal" domain="self.company = :company"
+            grid-view="journal-grid" form-view="journal-form"
+            help="Журналът, в който лягат протоколите по чл. 79 ал. 4/ал. 7 и по чл. 79а ал. 4. Празно значи, че статия не се поражда и корекцията остава за ръчно начисляване — изчислението се прави във всички случаи."/>
+          <field name="bgVatChargedAccount" domain="self.company = :company"
+            grid-view="account-grid" form-view="account-form"
+            help="Сметката „Начислен ДДС“ (4532 в BG_COA) — кредитната страна при дължим данък по чл. 79 ал. 3. Дебитът НЕ е настройка: той е разходната сметка на самото отписване, тъй че корекцията стои до него в оборотната."/>
+          <field name="bgVatDeductibleAccount" domain="self.company = :company"
+            grid-view="account-grid" form-view="account-form"
+            help="Сметката „Данъчен кредит“ (4531 в BG_COA) — дебитната страна в обратната посока: приспадането по чл. 79 ал. 5 и увеличението на кредита по чл. 79а."/>
+          <field name="bgVatCorrectionIncomeAccount" domain="self.company = :company"
+            grid-view="account-grid" form-view="account-form"
+            help="Насрещната сметка при приспадане — срещу нея се признава възстановеният данъчен кредит по чл. 79 ал. 5 и по чл. 79а при увеличение."/>
+          <field name="bgVatAnnualCorrectionExpenseAccount" domain="self.company = :company"
+            grid-view="account-grid" form-view="account-form"
+            help="Разходната сметка при НАМАЛЕНИЕ по чл. 79а/79б. ⚠️ Различна от онази при отписване: там разходът е на конкретния актив, а годишната корекция не отписва нищо и няма актив, до който да легне."/>
+        </panel>
+      </insert>
+    </extend>
+
+    <!-- ═══ СКРИТИ ПОЛЕТА НА AOS, КОИТО НЕ СЕ ПРИЛАГАТ В БЪЛГАРИЯ ═══
+
+      Само екранът: колоните и стойностите остават, тъй че нищо не изисква промяна на схемата, а
+      заварените настройки не се губят.
+
+      „Експорти“: пътят за експортираните файлове и двете DAS/DAS2 полета (френската годишна справка
+      за хонорари — БГ аналогът е справката по чл. 73 ЗДДФЛ в „Заплати“). Панелът остава празен,
+      затова се скрива и той. -->
+    <extend target="//panel[@name='exportsPanel']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='exportPath']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='dasContactPartner']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='dasReportJournalType']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+
+    <!-- Стандартната ставка за несъбираеми вземания: AOS я ползва за френската корекция на ДДС при
+      прехвърляне в несъбираеми. Причината за прехвърляне в същия панел остава. -->
+    <extend target="//field[@name='irrecoverableStandardRateTax']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+
+    <!-- „Данъчна сметка за разходи“: по нея AOS осчетоводява ДДС от реда на разходния отчет. Редът
+      не носи номер на документа и ДДС номер на доставчика, тоест данъчен кредит по него не може да
+      се ползва — ДДС полетата на реда също са скрити (ExpenseLine-bg.xml). Панелът остава празен. -->
+    <extend target="//panel[@name='expensePanel']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='expenseTaxAccount']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+  </form>
+
+</object-views>

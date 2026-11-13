@@ -1,0 +1,106 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ═══ ГОД КЪМ НСИ — БАЛАНС И ОПР ВЪВ ВИДА НА ФОРМУЛЯРА ═══
+
+    ⚠️ СПРАВКА ЗА ПРЕНАСЯНЕ, НЕ ПОДАВАНЕ. ИСБС на НСИ приема годишния отчет за дейността само чрез
+    ръчно въвеждане в уеб форми — няма импорт и няма API (ръководство на ИСБС v3.5, декември 2025).
+    Справката дава числата по кодовете на редовете; счетоводителят ги пренася. Входящият номер от
+    ИСБС се записва ръчно, след като пренасянето е направено.
+
+    ⚠️ ЕДНА СПРАВКА НА ДРУЖЕСТВО И ГОДИНА. Номерация не е нужна — ключът е дружеството и годината.
+    Кодовете на редовете идват от образеца на формуляра за годината (BgNsiGodForm), не от тук. -->
+  <entity name="BgNsiGodReport">
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"
+      required="true"/>
+
+    <integer name="reportYear" title="Отчетна година" required="true"/>
+
+    <!-- Годината на образеца, по който са изчислени редовете (може да е по-ранна от отчетната). -->
+    <integer name="formVersion" title="Образец на формуляра" readonly="true"/>
+
+    <string name="unitSelect" title="Единица" selection="bg.nsi.god.unit.select"
+      required="true" default="BGN_K"/>
+
+    <string name="standardSelect" title="Счетоводни стандарти"
+      selection="bg.nsi.god.standard.select" required="true" default="NSS"/>
+
+    <integer name="statusSelect" title="Състояние" selection="bg.nsi.god.status.select"
+      default="1" readonly="true"/>
+
+    <datetime name="computedOn" title="Изчислена на" readonly="true"/>
+
+    <many-to-one name="computedBy" ref="com.axelor.auth.db.User" title="Изчислена от"
+      readonly="true"/>
+
+    <string name="previousSource" title="Предходна година — източник" readonly="true"/>
+
+    <string name="isbsNumber" title="Вх. № от ИСБС"/>
+
+    <date name="isbsDate" title="Дата на пренасяне в ИСБС"/>
+
+    <integer name="errorCount" title="Грешки" readonly="true"/>
+
+    <integer name="warningCount" title="Предупреждения" readonly="true"/>
+
+    <string name="messages" title="Грешки и предупреждения" large="true" readonly="true"/>
+
+    <one-to-many name="lineList" ref="com.axelor.apps.bglocalization.db.BgNsiGodLine"
+      mappedBy="report" title="Редове" orderBy="sequence"/>
+
+    <unique-constraint columns="company,reportYear"/>
+
+  </entity>
+
+  <entity name="BgNsiGodLine">
+
+    <many-to-one name="report" ref="com.axelor.apps.bglocalization.db.BgNsiGodReport"
+      title="Справка" required="true"/>
+
+    <integer name="sequence" title="№"/>
+
+    <string name="tableSelect" title="Таблица" selection="bg.nsi.god.table.select"/>
+
+    <string name="code" title="Код на реда"/>
+
+    <integer name="indentLevel" title="Ниво"/>
+
+    <string name="label" title="Наименование" large="true"/>
+
+    <!-- TITLE / ACC / SUM / MANUAL — от образеца. -->
+    <string name="kindSelect" title="Вид" selection="bg.nsi.god.kind.select"/>
+
+    <!-- „Попълва се ръчно“, „Проверка“, „Само МСС“, „Служебен ред“. -->
+    <string name="markerSelect" title="Маркер" selection="bg.nsi.god.marker.select"/>
+
+    <!-- Точната сума от счетоводството, във валутата на справката. -->
+    <decimal name="autoCurrent" title="Изчислено — текуща (точно)" precision="20" scale="2"
+      readonly="true"/>
+
+    <decimal name="autoPrevious" title="Изчислено — предходна (точно)" precision="20" scale="2"
+      readonly="true"/>
+
+    <!-- Ръчната корекция е в хиляди, като стойностите във формуляра. -->
+    <decimal name="correctionCurrent" title="Корекция — текуща" precision="20" scale="0"/>
+
+    <decimal name="correctionPrevious" title="Корекция — предходна" precision="20" scale="0"/>
+
+    <!-- Каквото се пренася в ИСБС: закръгленото изчислено плюс корекцията; сборните редове са
+      сбор на закръглените. -->
+    <decimal name="valueCurrent" title="Текуща година" precision="20" scale="0" readonly="true"/>
+
+    <decimal name="valuePrevious" title="Предходна година" precision="20" scale="0"
+      readonly="true"/>
+
+    <string name="sourceAccounts" title="Сметки (текуща)" large="true" readonly="true"/>
+
+    <string name="note" title="Бележка" large="true"/>
+
+  </entity>
+
+</domain-models>

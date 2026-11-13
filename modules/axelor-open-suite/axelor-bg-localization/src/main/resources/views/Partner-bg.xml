@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Презиме за физически лица в трипартитния БГ ред на partner-form. Базовият ред е обратен [обръщение][Фамилия][Собствено];
+    пренареждаме към [обръщение][Собствено][Презиме][Фамилия] и добавяме bgMiddleName. Панелът individualPartnerNamePanel
+    вече е showIf="partnerTypeSelect == 2", така че презимето се показва само за физ. лица без собствен showIf.
+    Само видимо поле — БЕЗ промяна на fullName/simpleFullName, БЕЗ Guice/override. -->
+  <form name="partner-form" title="Partner" id="bg-localization-partner-form"
+    model="com.axelor.apps.base.db.Partner" extension="true">
+
+    <!-- 1) премести Собствено (firstName) веднага след обръщението → обръщение, собствено, фамилия -->
+    <extend target="//panel[@name='individualPartnerNamePanel']/field[@name='titleSelect']">
+      <move position="after"
+        source="//panel[@name='individualPartnerNamePanel']/field[@name='firstName']"/>
+    </extend>
+
+    <!-- 2) стесни Собствено и вмъкни Презиме след него -->
+    <extend target="//panel[@name='individualPartnerNamePanel']/field[@name='firstName']">
+      <attribute name="colSpan" value="4"/>
+      <insert position="after">
+        <field name="bgMiddleName" showTitle="false" css="highlight" placeholder="Презиме"
+          colSpan="3"/>
+      </insert>
+    </extend>
+
+    <!-- 3) стесни Фамилия → редът става 2 + 4 + 3 + 3 = 12 -->
+    <extend target="//panel[@name='individualPartnerNamePanel']/field[@name='name']">
+      <attribute name="colSpan" value="3"/>
+    </extend>
+
+    <!-- 4) дата на раждане — колона 5 на справката по чл. 73 ал. 1. Панелът вече е
+      showIf="partnerTypeSelect == 2", тоест полето се вижда само за физически лица и не иска свой
+      showIf. Попълва се, когато лицето няма ЕГН/ЛН/ЛНЧ/Сл. № (тип идентификатор „3“); там колона 4
+      остава празна и това е ЕДИНСТВЕНОТО, което назовава лицето. -->
+    <!-- ⚠️ ТРИТЕ ПОЛЕТА СЕ ВМЪКВАТ С ЕДИН extend, А НЕ С ТРИ ВЕРИЖНИ.
+
+      Измерено от BgViewExtendTargetTest: XPath-ът на един <extend> се търси в БАЗОВИЯ изглед, а не
+      в резултата от предишните разширения на същия файл. Тоест target
+      „…/field[@name='bgBirthDate']“ НЕ намира нищо — полето го няма в базовия partner-form, то се
+      появява именно от разширението отгоре. Axelor разрешава target с XPathConstants.NODE: при
+      нула съвпадения записва грешка при зареждане на изгледа и продължава, тоест двете нови полета
+      просто нямаше да се появят на екрана, без нищо да падне.
+
+      ⚠️ И ЗАЩО ТУК, А НЕ НА РЕДА В РЕГИСТЪРА. И двата признака описват ЛИЦЕТО и важат за всяко
+      негово плащане. Преписани на всеки ред, те биха се разминали сами със себе си — а
+      разминаването значи данък, удържан по едно плащане и неудържан по друго на същия човек в
+      същата година.
+
+      ⚠️ Панелът вече е showIf="partnerTypeSelect == 2", тоест и трите се виждат само за физически
+      лица и не искат свой showIf. -->
+    <extend target="//panel[@name='individualPartnerNamePanel']/field[@name='name']">
+      <insert position="after">
+        <field name="bgBirthDate" colSpan="3"
+          help="Колона 5 на справката по чл. 73, ал. 1. Задължителна за чуждестранно физическо лице БЕЗ ЕГН, ЛН, ЛНЧ или Сл. № от регистъра на НАП (тип идентификатор „3“) — при него колона 4 не се попълва."/>
+        <field name="bgIdentifierType" colSpan="3"
+          help="Колона 3 на справката по чл. 73, ал. 1. Празно се чете като „0“ при проверимо ЕГН и „1“ при проверимо ЛНЧ; за БУЛСТАТ („2“) и за чуждестранно лице без идентификатор („3“) НЯМА как да се изведе и авто-захранването отказва реда, вместо да познава."/>
+        <field name="bgSelfInsuredDeclaredOn" colSpan="3"
+          help="Датата на ПИСМЕНАТА декларация по чл. 43, ал. 5 ЗДДФЛ. Само при нея авансовият данък по чл. 29 не се удържа от платеца (ал. 6). ⚠️ Дата, а не отметка: декларация, подадена СЛЕД плащане, не отменя удържането по него. ⚠️ И важи само за доходите по чл. 29 — чл. 44 (наем) и чл. 44а нямат такава алинея."/>
+      </insert>
+    </extend>
+
+    <!-- 5) ЕГН/ЛНЧ на физическото лице — колона 4 на справката по чл. 73, ал. 1. Полето
+      registrationCode е СКРИТО за физически лица от базовия изглед (axelor-base Partner.xml:356,
+      hideIf="partnerTypeSelect== 2"), тоест иначе колона 4 няма откъде да се попълни:
+      BgArt73Para1ReportService#fillPerson я чете точно от person.getRegistrationCode().
+
+      Празната стойност ТРИЕ атрибута, вместо да го зададе на празен низ — ComputedViewXmlProcessor
+      #doAttribute вика removeAttribute при StringUtils.isEmpty(value). Тоест условието изчезва,
+      вместо да се преобръща, и полето се вижда и за двата вида партньор.
+
+      ⚠️ ЕДНО РАЗШИРЕНИЕ ПОКРИВА И ТРИТЕ ФОРМИ. partner-customer-form и partner-supplier-form не
+      повтарят панела — те вграждат partner-form с <panel-include>, тоест носят и този extend.
+
+      ⚠️ ШАБЛОНЪТ ЗА РЕГИСТРАЦИОНЕН НОМЕР (RegistrationNumberTemplate за България) НЕ ПОКРИВА ТОЗИ
+      СЛУЧАЙ, и това е проверено, не предположено:
+        • RegistrationNumberValidator#isRegistrationCodeValid връща true още на първия if за всичко,
+          което не е partnerTypeSelect == 1 — за физическо лице шаблонът няма как да провери нищо;
+        • titleToDisplay е ЕДИН низ на ДЪРЖАВА („ЕИК/Булстат“), без разрез по вид партньор;
+        • нито едно поле на шаблона не участва в hideIf на реда по-горе.
+
+      ⚠️ СЪСЕДИТЕ В ПАНЕЛА ОСТАВАТ СКРИТИ САМИ и нарочно не се пипат: siren/nic ги скрива onLoad-ът
+      (isSirenHidden/isNicHidden връщат isIndividual || !useSiren), а saleTurnover и mainActivity
+      носят собствен hideIf="partnerTypeSelect== 2".
+
+      ⚠️ ВАЛИДАТОРЪТ ОСТАВА ИЗКЛЮЧЕН. validationMethodSelect е празен в seed-а,
+      PartnerRegistrationValidatorFactoryServiceImpl връща null и onChange-ът на полето е без ефект.
+      Контролната цифра на ЕГН е ОТДЕЛНА задача и не се вгражда тук.
+
+      ⚠️ ЕТИКЕТЪТ ЗА ФИЗИЧЕСКО ЛИЦЕ НЕ СЕ ЗАДАВА ТУК, И ТОВА НЕ Е ПРОПУСК.
+      PartnerController#getHideFieldOnPartnerTypeSelect пише response.setAttr("registrationCode",
+      "title", …) СЛЕД зареждането на изгледа, тоест презаписва всяко title= от XML-а; стойността
+      идва от titleToDisplay, която е на ДЪРЖАВА. Затова за българско физическо лице с български
+      адрес етикетът би се чел „ЕИК/Булстат“. Поправката е преопределянето на заварен action по-долу
+      (action-method-partner-siren-nic-onload); help-ът долу казва на потребителя какво се въвежда в двата случая. -->
+    <extend target="//panel[@name='otherPartnerDetailsPanel']/field[@name='registrationCode']">
+      <attribute name="hideIf" value=""/>
+      <!-- Жив ТОСТ при въвеждане. Заварената група се ЗАПАЗВА и нашата се долепя след нея; тя
+        остава първа, защото пълни скрития етикет isValidRegistrationCode, на който базовият изглед
+        разчита.
+
+        ⚠️ Проверката Е гейтната — по локализация ИЛИ адрес. Локализацията се пълни по
+        подразбиране, тоест гейтът не губи покритие при въвеждане, когато адресът още липсва. Без
+        гейт чужда фирма с френски SIREN получава „невалиден“ по българската контролна цифра. Подробно при самия
+        action долу. -->
+      <attribute name="onChange"
+        value="action-group-partner-registration-code-onChange,action-bg-partner-registration-code-onchange-warn"/>
+      <attribute name="help"
+        value="Юридическо лице — ЕИК/Булстат. Физическо лице — ЕГН, ЛН или ЛНЧ. Това е колона 4 на справката по чл. 73, ал. 1. ⚠️ При тип идентификатор „3“ (чуждестранно физическо лице без ЕГН, ЛН, ЛНЧ или Сл. №) колона 4 НЕ се попълва — попълва се датата на раждане в колона 5."/>
+    </extend>
+
+    <!-- 6) ЕТИКЕТЪТ НА ДДС НОМЕРА. Базовият е „Tax N°“ → „Данъчен №“, което назовава полето с
+      отпаднало отпреди ДОПК понятие. По чл. 94, ал. 2 ЗДДС това е ИДЕНТИФИКАЦИОННИЯТ НОМЕР ЗА
+      ЦЕЛИТЕ НА ДДС.
+
+      ⚠️ ПРЕЗ ИЗГЛЕДА, А НЕ ПРЕЗ ПРЕВОДА — и това е мерена разлика, не предпочитание. Ключът
+      „Tax N°“ е ЕДИН за ДВЕ несвързани полета: Partner.taxNbr (тук) и TaxNumber.taxNbr
+      (axelor-account/domains/TaxNumber.xml:10 — ДДС номерата на СОБСТВЕНАТА фирма, които излизат
+      на поръчката за покупка). Презаписан в i18n, преводът щеше да прекръсти и второто, без никой
+      да е искал това. Разширението тук пипа само партньорската форма.
+
+      ⚠️ И ЗАЩО СТАТИЧЕН title= РАБОТИ ТУК, А НЕ РАБОТИ ЕДИН ПАНЕЛ ПО-ГОРЕ ПРИ registrationCode.
+      Сверено в изходния код: PartnerController#getHideFieldOnPartnerTypeSelect пише
+      response.setAttr за „registrationCode“ и „title“, но за „taxNbr“ задава САМО „hidden“
+      (PartnerController.java:438-440). Тоест нищо не презаписва заглавието на това поле след
+      зареждането на изгледа и преопределяне на заварен action не е нужно.
+
+      ⚠️ ЕДНО РАЗШИРЕНИЕ ПОКРИВА И ТРИТЕ ФОРМИ — по същата причина като т. 5 по-горе:
+      partner-customer-form и partner-supplier-form вграждат partner-form с <panel-include>.
+
+      ⚠️ ВИДИМОСТТА ВЕЧЕ Е БЕЗУСЛОВНА, И ТОВА Е ПРОМЯНА СПРЯМО ЗАВАРЕНОТО. Базовият изглед обявява
+      полето hidden="true" (axelor-base/views/Partner.xml:366) и единственото, което го отваря, е
+      setAttr в onLoad веригата при (клиент ИЛИ доставчик) И шаблон с useTaxNbr
+      (PartnerRegistrationCodeViewServiceImpl#isTaxNbrHidden). Тоест на НОВ запис полето не се
+      появява никога — веригата виси само на onLoad, — а чуждестранен доставчик от държава без
+      шаблон няма къде да въведе чуждия си ДДС номер и проверката през VIES остава без вход.
+
+      ⚠️ И ЗАТОВА ПОПРАВКАТА Е НА ДВЕ МЕСТА, НЕ НА ЕДНО. hidden="false" тук мени подразбирането на
+      ИЗГЛЕДА и с това покрива новия запис, на който нищо не се пуска; setAttr от
+      BgPartnerViewController покрива записания, на който базовият setAttr иначе би затворил полето
+      обратно. Само едното от двете оставя половината случаи скрити.
+
+      ⚠️ ПРОВЕРКАТА ВЕЧЕ Е И ЖИВА. Атрибутът се СЪЗДАВА — сверено в целия modules/axelor-open-suite:
+      базовият изглед обявява полето без onChange и нито един модул не му слага такъв, тоест тук не
+      се клобърва чужда верига. Задействането при запис ОСТАВА непроменено и на трите форми: живото
+      виси на blur, а номер, поставен с мишката и последван веднага от „Запази“, не минава през
+      blur. Виж бележката при самия action долу за измереното поведение на onChange.
+
+      ⚠️ И ЗАЩО ЦЕЛТА ТУК ОСТАВА С ПАНЕЛ, ЗА РАЗЛИКА ОТ ЛОКАЛИЗАЦИЯТА В Т. 7. Правилото е
+      „сверявай срещу СЛЕТИЯ изглед“, а не „махай панела винаги“. За settingsPanel целта с панела
+      наистина не се намира — axelor-crm трие панела. За otherPartnerDetailsPanel такъв <replace/>
+      НЯМА (сверено в целия modules/axelor-open-suite), тоест целта с панела се намира. Смяна на
+      проверена цел без причина добавя риск, не го маха. -->
+    <extend target="//panel[@name='otherPartnerDetailsPanel']/field[@name='taxNbr']">
+      <attribute name="hidden" value="false"/>
+      <attribute name="title" value="Идент. № по ДДС"/>
+      <attribute name="onChange" value="action-bg-partner-check-vat-number"/>
+      <attribute name="help"
+        value="Идентификационен номер за целите на ДДС по чл. 94, ал. 2 ЗДДС — с код на държавата отпред (например BG203970390). Български номер се проверява по контролна цифра на място; чуждестранен — в регистъра VIES. И двете се пускат при напускане на полето и отново при запис. ⚠️ Само предупреждават: регистрацията по ДДС е правен статут и записът никога не се спира."/>
+    </extend>
+
+    <!-- 7) ЛОКАЛИЗАЦИЯТА КАТО ТРИГЕР НА БЪЛГАРСКИЯ ВИД.
+
+      Заварената верига стига до държавата САМО през partner.mainAddress.country, тоест българският
+      вид на формата — „ЕИК/Булстат“, скрити siren/nic, видим идент. № по ДДС — излиза едва след
+      като има записан основен адрес с държава: записан български доставчик с адрес в България ги
+      има и трите; нов доставчик без такъв адрес няма нито едно.
+
+      ⚠️ И ВТОРО, ПО-ТИХО УСЛОВИЕ: mainAddress не е „въведеният адрес“, а адресът с
+      isDefaultAddr И isInvoicingAddr (PartnerServiceImpl#updatePartnerAddress). Адрес без тези
+      отметки оставя mainAddress празен и БГ видът не тръгва дори на записан български партньор.
+
+      ⚠️ ЦЕЛТА Е БЕЗ ПАНЕЛ, И ТОВА НЕ Е НЕБРЕЖНОСТ — ТОЧНО ОБРАТНОТО.
+      Очевидното „//panel[@name='settingsPanel']/field[@name='localization']“ сочи мястото на полето
+      в БАЗОВИЯ изглед (axelor-base/views/Partner.xml:454-455) и НЕ СЕ НАМИРА на живо: axelor-crm
+      ТРИЕ целия панел с „<extend target="//panel[@name='settingsPanel']"><replace/>“
+      (crm/views/Partner.xml:163-165) и вгражда съдържанието му наново в БЕЗИМЕНЕН панел след
+      webSite (crm ред 142-145). Нула съвпадения не са грешка за Axelor — записва се ред в лога при
+      зареждане и изгледът продължава, тоест onChange-ът просто нямаше да го има, при зелен билд.
+      Уловено от BgViewExtendTargetTest, не от четене.
+
+      ⚠️ И ЗАЩО НЕЗАВИСИМО ОТ crm ЦЕЛТА Е ЕДНОЗНАЧНА: базовият изглед носи ЕДНО такова поле и то
+      изчезва заедно с панела; crm вгражда ЕДНО. Тоест и със, и без crm съвпадението е точно едно.
+      Заковано е в BgPartnerViewXmlTest#localizationFieldStaysUniqueUnderCrm, за да гръмне, ако crm
+      някога спре да трие панела и полетата станат две.
+
+      ⚠️ АТРИБУТЪТ СЕ СЪЗДАВА, А НЕ СЕ ЗАМЕНЯ. Сверено в целия modules/axelor-open-suite: нито един
+      модул не слага onChange на това поле. Тоест тук не се клобърва чужда верига.
+
+      ⚠️ ЕДНО РАЗШИРЕНИЕ ПОКРИВА И ТРИТЕ ФОРМИ — partner-customer-form и partner-supplier-form
+      вграждат partner-form с <panel-include>, същото както при т. 5 и т. 6 по-горе.
+
+      ⚠️ СТЪПКАТА ЗА ЕТИКЕТА Е ВТОРА И ТОВА Е СЪЩЕСТВЕНО, точно както в onLoad групата: attrs се прилагат по
+      ред и последният печели, тоест за физическо лице „ЕГН/ЛНЧ“ застъпва „ЕИК/Булстат“. -->
+    <extend target="//field[@name='localization']">
+      <attribute name="onChange"
+        value="action-bg-partner-method-localization-attrs,action-bg-partner-attrs-registration-code-title"/>
+    </extend>
+
+  </form>
+
+  <!-- ЕТИКЕТЪТ НА registrationCode ЗА ФИЗИЧЕСКО ЛИЦЕ.
+
+    Статичен title= в разширението по-горе НЕ работи, и това е измерено, а не изведено:
+    PartnerController#getHideFieldOnPartnerTypeSelect пише response.setAttr("registrationCode",
+    "title", …) СЛЕД зареждането на изгледа и презаписва всяко title= от XML-а. Стойността идва от
+    RegistrationNumberTemplate.titleToDisplay, която е ЕДИН низ на ДЪРЖАВА — за България
+    „ЕИК/Булстат“ — а getRegistrationCodeTitleFromTemplate изобщо не поглежда partnerTypeSelect.
+    Тоест без това преопределение българско физическо лице получава етикет „ЕИК/Булстат“ на поле,
+    в което се въвежда ЕГН.
+
+    ⚠️ ПРЕОПРЕДЕЛЕНИЕ НА ЗАВАРЕН ACTION, НЕ НОВ. Механизмът е описан в самата схема
+    (object-views.xsd, AbstractAction/@id: „If overriding some existing one, provide an unique id“):
+    ViewLoader#importAction дава на реда с НОВ id приоритет other.priority + 1, а генерираният
+    MetaActionRepository#findByName подрежда по "-priority" и връща fetchOne() — тоест всеки
+    повикващ получава нашия. Сверено: в цялото репо това име се дефинира на ЕДНО
+    място (axelor-base/views/Partner.xml:1236) и се вика на ЕДНО място (ред 1113, стъпка 14 на
+    action-group-partner-onload). Заварен пример за същия ход: axelor-human-resource преопределя
+    action-attrs-refresh-dashlets на axelor-project (priority 1 срещу 0).
+
+    ⚠️ И ЗАЩО ТОЗИ ВЪЗЕЛ, А НЕ ИМЕТО, КОЕТО ФОРМАТА ВИКА. Трите форми викат ТРИ РАЗНИ имена:
+    partner-form и partner-supplier-form викат crm-action-group-partner-onload, а
+    partner-customer-form вика sale-action-group-partner-onload — axelor-sale се зарежда СЛЕД
+    axelor-crm и презаписва атрибута, тоест изходният код на crm лъже за тази форма и
+    действителната стойност се чете от computed изгледа, не от източника. Трите вериги се събират
+    в action-method-partner-siren-nic-onload — общото им дъно. Едно преопределение тук покрива и
+    трите. (И затова не се закача onLoad на самата форма: partner-customer-form и
+    partner-supplier-form вграждат partner-form с <panel-include>, а onLoad се пуска само на
+    ВЪНШНАТА форма.)
+
+    ⚠️ ЗАВАРЕНОТО ПОВЕДЕНИЕ СЕ ПОВИКВА, НЕ СЕ ПРЕПИСВА. Първата стъпка сочи СЪЩИЯ Java метод,
+    затова скриването на siren/nic/taxNbr и заглавието за ЮРИДИЧЕСКО лице остават точно каквито
+    ги направи шаблонът за регистрационен номер — по конструкция, а не по внимание. Форкът е един
+    ред (class + method): дрейф при ъпгрейд на AOS е възможен само ако методът бъде преместен или
+    преименуван, а това гърми видимо (ненамерен метод в лога), не мълчаливо.
+
+    ⚠️ ДОБАВЕНАТА СТЪПКА Е ПОСЛЕДНА, И ТОВА Е СЪЩЕСТВЕНО. attrs се прилагат по ред, последният
+    печели: за физическо лице заглавието става „ЕГН/ЛНЧ“, а за юридическо if-ът е false, редът не
+    се изпълнява и остава „ЕИК/Булстат“ от шаблона.
+
+    ⚠️ НА НОВ ПАРТНЬОР — виж форка на action-group-base-partner-onnew по-долу, който пуска
+    същите две стъпки и на onNew. -->
+  <action-group name="action-method-partner-siren-nic-onload"
+    id="bg-localization-partner-siren-nic-onload">
+    <action name="action-bg-partner-method-hide-field-on-partner-type-select"/>
+    <action name="action-bg-partner-method-localization-attrs"/>
+    <action name="action-bg-partner-attrs-registration-code-title"/>
+  </action-group>
+
+  <!-- ЖИВИЯТ БЪЛГАРСКИ ВИД: заглавие, siren, nic и безусловно видим идент. № по ДДС, изведени от
+    ДЪРЖАВАТА НА ЛОКАЛИЗАЦИЯТА (резервно — на основния адрес). Правилото е чиста функция
+    (BgPartnerRegistrationViewRules) и има свидетел; тук е само закачането.
+
+    ⚠️ ЗАЩО НОВ МЕТОД, А НЕ ВТОРО ИЗВИКВАНЕ НА ЗАВАРЕНИЯ. PartnerController
+    #getHideFieldOnPartnerTypeSelect на втория си ред прави
+    Beans.get(PartnerRepository.class).find(partner.getId()) (PartnerController.java:424). На НОВ
+    запис id-то е null, find хвърля и собственият catch изяда четирите setAttr — мълчаливо, нищо не
+    се случва. А на ЗАПИСАН запис методът чете локализацията от БАЗАТА, тоест вижда СТАРАТА, а не
+    току-що избраната. И двете го правят негоден за жив тригер, и нито едното не личи от името му.
+
+    ⚠️ ТРЕТА СТЪПКА, НЕ ПЪРВА. Стои СЛЕД заварения метод нарочно: така неговите siren/nic/taxNbr се
+    застъпват от нашите, а не обратното. И преди стъпката за етикета, за да остане тя последната дума по
+    заглавието за физическо лице. -->
+  <action-method name="action-bg-partner-method-localization-attrs">
+    <call class="com.axelor.apps.bglocalization.web.BgPartnerViewController"
+      method="applyLocalizationAttrs"/>
+  </action-method>
+
+  <!-- ТРЕТИ ФОРК НА БАЗОВА ГРУПА В ТОЗИ ФАЙЛ — onNew веригата.
+
+    ⚠️ ЗАЩО Е НУЖЕН. Локализацията по подразбиране се задава с action-record
+    (axelor-base/views/Partner.xml:1450-1451, от AppBase.defaultPartnerLocalization), а стойност,
+    записана от action-record, НЕ поражда onChange. Тоест без този форк новият партньор се отваря с
+    българска локализация и с генерични етикети — обърканото състояние, при което формата вече
+    твърди „България“, а полето още пита за „Регистрационен номер“.
+
+    ⚠️ И ЗАЩО ПРЕОПРЕДЕЛЕНИЕ НА ГРУПАТА, А НЕ onNew на формата. Трите форми не викат това име
+    пряко — axelor-crm презаписва onNew и на трите с crm-action-group-partner-onnew
+    (crm/views/Partner.xml:66, 247, 256), а тя на свой ред вика точно тази група (crm ред 719).
+    Сверено: името се дефинира на ЕДНО място (axelor-base/views/Partner.xml:1117) и се вика на
+    ЧЕТИРИ, тоест едно преопределение покрива всички. Механизмът е същият като при другите два
+    форка: нов id → ViewLoader#importAction дава priority other+1, MetaActionRepository#findByName
+    подрежда по "-priority".
+
+    ⚠️ ДОБАВЕНИТЕ СТЪПКИ СА ПОСЛЕДНИ, И ТОВА Е СЪЩЕСТВЕНО. action-partner-record-set-default е
+    ВТОРАТА стъпка и точно тя пълни localization; ActionGroup#updateContext слива стойностите ѝ в
+    контекста, преди следващите стъпки да се изпълнят, тоест нашият метод вече вижда локализацията.
+    Долепени отпред, те щяха да четат празно поле.
+
+    ⚠️ Заварените седем стъпки са преписани ДОСЛОВНО от axelor-base. Дрейф при ъпгрейд на AOS: осма
+    базова стъпка НЯМА да се появи тук — пази го BgPartnerViewXmlTest, който сверява преписа срещу
+    живия axelor-base. -->
+  <action-group name="action-group-base-partner-onnew" id="bg-localization-partner-onnew">
+    <action name="action-partner-record-partner-type-select"/>
+    <action name="action-partner-record-set-default"/>
+    <action name="action-partner-attrs-set-default"/>
+    <action name="action-partner-record-set-default-cash-management"/>
+    <action name="action-partner-record-set-payment-modes"/>
+    <action name="action-partner-record-payment-condition"/>
+    <action name="action-partner-attrs-partner-seq-editable"/>
+    <action name="action-bg-partner-method-localization-attrs"/>
+    <action name="action-bg-partner-attrs-registration-code-title"/>
+  </action-group>
+
+  <!-- Същият клас и метод като заварения action-method в axelor-base — препращане, не копие на
+    поведение. Ако AOS премести метода, тук гърми на видно място. -->
+  <action-method name="action-bg-partner-method-hide-field-on-partner-type-select">
+    <call class="com.axelor.apps.base.web.PartnerController"
+      method="getHideFieldOnPartnerTypeSelect"/>
+  </action-method>
+
+  <!-- ЕГН или ЛНЧ — колони 3 и 4 на справката по чл. 73, ал. 1 се четат заедно: тип идентификатор
+    „0“ е ЕГН, „1“ е ЛНЧ. Затова етикетът назовава и двете, вместо да предпочете едното. -->
+  <action-attrs name="action-bg-partner-attrs-registration-code-title"
+    model="com.axelor.apps.base.db.Partner">
+    <attribute name="title" for="registrationCode" expr="eval: 'ЕГН/ЛНЧ'"
+      if="partnerTypeSelect == 2"/>
+  </action-attrs>
+
+  <!-- partner-supplier-form НЯМА onSave — нито в axelor-base, нито след разширението на axelor-crm
+    (сверено и в изходния код, и в слетия computed изглед). Тоест няма верига, към която да се
+    долепи проверката, и без този блок екранът „Доставчици“ щеше да е единственият, на който
+    невалиден ЕИК минава. Тук не се клобърва нищо: атрибутът се СЪЗДАВА, а не се заменя — същата
+    безопасна ситуация като employee-form в Employee-bg.xml. И затова стойността е САМО нашето
+    действие: пълната базова верига (IBAN, дубликат, save, set-user-partner) никога не е била част
+    от тази форма и не е наша работа да я въвеждаме. -->
+  <form name="partner-supplier-form" title="Supplier" id="bg-localization-partner-supplier-form"
+    model="com.axelor.apps.base.db.Partner" extension="true">
+    <extend target="/">
+      <attribute name="onSave"
+        value="action-bg-partner-validate-registration-code,action-bg-partner-check-vat-number"/>
+    </extend>
+  </form>
+
+  <!-- ВТОРИ ФОРК НА БАЗОВ ACTION В ТОЗИ ФАЙЛ. Първият е action-method-partner-siren-nic-onload
+    (заглавието на полето). Механизмът е същият и е описан в схемата (AbstractAction/@id):
+    ViewLoader#importAction дава на реда с НОВ id приоритет other.priority + 1, а
+    MetaActionRepository#findByName подрежда по "-priority". Сверено: това име се
+    дефинира на ЕДНО място (axelor-base/views/Partner.xml:1180) и се вика на ДВЕ
+    (crm-action-partner-group-onsave и onSave-ът на базовия partner-form, който crm презаписва) —
+    тоест преопределението покрива partner-form И partner-customer-form, и нищо друго.
+
+    ⚠️ ВАЛИДАТОРЪТ Е ПЪРВИ, А НЕ ПОСЛЕДЕН — И ТОВА НЕ Е ВКУС. Групата съдържа <action name="save"/>
+    като ТРЕТА стъпка, не накрая. Долепен отзад, <error> щеше да гръмне СЛЕД записа и нямаше да
+    отмени нищо — проверката щеше да изглежда работеща и да не пази. Останалите четири стъпки са
+    преписани ДОСЛОВНО от axelor-base, включително if="!id" на проверката за дубликат.
+
+    ⚠️ ДРЕЙФ ПРИ ЪПГРЕЙД: ако AOS добави шеста стъпка, тя НЯМА да се появи тук и изчезва мълчаливо.
+    Това е цената на форка и е по-голяма от тази на първия (там се препраща към един Java метод).
+    Сверявай тази група при всеки ъпгрейд на axelor-open-suite. -->
+  <action-group name="action-partner-group-onsave" id="bg-localization-partner-group-onsave">
+    <action name="action-bg-partner-validate-registration-code"/>
+    <action name="action-partner-iban-check-on-save"/>
+    <action name="action-partner-method-check-if-registration-code-already-exists" if="!id"/>
+    <action name="save"/>
+    <action name="action-partner-method-set-user-partner"/>
+    <action name="action-bg-partner-check-vat-number"/>
+  </action-group>
+
+  <!-- ПРОВЕРКАТА НА ЗАПИС. Разклонението по вид партньор и признак живее в Java
+    (BgIdentifierValidator), защото е правило с числа и трябва да има свидетел в тест; тук остава
+    само гейтът по държава, който Java страната не вижда.
+
+    ⚠️ ЕДИНСТВЕНОТО, КОЕТО ОТМЕНЯ ЗАПИС, е деветзначен ЕИК с несъответстваща контролна цифра —
+    алгоритъмът за него е доказан срещу шест реални кода от Търговския регистър. Тринайсетзначният,
+    ЕГН и ЛНЧ само предупреждават: за първия опашковата сметка не е сверена срещу реален код, а
+    тип „1“ е ОБЕДИНЕНИЕ от ЛН, ЛНЧ и служебен номер от НАП, като последният няма контролна цифра.
+
+    ⚠️ ЗНАЙНА ДУПКА, ПРИЕТА СЪЗНАТЕЛНО: партньор БЕЗ основен адрес не се проверява, защото гейтът
+    виси на mainAddress.country — точно както шаблонът за регистрационен номер. Живият warning на
+    onChange не е гейтнат по адрес и покрива именно този случай.
+
+    ⚠️ Нищо тук не ПИШЕ. Заварената врата на Axelor (setRegistrationCodeValidationValues) презаписва
+    taxNbr от кода; затова validationMethodSelect остава празен и този път не се събужда. -->
+  <action-validate name="action-bg-partner-validate-registration-code">
+    <error
+      message="Невалиден ЕИК: контролната цифра не излиза. Сверете кода в Търговския регистър."
+      if="registrationCode &amp;&amp; mainAddress?.country?.alpha2Code == 'BG' &amp;&amp; com.axelor.apps.bglocalization.service.BgIdentifierValidator.isBlockingViolation(partnerTypeSelect, bgIdentifierType, registrationCode)"/>
+    <alert
+      message="Идентификаторът не излиза по контролна цифра. Сверете го — или запишете, ако сте сигурни."
+      if="registrationCode &amp;&amp; mainAddress?.country?.alpha2Code == 'BG' &amp;&amp; com.axelor.apps.bglocalization.service.BgIdentifierValidator.isWarningViolation(partnerTypeSelect, bgIdentifierType, registrationCode)"/>
+  </action-validate>
+
+  <!-- ЖИВИЯТ ВАРИАНТ: тост при въвеждане. Ползва общата присъда, за да каже нещо и за случая,
+    който на запис ще бъде отказан. Записът НЕ се пипа оттук — гейтът по държава, <error>-ът и
+    <alert>-ът на onSave остават каквито са.
+
+    ⚠️ <notify>, А НЕ <alert> — И ТОВА Е СЪЩИЯТ КАНАЛ КАТО ПРИ ДДС НОМЕРА. <alert> е модален
+    диалог: спира редакцията, иска потвърждение и оставя ActionValidate да запише „pending“, тоест
+    прекъсва веригата. <notify> не прави нищо от това — ActionValidate#evaluate го слага в списък и
+    прави continue (никога „pending“), а клиентът го показва със същото alerts.info, с което
+    показва и response.setNotify (axelor-front, view-containers/action/executor.ts:284-288).
+    Тоест поведението е идентично на проверката на идент. № по ДДС — по конструкция, а не
+    по прилика. Затова тук НЕ трябва контролер: XML-ът стига.
+
+    ⚠️ ГЕЙТЪТ ПО БЪЛГАРСКА ИДЕНТИЧНОСТ ПРЕДОТВРАТЯВА ФАЛШИВА ТРЕВОГА, не просто стеснява.
+    Условие само по partnerTypeSelect дава „невалиден“ за ЧУЖДА фирма:
+    френски SIREN е ДЕВЕТ цифри и пада на isBlockingViolation по българската контролна цифра, а
+    четиринайсетцифреният SIRET пада на isWarningViolation като „чужда на чл. 6 дължина“. Сверено в
+    BgIdentifierValidator, не предположено.
+
+    ⚠️ И ЗАЩО ЛОКАЛИЗАЦИЯТА Е ПЪРВА, А АДРЕСЪТ — ВТОРИ. При въвеждане адресът често още не е
+    попълнен, а локализацията се пълни по подразбиране на нов партньор, тоест гейтът е възможен,
+    без да губи покритие. Същата двойка и в същия ред като BgPartnerViewController#resolveCountry.
+
+    ⚠️ ЗНАЙНА ПРАЗНИНА, ПРИЕТА СЪЗНАТЕЛНО: партньор БЕЗ локализация и БЕЗ адрес не получава тост.
+    Това е същата празнина, която onSave гейтът винаги е имал — и е за предпочитане пред обвинение
+    срещу законен чужд номер. Пълни се с едно поле: Локализация.
+
+    ⚠️ ДВЕ СЪОБЩЕНИЯ, ЕДИН ИЗТОЧНИК НА ИСТИНАТА. Кое от двете се казва, решава
+    BgIdentifierValidator#isCompanyIdentifier — същият клон, по който тече и самата проверка.
+    Преписан в XML, той щеше да забрави bgIdentifierType и физическо лице с БУЛСТАТ (свободна
+    професия) щеше да чете съобщение за ЕГН. -->
+  <action-validate name="action-bg-partner-registration-code-onchange-warn">
+    <notify
+      message="ЕИК/Булстат: контролната цифра не излиза. Сверете номера."
+      if="registrationCode &amp;&amp; (localization?.country?.alpha2Code == 'BG' || mainAddress?.country?.alpha2Code == 'BG') &amp;&amp; !com.axelor.apps.bglocalization.service.BgIdentifierValidator.isValidRegistrationCode(partnerTypeSelect, bgIdentifierType, registrationCode) &amp;&amp; com.axelor.apps.bglocalization.service.BgIdentifierValidator.isCompanyIdentifier(partnerTypeSelect, bgIdentifierType)"/>
+    <notify
+      message="ЕГН/ЛНЧ: контролната цифра не излиза. Сверете номера."
+      if="registrationCode &amp;&amp; (localization?.country?.alpha2Code == 'BG' || mainAddress?.country?.alpha2Code == 'BG') &amp;&amp; !com.axelor.apps.bglocalization.service.BgIdentifierValidator.isValidRegistrationCode(partnerTypeSelect, bgIdentifierType, registrationCode) &amp;&amp; !com.axelor.apps.bglocalization.service.BgIdentifierValidator.isCompanyIdentifier(partnerTypeSelect, bgIdentifierType)"/>
+  </action-validate>
+
+  <!-- ИДЕНТИФИКАЦИОННИЯТ НОМЕР ПО ДДС (taxNbr) НА ЗАПИС.
+
+    ⚠️ ПРЕДУПРЕЖДЕНИЕ, НИКОГА ОТКАЗ — и това е правно, не вкусово. До 31.12.2025 ДДС номерът беше
+    номерът по чл. 84 ДОПК с префикс „BG“, тоест изводим от ЕИК. От 01.01.2026 (изм. ДВ бр. 115 от
+    2025 г.) чл. 94, ал. 2 ЗДДС казва, че номерът СЕ ОПРЕДЕЛЯ с акта за регистрация — препратката
+    към чл. 84 ДОПК е МАХНАТА от алинеята. На практика НАП още издава „BG“ + ЕИК, но законът вече не
+    го гарантира, тоест отказан запис би могъл да е отказ на законен номер. Отгоре на това
+    регистрацията по ДДС е правен статут на ТРЕТО лице, който нашата система няма как да оспорва.
+    (Сверено дословно срещу консолидирания ЗДДС на lex.bg към 17.09.2026, последно изм. ДВ бр. 69
+    от 31.07.2026 — то не засяга нито чл. 94, нито чл. 168ж.)
+
+    ⚠️ action-method, а НЕ action-validate. Чуждият номер иска мрежа (VIES), а <alert>/<error> в XML
+    не могат нито да изчакат отговор, нито да различат „невалиден“ от „не можах да проверя“ —
+    а точно това разграничение е цялата защита срещу фалшива тревога при паднала услуга.
+    Контролерът отговаря с response.setNotify: непрекъсващо, тоест записът не се спира при никакъв
+    отговор. Прецедентът е BgIndividualIncomePaymentController.
+
+    ⚠️ НЕ Е ГЕЙТНАТО ПО ДЪРЖАВА, за разлика от проверката на registrationCode. Рутирането е по
+    ПРЕФИКСА НА САМИЯ НОМЕР: чуждестранен доставчик носи чужд ДДС номер и българският гейт по
+    mainAddress.country би проверявал грешния номер с грешните правила.
+
+    ⚠️ И НА onChange — без заявка на всяко натискане на клавиш. Сверено в изходния код на клиента (axelor-front, views/form/builder/hooks.ts): onChangeTrigger
+    е „blur“ по подразбиране, а onBlur стреля САМО при if (changed). Тоест една заявка на РЕАЛНА
+    редакция при напускане на полето — не на клавиш. Таванът от 4000 ms важи и за свързването, и за
+    четенето (bg.vat.vies.timeoutMs), а българският номер изобщо не пипа мрежата.
+
+    ⚠️ И ДВЕТЕ ЗАДЕЙСТВАНИЯ ОСТАВАТ. Живото е онова, което потребителят очаква — сгрешеният номер
+    лъсва веднага, както и останалата БГ преправка на формата. Задействането при запис
+    е резервата за номер, поставен с мишката и последван веднага от „Запази“: там blur няма.
+
+    ⚠️ РЕДЪТ В ГРУПАТА: сложено ПОСЛЕДНО, след <action name="save"/>. Обратното на избора при
+    registrationCode отгоре — и нарочно: там <error> ТРЯБВА да изпревари записа, за да го отмени,
+    а тук съобщението не отменя нищо и има смисъл едва след като записът е минал. -->
+  <action-method name="action-bg-partner-check-vat-number">
+    <call class="com.axelor.apps.bglocalization.web.BgPartnerVatNumberController" method="check"/>
+  </action-method>
+
+</object-views>

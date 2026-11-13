@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ===== SAF-T ===== -->
+  <selection name="nap.saft.report.type.select">
+    <option value="monthly">Monthly</option>
+    <option value="annual">Annual</option>
+    <option value="on_demand">On demand</option>
+  </selection>
+
+  <selection name="nap.saft.lifecycle.status.select">
+    <option value="draft">Draft</option>
+    <option value="validating">Validating</option>
+    <option value="ready">Ready</option>
+    <option value="generated">Generated</option>
+    <option value="approved">Approved</option>
+    <option value="signed">Signed</option>
+    <option value="failed">Failed</option>
+    <option value="superseded">Superseded</option>
+  </selection>
+
+  <selection name="nap.saft.readiness.status.select">
+    <option value="not_checked">Not checked</option>
+    <option value="incomplete">Incomplete</option>
+    <option value="ready">Ready</option>
+  </selection>
+
+  <selection name="nap.saft.issue.severity.select">
+    <option value="blocking">Blocking</option>
+    <option value="warning">Warning</option>
+  </selection>
+
+  <!-- ===== Submission (generic) ===== -->
+  <selection name="nap.service.code.select">
+    <option value="saft">SAF-T</option>
+    <option value="declarations">Declarations</option>
+    <option value="noi_app9">NOI · Appendix No. 9</option>
+    <option value="fatca">FATCA · automatic exchange</option>
+  </selection>
+
+  <selection name="nap.submission.channel.select">
+    <option value="api">API</option>
+    <option value="manual_portal">Manual portal</option>
+  </selection>
+
+  <selection name="nap.api.environment.select">
+    <option value="test">Test</option>
+    <option value="prod">Production</option>
+  </selection>
+
+  <selection name="nap.submission.status.select">
+    <option value="draft">Draft</option>
+    <option value="locked">Locked</option>
+    <option value="signing">Signing</option>
+    <option value="signed">Signed</option>
+    <option value="submitting">Submitting</option>
+    <option value="submitted">Submitted</option>
+    <option value="submission_outcome_unknown">Outcome unknown</option>
+    <option value="accepted">Accepted</option>
+    <option value="rejected">Rejected</option>
+    <option value="correction_required">Correction required</option>
+    <option value="technical_error">Technical error</option>
+    <option value="withdrawn">Mark withdrawn</option>
+  </selection>
+
+  <!-- НАП identifier types (PinType from the Declarations contract). -->
+  <selection name="nap.pin.type.select">
+    <option value="IND_EGN">EGN</option>
+    <option value="IND_LNCH">LNCh</option>
+    <option value="IND_SLNO">Official No.</option>
+    <option value="IND_BULSTAT">BULSTAT (individual)</option>
+    <option value="BUS_BULSTAT">BULSTAT (company)</option>
+  </selection>
+
+  <!-- ===== Artifacts & files ===== -->
+  <!-- The institution a regulatory file is addressed to. Shared core discriminator: НОИ files are
+    stored through the same immutable-artifact path as НАП ones, and this is what tells them apart. -->
+  <selection name="nap.institution.select">
+    <option value="nap">NAP</option>
+    <option value="noi">NOI</option>
+  </selection>
+
+  <selection name="nap.artifact.type.select">
+    <option value="payload">Payload</option>
+    <option value="signed_payload">Signed payload</option>
+    <option value="signature">Signature</option>
+    <option value="certificate">Certificate</option>
+    <option value="response">Response</option>
+    <option value="processing_result">Processing result</option>
+    <option value="validation_report">Validation report</option>
+    <option value="protocol">Protocol</option>
+    <option value="schema">Schema</option>
+    <option value="other">Other</option>
+  </selection>
+
+  <selection name="nap.submission.artifact.role.select">
+    <option value="payload">Payload</option>
+    <option value="signed_payload">Signed payload</option>
+    <option value="signature">Signature</option>
+    <option value="response">Response</option>
+    <option value="processing_result">Processing result</option>
+    <option value="validation_report">Validation report</option>
+    <option value="other">Other</option>
+  </selection>
+
+  <selection name="nap.file.type.select">
+    <option value="txt">txt</option>
+    <option value="csv">csv</option>
+    <option value="xml">xml</option>
+  </selection>
+
+  <selection name="nap.submission.file.status.select">
+    <option value="pending">Pending</option>
+    <option value="accepted">Accepted</option>
+    <option value="rejected">Rejected</option>
+    <option value="error">Error</option>
+    <option value="unknown">Unknown</option>
+  </selection>
+
+  <!-- The EXTERNAL cloud electronic-signature service a personal QES profile signs through. This is
+    NOT an Axelor Partner/supplier and is not scoped to a Company: it names which CloudQesProvider
+    implementation handles the signing request.
+
+    ⚠️ Each option value MUST stay byte-identical to the corresponding CloudQesProvider
+    getProviderId(): QesSigningService refuses to sign when the profile's value does not equal the
+    configured provider's id. CloudQesProviderIds holds the same three constants in Java, and
+    CloudQesProviderSelectionTest pins this file against them. -->
+  <selection name="nap.qes.provider.select">
+    <option value="mock">Mock (tests only)</option>
+    <option value="btrust">B-Trust</option>
+    <option value="evrotrust">Evrotrust</option>
+  </selection>
+
+  <!-- Как се подписва подаването: двата реални метода. Нито един не чете частен ключ или PIN в
+    Nyxa — USB токенът подписва на машината на потребителя през локалния компонент (BISS), а
+    облачният КЕП подписва при доставчика след потвърждение от човека. Стойността `cloud` се запазва
+    (исторически редове), а активният облачен доставчик се избира от конфигурацията
+    (nyxa.qes.evrotrust.*). -->
+  <selection name="nap.qes.signing.method.select">
+    <option value="local_usb">USB QES (local component)</option>
+    <option value="cloud">Evrotrust (cloud QES)</option>
+  </selection>
+
+  <!-- QES signing status of one file. SEPARATE from the НАП processing file-status above: a file can
+    be SIGNED (here) and still be REJECTED by НАП (there). Mirrors QesSigningStatus. -->
+  <selection name="nap.qes.signing.status.select">
+    <option value="not_started">Not started</option>
+    <option value="pending">Pending</option>
+    <option value="completed">Completed</option>
+    <option value="rejected">Rejected</option>
+    <option value="failed">Failed</option>
+    <option value="expired">Expired</option>
+  </selection>
+
+  <!-- ===== Processing results ===== -->
+  <selection name="nap.processing.result.format.select">
+    <option value="html">HTML</option>
+    <option value="json">JSON</option>
+    <option value="text">Text</option>
+    <option value="binary">Binary</option>
+    <option value="unknown">Unknown</option>
+  </selection>
+
+  <selection name="nap.processing.derived.outcome.select">
+    <option value="accepted">Accepted</option>
+    <option value="rejected">Rejected</option>
+    <option value="partially_accepted">Partially accepted</option>
+    <option value="pending">Pending</option>
+    <option value="unknown">Unknown</option>
+  </selection>
+
+  <!-- ===== Declarations API document types (from the official contract) ===== -->
+  <selection name="nap.declarations.service.document.type.select">
+    <option value="DEC_1_6">DEC_1_6 (D1/D6)</option>
+    <option value="DEC_HIGH_FISC_RISK">DEC_HIGH_FISC_RISK</option>
+    <option value="DEC_ETZ62">DEC_ETZ62</option>
+    <option value="DEC_ETZ123">DEC_ETZ123</option>
+  </selection>
+
+  <selection name="nap.declarations.file.document.type.select">
+    <option value="DEC_1">DEC_1</option>
+    <option value="DEC_6">DEC_6</option>
+    <option value="DEC_FISC_RISK_EU_BG">DEC_FISC_RISK_EU_BG</option>
+    <option value="DEC_FISC_RISK_BG_EU">DEC_FISC_RISK_BG_EU</option>
+    <option value="DEC_FISC_RISK_ANNUL">DEC_FISC_RISK_ANNUL</option>
+    <option value="DEC_FISC_RISK_CONFIRM">DEC_FISC_RISK_CONFIRM</option>
+    <option value="DEC_FISC_RISK_BG_BG">DEC_FISC_RISK_BG_BG</option>
+    <option value="DEC_FISC_RISK_IMPORT">DEC_FISC_RISK_IMPORT</option>
+    <option value="DEC_ETZ62">DEC_ETZ62</option>
+    <option value="DEC_ETZ123">DEC_ETZ123</option>
+  </selection>
+
+  <!-- ===== Audit ===== -->
+  <selection name="nap.audit.actor.type.select">
+    <option value="human">Human</option>
+    <option value="system">System</option>
+    <option value="job">Job</option>
+  </selection>
+
+  <selection name="nap.audit.event.type.select">
+    <option value="config_change">Configuration change</option>
+    <option value="validation">Validation</option>
+    <option value="approval">Approval</option>
+    <option value="artifact_attached">Artifact attached</option>
+    <option value="download">Download</option>
+    <option value="signing">Signing</option>
+    <option value="manual_submission">Manual submission</option>
+    <option value="api_submission">API submission</option>
+    <option value="retry">Retry</option>
+    <option value="status_change">Status change</option>
+    <option value="rejection">Rejection</option>
+    <option value="acceptance">Acceptance</option>
+    <option value="correction">Correction</option>
+    <option value="processing_result">Processing result</option>
+  </selection>
+
+</object-views>

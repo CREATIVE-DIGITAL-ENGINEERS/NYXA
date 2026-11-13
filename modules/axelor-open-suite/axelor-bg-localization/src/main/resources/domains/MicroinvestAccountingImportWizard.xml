@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Microinvest Delta Pro -> Nyxa accounting migration. Deliberately a SEPARATE copy of
+    MicroinvestImportWizard (payroll), not a shared abstraction: the two products have different
+    schemas and the payroll importer is in production. Do not merge them.
+
+    Transient form, same pattern as MicroinvestImportWizard: the buttons work on the form context and
+    never call save() on this record. Remove together with the importer once migration is done. -->
+  <entity name="MicroinvestAccountingImportWizard">
+
+    <!-- One annual JSON produced by the Microinvest export tool. Every financial
+      year is imported into the standard ledger in the book currency declared by the file. -->
+    <many-to-one name="sourceFile" title="Export file (.json)" required="true"
+      ref="com.axelor.meta.db.MetaFile"/>
+
+    <!-- ПОСЛЕДНИЯТ ДДС ПЕРИОД, ПОДАДЕН ОТ Microinvest (ГГГГММ) — границата на импорта.
+      Проводките ДО последния ден на този период включително се внасят; всичко СЛЕД него не се
+      внася изобщо и се въвежда в Nyxa като обикновени фактури.
+
+      ⚠️ ЗАДЪЛЖИТЕЛЕН, БЕЗ ПОДРАЗБИРАНЕ. Внесените статии са извън ДДС дневниците завинаги
+      (Move.bgMigratedHistorical) — вярно само ако файлът носи единствено ВЕЧЕ ПОДАДЕНИ периоди.
+      Подразбиране „внеси всичко“ щеше да скрие текущия неподаден месец и от двете системи.
+
+      ⚠️ ПЕРИОД, А НЕ ДАТА: данъчният период е календарен месец (ЗДДС чл. 87 ал. 2). Форматът е
+      същият като на BgVatReturn.period. Чете се само от MicroinvestVatPeriodCutoff. -->
+    <string name="lastFiledVatPeriod" title="Последен ДДС период, подаден от Microinvest (ГГГГММ)"
+      required="true"/>
+
+    <!-- Периодът, за който е пуснат Preflight. Смяната му обезсилва потвърждението, както при
+      файла и компанията: иначе операторът би потвърдил обхват, различен от внасяния. -->
+    <string name="preflightVatPeriod" title="Preflight период" transient="true"/>
+
+    <string name="reportText" title="Report" large="true" multiline="true" transient="true"/>
+
+    <!-- Показва КЪДЕ отива импортът, преди да е качен файл. Пише се само в активната компания и
+      никога не създава нова (MicroinvestAccountingCompanyGuard). -->
+    <string name="activeCompanyInfo" title="Целева компания" large="true" multiline="true"
+      transient="true"/>
+
+    <!-- Какво носи файлът: година + счетоводна валута. -->
+    <string name="sourceInfo" title="Източник" large="true" multiline="true" transient="true"/>
+
+    <!-- Потвърждението пред бутона „Импорт“. Пише се САМО от Preflight — изгледът не
+      преизчислява нищо и не гадае по име на файл или година.
+      Празно поле означава „няма валиден Preflight“ и импортът не се допуска. -->
+    <string name="importConfirmText" title="Потвърждение" large="true" multiline="true"
+      transient="true"/>
+
+    <!-- Файлът И компанията, за които е пуснат Preflight. Смяна на който и да е от двата обезсилва
+      потвърждението: импортът пише в активната компания, а тя се сменя от друг екран. -->
+    <long name="preflightFileId" title="Preflight файл" transient="true"/>
+    <long name="preflightCompanyId" title="Preflight компания" transient="true"/>
+
+    <integer name="entriesFoundCount" title="Проводки в файла" transient="true"/>
+    <integer name="sourceRecordCount" title="Записи в файла" transient="true"/>
+    <integer name="createdCount" title="Създадени" transient="true"/>
+    <integer name="updatedCount" title="Преизползвани (вече налични)" transient="true"/>
+    <integer name="reconciledCount" title="Равнения" transient="true"/>
+    <integer name="unresolvedCount" title="Неразрешени равнения" transient="true"/>
+    <integer name="skippedCount" title="Пропуснати (нарочно)" transient="true"/>
+    <integer name="skippedAfterCutoffCount" title="Пропуснати след границата" transient="true"/>
+    <integer name="blockedCount" title="Блокирани (предпоставка)" transient="true"/>
+    <integer name="failedCount" title="Провалени" transient="true"/>
+
+  </entity>
+
+</domain-models>

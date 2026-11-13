@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="stock" package="com.axelor.apps.stock.db"/>
+
+  <!-- ВИНОВНОТО ЛИЦЕ на корекцията — когато причината го изисква (bgRequiresPartner).
+
+    Корекцията на Axelor няма контрагент, а движението, което тя генерира, го взима оттук при
+    реализиране (BgStockMoveGuard → StockMove.partner). Там го чете ИЗП за Дт 442. -->
+  <entity name="StockCorrection">
+    <many-to-one name="bgResponsiblePartner" ref="com.axelor.apps.base.db.Partner"
+      title="Виновно лице"/>
+  </entity>
+
+</domain-models>

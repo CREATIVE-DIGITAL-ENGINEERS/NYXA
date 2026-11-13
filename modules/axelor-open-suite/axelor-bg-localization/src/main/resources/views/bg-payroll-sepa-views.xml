@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ ПЛАЩАНЕТО НА НЕТАТА — ДЕДИКИРАН БУТОН, НЕ HOOK ============
+
+    ⚠️ НЕ ВИСИ НА „Изплати“ НА ФИША, И ТОВА Е РЕШЕНИЕ НА ПРОДУКТА. Банката чака ЕДИН файл на
+    ведомост, а изплащането е действие върху ЕДИН фиш: закачен там, генераторът щеше да ражда по
+    един файл с по един ред за всеки човек. Освен това файлът се ПРЕГЛЕЖДА, преди да бъде качен, и
+    затова моментът на раждането му е нечие решение, а не страничен ефект.
+
+    ⚠️ И ТОВА НЕ Е ПЛАЩАНЕ. Бутонът ражда файл и го закача към платежното нареждане. Нищо тук не се
+    свързва с банка и нищо не мести пари; фишовете ОСТАВАТ „Потвърден“. -->
+
+  <form name="bg-payroll-sepa-form" title="Плащане на нетата (SEPA файл)"
+    model="com.axelor.apps.bglocalization.db.BgPayrollSepaWizard" width="large"
+    onNew="action-bg-payroll-sepa-defaults,action-bg-payroll-sepa-prepare">
+
+    <panel name="scopePanel" title="Обхват">
+      <field name="company" colSpan="6"
+        help="Платецът. Фишовете се четат през договора (EmploymentContract.payCompany) — самият фиш няма поле за дружество. Дружеството решава и от коя банкова сметка се плаща: тя се чете от счетоводните му настройки."/>
+      <field name="period" colSpan="6"
+        help="Един пробег покрива точно един месец: файлът отива в банката като едно нареждане с едно основание „Работна заплата ММ.ГГГГ“."/>
+      <field name="executionDate" colSpan="6"
+        help="Денят, в който банката дебитира сметката (ReqdExctnDt). ⚠️ Минала дата се ВДИГА до днес от BankOrderCreateService — това не е отказ, а тиха замяна, и затова датата стои на екрана."/>
+    </panel>
+
+    <panel name="actionPanel" title="Действие" colSpan="12">
+      <button name="generateBtn" title="Генерирай SEPA файл"
+        onClick="action-bg-payroll-sepa-generate" colSpan="4"/>
+    </panel>
+
+    <!-- ⚠️ ЦЕЛИЯТ ТЕКСТ СЕ ПОКАЗВА, а не се свежда до известие — същият довод като при захранването
+      на регистъра. Пробегът брои изключените ПО ПРИЧИНА и трите причини се поправят на три
+      различни екрана; едноредово известие би ги слепило в „N изключени“. -->
+    <panel name="resultPanel" title="Резултат и граници" colSpan="12">
+      <field name="resultSummary" showTitle="false" colSpan="12" height="24" readonly="true"/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Actions ============ -->
+
+  <action-record name="action-bg-payroll-sepa-defaults"
+    model="com.axelor.apps.bglocalization.db.BgPayrollSepaWizard">
+    <field name="company" expr="eval:__user__.activeCompany"/>
+  </action-record>
+
+  <action-method name="action-bg-payroll-sepa-prepare">
+    <call class="com.axelor.apps.bglocalization.web.BgPayrollSepaController" method="prepare"/>
+  </action-method>
+
+  <action-method name="action-bg-payroll-sepa-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgPayrollSepaController" method="generate"/>
+  </action-method>
+
+  <!-- ⚠️ Отваря се ПРЯКО във форма, без решетка: wizard-ът е преходен и всяко отваряне е нов
+    пробег. Самите пробези се изброяват другаде — под Банки и каси › Платежни нареждания, където
+    всяко нареждане носи редовете си и закачения файл. -->
+  <action-view name="bg.payroll.sepa.file" title="Плащане на нетата (SEPA файл)"
+    model="com.axelor.apps.bglocalization.db.BgPayrollSepaWizard">
+    <view type="form" name="bg-payroll-sepa-form"/>
+    <view-param name="popup" value="false"/>
+    <view-param name="show-toolbar" value="false"/>
+  </action-view>
+
+  <!-- ⚠️ СРЕЩУ 155, ВЕДНАГА СЛЕД „Фишове“ (150). Пробегът е следващата стъпка след потвърждаването
+    на ведомостта и се пуска от същия човек, в същия ден. Захранването на регистъра по ЗДДФЛ (175)
+    е след него нарочно: то чете ПЛАТЕНИ фишове. -->
+  <menuitem name="nyxa-payroll-sepa-file" parent="nyxa-payroll"
+    title="Плащане на нетата (SEPA файл)" action="bg.payroll.sepa.file" order="155"/>
+
+</object-views>

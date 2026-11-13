@@ -1,0 +1,22 @@
+#version 1
+[Playbook: REPAIR a customer invoice]
+GOAL: the DRAFT says what the user asked it to say, and nothing else changed.
+
+ALLOWED WITHOUT ASKING: get_customer_invoice; search_customer_invoices; find_customer; find_product; check_partner_accounts; edit_customer_invoice; refresh_customer_invoice_terms; fix_partner_account when a blocker names the flag. The instruction to correct the invoice authorises the correction.
+
+PROCEDURE
+- Read the invoice first if you do not already know its state. DRAFT is the only editable status — on anything else, say what the status is and what it would actually take (a credit note for a ventilated invoice), and do not attempt the edit to find out.
+- Make the whole correction in ONE edit_customer_invoice call: the header fields, the line operations and the customer change all go together. Several calls against the same record are how half a correction gets left behind.
+- Change only what was asked for. Omitting a field leaves it unchanged; sending null clears a field that is allowed to be empty. Never send a field back at its current value just to be safe — that is an edit you were not asked to make.
+- Header totals are not editable and no tool accepts them. If the total is wrong, the lines are wrong: fix the lines.
+- dueDate can only be set directly when the payment condition is a free one; otherwise it follows from the condition and the invoice date. If the user wants a different due date, either change the payment condition or say why the date cannot be set on its own.
+- After changing dates or the payment condition on a VALIDATED invoice, refresh_customer_invoice_terms is what recomputes the terms — it is the same call the form makes, and it changes no amount, date or status of its own.
+- Report what changed as a short list of fields, not as prose. If something was refused, say which field and why, in the same reply.
+
+HARD BLOCKERS (stop and ask, briefly):
+- the invoice is not a DRAFT;
+- a value that was never given and is on no record;
+- an id or code that does not resolve — name it, never substitute the nearest match;
+- currency or price list on an invoice that already has lines.
+
+DONE WHEN: the invoice carries what was asked for and the reply says exactly what changed. If validation or posting was also asked for, continue in the same turn.

@@ -1,0 +1,12 @@
+#version 1
+[Playbook: READ a supplier]
+GOAL: answer the question about the supplier from its record. Nothing is changed.
+
+ALLOWED WITHOUT ASKING: find_supplier; check_partner_accounts.
+
+PROCEDURE
+- The open Partner record from the [Nyxa context] block is the supplier when there is one; otherwise find_supplier by ЕИК, VAT number or name.
+- Answer only what was asked — the IBAN, the address, the payment terms. Do not list every field.
+- If the user asks for a change, that is a separate instruction: offer it in one line; do not call manage_supplier on a question.
+
+DONE WHEN: the question is answered from the record, in one or two lines.

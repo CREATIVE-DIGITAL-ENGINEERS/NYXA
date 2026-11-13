@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgCompensation — обезщетението като документ ============ -->
+
+  <!-- Просрочените се виждат БЕЗ да се отваря редът: срокът по чл. 228 ал. 3 е минал, а дата на изплащане
+    няма. Оцветяването е в grid-а, а не изчислено поле, защото „просрочен“ зависи от ДНЕС и замразена стойност
+    за него би остаряла на следващия ден. -->
+  <grid name="bg-compensation-grid" title="Обезщетения"
+    model="com.axelor.apps.bglocalization.db.BgCompensation" orderBy="-bgEventDate">
+    <hilite color="danger"
+      if="statusSelect != 'PAID' &amp;&amp; statusSelect != 'CANCELLED' &amp;&amp; bgDueDate &amp;&amp; $moment(bgDueDate).isBefore($moment())"/>
+    <hilite color="success" if="statusSelect == 'PAID'"/>
+    <hilite color="default" if="statusSelect == 'CANCELLED'"/>
+    <field name="reference"/>
+    <field name="employmentContract" title="Служител"/>
+    <field name="bgCompensationType"/>
+    <field name="bgEventDate"/>
+    <field name="bgFinalAmount"/>
+    <field name="bgDueDate"/>
+    <field name="statusSelect"/>
+  </grid>
+
+  <form name="bg-compensation-form" title="Обезщетение"
+    model="com.axelor.apps.bglocalization.db.BgCompensation" onNew="action-bg-compensation-prepare"
+    onLoad="action-bg-compensation-warn-seniority">
+
+    <panel name="statusPanel" showTitle="false" colSpan="12">
+      <field name="statusSelect" widget="NavSelect" colSpan="12" readonly="true"/>
+    </panel>
+
+    <panel name="documentPanel" title="Документ">
+      <field name="reference"/>
+      <field name="employmentContract" canEdit="false"
+        onChange="action-bg-compensation-prepare"/>
+      <field name="bgEventDate" onChange="action-bg-compensation-prepare"/>
+      <field name="bgPayoutPeriod"/>
+    </panel>
+
+    <panel name="groundPanel" title="Основание">
+      <field name="bgCompensationType" canEdit="false"
+        onChange="action-bg-compensation-prepare,action-bg-compensation-warn-seniority"/>
+      <!-- Правното основание се вижда ТУК, а не се търси в каталога: то е първото, което се проверява
+        при спор, и е readonly, защото живее при вида, не при документа. -->
+      <field name="bgCompensationType.legalBasis" title="Правно основание" readonly="true"/>
+      <field name="bgCompensationType.code" hidden="true"/>
+      <field name="bgTerminationGround"/>
+      <field name="bgDirection" readonly="true"/>
+      <!-- Пише го само „Създай документ“ на правото — тук е за четене. -->
+      <field name="bgTerminationCompensation" readonly="true" colSpan="12"/>
+      <!-- Фактите, без които видът няма основание: „Потвърди“ ги иска (BgCompensationResolver#refuseMissingFacts). -->
+      <field name="bgCourtDecisionNumber" readonlyIf="statusSelect != 'DRAFT'"
+        showIf="bgCompensationType.code == 'comp_kt_225_1'"/>
+      <field name="bgCourtDecisionEffectiveDate" readonlyIf="statusSelect != 'DRAFT'"
+        showIf="bgCompensationType.code == 'comp_kt_225_1'"/>
+      <field name="bgEtzRegistrationDate" readonlyIf="statusSelect != 'DRAFT'"
+        showIf="bgCompensationType.code == 'comp_kt_226_2'"/>
+    </panel>
+
+    <panel name="basePanel" title="База и изчисление">
+      <field name="bgBaseMonth" readonlyIf="statusSelect != 'DRAFT'"
+        help="Чл. 228 ал. 1 КТ: месецът, ПРЕДХОЖДАЩ месеца на основанието, или последният, за който има начислено."/>
+      <field name="bgBaseMonthGross" readonlyIf="statusSelect != 'DRAFT'"
+        onChange="action-bg-compensation-recompute"/>
+      <field name="bgBaseKind" readonly="true"/>
+      <!-- Само при чл. 220: срокът е календарен, количеството се извежда от него. -->
+      <field name="bgNoticeStartDate" readonlyIf="statusSelect != 'DRAFT'"
+        showIf="bgBaseKind == 'NOTICE_DAYS'" onChange="action-bg-compensation-recompute"/>
+      <field name="bgNoticeCalendarDays" readonlyIf="statusSelect != 'DRAFT'"
+        showIf="bgBaseKind == 'NOTICE_DAYS'" onChange="action-bg-compensation-recompute"/>
+      <field name="bgBaseWorkingDays" readonlyIf="statusSelect != 'DRAFT'"
+        showIf="bgBaseKind == 'UNUSED_LEAVE_DAYS' || bgBaseKind == 'NOTICE_DAYS'"
+        onChange="action-bg-compensation-recompute"/>
+      <field name="bgQuantity" readonlyIf="statusSelect != 'DRAFT'"
+        onChange="action-bg-compensation-recompute"/>
+      <field name="bgComputedAmount" readonly="true"/>
+      <field name="bgFinalAmount"
+        readonlyIf="statusSelect != 'DRAFT' || bgCompensationType.isAmountAdjustable == false"/>
+      <field name="bgAdjustmentReason" colSpan="12" readonlyIf="statusSelect != 'DRAFT'"
+        showIf="bgFinalAmount != bgComputedAmount"/>
+      <field name="bgIsTaxable" readonly="true" showIf="statusSelect != 'DRAFT'"/>
+      <field name="bgSocialContributionsDue" readonly="true" showIf="statusSelect != 'DRAFT'"/>
+    </panel>
+
+    <panel name="paymentPanel" title="Плащане">
+      <field name="bgDueDate" readonlyIf="statusSelect != 'DRAFT'"
+        help="Чл. 228 ал. 3 КТ: последният ден на месеца, следващ месеца на прекратяването, освен ако в КТД не е договорен друг срок."/>
+      <field name="bgPaidDate" readonlyIf="statusSelect == 'CANCELLED'"/>
+    </panel>
+
+    <panel name="notePanel" title="Забележки">
+      <field name="note" colSpan="12"/>
+      <field name="bgCancelReason" colSpan="12" showIf="statusSelect == 'CANCELLED'"
+        readonly="true"/>
+    </panel>
+
+    <!-- ⚠️ ОТКАЗЪТ: ПРИЧИНАТА И БУТОНЪТ СА ЗАЕДНО. Отказът иска причината, затова тя се пише до
+      самия бутон. Същият идиом като панела „Отказ“ на фиша: входът не се пази, а бутонът НЕ
+      записва първо — записът преди действие презарежда документа и губи входа. -->
+    <panel name="cancelPanel" title="Отказ" colSpan="12"
+      showIf="id &amp;&amp; statusSelect != 'CANCELLED'">
+      <field name="bgCancelReasonInput" colSpan="8"
+        help="Задължителна. Записва се в документа заедно с отказа."/>
+      <button name="cancelBtn" title="Откажи" colSpan="4" onClick="action-bg-compensation-cancel"/>
+    </panel>
+
+    <panel name="actionsPanel" showTitle="false" sidebar="true">
+      <button name="confirmBtn" title="Потвърди"
+        onClick="save,action-bg-compensation-confirm" showIf="statusSelect == 'DRAFT'" colSpan="12"/>
+      <button name="payBtn" title="Отбележи като изплатено"
+        onClick="save,action-bg-compensation-pay" showIf="statusSelect == 'CONFIRMED'" colSpan="12"/>
+    </panel>
+  </form>
+
+  <!-- ============ Actions ============ -->
+
+  <action-method name="action-bg-compensation-prepare">
+    <call class="com.axelor.apps.bglocalization.web.BgCompensationController" method="prepare"/>
+  </action-method>
+
+  <action-method name="action-bg-compensation-recompute">
+    <call class="com.axelor.apps.bglocalization.web.BgCompensationController"
+      method="recompute"/>
+  </action-method>
+
+  <action-method name="action-bg-compensation-confirm">
+    <call class="com.axelor.apps.bglocalization.web.BgCompensationController" method="confirm"/>
+  </action-method>
+
+  <action-method name="action-bg-compensation-pay">
+    <call class="com.axelor.apps.bglocalization.web.BgCompensationController" method="pay"/>
+  </action-method>
+
+  <action-method name="action-bg-compensation-cancel">
+    <call class="com.axelor.apps.bglocalization.web.BgCompensationController" method="cancel"/>
+  </action-method>
+
+  <!-- Предупреждение, НЕ блокировка: законът поставя условие за стаж, което системата не може да провери,
+    защото история на стажа по работодатели няма. -->
+  <action-method name="action-bg-compensation-warn-seniority">
+    <call class="com.axelor.apps.bglocalization.web.BgCompensationController"
+      method="warnSeniority"/>
+  </action-method>
+
+  <action-view name="bg.compensation.all" title="Обезщетения"
+    model="com.axelor.apps.bglocalization.db.BgCompensation">
+    <view type="grid" name="bg-compensation-grid"/>
+    <view type="form" name="bg-compensation-form"/>
+  </action-view>
+
+</object-views>

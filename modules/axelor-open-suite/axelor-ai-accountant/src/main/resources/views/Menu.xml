@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Top level, with two children: what the assistant is allowed to do, and what it has been
+    doing.
+
+    `groups` hides the menu; it does not protect anything. Both controllers behind these entries
+    check AuthUtils.isAdmin themselves, and both entities are restricted by permission data, because
+    a hidden menu is still a reachable action for anyone who knows its name. -->
+  <menuitem name="ai-accountant-root" title="AI Accountant" order="-880" icon="robot"
+    icon-background="#5b3fd6" groups="admins" if="__config__.app.isApp('ai-accountant')"/>
+
+  <menuitem name="ai-accountant-settings" title="Settings" parent="ai-accountant-root"
+    order="-100" icon="sliders" groups="admins" action="ai-accountant-setting-open"/>
+
+  <menuitem name="ai-accountant-stats" title="Statistics" parent="ai-accountant-root" order="-99"
+    icon="graph-up" groups="admins" action="ai-accountant-stats-view"/>
+
+</object-views>

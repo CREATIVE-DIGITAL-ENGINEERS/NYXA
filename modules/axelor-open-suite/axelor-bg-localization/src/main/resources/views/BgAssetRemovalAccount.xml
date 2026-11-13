@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="bg-asset-removal-account-grid" title="Сметка по причина за извеждане"
+    model="com.axelor.apps.bglocalization.db.BgAssetRemovalAccount">
+    <field name="company"/>
+    <field name="assetDisposalReason"/>
+    <field name="account"/>
+  </grid>
+
+  <form name="bg-asset-removal-account-form" title="Сметка по причина за извеждане"
+    model="com.axelor.apps.bglocalization.db.BgAssetRemovalAccount" width="large">
+    <panel name="mainPanel" colSpan="12">
+      <field name="company"/>
+      <field name="assetDisposalReason"
+        help="Причината, при която тази сметка замества избраната от системата. Базата избира по ВИД на извеждането: продажба → сметката за балансова стойност (60908), всичко останало → липси и брак (60905)."/>
+      <field name="account"
+        help="Този ред ПРИПОКРИВА подразбирането за едно дружество. Подразбирането идва от самата причина (полето „Сметка по подразбиране (код)“) и за ВЪЗСТАНОВИМАТА ЛИПСА то е 442 „Вземания по липси и начети“ — когато има отговорно лице, стойността не напуска предприятието, а сменя формата си от актив във ВЗЕМАНЕ, тъй че разходна сметка би намалила финансовия резултат с нещо, което ще се събере.&#10;&#10;⚠️ Попълнете ред тук само ако ВАШИЯТ сметкоплан държи това вземане на друга сметка. Номерът 442 е счетоводна КОНВЕНЦИЯ и ИЗБОР НА СЪСТАВИТЕЛЯ, не законово изискване — задължителен национален сметкоплан няма от 2002 г.&#10;&#10;⚠️ Ако нито тук има ред, нито причината носи код, който съществува в чарта на дружеството, поведението остава каквото е — 60905 за липси, видимо в статията."/>
+      <field name="comments" colSpan="12"
+        help="Основанието по счетоводната ви политика — то прави записа проверим при ревизия."/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-asset-removal-account-view"
+    title="Сметки по причина за извеждане"
+    model="com.axelor.apps.bglocalization.db.BgAssetRemovalAccount">
+    <view type="grid" name="bg-asset-removal-account-grid"/>
+    <view type="form" name="bg-asset-removal-account-form"/>
+  </action-view>
+
+</object-views>

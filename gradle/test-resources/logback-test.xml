@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Shared test logging, added by the root build.gradle to the test resources of every module that has
+  no logback(-test).xml of its own (axelor-bg-localization and axelor-contract keep theirs). Without any
+  configuration logback logs everything at DEBUG: axelor-account's ChartOnlyImportCountTest wrote a 1.5 GB
+  JUnit XML, almost all of it Hibernate. Same levels as axelor-bg-localization's logback-test.xml. -->
+<configuration>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="org.hibernate" level="WARN"/>
+  <logger name="com.zaxxer.hikari" level="WARN"/>
+  <logger name="com.axelor" level="INFO"/>
+  <logger name="org.apache.shiro" level="WARN"/>
+
+  <root level="WARN">
+    <appender-ref ref="STDOUT"/>
+  </root>
+</configuration>

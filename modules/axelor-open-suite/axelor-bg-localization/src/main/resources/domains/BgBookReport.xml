@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ═══ ПРЕХОДЕН ВХОД ЗА СПРАВКИТЕ ПО СЧЕТОВОДНА ВАЛУТА ═══
+
+    По образеца на BgPayrollLedgerWizard: формата работи върху контекста и НЕ вика save
+    (canSave="false" във view-то). Няма съхранявана справка — тя е ИЗГЛЕД към проводките на
+    един период, пресметнат от BgBookReportService; записана, би остаряла мълчаливо. -->
+  <entity name="BgBookReport">
+
+    <!-- ═══ ВХОД ═══ -->
+    <date name="fromDate" title="От дата"/>
+    <date name="toDate" title="До дата"/>
+    <string name="reportKind" title="Справка" selection="bg.book.report.kind" default="TRIAL"/>
+
+    <!-- ═══ ИЗХОД (сметнат, не съхраняван) ═══ -->
+    <string name="reportText" title="Резултат" large="true" multiline="true" transient="true"/>
+
+  </entity>
+
+</domain-models>

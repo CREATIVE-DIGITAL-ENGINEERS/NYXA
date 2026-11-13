@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Вноска за трудова злополука и професионална болест (ТЗПБ) по КИД 2008, изцяло за сметка на работодателя. -->
+  <entity name="BgTzpbRate">
+
+    <string name="kidCode" title="Код по КИД 2008" required="true"/>
+    <decimal name="rate" title="Вноска ТЗПБ (%)" precision="6" scale="3" required="true"/>
+
+    <date name="validFrom" title="В сила от" required="true"/>
+    <date name="validTo" title="В сила до"/>
+
+    <unique-constraint columns="kidCode,validFrom"/>
+
+  </entity>
+
+</domain-models>

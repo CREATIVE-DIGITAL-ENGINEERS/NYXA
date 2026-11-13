@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ СКРИВАНЕ НА ЧУЖДИ СЧЕТОВОДНИ МЕНЮТА, КОИТО НЕ СЕ ПРИЛАГАТ В БЪЛГАРИЯ ═══
+
+    Механизмът е ЕДИН И СЪЩ с Menu-hr-hide.xml и е описан там подробно: `id` ражда втори ред в
+    meta_menu със същото `name` и приоритет `other.getPriority() + 1`, MenuUtils#fetchMetaMenu
+    подрежда по приоритет низходящо и оставя по един ред на име, а MenuService прекратява обхода на
+    цялото поддърво при скрит възел. Пазачът е общ — BgHiddenMenuTest чете ДВАТА файла.
+
+    ⚠️ Без `id` редът се брои за ПОВТОРЕНИЕ по name и се изхвърля мълчаливо.
+    ⚠️ `title` е задължителен по XSD; оставено е чуждото заглавие дословно.
+    ⚠️ `parent` се пази, за да остане записът в базата верен — преопределящият ред ЗАМЕСТВА чуждия
+    изцяло, а не го допълва.
+  -->
+
+  <!-- DAS2 (déclaration des honoraires) е френската годишна справка за платени хонорари.
+    Номенклатурата с дейностите ѝ е входът към Das2Activity — същото поле, което вече е скрито от
+    формата на партньора и от реда на статията (Views-fr-hide-bg.xml). Българският аналог е
+    справката по чл. 73 ал. 1 ЗДДФЛ и живее в „Заплати“, със свой регистър и свои колони.
+    ⚠️ Редовете в account_das2Activity.csv СЕ ЗАПАЗВАТ: seed-ът е спящ, никой не го чете през
+    скрит екран, а махането му би искало излишен re-import на сметкоплана. -->
+  <menuitem id="bg-hide-referential-conf-das2-activity" name="referential-conf-das2-activity"
+    parent="referential-conf" title="DAS2 activities" hidden="true"/>
+
+  <!-- ФАКТОРИНГЪТ по френския модел: вземането се прехвърля на фактор, а суброгационната разписка
+    (quittance subrogative) е нотификацията към длъжника. Групата се скрива ЦЯЛА и с нея пада
+    единственото ѝ дете — „Subrogation releases“ (debt-recovery-root-subrogation-releases).
+    ⚠️ Скрит е САМО входът в менюто. Самият механизъм — Partner.isFactor, SubrogationRelease и
+    техните изгледи — не се пипа: той виси на demo-data и на конфигурация, а дублирането му с наш
+    екран е точно това, което правилата забраняват. -->
+  <menuitem id="bg-hide-debt-recovery-root-factoring" name="debt-recovery-root-factoring"
+    parent="account-root-debt-recovery" title="Factoring" hidden="true"/>
+
+  <!-- DEB/DES (déclaration d'échanges de biens / déclaration européenne de services) — френските
+    декларации за вътреобщностен обмен на стоки и услуги към митниците, „Declarations of exchanges“
+    на axelor-supplychain. В България Интрастат се подава към НАП по друг формат, а услугите в ЕС
+    влизат във VIES от модула за ДДС. Менюто се скрива.
+    ⚠️ ДАННИТЕ НЕ СЕ ТРИЯТ: моделът DeclarationOfExchanges, изгледите и записите остават; скрит е
+    само входът в менюто. Правата на менюто са отнети през nx_retired.csv. -->
+  <menuitem id="bg-hide-supplychain-declarations-of-exchanges"
+    name="supplychain-declarations-of-exchanges" parent="account-root-periodic-processing"
+    title="Declarations of exchanges" hidden="true"/>
+
+  <!-- ═══ ФРЕНСКИТЕ ЧЕКОВЕ, LCR И FEC ═══
+    Всички по-долу са френски платежни или отчетни инструменти без приложение в България. Скрит е
+    САМО входът в менюто: моделите, изгледите и записите остават, а правата на менютата са отнети
+    през nx_retired.csv (генераторът ги води в HIDDEN_MENUS / RETIRED_MENUS). -->
+
+  <!-- „Депозитни фишове“ (bordereau de remise de chèques) — опис на чекове, внасяни в банката. -->
+  <menuitem id="bg-hide-account-root-payments-cheque-deposit-slip-all"
+    name="account-root-payments-cheque-deposit-slip-all" parent="account-root-payments"
+    title="Deposit slips" hidden="true"/>
+
+  <!-- „Отхвърляне на чекове“ (rejet de chèque) — обратното на депозитния фиш. -->
+  <menuitem id="bg-hide-account-root-periodic-processing-cheque-reject"
+    name="account-root-periodic-processing-cheque-reject" parent="account-root-periodic-processing"
+    title="Rejects of cheques" hidden="true"/>
+
+  <!-- LCR (lettre de change relevé) — френската електронна менителница, axelor-bank-payment. Групата
+    се скрива цяла и с нея единственото ѝ дете „LCR bank orders“. Банковите нареждания по SEPA
+    (account-root-bank-orders и останалите му деца) НЕ се пипат. -->
+  <menuitem id="bg-hide-account-root-bank-order-lcr" name="account-root-bank-order-lcr"
+    parent="account-root-bank-orders" title="LCR" hidden="true"/>
+
+  <!-- „Внос на FEC“ (fichier des écritures comptables) — френският файл на счетоводните записи.
+    Ролите го нямат (RETIRED_MENUS в генератора); скриването го маха и за администратора.
+    „Import FEC Type“ (account-conf-import-fec-type) не се скрива. -->
+  <menuitem id="bg-hide-fec-import" name="fec-import" parent="account-conf" title="FEC import"
+    hidden="true"/>
+
+</object-views>

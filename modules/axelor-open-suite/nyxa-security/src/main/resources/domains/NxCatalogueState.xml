@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="nyxasecurity" package="com.axelor.apps.nyxasecurity.db"/>
+
+  <!-- What the role catalogue import last applied (RoleCatalogueImporter). One row per key; the
+    import is skipped at boot when the catalogue files hash to the stored value. -->
+  <entity name="NxCatalogueState" cacheable="false">
+    <string name="code" required="true" unique="true" max="64"/>
+    <string name="hash" max="128"/>
+  </entity>
+
+</domain-models>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="account" package="com.axelor.apps.account.db"/>
+
+  <!-- Bulgarian localization (Block C foundation): NAP document type (вид на документа) for INVOICE-based
+    documents. Merged into com.axelor.apps.account.db.Invoice by the code generator. The entity opening tag
+    replicates the original Invoice attributes exactly (sequential + implements) so the merge keeps them.
+    Only the new field is added here. This is the field FOUNDATION only — the legal tax-code -> NAP-column
+    mapping is NOT done here (WS-3). -->
+  <entity sequential="true" name="Invoice"
+    implements="com.axelor.apps.base.interfaces.PricedOrder,com.axelor.apps.base.interfaces.Currenciable,com.axelor.apps.base.interfaces.GlobalDiscounter">
+
+    <string name="napDocumentTypeSelect" title="NAP document type (вид на документа)"
+      selection="bg.nap.document.type.select"/>
+
+    <!-- Вид на доставката (поле 02-27 продажби / 03-45 покупки) — чл.163а/167а и др. -->
+    <string name="bgVatSupplyType" title="Вид на доставката (чл.163а/167а)"
+      selection="bg.vat.supply.type.select"/>
+
+    <!-- Датата на данъчното събитие по доставката (ЗДДС чл. 25 ал. 2–4, при ВОП чл. 63 ал. 1–2) —
+      реквизит на протокола по чл. 117 ал. 2 т. 4 и началото на изискуемостта му. Празно — датата на
+      фактурата на доставчика (originDate) с предупреждение. На продажната фактура (ВОД, услуга по
+      чл. 21 ал. 2) VIES извежда от нея периода на изискуемостта (ППЗДДС чл. 117 ал. 2 т. 11); празно —
+      датата на фактурата. -->
+    <date name="bgVatTaxEventDate" title="Дата на данъчното събитие"/>
+
+    <!-- Период на отразяване по ЗДДС (ГГГГММ): в кой данъчен период фактурата влиза в дневниците, когато
+      не е месецът на статията ѝ — пропуснат документ (ЗДДС чл. 126 ал. 3 т. 1) или покупка с отложен
+      кредит (чл. 72 ал. 1, чл. 124 ал. 4). Празно = месецът на статията. Счетоводната дата не се мени.
+      Правилата — BgVatReportingPeriod, подборът — BgVatPeriodScope. Колоната е от домейна (без SQL). -->
+    <string name="bgVatReportingPeriod" title="Период на отразяване по ЗДДС" max="6" copy="false"/>
+
+    <!-- Исканата дата на протокола по чл. 117 — само за бутона, не се пази. Празно — max(изискуемост,
+      дата на фактурата); иначе в [изискуемост; изискуемост + 15 дни] (BgVatProtocolDates.place). -->
+    <date name="bgVatProtocolRequestedDate" title="Дата на протокола (по избор)" transient="true"/>
+
+    <!-- Протоколите по чл. 117, съставени от тази фактура — обратното на Move.bgVatSourceInvoice.
+      ⚠️ copy="false": кредитното известие е дълбоко копие на фактурата (JPA.copy(invoice, true)) и иначе
+      би дублирало протоколите. ⚠️ orphanRemoval="false": по подразбиране двупосочният one-to-many трие
+      сираците, тоест запис на фактурата със стар списък би изтрил осчетоводен протокол. -->
+    <one-to-many name="bgVatProtocolMoveList" ref="com.axelor.apps.account.db.Move"
+      mappedBy="bgVatSourceInvoice" title="Протоколи по чл. 117" readonly="true" copy="false"
+      orphanRemoval="false"/>
+
+  </entity>
+
+</domain-models>

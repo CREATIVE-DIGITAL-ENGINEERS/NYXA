@@ -1,0 +1,705 @@
+import { clsx } from "@axelor/ui";
+import { atom, useAtomValue } from "jotai";
+import { selectAtom } from "jotai/utils";
+import uniqueId from "lodash/uniqueId";
+import {
+  RefObject,
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+import {
+  Grid as AxGrid,
+  GridProvider as AxGridProvider,
+  GridColumn,
+  GridColumnProps,
+  GridLabel,
+  GridProps,
+  GridRow,
+  GridRowProps,
+  getRows,
+} from "@axelor/ui/grid";
+
+import { useAsync } from "@/hooks/use-async";
+import { useAsyncEffect } from "@/hooks/use-async-effect";
+import { usePermitted } from "@/hooks/use-permitted";
+import { useDevice } from "@/hooks/use-responsive";
+import { useSession } from "@/hooks/use-session";
+import {
+  SaveOptions,
+  SearchOptions,
+  SearchResult,
+} from "@/services/client/data";
+import { DataContext, DataRecord } from "@/services/client/data.types";
+import { i18n } from "@/services/client/i18n";
+import { MetaData, ViewData } from "@/services/client/meta";
+import {
+  AdvancedSearchAtom,
+  Field,
+  FormView,
+  GridView,
+  JsonField,
+  Perms,
+  Property,
+} from "@/services/client/meta.types";
+import { getFieldValue } from "@/utils/data-record";
+import format from "@/utils/format";
+import { toKebabCase } from "@/utils/names";
+import { ActionExecutor } from "@/view-containers/action";
+import { Attrs } from "@/views/form/builder";
+import { findView } from "@/services/client/meta-cache";
+import { getDefaultValues, nextId } from "@/views/form/builder/utils";
+
+import {
+  getWidget,
+  isValidSequence,
+  useGridSortHandler,
+} from "../builder/utils";
+import { Cell as CellRenderer } from "../renderers/cell";
+import { Form as FormRenderer, GridFormHandler } from "../renderers/form";
+import { Row as RowRenderer } from "../renderers/row";
+import {
+  GridContext,
+  GridHandler as GridContextType,
+  useCollectionTreeEditable,
+  useGridColumnNames,
+} from "./scope";
+import { ExpandIcon, ExpandableFormView } from "./expandable";
+
+import styles from "../grid.module.scss";
+
+function formatter(column: Field, value: any, record: any) {
+  return format(value, {
+    props: column,
+    context: record,
+  });
+}
+
+function columnValueGetter(column: Field, record: any) {
+  return getFieldValue(record, column as Field);
+}
+
+let labels: Record<GridLabel, string>;
+
+const getLabels: () => Record<GridLabel, string> = () =>
+  labels ||
+  (labels = {
+    Sum: i18n.get("Sum"),
+    Min: i18n.get("Min"),
+    Max: i18n.get("Max"),
+    Avg: i18n.get("Avg"),
+    Count: i18n.get("Count"),
+    items: i18n.get("items"),
+    Ungroup: i18n.get("Ungroup"),
+    Hide: i18n.get("Hide"),
+    Show: i18n.get("Show"),
+    Groups: i18n.get("Groups"),
+    "Sort Ascending": i18n.get("Sort Ascending"),
+    "Sort Descending": i18n.get("Sort Descending"),
+    "Group by": i18n.get("Group by"),
+    "Customize...": i18n.get("Customize..."),
+  });
+
+export type GridHandler = {
+  form?: RefObject<GridFormHandler>;
+  onAdd?: () => void;
+  onSave?: () => void;
+  commit?: () => void;
+};
+
+export const Grid = forwardRef<
+  GridHandler,
+  Partial<GridProps> & {
+    view: GridView;
+    viewContext?: DataContext;
+    expandable?: boolean;
+    expandableView?: string | ViewData<FormView>;
+    fields?: MetaData["fields"];
+    perms?: Perms;
+    searchOptions?: Partial<SearchOptions>;
+    searchAtom?: AdvancedSearchAtom;
+    editable?: boolean;
+    readonly?: boolean;
+    showAsTree?: boolean;
+    showNewIcon?: boolean;
+    showEditIcon?: boolean;
+    showDeleteIcon?: boolean;
+    columnAttrs?: Record<string, Partial<Attrs>>;
+    columnFormatter?: (column: Field, value: any, record: DataRecord) => string;
+    actionExecutor?: ActionExecutor;
+    gridContext?: GridContextType;
+    onFormInit?: () => void;
+    onSearch?: (options?: SearchOptions) => Promise<SearchResult | undefined>;
+    onNew?: (record: GridRow["record"]) => any;
+    onAddSubLine?: (parent: DataRecord) => any;
+    onEdit?: (record: GridRow["record"]) => any;
+    onDelete?: (record: GridRow["record"]) => any;
+    onView?: (record: GridRow["record"]) => any;
+    onUpdate?: (record: GridRow["record"]) => void;
+    onSave?: (
+      record: GridRow["record"],
+      options?: SaveOptions<GridRow["record"]>,
+    ) => void;
+    onDiscard?: (record: GridRow["record"]) => void;
+  }
+>(function Grid(props, ref) {
+  const {
+    view,
+    viewContext,
+    expandable,
+    expandableView,
+    gridContext: _gridContext,
+    fields,
+    perms,
+    searchOptions,
+    searchAtom,
+    actionExecutor,
+    showAsTree,
+    showNewIcon,
+    showEditIcon = true,
+    showDeleteIcon,
+    editable = false,
+    readonly,
+    columnAttrs,
+    columnFormatter,
+    records,
+    state,
+    setState,
+    onFormInit,
+    onSearch,
+    onNew,
+    onAddSubLine,
+    onEdit,
+    onDelete,
+    onUpdate,
+    onView,
+    onSave,
+    onDiscard,
+    className,
+    noRecordsText,
+    ...gridProps
+  } = props;
+
+  const gridRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<GridFormHandler>(null);
+  const [event, setEvent] = useState("");
+  const { isMobile } = useDevice();
+  const { data: user } = useSession();
+  const allowCheckboxSelection =
+    (view.selector ?? user?.view?.grid?.selection ?? "checkbox") === "checkbox";
+  const hasClientSideSort = (gridProps?.sortType || "state") === "state";
+  const [initData, setInitData] = useState(false);
+
+  const { commit: commitTreeForm } = useCollectionTreeEditable();
+
+  const names = useGridColumnNames({
+    view,
+    fields,
+  });
+  const sortHandler = useGridSortHandler(fields);
+
+  const viewItems = useMemo(
+    () =>
+      (view.items || []).map((item) => ({
+        ...item,
+        id: uniqueId(view.name || "grid-column"),
+      })),
+    [view.name, view.items],
+  );
+
+  const contextField = useAtomValue(
+    useMemo(
+      () =>
+        searchAtom
+          ? selectAtom(searchAtom, (o) => o.appliedContextField)
+          : atom(undefined),
+      [searchAtom],
+    ),
+  );
+
+  const columns = useMemo(() => {
+    const { field, value } = contextField ?? {};
+    const { name } = field ?? {};
+    const { id } = value ?? {};
+    const activeContextField = id ? { name, id: String(id) } : null;
+
+    const columns: GridColumn[] = viewItems
+      .filter((item) => {
+        const { contextField: ctxField, contextFieldValue: ctxFieldValue } =
+          item as Record<string, any>;
+
+        if (ctxField) {
+          return (
+            ctxField === activeContextField?.name &&
+            String(ctxFieldValue) === String(activeContextField?.id)
+          );
+        }
+        return true;
+      })
+      .map((item) => {
+        const field = fields?.[item.name!];
+        const title = item.title ?? item.autoTitle;
+        const attrs = item.widgetAttrs;
+        const serverType = (item as Field).serverType || field?.type;
+        const columnProps: Partial<GridColumn> = {};
+        const extraAttrs = columnAttrs?.[item.name!];
+
+        let widget;
+        if (item.type === "field") {
+          widget = getWidget(item, field);
+          columnProps.help = item.help;
+        }
+
+        if (view.sortable === false) {
+          columnProps.sortable = (item as Field).sortable === true;
+        }
+
+        if (item.width) {
+          columnProps.width = parseInt(item.width as string);
+          columnProps.computed = true;
+        }
+
+        if (item.type === "button" || item.widget === "icon") {
+          columnProps.sortable = false;
+          columnProps.searchable = false;
+          columnProps.editable = false;
+          columnProps.computed = true;
+          columnProps.width = columnProps.width || 40;
+          columnProps.action = true;
+        }
+
+        const isCollection = ["one-to-many", "many-to-many"].includes(
+          toKebabCase(field?.type ?? ""),
+        );
+        const jsonField = (item as unknown as JsonField).jsonField;
+        const searchable =
+          jsonField ||
+          (field && // check dummy
+            !field.transient &&
+            !field.json &&
+            !field.encrypted);
+
+        if (!searchable || (isCollection && !field?.targetName)) {
+          columnProps.searchable = false;
+        }
+
+        if ((!searchable || isCollection) && !hasClientSideSort) {
+          columnProps.sortable = false;
+        }
+
+        // aggregate only supported on number fields
+        if (!["DECIMAL", "INTEGER", "LONG"].includes(serverType ?? "")) {
+          columnProps.aggregate = undefined;
+        }
+
+        if (
+          ["DECIMAL", "INTEGER", "LONG"].includes(serverType ?? "") &&
+          !((item as Field).selection || item.widget == "rating")
+        ) {
+          columnProps.$css = clsx(styles.number);
+          columnProps.$headerCss = clsx(styles.numberHeaderColumn);
+        }
+
+        if (
+          serverType === "TEXT" ||
+          ["html"].includes(item.widget?.toLowerCase() ?? "")
+        ) {
+          columnProps.$css = clsx(styles["multi-line-text"]);
+        }
+
+        const hidden = extraAttrs?.hidden ?? item.hidden;
+        if (hidden !== undefined) {
+          columnProps.visible = !hidden;
+        }
+
+        return {
+          ...field,
+          ...item,
+          ...attrs,
+          ...(item.type === "field" && { serverType }),
+          title,
+          formatter: columnFormatter || formatter,
+          valueGetter: columnValueGetter,
+          ...columnProps,
+          ...extraAttrs,
+          ...(widget && { widget }),
+        } as any;
+      });
+
+    if (showNewIcon) {
+      columns.push({
+        title: "",
+        name: "$$new",
+        widget: "new-icon",
+        computed: true,
+        editable: false,
+        sortable: false,
+        searchable: false,
+        width: 40,
+      } as GridColumn);
+    }
+
+    if (showEditIcon && view.editIcon !== false) {
+      const editColumn = {
+        title: "",
+        name: "$$edit",
+        widget: "edit-icon",
+        computed: true,
+        editable: false,
+        sortable: false,
+        searchable: false,
+        width: 40,
+      } as GridColumn;
+      showAsTree ? columns.push(editColumn) : columns.unshift(editColumn);
+    }
+
+    if (showDeleteIcon) {
+      columns.push({
+        title: "",
+        name: "$$delete",
+        widget: "delete-icon",
+        computed: true,
+        editable: false,
+        sortable: false,
+        searchable: false,
+        width: 40,
+      } as GridColumn);
+    }
+
+    return columns;
+  }, [
+    viewItems,
+    view.sortable,
+    view.editIcon,
+    hasClientSideSort,
+    showAsTree,
+    showEditIcon,
+    showNewIcon,
+    showDeleteIcon,
+    fields,
+    columnFormatter,
+    columnAttrs,
+    contextField,
+  ]);
+
+  const model = view.model ?? (view as unknown as Property)?.target ?? "";
+
+  // cache expandable form in advance
+  const { data: expandViewMeta } = useAsync(async () => {
+    if (expandable) {
+      return expandableView && typeof expandableView === "object"
+        ? expandableView
+        : await findView<FormView>({
+            type: "form",
+            name: expandableView,
+            model,
+          });
+    }
+  }, [expandable, model, fields, expandableView]);
+
+  useAsyncEffect(async () => {
+    await onSearch?.({ ...searchOptions, fields: names });
+    setInitData(true);
+  }, [onSearch, searchOptions, names]);
+
+  const handleCellClick = useCallback(
+    (
+      e: React.SyntheticEvent,
+      col: GridColumn,
+      colIndex: number,
+      row: GridRow,
+    ) => {
+      if (col.name === "$$new") {
+        onNew?.(row.record);
+      } else if (col.name === "$$edit") {
+        onEdit?.(row.record);
+      } else if (col.name === "$$delete") {
+        onDelete?.([row.record]);
+      } else if (isMobile) {
+        onView?.(row.record);
+      }
+    },
+    [isMobile, onNew, onEdit, onView, onDelete],
+  );
+
+  const handleRowDoubleClick = useCallback(
+    (e: React.SyntheticEvent, row: GridRow, rowIndex: number) => {
+      onView?.(row.record);
+    },
+    [onView],
+  );
+
+  const commitForm = useCallback(async () => {
+    // save current edit row
+    const form = formRef.current;
+    if (form) {
+      return await form?.onSave?.(true);
+    }
+
+    if (commitTreeForm) {
+      await commitTreeForm();
+    }
+  }, [commitTreeForm]);
+
+  const doAdd = useCallback(async () => {
+    const newRecord = {
+      id: nextId(),
+      ...getDefaultValues(fields, view.items),
+    };
+    const newRecords = [...(records || []), newRecord];
+    setState?.((draft) => {
+      const { rows, columns, orderBy, groupBy } = draft;
+      const _rows = draft.rows;
+      const newRows: GridRow[] = getRows({
+        rows,
+        columns,
+        orderBy,
+        groupBy,
+        records: newRecords,
+        sortFn: sortHandler,
+      });
+
+      draft.rows = newRows.map((row) => {
+        const oldRow = _rows.find((r) => r.key === row.key);
+        return oldRow ? { ...row, expand: oldRow.expand } : row;
+      });
+      draft.selectedCell = null;
+      draft.selectedRows = null;
+      draft.editRow = [
+        newRows.findIndex((r) => r?.record?.id === newRecord.id),
+        null,
+      ];
+    });
+  }, [fields, records, setState, view.items, sortHandler]);
+
+  const isPermitted = usePermitted(model, perms);
+
+  const handleRecordSave = useCallback(
+    (record: GridRow["record"]) => onSave?.(record),
+    [onSave],
+  );
+
+  const handleRecordAdd = useCallback(async () => {
+    setEvent("editable:add-new");
+    setState?.((draft) => {
+      draft.orderBy = null;
+    });
+    return true;
+  }, [setState]);
+
+  const onRecordAdd = useCallback(async () => {
+    await commitForm();
+    return handleRecordAdd();
+  }, [commitForm, handleRecordAdd]);
+
+  const handleRecordEdit = useCallback(
+    async (row: GridRow, rowIndex?: number, column?: GridColumn) => {
+      // Skip edit row for edit icon and check write permission
+      if (
+        ["icon"].includes((column as Field)?.widget ?? "") ||
+        ["button", "row-expand"].includes(column?.type ?? "") ||
+        ["$$new", "$$edit", "$$delete"].includes(column?.name ?? "") ||
+        !(await isPermitted(row.record, false, true))
+      ) {
+        return null;
+      }
+
+      await commitForm();
+    },
+    [commitForm, isPermitted],
+  );
+
+  const handleRecordDiscard = useCallback(
+    async (record: DataRecord) => {
+      // on record discard
+      if ((record.id ?? -1) < 0 && !record._dirty) {
+        setState?.((draft) => {
+          draft.rows = draft.rows.filter((r) => r?.record?.id !== record.id);
+        });
+      }
+      onDiscard?.(record);
+      // focus was lost due to onDiscard activity
+      // re-focus grid through timeout
+      setTimeout(() => {
+        gridRef?.current?.focus();
+      });
+    },
+    [onDiscard, setState],
+  );
+
+  const CustomRowRenderer = useMemo(() => {
+    const { hilites } = view;
+    if (!(hilites || []).length) return;
+    return (props: GridRowProps) => (
+      <RowRenderer {...props} hilites={hilites} />
+    );
+  }, [view]);
+
+  const CustomCellRenderer = useMemo(
+    () => (props: GridColumnProps) => (
+      <CellRenderer
+        {...props}
+        onUpdate={onUpdate}
+        view={view}
+        viewContext={viewContext}
+        actionExecutor={actionExecutor}
+      />
+    ),
+    [view, actionExecutor, onUpdate, viewContext],
+  );
+
+  const CustomFormRenderer = useMemo(() => {
+    const items = view.items?.map((item) => {
+      const found = columns.find((x) => x.name === item.name);
+      if (found) return found;
+      return item;
+    });
+    const gridView = { ...view, items } as GridView;
+    return (props: GridRowProps) => (
+      <FormRenderer
+        ref={formRef}
+        {...props}
+        view={gridView}
+        viewContext={viewContext}
+        fields={fields}
+        isLastRow={(state?.rows?.length ?? 0) - 1 === props.index}
+        onAddSubLine={onAddSubLine}
+        onInit={onFormInit}
+      />
+    );
+  }, [
+    onFormInit,
+    onAddSubLine,
+    view,
+    viewContext,
+    state?.rows.length,
+    columns,
+    fields,
+  ]);
+
+  const detailsProps = useMemo(
+    () => ({
+      rowDetailsExpandIcon: ExpandIcon,
+    }),
+    [],
+  );
+
+  const RowDetailsRenderer = useMemo(() => {
+    return ({
+      data,
+      onClose,
+    }: GridRowProps & {
+      onClose?: () => void;
+    }) =>
+      expandViewMeta ? (
+        <ExpandableFormView
+          gridView={view}
+          meta={expandViewMeta}
+          record={data.record!}
+          onUpdate={onUpdate}
+          onSave={onSave}
+          onDiscard={handleRecordDiscard}
+          onClose={onClose}
+        />
+      ) : null;
+    // eslint-disable-next-line
+  }, [view, onSave, onUpdate, expandViewMeta]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      form: formRef,
+      onAdd: onRecordAdd,
+      commit: commitForm,
+    }),
+    [formRef, onRecordAdd, commitForm],
+  );
+
+  useAsyncEffect(
+    async (signal: AbortSignal) => {
+      if (signal.aborted) return;
+      if (event === "editable:add-new") {
+        const form = formRef.current;
+        if (form && form.invalid?.()) {
+          return;
+        }
+        doAdd();
+      }
+      setEvent("");
+    },
+    [doAdd, event],
+  );
+
+  const canMove = useMemo(() => {
+    if (readonly) return false;
+
+    const { canMove, orderBy } = view ?? {};
+    if (canMove !== true) return false;
+
+    // On top-level grid, orderBy is required for canMove
+    const orderField = orderBy?.split(/\s*,\s*/)?.[0];
+    if (!orderField) return false;
+
+    const field = fields?.[orderField];
+    return field && isValidSequence(field);
+  }, [readonly, view, fields]);
+
+  const gridContext = useMemo(
+    () => ({ ..._gridContext, readonly: !editable && readonly }),
+    [editable, readonly, _gridContext],
+  );
+
+  return (
+    <AxGridProvider>
+      <GridContext.Provider value={gridContext}>
+        <AxGrid
+          ref={gridRef}
+          labels={getLabels()}
+          cellRenderer={CustomCellRenderer}
+          rowRenderer={CustomRowRenderer}
+          allowColumnResize
+          allowGrouping={!canMove}
+          allowSorting={!canMove}
+          allowSelection
+          allowCellSelection
+          allowColumnHide
+          allowColumnOptions
+          allowColumnCustomize
+          allowCheckboxSelection={allowCheckboxSelection}
+          allowRowReorder={canMove}
+          allowRowExpand={expandable}
+          sortType="state"
+          selectionType="multiple"
+          {...(editable &&
+            !isMobile && {
+              editable,
+              editRowRenderer: CustomFormRenderer,
+              onRecordSave: handleRecordSave,
+              onRecordAdd: handleRecordAdd,
+              onRecordEdit: handleRecordEdit,
+              onRecordDiscard: handleRecordDiscard,
+            })}
+          {...(expandable && {
+            rowDetailsRenderer: RowDetailsRenderer,
+            ...detailsProps,
+          })}
+          onCellClick={handleCellClick}
+          onRowDoubleClick={handleRowDoubleClick}
+          sortHandler={sortHandler}
+          state={state!}
+          setState={setState!}
+          records={records!}
+          rowHeight={Math.max(view.rowHeight ?? 35, 35)}
+          {...gridProps}
+          {...(initData && { noRecordsText })}
+          columns={columns}
+          className={clsx(className, styles.grid)}
+        />
+      </GridContext.Provider>
+    </AxGridProvider>
+  );
+});

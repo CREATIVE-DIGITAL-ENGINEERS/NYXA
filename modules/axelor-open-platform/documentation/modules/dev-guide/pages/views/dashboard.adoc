@@ -1,0 +1,34 @@
+= Dashboard
+:toc:
+:toc-title:
+
+The dashboard is used to provide overviews. The dashboard view is composed of dashlets and optional search fields.
+
+[source,xml]
+-----
+<dashboard name="welcome.dashboard" title="Welcome!">
+  <search-fields>
+    <field name="fromDate" type="date" title="From date"/>
+    <field name="toDate" type="date" title="To date"/>
+  </search-fields>
+  <dashlet action="chart:chart.sales.per.month"/>
+  <dashlet action="chart:chart.sales.per.month.pie"/>
+  <dashlet colSpan="12" action="sale.orders"/>
+</dashboard>
+-----
+
+Dashlets are nothing but embedded views. The following view types are supported:
+`grid`, `chart`, `custom`, `cards`, `kanban`, `calendar`, `tree`, `gantt`, `html`.
+
+The dashlet `action` can be either:
+
+* an `action-view`. The first view of that action-view will be used in dashlet.
+* `<view-type>:<view-name>` value where `<view-type>` is one of the supported view types
+and `<view-name>`, the name of the view.
+
+The recommended way is to use an `action-view` instead of `<view-type>:<view-name>`. It 
+provides more controls and configuration of what is displayed.
+
+The search fields will be added on top of the dashboard. They can be filled with `onInit` event
+on dashboard. As soon they are filled or/and changed, dashboard dashlets will use the values
+in their respective context.

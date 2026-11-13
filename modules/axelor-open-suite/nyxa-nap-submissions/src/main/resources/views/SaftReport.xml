@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="saft-report-grid" title="SAF-T reports"
+    model="com.axelor.apps.napsubmissions.db.SaftReport" orderBy="-createdOn">
+    <field name="name"/>
+    <field name="company"/>
+    <field name="period"/>
+    <field name="reportTypeSelect"/>
+    <field name="lifecycleStatusSelect"/>
+    <field name="readinessStatusSelect"/>
+    <field name="schemaVersion"/>
+    <field name="createdOn"/>
+  </grid>
+
+  <!-- T1: the annual file — one per calendar year (QA II.4.5). -->
+  <grid name="saft-report-annual-grid" title="SAF-T annual files"
+    model="com.axelor.apps.napsubmissions.db.SaftReport" orderBy="-reportYear,-createdOn">
+    <field name="name"/>
+    <field name="company"/>
+    <field name="reportYear"/>
+    <field name="lifecycleStatusSelect"/>
+    <field name="readinessStatusSelect"/>
+    <field name="schemaVersion"/>
+    <field name="createdOn"/>
+  </grid>
+
+  <!-- T1: the on-demand file — per request of a revenue officer, one or two sub-periods. -->
+  <grid name="saft-report-on-demand-grid" title="SAF-T on-demand files"
+    model="com.axelor.apps.napsubmissions.db.SaftReport" orderBy="-napRequestDate,-createdOn">
+    <field name="name"/>
+    <field name="company"/>
+    <field name="napRequestNumber"/>
+    <field name="napRequestDate"/>
+    <field name="fromDate"/>
+    <field name="toDate"/>
+    <field name="lifecycleStatusSelect"/>
+    <field name="readinessStatusSelect"/>
+    <field name="schemaVersion"/>
+    <field name="createdOn"/>
+  </grid>
+
+  <!-- THE SAF-T FILE (G6b; annual and on-demand — T1): check → generate → download → filed on the
+    portal → accepted / rejected. The company is always the active one. The kind comes from the menu
+    (action-view context _saftReportType) and is read-only here; what the file is for depends on it: a
+    month of the fiscal year (monthly), a calendar year (annual), or the dates and the request of the
+    revenue officer (on-demand). There is no approval step (decision 20.10.2026). Every button is one
+    SaftReportWorkflowService action behind the filing gate; with .read only viewing
+    and "Download for the portal". -->
+  <form name="saft-report-form" title="SAF-T report"
+    model="com.axelor.apps.napsubmissions.db.SaftReport" width="large"
+    onNew="action-saft-report-record-defaults">
+
+    <panel name="statusPanel" colSpan="12">
+      <field name="lifecycleStatusSelect" readonly="true" widget="single-select" colSpan="3"/>
+      <field name="readinessStatusSelect" readonly="true" widget="single-select" colSpan="3"/>
+      <button name="validateBtn" title="Check" icon="fa-check-circle" colSpan="2"
+        onClick="save,action-saft-report-method-validate" showIf="id"/>
+      <button name="generateBtn" title="Generate" icon="fa-cogs" colSpan="2" css="btn-primary"
+        onClick="save,action-saft-report-method-generate" showIf="id"/>
+      <button name="downloadBtn" title="Download for the portal" icon="fa-download"
+        colSpan="2" onClick="action-saft-report-method-download" showIf="generatedArtifact"/>
+    </panel>
+
+    <panel name="mainPanel" title="Report" colSpan="12">
+      <field name="name" readonly="true"/>
+      <field name="company" readonly="true"/>
+      <field name="reportTypeSelect" readonly="true"/>
+      <field name="period" readonlyIf="generatedArtifact"
+        showIf="reportTypeSelect == 'monthly'" requiredIf="reportTypeSelect == 'monthly'"
+        domain="self.year.company = :company AND self.year.typeSelect = 1"/>
+      <field name="reportYear" readonlyIf="generatedArtifact"
+        showIf="reportTypeSelect == 'annual'" requiredIf="reportTypeSelect == 'annual'"/>
+      <field name="napRequestNumber" readonlyIf="generatedArtifact"
+        showIf="reportTypeSelect == 'on_demand'" requiredIf="reportTypeSelect == 'on_demand'"/>
+      <field name="napRequestDate" readonlyIf="generatedArtifact"
+        showIf="reportTypeSelect == 'on_demand'"/>
+      <field name="fromDate" readonlyIf="generatedArtifact"
+        showIf="reportTypeSelect == 'on_demand'" requiredIf="reportTypeSelect == 'on_demand'"/>
+      <field name="toDate" readonlyIf="generatedArtifact"
+        showIf="reportTypeSelect == 'on_demand'" requiredIf="reportTypeSelect == 'on_demand'"/>
+      <field name="schemaVersion" readonly="true"/>
+      <field name="generatedArtifact" readonly="true"/>
+    </panel>
+
+    <panel name="filingPanel" title="Filed on the НАП portal" colSpan="12"
+      showIf="lifecycleStatusSelect == 'generated'">
+      <field name="incomingNumberInput" colSpan="4"/>
+      <field name="portalDateInput" colSpan="4"/>
+      <button name="recordFilingBtn" title="Record filing" icon="fa-upload" colSpan="4"
+        onClick="action-saft-report-method-record-filing"/>
+    </panel>
+
+    <panel name="outcomePanel" title="Outcome" colSpan="12"
+      showIf="submissionList &amp;&amp; submissionList.length &gt; 0">
+      <field name="rejectionReasonInput" colSpan="8"/>
+      <button name="acceptedBtn" title="Accepted" icon="fa-check" colSpan="2" css="btn-success"
+        onClick="action-saft-report-method-record-accepted"/>
+      <button name="rejectedBtn" title="Rejected" icon="fa-times" colSpan="2"
+        onClick="action-saft-report-method-record-rejected"/>
+      <field name="protocolFile" widget="binary-link" colSpan="8"/>
+      <button name="attachProtocolBtn" title="Upload protocol" icon="fa-paperclip" colSpan="4"
+        onClick="action-saft-report-method-attach-protocol"/>
+    </panel>
+
+    <panel name="issuesPanel" title="Findings" colSpan="12">
+      <field name="validationIssueList" colSpan="12" readonly="true"
+        grid-view="saft-validation-issue-grid" form-view="saft-validation-issue-form"/>
+    </panel>
+
+    <panel name="filesPanel" title="Files" colSpan="12">
+      <field name="artifactList" colSpan="12" readonly="true"/>
+    </panel>
+
+    <panel name="submissionsPanel" title="Submission attempts" colSpan="12">
+      <field name="submissionList" colSpan="12" readonly="true"/>
+    </panel>
+
+    <!-- A correcting file is OUT OF SCOPE (we wait for НАП): the button always refuses with the reason. -->
+    <panel name="correctionPanel" title="Correction" colSpan="12"
+      showIf="submissionList &amp;&amp; submissionList.length &gt; 0">
+      <field name="correctionReasonInput" colSpan="8"/>
+      <button name="createCorrectionBtn" title="Create correction" icon="fa-copy" colSpan="4"
+        onClick="action-saft-report-method-create-correction"/>
+    </panel>
+
+  </form>
+
+  <action-record name="action-saft-report-record-defaults"
+    model="com.axelor.apps.napsubmissions.db.SaftReport">
+    <field name="company" expr="eval: __user__.activeCompany"/>
+    <field name="reportTypeSelect" expr="eval: _saftReportType ?: 'monthly'"/>
+  </action-record>
+
+  <action-method name="action-saft-report-method-validate">
+    <call class="com.axelor.apps.napsubmissions.web.SaftReportController" method="validate"/>
+  </action-method>
+  <action-method name="action-saft-report-method-generate">
+    <call class="com.axelor.apps.napsubmissions.web.SaftReportController" method="generate"/>
+  </action-method>
+  <action-method name="action-saft-report-method-download">
+    <call class="com.axelor.apps.napsubmissions.web.SaftReportController" method="download"/>
+  </action-method>
+  <action-method name="action-saft-report-method-record-filing">
+    <call class="com.axelor.apps.napsubmissions.web.SaftReportController" method="recordFiling"/>
+  </action-method>
+  <action-method name="action-saft-report-method-record-accepted">
+    <call class="com.axelor.apps.napsubmissions.web.SaftReportController"
+      method="recordAccepted"/>
+  </action-method>
+  <action-method name="action-saft-report-method-record-rejected">
+    <call class="com.axelor.apps.napsubmissions.web.SaftReportController"
+      method="recordRejected"/>
+  </action-method>
+  <action-method name="action-saft-report-method-attach-protocol">
+    <call class="com.axelor.apps.napsubmissions.web.SaftReportController"
+      method="attachProtocol"/>
+  </action-method>
+  <action-method name="action-saft-report-method-create-correction">
+    <call class="com.axelor.apps.napsubmissions.web.SaftReportController"
+      method="createCorrection"/>
+  </action-method>
+
+  <action-view name="action-saft-report-view-all" title="SAF-T reports"
+    model="com.axelor.apps.napsubmissions.db.SaftReport">
+    <view type="grid" name="saft-report-grid"/>
+    <view type="form" name="saft-report-form"/>
+    <domain>self.reportTypeSelect = 'monthly'</domain>
+    <context name="_saftReportType" expr="monthly"/>
+  </action-view>
+
+  <action-view name="action-saft-report-view-annual" title="SAF-T annual files"
+    model="com.axelor.apps.napsubmissions.db.SaftReport">
+    <view type="grid" name="saft-report-annual-grid"/>
+    <view type="form" name="saft-report-form"/>
+    <domain>self.reportTypeSelect = 'annual'</domain>
+    <context name="_saftReportType" expr="annual"/>
+  </action-view>
+
+  <action-view name="action-saft-report-view-on-demand" title="SAF-T on-demand files"
+    model="com.axelor.apps.napsubmissions.db.SaftReport">
+    <view type="grid" name="saft-report-on-demand-grid"/>
+    <view type="form" name="saft-report-form"/>
+    <domain>self.reportTypeSelect = 'on_demand'</domain>
+    <context name="_saftReportType" expr="on_demand"/>
+  </action-view>
+
+</object-views>

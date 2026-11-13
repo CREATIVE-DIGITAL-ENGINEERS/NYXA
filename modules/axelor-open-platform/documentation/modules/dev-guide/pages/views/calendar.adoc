@@ -1,0 +1,77 @@
+= Calendar View
+:toc:
+:toc-title:
+
+The calendar view shows data with schedule/agenda like interface with drag and
+drop support.
+
+[source,xml]
+-----
+<calendar name="project-task-calendar-my"
+  title="My Tasks"
+  model="com.axelor.project.db.ProjectTask"
+  colorBy="project"
+  eventStart="startDate"
+  eventStop="endDate"
+  eventLength="1">
+  <hilite if="state === 'todo'" styles="outline" />
+  <hilite if="state === 'progress'" styles="stripe" />
+  <hilite if="state === 'complete'" styles="strike" />
+  <hilite if="$moment().isAfter(endDate ?? startDate)" styles="fade" />
+  <field name="name" />
+  <field name="createDate" />
+  <field name="user" />
+  <field name="state" />
+  <template>
+    <![CDATA[
+    <>
+      <ul>
+        <li>{$fmt("createDate")}</li>
+        <li>{$fmt("user")}</li>
+      </ul>
+    </>
+    ]]>
+  </template>
+</calendar>
+-----
+
+The calendar view attributes are:
+
+[cols="2,8"]
+|===
+| Attribute | Description
+
+| *`name`* | name of the calendar view
+| `model` | fully qualified name of the domain model
+| `eventStart` | name of the field of type date/datetime to be used as event start time
+| `eventStop` | name of the field of type date/datetime to be used as event stop time
+| `eventLength` | if eventStop is not given, the length of an event in hour (default is 1)
+| `dayLength` | working hours per day (default is 8)
+| `colorBy` | name of the field to be used to colorize the events (colors are used consistently according to the field and there is a maximum of 30 different colors)
+| `mode` | default view mode (month, week or day)
+| `onChange` | action to call when event is changed (with drag or resize)
+| `onDelete` | action to call when deleting an event
+|===
+
+The calendar data shows records as events.
+
+== Hilite
+
+`<hilite>` items can be used to conditionally apply styles to events.
+All hilites that match their `if` conditions are applied.
+
+The `<hilite>` attributes are:
+
+[cols="2,8"]
+|===
+| Attribute | Description
+| *`if`* | boolean expression
+| `styles` | comma-separated list of styles to apply: `fill` (default), `outline`, `stripe`, `strike`, `fade`
+|===
+
+== Template
+
+First `<field>` item is used as event title.
+More `<field>` items can be specified for usage in the `<template>`.
+
+Optional `<template>` element is used to define the event popover content.

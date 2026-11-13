@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Singleton settings row (see BgFixedAssetRealizationSettingsService) and the sole source of
+    truth for the monthly fixed-asset realization schedule (fires on the 1st of each month at the
+    configured time). The derived MetaSchedule row named
+    "bg-fixed-asset-realization-monthly" (Administration > Job Management) is synced FROM this
+    entity on every save and on every server startup — it is an internal artifact, never a
+    second place to configure the schedule; edits made directly on it are overwritten on the
+    next sync. -->
+  <entity name="BgFixedAssetRealizationSettings">
+
+    <!-- The whole point of this column is its unique constraint: exactly one row ever exists. -->
+    <string name="singletonKey" title="Key" required="true" unique="true" max="32"
+      default="default"/>
+
+    <boolean name="active" title="Automatic monthly processing" default="false"/>
+
+    <time name="executionTime" title="Monthly execution time"
+      help="Time of day the automatic run fires on the 1st of each month, in the
+        application/server timezone — NOT your browser's timezone. Has no effect while Automatic
+        monthly processing is off."/>
+
+    <many-to-many name="companySet" ref="com.axelor.apps.base.db.Company" title="Companies"
+      help="The only companies a scheduled run or Run now will ever process. Empty means process
+        nothing — there is no fallback to all companies."/>
+
+  </entity>
+
+</domain-models>

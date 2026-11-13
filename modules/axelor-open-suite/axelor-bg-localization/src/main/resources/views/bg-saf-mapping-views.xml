@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ РЕФЕРЕНТНИТЕ ТАБЛИЦИ НА SAF-T ═══
+
+    Четири номенклатурни таблици, всяка с grid + form + меню. Изгледите са МИНИМАЛНИ нарочно: тези
+    редове идват от началните данни и се сменят ТАМ, не на ръка. Менюто обаче не е украса — без него
+    таблиците са невидими и единственият начин да се провери защо една сметка е излязла с даден код
+    е през базата. Образецът е bg-insured-type-views.xml.
+  -->
+
+  <!-- Правилото, по което сметката е стигнала до своя код по НАП. Носи се като ДАННИ, защото е
+    единственото, което отличава механичното от решеното: „идентитет“ е проверимо срещу
+    номенклатурата, „потвърдено“ е решение на човек и трябва да може да се намери и оспори. -->
+  <selection name="bg.saf.account.mapping.rule.select">
+    <option value="IDENTITY">Идентитет (кодът е код по НАП)</option>
+    <option value="ROLLUP">Навиване към семейството</option>
+    <option value="EXPLICIT">Изрично (по функция, не по префикс)</option>
+    <option value="CONFIRMED">Потвърдено от счетоводител</option>
+    <option value="STRUCTURAL">Структурна (извън SAF-T)</option>
+  </selection>
+
+  <!-- G3b: вид доход → данък при източника. Три различни неща, не степени на увереност — виж
+    BgSafWithholdingMapping в domains/BgSafMapping.xml. -->
+  <selection name="bg.saf.withholding.rule.select">
+    <option value="CODE">Код по TAX-IMP</option>
+    <option value="NONE">Без данък при източника</option>
+    <option value="AMBIGUOUS">Двусмислен — иска ръчен код на реда</option>
+  </selection>
+
+  <!-- G3b: кодът 600/700 на реда от дневника — ръчен (MoveLine.bgSaftTaxCode) или по подразбиране на
+    сметката (Account.bgSaftTaxCode). ПРЕПИС на TAX-IMP вид 600 и 700 (nomenclatures/nra/tax_imp.csv):
+    BgSaftTaxCodeSelectionTest сверява двата набора — нов код на НАП се добавя ТАМ и тук. -->
+  <selection name="bg.saft.tax.code.select">
+    <option value="600010">600010 · Данък върху представителните разходи (10 %)</option>
+    <option value="600020">600020 · Данък върху социалните разходи, предоставени в натура (10 %)</option>
+    <option value="600030">600030 · Данък върху социалните разходи, предоставени в натура (0 % — ЗКПО - чл. 210, ал. 1)</option>
+    <option value="600040">600040 · Данък върху разходите в натура, свързани с предоставени за лично ползване активи и/или с използване на персонал (3 %)</option>
+    <option value="600050">600050 · Лихви - данък върху представителните разходи (без ставка)</option>
+    <option value="600060">600060 · Лихви - данък върху социалните разходи (без ставка)</option>
+    <option value="600070">600070 · Лихви - данък върху разходи в натура, свързани с предоставени за лично ползване активи и/или с използване на персонал (без ставка)</option>
+    <option value="600080">600080 · Глоби, санкции и наказателни постановления (без ставка)</option>
+    <option value="700010">700010 · Възнаграждения по договори за франчайз и факторинг (10 % — Чл. 195, ал. 1 във вр. с. чл. 12, ал. 5, т. 5 от ЗКПО и чл. 46, ал. 1 във вр. с чл. 37, ал. 1, т. 5 от ЗДДФЛ)</option>
+    <option value="700020">700020 · Възнаграждения по договори за франчайз и факторинг (0 % — СИДДО)</option>
+    <option value="700030">700030 · Възнаграждения по договори за франчайз и факторинг (2 % — СИДДО)</option>
+    <option value="700040">700040 · Възнаграждения по договори за франчайз и факторинг (3 % — СИДДО)</option>
+    <option value="700050">700050 · Възнаграждения по договори за франчайз и факторинг (5 % — СИДДО)</option>
+    <option value="700060">700060 · Възнаграждения по договори за франчайз и факторинг (7 % — СИДДО)</option>
+    <option value="700070">700070 · Възнаграждения по договори за франчайз и факторинг (7,5 % — СИДДО)</option>
+    <option value="700080">700080 · Авторски и лицензионни възнаграждения (10 % — Чл. 195, ал. 1 във вр. с. чл. 12, ал. 5, т. 3 от ЗКПО и чл. 46, ал. 1 във вр. с чл. 37, ал. 1, т. 6 от ЗДДФЛ)</option>
+    <option value="700090">700090 · Авторски и лицензионни възнаграждения (0 % — Чл. 195, ал. 6, т. 3 от ЗКПО)</option>
+    <option value="700100">700100 · Авторски и лицензионни възнаграждения (0 % — СИДДО)</option>
+    <option value="700110">700110 · Авторски и лицензионни възнаграждения (5 % — СИДДО)</option>
+    <option value="700120">700120 · Авторски и лицензионни възнаграждения (7 % — СИДДО)</option>
+    <option value="700130">700130 · Авторски и лицензионни възнаграждения (7,5 % — СИДДО)</option>
+    <option value="700140">700140 · Възнаграждения за технически услуги (10 % — Чл. 195, ал. 1 във вр. с. чл. 12, ал. 5, т. 4 от ЗКПО и чл. 46, ал. 1 във вр. с чл. 37, ал. 1, т. 7 от ЗДДФЛ)</option>
+    <option value="700150">700150 · Възнаграждения за технически услуги (0 % — СИДДО)</option>
+    <option value="700160">700160 · Възнаграждения за технически услуги (5 % — СИДДО)</option>
+    <option value="700170">700170 · Възнаграждения за технически услуги (7,5 % — СИДДО)</option>
+    <option value="700180">700180 · Лихви (10 % — Чл. 195, ал. 1 във вр. с. чл. 12, ал. 5, т. 1 от ЗКПО и чл. 46, ал. 1 във вр. с чл. 37, ал. 1, т. 3 и чл. 38, ал. 11 от ЗДДФЛ)</option>
+    <option value="700190">700190 · Лихви (8 % — Чл. 46, ал. 4 във вр. с чл. 38, ал. 13 от ЗДДФЛ)</option>
+    <option value="700200">700200 · Лихви (0 % — Чл. 195, ал. 6 от ЗКПО, чл. 37, ал. 1, т. 3 и чл. 37, ал. 7 във вр. с чл. 13 от ЗДДФЛ)</option>
+    <option value="700210">700210 · Лихви (0 % — СИДДО)</option>
+    <option value="700220">700220 · Лихви (2 % — СИДДО)</option>
+    <option value="700230">700230 · Лихви (3 % — СИДДО)</option>
+    <option value="700240">700240 · Лихви (5 % — СИДДО)</option>
+    <option value="700250">700250 · Лихви (7 % — СИДДО)</option>
+    <option value="700260">700260 · Доходи от наем или от друго възмездно предоставяне за ползване на движимо имущество (10 % — Чл. 195, ал. 1 във вр. с. чл. 12, ал. 5, т. 2 от ЗКПО и чл. 46, ал. 1 във вр. с чл. 37, ал. 1, т. 4 от ЗДДФЛ)</option>
+    <option value="700270">700270 · Доходи от наем или от друго възмездно предоставяне за ползване на движимо имущество (0 % — СИДДО)</option>
+    <option value="700280">700280 · Доходи от наем или от друго възмездно предоставяне за ползване на движимо имущество (5 % — СИДДО)</option>
+    <option value="700290">700290 · Доходи от наем или от друго възмездно предоставяне за ползване на движимо имущество (7,5 % — СИДДО)</option>
+    <option value="700300">700300 · Доходи от наем или от друго възмездно предоставяне за ползване на недвижимо имущество (10 % — Чл. 195, ал. 1 във вр. с. чл. 12, ал. 8, т. 1 от ЗКПО и чл. 46, ал. 1 във вр. с чл. 37, ал. 1, т. 4 и чл. 38, ал. 12 от ЗДДФЛ)</option>
+    <option value="700310">700310 · Доходи от наем или от друго възмездно предоставяне за ползване на недвижимо имущество (0 % — Чл. 37, ал. 7 във вр. с чл. 13 от ЗДДФЛ)</option>
+    <option value="700320">700320 · Доходи от наем или от друго възмездно предоставяне за ползване на недвижимо имущество (0 % — СИДДО)</option>
+    <option value="700330">700330 · Доходи от дивиденти и ликвидационни дялове (5 % — Чл. 194, ал. 1 от ЗКПО и чл. 46, ал. 3 във вр. с чл. 38, ал. 1 от ЗДДФЛ)</option>
+    <option value="700340">700340 · Доходи от дивиденти и ликвидационни дялове (0 % — Чл. 194, ал. 3 от ЗКПО)</option>
+    <option value="700350">700350 · Доходи от дивиденти и ликвидационни дялове (0 % — СИДДО)</option>
+    <option value="700360">700360 · Доходи от управление или контрол (10 % — Чл. 195, ал. 1 във вр. с. чл. 12, ал. 5, т. 6 от ЗКПО и чл. 46, ал. 1 във вр. с чл. 37, ал. 1, т. 9 от ЗДДФЛ)</option>
+    <option value="700370">700370 · Доходи от управление или контрол (0 % — СИДДО)</option>
+    <option value="700380">700380 · Доходите от финансови активи (10 % — Чл. 195, ал. 1 във вр. с. чл. 12, ал. 2 от ЗКПО)</option>
+    <option value="700390">700390 · Доходите от финансови активи (0 % — СИДДО)</option>
+    <option value="700400">700400 · Неустойки и обезщетения, в полза на чуждестранни лица, установени в юрисдикции с преференциален данъчен режим (10 % — Чл. 195, ал. 1 във вр. с чл. 12, ал. 9 от ЗКПО и чл. 46, ал. 1 във вр. с чл. 37, ал. 1 от ЗДДФЛ)</option>
+    <option value="700410">700410 · Неустойки и обезщетения, в полза на чуждестранни лица, установени в юрисдикции с преференциален данъчен режим (0 % — СИДДО)</option>
+    <option value="700420">700420 · Доходи от допълнително доброволно осигуряване, от доброволно здравно осигуряване и от застраховки „Живот“ (10 % — Чл. 46, ал. 1 във вр. с чл. 38, ал. 8)</option>
+    <option value="700430">700430 · Доходи от допълнително доброволно осигуряване, от доброволно здравно осигуряване и от застраховки „Живот“ (7 % — Чл. 46, ал. 2 във вр. с чл. 38, ал. 8)</option>
+    <option value="700440">700440 · Доходи от допълнително доброволно осигуряване, от доброволно здравно осигуряване и от застраховки „Живот“ (0 % — СИДДО)</option>
+    <option value="700450">700450 · Други доходи от източник в България, начислени/изплатени в полза на чуждестранни физически лица (10 % — Чл. 46, ал. 1 във вр. с чл. 37, ал. 1, т. 1, 2 и 8)</option>
+    <option value="700460">700460 · Други доходи от източник в България, начислени/изплатени в полза на чуждестранни физически лица (0 % — Чл. 37, ал. 7 във вр. с чл. 13 от ЗДДФЛ)</option>
+    <option value="700470">700470 · Други доходи от източник в България, начислени/изплатени в полза на чуждестранни физически лица (0 % — СИДДО)</option>
+    <option value="700480">700480 · Други доходи на местни и чуждестранни физически лица, облагаеми с окончателен данък (10 % — Чл. 46, ал. 1 във вр. с чл. 38, ал. 10, 14 и 15 от ЗДДФЛ)</option>
+    <option value="700490">700490 · Други доходи на местни и чуждестранни физически лица, облагаеми с окончателен данък (0 % — СИДДО)</option>
+    <option value="700500">700500 · Авансов данък за доход на физическо лице, който се удържа от платеца на дохода (10 % — ЗДДФЛ)</option>
+    <option value="700510">700510 · Авансов данък за доход на физическо лице, който се удържа от платеца на дохода (0 % — СИДДО)</option>
+    <option value="700520">700520 · Авансов данък за доход на морско лице, който се удържа от платеца на дохода (1 %)</option>
+    <option value="700540">700540 · Лихви - данък при източника (без ставка)</option>
+    <option value="700530">700530 · Глоби, санкции и наказателни постановления (без ставка)</option>
+  </selection>
+
+  <!-- ============ Сметка → код по НАП ============ -->
+
+  <grid name="bg-saf-account-mapping-grid" title="Сметка → код по НАП"
+    model="com.axelor.apps.bglocalization.db.BgSafAccountMapping" orderBy="accountCode">
+    <field name="accountCode"/>
+    <field name="nraCode"/>
+    <field name="ruleSelect"/>
+    <field name="isExcluded"/>
+  </grid>
+
+  <form name="bg-saf-account-mapping-form" title="Сметка → код по НАП"
+    model="com.axelor.apps.bglocalization.db.BgSafAccountMapping">
+    <panel name="mainPanel" title="Мапинг">
+      <field name="accountCode"/>
+      <field name="nraCode"/>
+      <field name="ruleSelect"/>
+      <field name="isExcluded"
+        help="Структурна сметка без код по SAF-T: репортен възел (accountType view) или задбалансова (special). НЕ значи „още не е мапната“ — всичките 457 сметки на BG_COA имат ред тук, а изключените са 72 и съвпадат точно с двата типа."/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-saf-account-mapping" title="Сметка → код по НАП"
+    model="com.axelor.apps.bglocalization.db.BgSafAccountMapping">
+    <view type="grid" name="bg-saf-account-mapping-grid"/>
+    <view type="form" name="bg-saf-account-mapping-form"/>
+  </action-view>
+
+  <!-- ============ Данък → TaxType / TaxCode ============ -->
+
+  <grid name="bg-saf-tax-mapping-grid" title="Данък → код по НАП"
+    model="com.axelor.apps.bglocalization.db.BgSafTaxMapping" orderBy="taxCode">
+    <field name="taxCode"/>
+    <field name="safTaxType"/>
+    <field name="safTaxCode"/>
+    <field name="isDynamic"/>
+  </grid>
+
+  <form name="bg-saf-tax-mapping-form" title="Данък → код по НАП"
+    model="com.axelor.apps.bglocalization.db.BgSafTaxMapping">
+    <panel name="mainPanel" title="Мапинг">
+      <field name="taxCode"/>
+      <field name="safTaxType"/>
+      <field name="safTaxCode"
+        help="Празно значи „да се потвърди“ — няма установен код по TAX-IMP и генераторът вдига предупреждение. Празнотата е изявление, не пропуск: черновата предлагаше 000000, но такъв код НЯМА в номенклатурата и би минал за попълнен чак до НАП."/>
+      <field name="isDynamic"
+        help="Кодът горе е само ПОДРАЗБИРАНЕ. Истинската клетка се смята на ред от генератора: при покупките тя зависи от правото на данъчен кредит (без 100330, пълен 100331, частичен 100332), което е свойство на сделката, не на ставката."/>
+    </panel>
+    <panel name="notePanel" title="Бележка">
+      <field name="note" showTitle="false" colSpan="12"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-saf-tax-mapping" title="Данък → код по НАП"
+    model="com.axelor.apps.bglocalization.db.BgSafTaxMapping">
+    <view type="grid" name="bg-saf-tax-mapping-grid"/>
+    <view type="form" name="bg-saf-tax-mapping-form"/>
+  </action-view>
+
+  <!-- ============ Начин на плащане → метод / механизъм ============ -->
+
+  <grid name="bg-saf-payment-mapping-grid" title="Плащане → метод и механизъм"
+    model="com.axelor.apps.bglocalization.db.BgSafPaymentMapping" orderBy="paymentModeCode">
+    <field name="paymentModeCode"/>
+    <field name="methodCode"/>
+    <field name="mechanismCode"/>
+    <field name="isExcluded"/>
+  </grid>
+
+  <form name="bg-saf-payment-mapping-form" title="Плащане → метод и механизъм"
+    model="com.axelor.apps.bglocalization.db.BgSafPaymentMapping">
+    <panel name="mainPanel" title="Мапинг">
+      <field name="paymentModeCode"/>
+      <field name="methodCode"
+        help="01 пари в брой, 02 прихващане, 03 безкасово плащане. Ключът на номенклатурата на НАП е ДВОЙКАТА метод-механизъм, не методът сам — затова двете полета се сверяват заедно срещу nom_paymentmethod.csv."/>
+      <field name="mechanismCode"/>
+      <field name="isExcluded"
+        help="Режим, който номенклатурата на НАП не може да опише — тя има три метода и девет двойки, и нито една от тях не значи „друго“. Документ, платен с такъв режим, не може да бъде описан в износа, и този ред го КАЗВА, вместо да го премълчи. Липсващ ред не би се различавал от забравен."/>
+    </panel>
+    <panel name="notePanel" title="Бележка">
+      <field name="note" showTitle="false" colSpan="12"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-saf-payment-mapping" title="Плащане → метод и механизъм"
+    model="com.axelor.apps.bglocalization.db.BgSafPaymentMapping">
+    <view type="grid" name="bg-saf-payment-mapping-grid"/>
+    <view type="form" name="bg-saf-payment-mapping-form"/>
+  </action-view>
+
+  <!-- ============ Клетка от дневника → TAX-IMP ============ -->
+
+  <grid name="bg-saf-vat-cell-code-grid" title="Клетка от дневника → код по НАП"
+    model="com.axelor.apps.bglocalization.db.BgSafVatCellCode" orderBy="cellCode,cellValue">
+    <field name="cellCode"/>
+    <field name="cellValue"/>
+    <field name="safTaxCode"/>
+    <field name="description"/>
+  </grid>
+
+  <form name="bg-saf-vat-cell-code-form" title="Клетка от дневника → код по НАП"
+    model="com.axelor.apps.bglocalization.db.BgSafVatCellCode">
+    <panel name="mainPanel" title="Мапинг">
+      <field name="cellCode"/>
+      <field name="cellValue"
+        help="Попълнено САМО за четирите кода по чл. 163а. При тях последните две цифри на кода не са номер на поле, а стойност в едно поле: 01 е част I на Приложение №2, 02 е част II. Тоест 100227 и 100228 делят поле 02-27, а 100345 и 100346 делят поле 03-45."/>
+      <field name="safTaxCode"/>
+    </panel>
+    <panel name="descPanel" title="Описание по НАП">
+      <field name="description" showTitle="false" colSpan="12"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-saf-vat-cell-code" title="Клетка от дневника → код по НАП"
+    model="com.axelor.apps.bglocalization.db.BgSafVatCellCode">
+    <view type="grid" name="bg-saf-vat-cell-code-grid"/>
+    <view type="form" name="bg-saf-vat-cell-code-form"/>
+  </action-view>
+
+  <!-- ============ Вид доход → код за данък при източника (G3b) ============ -->
+
+  <grid name="bg-saf-withholding-mapping-grid" title="Вид доход → данък при източника"
+    model="com.axelor.apps.bglocalization.db.BgSafWithholdingMapping" orderBy="incomeTypeCode">
+    <field name="incomeTypeCode"/>
+    <field name="safTaxCode"/>
+    <field name="ruleSelect"/>
+  </grid>
+
+  <form name="bg-saf-withholding-mapping-form" title="Вид доход → данък при източника"
+    model="com.axelor.apps.bglocalization.db.BgSafWithholdingMapping">
+    <panel name="mainPanel" title="Мапинг">
+      <field name="incomeTypeCode"/>
+      <field name="safTaxCode"/>
+      <field name="ruleSelect"/>
+    </panel>
+    <panel name="notePanel" title="Бележка">
+      <field name="note" showTitle="false" colSpan="12"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-saf-withholding-mapping" title="Вид доход → данък при източника"
+    model="com.axelor.apps.bglocalization.db.BgSafWithholdingMapping">
+    <view type="grid" name="bg-saf-withholding-mapping-grid"/>
+    <view type="form" name="bg-saf-withholding-mapping-form"/>
+  </action-view>
+
+  <!-- ═══ МЕНЮТО ═══
+
+    Групов възел под „НАП“, order 800 — след ДДС (700) и след заплатните декларации (600-650).
+    ⚠️ groups="admins" стои на ГРУПОВИЯ възел, не на четирите деца: MenuService#preChildVisit връща
+    TERMINATE, тоест отрязването на родителя отрязва и тях. Същият довод като при ДДС в Menu.xml —
+    `nap-root` е admins днес, но коментарът му обещава отваряне към ролите nap_*, и тогава дете без
+    ограничение би се виждало от всеки, стигнал до корена.
+  -->
+  <menuitem name="bg-saft-reference" parent="nap-root" title="SAF-T номенклатури" order="800"
+    groups="admins"/>
+
+  <menuitem name="bg-saft-reference-account" parent="bg-saft-reference"
+    title="Сметка → код по НАП" action="action-bg-saf-account-mapping" order="100"/>
+  <menuitem name="bg-saft-reference-tax" parent="bg-saft-reference" title="Данък → код по НАП"
+    action="action-bg-saf-tax-mapping" order="200"/>
+  <menuitem name="bg-saft-reference-payment" parent="bg-saft-reference"
+    title="Плащане → метод и механизъм" action="action-bg-saf-payment-mapping" order="300"/>
+  <menuitem name="bg-saft-reference-cell" parent="bg-saft-reference"
+    title="Клетка от дневника → код по НАП" action="action-bg-saf-vat-cell-code" order="400"/>
+  <menuitem name="bg-saft-reference-withholding" parent="bg-saft-reference"
+    title="Вид доход → данък при източника" action="action-bg-saf-withholding-mapping"
+    order="500"/>
+
+</object-views>

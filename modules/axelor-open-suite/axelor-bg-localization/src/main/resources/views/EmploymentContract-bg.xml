@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ ИЗБОРЪТ НА ТРУДОВ ДОГОВОР ВЪВ ФИША И БОЛНИЧНИЯ ═══
+    Стандартният employment-contract-grid показва AOS contractType (в BG празен — видът е
+    bgContractType) и служителя. Тук: служителят, видът по BG, датите и дружеството. Стандартната
+    форма на договора НЕ се пипа — това е отделен грид, закачен с grid-view на двете полета. -->
+  <grid name="bg-employment-contract-select-grid" title="Трудови договори"
+    model="com.axelor.apps.hr.db.EmploymentContract" orderBy="-startDate">
+    <field name="employee" title="Служител"/>
+    <field name="bgContractType"/>
+    <field name="bgNkpd"/>
+    <field name="startDate"/>
+    <field name="endDate"/>
+    <field name="payCompany"/>
+  </grid>
+
+  <form name="employment-contract-form" title="Employment contract"
+    id="bg-localization-employment-contract-form" model="com.axelor.apps.hr.db.EmploymentContract"
+    extension="true">
+    <!-- Базовата форма няма onLoad — този е единственият. -->
+    <extend target="/">
+      <attribute name="onLoad" value="action-bg-etz-method-load,action-bg-etz-end-method-load"/>
+    </extend>
+    <extend target="//panel[@name='endOfContractPanel']">
+      <insert position="before">
+        <panel name="bgLocalizationPanel" colSpan="12">
+          <panel name="bgRelationshipPanel" title="Правоотношение" colSpan="12">
+            <!-- ДУК се обявява ТУК и се ПОТВЪРЖДАВА с вид осигурен 10 отдолу. Двете полета казват
+              различни неща: това е ВИДЪТ НА ДОГОВОРА (описателно), а видът осигурен е РЕЖИМЪТ, по
+              който тръгват фишът и декларациите. -->
+            <field name="bgContractType"
+              help="ДУК = договор за управление и контрол по Търговския закон, ИЗВЪН Кодекса на труда. Изберете ли го, попълнете „Вид осигурен (НАП)“ = 10 — режимът се клони по НЕГО, не по това поле. Кодът 10 обаче е по-широк от ДУК: същият код носят и членовете на СД/УС/НС, контрольорите, синдиците и ликвидаторите (КСО чл. 4 ал. 1 т. 7)."/>
+            <field name="bgNkpd"/>
+            <!-- т. 22 на ЕТЗ. Без полето на формата ЕТЗ отказва за ЕКАТТЕ, а човек няма къде да
+              го въведе. -->
+            <field name="bgWorkplaceEkatte"/>
+            <field name="bgIsPrimaryContract"/>
+            <!-- До НКПД нарочно: двете изглеждат като едно и също, а не са — виж коментара в домейна
+              (чл. 19 НПОС гледа заведението, не кода на професията). -->
+            <field name="bgIsTeacherPosition"/>
+            <!-- Видът осигурен е ЗАДЪЛЖИТЕЛЕН за фиш: без него BgPayrollInputBuilder отказва да
+              сглоби входа и веригата МОД → база → вноски не тръгва. Не е required в домейна
+              нарочно — заварените договори в базата нямат стойност и required колона върху
+              попълнена таблица не се добавя от ddl=update (същият капан като при bgTeacherScope,
+              виж бележките към миграцията). Отказът на сглобителя е това, което го прави видимо. -->
+            <field name="bgInsuredTypeCode"/>
+            <!-- Има смисъл САМО при вид осигурен 92. Скрито инак, за да не се предлага избор,
+              който чл. 4а ал. 2 КСО дава единствено на морското лице. -->
+            <field name="bgSeafarerUnemploymentChoice"
+              showIf="bgInsuredTypeCode == '92'"/>
+            <!-- Двете полета на ГРАЖДАНСКИЯ ДОГОВОР. Имат смисъл САМО при вид осигурен 14 —
+              приспадането по КСО чл. 6 ал. 4 и прагът по чл. 4 ал. 3 т. 5 се отнасят единствено за
+              лицата без трудово правоотношение. Показани на всички, те биха предложили на наетия
+              намаление на осигурителната му основа, каквото чл. 6 ал. 3 не дава. -->
+            <field name="bgIncomeType"
+              showIf="bgInsuredTypeCode == '14'"
+              help="Кодът от каталога по чл. 73 ЗДДФЛ, от който се чете РАЗХОДНАТА СТАВКА. За обичайния граждански договор за услуга това са кодовете 307x (чл. 29 ал. 1 т. 3, 25 на сто); авторските и занаятът са по т. 2 (40 на сто). ⚠️ Осигурителната основа по КСО чл. 6 ал. 4 е възнаграждението СЛЕД това намаление — празно поле оставя основата непонижена и вноските излизат завишени."/>
+            <field name="bgInsuredOnOtherGround"
+              showIf="bgInsuredTypeCode == '14'"
+              help="Осигурено ли е лицето на ДРУГО основание (напр. трудов договор другаде, самоосигуряване) през месеците на този договор. ⚠️ Отметнато — осигурява се ВИНАГИ, независимо от размера (КСО чл. 4 ал. 3 т. 6). Неотметнато — само ако възнаграждението СЛЕД разходите достига една минимална работна заплата (т. 5); под нея осигурителни вноски НЕ се дължат, но данъкът по ЗДДФЛ се дължи."/>
+          </panel>
+          <panel name="bgRemunerationPanel" title="Възнаграждение и работно време"
+            colSpan="12">
+            <!-- ⚠️ ЗАПЛАТАТА, КАКТО Е СКЛЮЧЕНА — и тя НЕ се вдига с анекс. Всяко изменение по
+              чл. 119 ал. 1 (и всяко едностранно увеличение по чл. 118 ал. 3) е РЕД в панела с
+              допълнителните споразумения отдолу, със своя дата на действие. Вдигната тук, базата
+              мени и вече отминалите месеци, за които старата заплата е вярната — записът се
+              отказва, когато сумата повтаря тази на анекс (BgAmendmentSalaryRule). -->
+            <field name="bgBaseSalary"
+              help="Основното възнаграждение, КАКТО Е СКЛЮЧЕНО. ⚠️ НЕ го вдигайте при увеличение — въведете допълнително споразумение в панела отдолу с дата на влизане в сила. Фишът чете договора само за месеците, за които няма анекс в сила."/>
+            <field name="bgHoursPerDay"/>
+            <field name="bgDaysPerWeek"/>
+            <!-- ⚠️ ДВЕ РАЗЛИЧНИ ЧИСЛА, КОИТО СЪВПАДАТ ПРИ ПЪЛЕН ЩАТ, И ЗАТОВА СТОЯТ ЕДНО ДО ДРУГО:
+              горното е ДОГОВОРЕНОТО на лицето (4 при половин щат по КТ чл. 138), долното е
+              ЗАКОНОУСТАНОВЕНОТО за ДЛЪЖНОСТТА (8 по чл. 136 ал. 3, но 7 или 6 при намалено по чл.
+              137). За лице на пълен щат двете са 8 и всяко копиране на едното в другото изглежда
+              вярно. Пълнят позиции 4 и 3 на т. 16 в Декларация обр. 1. -->
+            <field name="bgLegalHoursPerDay"
+              help="Пълни т. 16 ПОЗИЦИЯ 3 на Декларация обр. 1. ⚠️ НЕ е договореното работно време: при непълно по КТ чл. 138 двете се разминават, а при намалено по чл. 137 законоустановеното е 7 или 6. Празно оставя точката празна — „8 часа“ за длъжност с намалено работно време е валидна цифра, която НАП приема."/>
+            <!-- Стоящата стойност за координацията по КСО чл. 6 ал. 11. Надписва се за отделен
+              месец от полето със същото име на ФИША — виж коментара в домейна за защо са две. -->
+            <!-- НАУЧНАТА СТЕПЕН е ВЪЗНАГРАЖДЕНИЕ, не образование, и затова стои тук: тя поражда
+              перо 120 на всеки фиш, а не описва лицето. По същия довод е на ДОГОВОРА — чл. 11 ал. 1
+              иска степента да е „свързана с изпълняваната работа“. -->
+            <field name="bgAcademicDegree"
+              help="НСОРЗ чл. 11 ал. 1 — допълнително МЕСЕЧНО възнаграждение за степен, СВЪРЗАНА с изпълняваната по този договор работа. Размерите от 01.01.2026 г. са 7,67 EUR („доктор“) и 25,56 EUR („доктор на науките“) и се четат от каталога с параметри, не оттук. ⚠️ Сумата НЕ се пропорционира по отработени дни — лице с нула отработени дни получава пълния размер. ⚠️ При повече от едно основание се дължи по-благоприятният размер (ал. 2), затова полето е едно."/>
+            <field name="bgOtherPayerInsurableIncome"
+              help="СТОЯЩА СТОЙНОСТ ПО ПОДРАЗБИРАНЕ, в евро: месечният осигурителен доход на лицето при ДРУГ работодател, деклариран от него. Попълнена, таванът се прилага върху СБОРА (КСО чл. 6 ал. 11) на всеки фиш по този договор, а МОД подът по него НЕ се прилага. За отделен месец се надписва от полето на фиша. ⚠️ За да отпадне координацията за ЕДИН месец, чекнете „Този месец няма доход при друг платец“ НА ФИША — НЕ занулявайте тази стойност, тя важи за всички останали месеци."/>
+          </panel>
+          <panel name="bgWorkTimeModePanel" title="Режим на отчитане (СИРВ)" colSpan="12">
+            <!-- ⚠️ ПОЛЕТО МЕНИ ПАРИ, а не само декларации. От него зависи колко се дължи за работа
+              на официален празник: при подневно отчитане празникът не е работен ден и перото дава
+              целите 200 на сто по КТ чл. 264, а при СИРВ часът вече е влязъл в нормата за отчетния
+              период и перото ДОПЪЛВА със 100 на сто. Празно поле е ОТКАЗ на перото, не
+              подразбиране — прието наслуки, едното от двете надплаща с цял надник. -->
+            <field name="bgWorkTimeMode"
+              help="⚠️ Влиза и в заплащането на работата на официален празник (КТ чл. 264): при подневно отчитане перото дава 200 на сто, при СИРВ — 100 на сто допълване, защото часът вече е в нормата за периода. Празно оставя перото несметнато. ⚠️ „Сумирано изчисляване (СИРВ)“ е НЕДОПУСТИМО при отметнат ненормиран работен ден (КТ чл. 142 ал. 5) — записът се отказва."/>
+            <field name="bgSirvPeriodMonths"/>
+            <!-- ⚠️ ДО РЕЖИМА, А НЕ ПРИ ВЪЗНАГРАЖДЕНИЕТО: и двете полета отговарят на въпроса „как се
+              мери работното време на това лице“, а от него виси заплащането на извънредния труд.
+              ⚠️ И ДВЕТЕ В ЕДИН ПАНЕЛ, ЗАЩОТО СЕ ИЗКЛЮЧВАТ: КТ чл. 142 ал. 5 не допуска сумирано
+              изчисляване при ненормиран работен ден, тоест отметката и режимът „СИРВ“ не могат да
+              стоят заедно. Отказът е на ЗАПИСА (BgEmploymentContractManagementRepository), а не
+              скриване на полето: скрито, то би останало с заварената си стойност и забраната щеше
+              да важи само за онзи, който е минал през този екран. -->
+            <field name="bgIsUnregulatedWorkDay"
+              help="КТ чл. 139а — установява се със ЗАПОВЕД на работодателя за определени длъжности. Отметнато, извънредният труд в РАБОТНИ дни НЕ се заплаща (чл. 263 ал. 1); извънредният труд в почивни дни и на официални празници се заплаща както на всички останали (ал. 2). ⚠️ Не може да се установява при НАМАЛЕНО работно време (чл. 139а ал. 2), НИТО при сумирано изчисляване на работното време (чл. 142 ал. 5) — двойката с режим „СИРВ“ се отказва при запис."/>
+          </panel>
+          <panel name="bgServiceLeavePanel" title="Стаж и отпуск" colSpan="12">
+            <label colSpan="12" title="Признат общ трудов стаж"/>
+            <field name="bgPriorExperienceYears"/>
+            <field name="bgPriorExperienceMonths"/>
+            <field name="bgPriorExperienceDays"/>
+            <label colSpan="12" title="Признат стаж по специалността"/>
+            <field name="bgPriorSpecialtyServiceYears"/>
+            <field name="bgPriorSpecialtyServiceMonths"/>
+            <field name="bgPriorSpecialtyServiceDays"/>
+            <label colSpan="12" title="Полагаем отпуск"/>
+            <field name="bgAnnualLeaveDays"/>
+            <field name="bgAdditionalLeaveDays"/>
+          </panel>
+          <!-- ДОПЪЛНИТЕЛНИТЕ СПОРАЗУМЕНИЯ — вътре в СЪЩИЯ insert, а не с втори <extend>.
+            Верижният extend вижда БАЗОВИЯ изглед: панел, вмъкнат оттук, не може да се намери като
+            цел от друг extend, тоест нула съвпадения при зелен билд.
+
+            ⚠️ И ПАНЕЛЪТ Е НА ДОГОВОРА, а не в меню. Анексът е изменение НА ТОВА правоотношение —
+            чете се и се въвежда в неговия контекст, не като самостоятелна номенклатура. Същият
+            довод, по който обезщетенията при прекратяване стоят на договора. -->
+          <panel-related name="bgContractAmendmentPanel" field="bgContractAmendmentList"
+            title="Допълнителни споразумения (чл. 119 КТ)" colSpan="12"
+            form-view="bg-contract-amendment-form" grid-view="bg-contract-amendment-grid"/>
+          <!-- ЕТЗ ЗА СКЛЮЧВАНЕТО — пак вътре в СЪЩИЯ insert (виж бележката горе).
+            Само през портала: файлът се сваля, подава се в портала на НАП с КЕП или ПИК, и тук се
+            записват входящият номер и датата. Скрит, докато BgEtzController.load не реши, че
+            потребителят вижда подаванията на ТРЗ; срокът и състоянието идват оттам — изчислени, не
+            записани. -->
+          <panel name="bgEtzPanel" title="ЕТЗ — регистър на заетостта (сключване, чл. 62 ал. 3 КТ)"
+            colSpan="12" hidden="true">
+            <label name="bgEtzStatusLabel" colSpan="12"/>
+            <label name="bgEtzOverdueLabel" colSpan="12" css="label-danger" hidden="true"/>
+            <button name="bgEtzGenerateBtn" title="Генерирай ЕТЗ (сключване)" colSpan="4"
+              onClick="save,action-bg-etz-method-generate"/>
+            <button name="bgEtzDownloadBtn" title="Свали файла" colSpan="4"
+              onClick="action-bg-etz-method-download"/>
+            <field name="bgEtzIncomingNumber" colSpan="4"/>
+            <field name="bgEtzPortalDate" colSpan="4"/>
+            <button name="bgEtzRecordBtn" title="Запиши ръчно подаване" colSpan="4"
+              onClick="action-bg-etz-method-record-manual"/>
+          </panel>
+        </panel>
+      </insert>
+    </extend>
+
+    <!-- Прекратяването по българското законодателство стои ДО стандартния панел, не вместо него: основанието
+      виси на стандартния endOfContractReason, а тук е само това, което КТ добавя — включително bgTerminationDate,
+      полето, което различава „изтекъл срок" от „прекратен предсрочно". Панелът със самите обезщетения е тук, а не в меню,
+      защото обезщетението е на договора: то се чете и решава в контекста на прекратяването, не като самостоятелна
+      номенклатура. -->
+    <extend target="//panel[@name='endOfContractPanel']">
+      <insert position="after">
+        <panel name="bgTerminationPanel" title="Прекратяване (BG)" colSpan="12">
+          <field name="bgTerminationDate"/>
+        </panel>
+        <!-- ЕТЗ ЗА ПРЕКРАТЯВАНЕТО. Записът за прекратяване носи ЕДНАТА дата и е
+          закачалката на подаването; каналът е този на сключването — файл, портал, вх. №. Докато
+          т. 25/30/31 не се изчисляват, „Генерирай“ отказва открито. Видимостта и надписите
+          идват от BgEtzTerminationController.load. -->
+        <panel name="bgEtzEndPanel" title="ЕТЗ — прекратяване (чл. 62 ал. 3 КТ, 7 дни)" colSpan="12"
+          hidden="true">
+          <label name="bgEtzEndStatusLabel" colSpan="12"/>
+          <label name="bgEtzEndOverdueLabel" colSpan="12" css="label-danger" hidden="true"/>
+          <button name="bgEtzEndCreateBtn" title="Създай запис за прекратяване" colSpan="4"
+            onClick="save,action-bg-etz-end-method-create"/>
+          <button name="bgEtzEndGenerateBtn" title="Генерирай ЕТЗ (прекратяване)" colSpan="4"
+            onClick="save,action-bg-etz-end-method-generate"/>
+          <button name="bgEtzEndDownloadBtn" title="Свали файла (прекратяване)" colSpan="4"
+            onClick="action-bg-etz-end-method-download"/>
+          <field name="bgEtzEndIncomingNumber" colSpan="4"/>
+          <field name="bgEtzEndPortalDate" colSpan="4"/>
+          <button name="bgEtzEndRecordBtn" title="Запиши ръчно подаване (прекратяване)" colSpan="4"
+            onClick="action-bg-etz-end-method-record-manual"/>
+        </panel>
+        <panel-related name="bgTerminationCompensationPanel"
+          field="bgTerminationCompensationList" title="Обезщетения при прекратяване" colSpan="12"
+          form-view="bg-termination-compensation-form" grid-view="bg-termination-compensation-grid"/>
+      </insert>
+    </extend>
+
+    <!-- Скриване на generic/дублиращи полета (данните остават в БД, само UI; без Guice,
+      без domain промени). Скрито в employment-contract-form (гридовете не се засягат). Скритите полета са
+      colSpan=4/3 → останалите reflow-ват в чисти редове. -->
+    <extend target="//field[@name='coefficient']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='weeklyDuration']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='hourlyGrossSalary']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='minMonthlyRemuneration']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='contractType']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='executiveStatusSelect']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='employment']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+
+    <!-- monthlyGlobalCost (общ разход за работодателя — 0 BG употреба) и otherCostsEmployeeSet
+      (панел "Others" — panel-related само за него → скрива се целият). Само UI. -->
+    <extend target="//field[@name='monthlyGlobalCost']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//panel-related[@name='otherCostsEmployeeSetPanel']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+  </form>
+
+  <action-method name="action-bg-etz-method-load">
+    <call class="com.axelor.apps.bglocalization.web.BgEtzController" method="load"/>
+  </action-method>
+
+  <action-method name="action-bg-etz-method-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgEtzController" method="generate"/>
+  </action-method>
+
+  <action-method name="action-bg-etz-method-download">
+    <call class="com.axelor.apps.bglocalization.web.BgEtzController" method="download"/>
+  </action-method>
+
+  <action-method name="action-bg-etz-method-record-manual">
+    <call class="com.axelor.apps.bglocalization.web.BgEtzController" method="recordManual"/>
+  </action-method>
+
+  <action-method name="action-bg-etz-end-method-load">
+    <call class="com.axelor.apps.bglocalization.web.BgEtzTerminationController" method="load"/>
+  </action-method>
+
+  <action-method name="action-bg-etz-end-method-create">
+    <call class="com.axelor.apps.bglocalization.web.BgEtzTerminationController" method="create"/>
+  </action-method>
+
+  <action-method name="action-bg-etz-end-method-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgEtzTerminationController" method="generate"/>
+  </action-method>
+
+  <action-method name="action-bg-etz-end-method-download">
+    <call class="com.axelor.apps.bglocalization.web.BgEtzTerminationController" method="download"/>
+  </action-method>
+
+  <action-method name="action-bg-etz-end-method-record-manual">
+    <call class="com.axelor.apps.bglocalization.web.BgEtzTerminationController"
+      method="recordManual"/>
+  </action-method>
+
+</object-views>

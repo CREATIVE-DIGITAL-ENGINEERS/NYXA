@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ДОПЪЛНИТЕЛНОТО СПОРАЗУМЕНИЕ по чл. 119 ал. 1 КТ — екранът, който записът нямаше от #186 насам.
+    Домейнът, сглобяването на ЕТЗ тип 2 и двайсет и един теста съществуваха, а единственият производствен
+    създател на ред беше миграционният вносител от Microinvest: оператор не можеше да въведе анекс никъде. -->
+
+  <grid name="bg-contract-amendment-grid" title="Допълнителни споразумения"
+    model="com.axelor.apps.bglocalization.db.BgContractAmendment" orderBy="-entryDate,-changeDate">
+    <field name="changeDate"/>
+    <field name="entryDate"/>
+    <field name="bgChangeGround"/>
+    <field name="newSalary"/>
+    <field name="newNkpd"/>
+    <field name="newTermDate"/>
+  </grid>
+
+  <form name="bg-contract-amendment-form" title="Допълнително споразумение"
+    model="com.axelor.apps.bglocalization.db.BgContractAmendment">
+    <panel name="mainPanel" title="Споразумението">
+      <field name="employmentContract"/>
+      <!-- Поле 12. Той решава и коя от долните колони изобщо се пълни. -->
+      <field name="bgChangeGround"/>
+      <!-- ⚠️ ДВЕ РАЗЛИЧНИ ДАТИ, И РЕГИСТЪРЪТ ГИ ПИТА ПООТДЕЛНО — затова стоят една до друга.
+        Споразумение, подписано на 20-ти и влизащо в сила от 1-ви следващ месец, носи две стойности;
+        ПАРИТЕ СЛЕДВАТ ВТОРАТА. Разменени, увеличението плаща и десетте дни преди да е било в сила. -->
+      <field name="changeDate"/>
+      <field name="entryDate"
+        requiredIf="newSalary &gt; 0"
+        help="Поле 16А. ⚠️ РАЗЛИЧНА от датата на споразумението. Оттук нататък тя решава от кой месец фишът смята новата заплата. Празна при попълнено възнаграждение — анексът не може да се постави във времето и се ПРОПУСКА при изчисляване на заплатата (така са и всички пренесени от миграцията)."/>
+      <!-- Поле 17 — само при служебно правоотношение; за трудов договор остава празно. -->
+      <field name="changeNo"/>
+    </panel>
+    <panel name="newStatePanel" title="Състояние след изменението">
+      <!-- ⚠️ ТОВА ПОЛЕ МЕСТИ ПАРИ. Попълнено, то ЗАМЕСТВА основната заплата по договора за всеки фиш
+        с период, започващ на или след датата на влизане в сила. Празно — заплатата не се мени.
+        ⚠️ Дата на действие насред месеца ОТКАЗВА фиша за онзи месец: фишът носи една основна заплата
+        и не може да плати месеца по две. -->
+      <field name="newSalary"
+        help="⚠️ Попълнено, заменя основната заплата по договора от датата на влизане в сила нататък. Основното възнаграждение по ДОГОВОРА не се пипа — то остава заплатата, както е сключена. ⚠️ Дата на влизане в сила, която не е първо число на месеца, отказва фиша за ТОЗИ месец с назована причина (пропорционалното разделяне не е построено)."/>
+      <field name="newNkpd"/>
+      <field name="newWorkplaceEkatte"/>
+      <field name="newHoursCode"/>
+      <field name="newWorkingHours"/>
+      <field name="newTermDate"/>
+      <field name="newVacationDays"/>
+    </panel>
+    <panel name="napPanel" title="Подаване към НАП">
+      <field name="napSubmission" readonly="true"/>
+    </panel>
+  </form>
+
+</object-views>

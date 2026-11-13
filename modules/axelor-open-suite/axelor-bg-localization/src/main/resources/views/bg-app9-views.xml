@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgApp9Declaration — обстоятелствата по Приложение № 9 ============
+    ⚠️ ГЛАВНИЯТ ИЗГЛЕД НА ТОЗИ ЗАПИС Е ПАНЕЛЪТ ВЪРХУ ФОРМАТА НА БОЛНИЧНИЯ (виж
+    bg-sick-leave-views.xml). Тази форма е за случая, в който удостоверението се отваря само —
+    от списък или от справка. Двете показват едни и същи полета и не се разминават по права:
+    изведените са readonly на двете места, защото readonly им е в ДОМЕЙНА и в резолвера, не в
+    изгледа. ⚠️ Има бутон „Генерирай Приложение 9 (НОИ)“ (Ф2), но НЯМА бутон „подай“: подаването
+    към портала иска КЕП и се прави от човек. -->
+
+  <!-- ⚠️ canNew="false" — удостоверение се създава САМО от болничния лист (бутон „Създай
+    удостоверение (Прил. 9)“). Нов запис тук нямаше откъде да вземе листа: полето е заключено, защото
+    обстоятелствата се извеждат от листа, а не обратно. -->
+  <grid name="bg-app9-declaration-grid" title="Удостоверения (Приложение № 9)"
+    model="com.axelor.apps.bglocalization.db.BgApp9Declaration" orderBy="-bgResolvedAt"
+    canNew="false">
+    <hilite color="success" if="statusSelect == 'SUBMITTED'"/>
+    <hilite color="info" if="statusSelect == 'GENERATED'"/>
+    <hilite color="default" if="statusSelect == 'CANCELLED'"/>
+    <!-- ⚠️ НОМЕРЪТ на листа, не връзката: BgSickLeave няма namecolumn и m2o колоната би показала
+      идентификатора на записа вместо номера от документа. -->
+    <field name="sickLeave.bgDocumentNumber" title="Болничен лист"/>
+    <field name="sickLeave.employmentContract" title="Служител"/>
+    <field name="certificateSeqNo"/>
+    <field name="bgP5RelationshipCount"/>
+    <field name="bgP4InsuredTypeCode"/>
+    <field name="bgSubmissionTypeSelect"/>
+    <field name="statusSelect"/>
+    <field name="bgResolvedAt"/>
+    <field name="bgGeneratedOn"/>
+    <field name="bgNoiSubmission"/>
+  </grid>
+
+  <form name="bg-app9-declaration-form" title="Удостоверение (Приложение № 9)"
+    model="com.axelor.apps.bglocalization.db.BgApp9Declaration" canNew="false">
+
+    <!-- ⚠️ САМО ЗА ЧЕТЕНЕ. Щракнат на ръка, статусът би бил „Подадено“ без файл, без входящ номер
+      и без одит, а т. 26 го чете като истина. Подадено става само през „Отбележи като подадено в
+      НОИ“ (BgApp9SubmissionService). -->
+    <panel name="statusPanel" showTitle="false" colSpan="12">
+      <field name="statusSelect" widget="NavSelect" colSpan="12" readonly="true"/>
+    </panel>
+
+    <panel name="headerPanel" title="Удостоверението">
+      <field name="sickLeave" readonly="true"/>
+      <field name="sickLeave.bgDocumentNumber" title="№ на болничния лист" readonly="true"/>
+      <field name="bgSubmissionTypeSelect"
+        help="Кодът върху лицевата страна на образеца. ⚠️ Не се коригират: номер на болничния лист, ЕГН, ЕИК, брой правоотношения (т. 5) и пореден номер на удостоверението (т. 6) — при грешка в тях удостоверението се ЗАЛИЧАВА и се подава ново."/>
+      <button name="resolveBtn" title="Изведи/опресни обстоятелствата"
+        onClick="save,action-bg-app9-method-resolve-from-declaration,save"
+        help="Извежда изводимите точки от служителя, договора, листа и периода и записва ПРИСЪДА за всяка — включително причината за всеки отказ. Ръчните полета НЕ се пипат."/>
+      <button name="generateBtn" title="Генерирай Приложение 9 (НОИ)"
+        onClick="save,action-bg-app9-method-generate,save"
+        help="Строи XML по схемата на НОИ, проверява го ОФЛАЙН срещу нея и го закача като НЕИЗМЕНЯЕМ файл с отпечатък SHA-256. При неразрешено задължително обстоятелство СПИРА и показва какво липсва. ⚠️ НЕ подава: подаването иска КЕП и се прави от човек през портала."/>
+    </panel>
+
+    <panel-tabs name="clausesTabs">
+
+      <panel name="derivedPanel" title="Изведени обстоятелства">
+        <!-- ⚠️ ВСИЧКИТЕ СА readonly, И ТОВА НЕ Е УДОБСТВО. Стойността тук идва с ПРИСЪДА в
+          „Присъди на резолвера“; редактирана на ръка, тя би противоречила на изречението, което
+          стои до нея, и никой нямаше да види кое от двете е вярно. Поправката става в ИЗТОЧНИКА —
+          договора, служителя или листа — и после се натиска бутонът. -->
+        <field name="bgP1Insured" readonly="true"
+          help="Т. 1. Брои се от ДЕНЯ НА НАСТЪПВАНЕ (bgIncapacityStartDate на листа), не от „От дата“. Указание: при „не е осигурено“ СЕ ПОПЪЛВА дата в т. 7 или в т. 8."/>
+        <field name="bgP1TermTypeSelect" readonly="true"/>
+        <field name="bgP1TermEndDate" readonly="true"
+          help="Уговореният край на срочния договор (чл. 68 КТ), не действителното прекратяване — второто пълни т. 7."/>
+        <field name="bgP1SolRegTypeSelect" readonly="true"/>
+        <field name="bgP1SolRegEndDate" readonly="true"/>
+        <field name="bgP2SixMonthStaySelect" readonly="true"
+          help="Т. 2 — КСО чл. 40 ал. 1. ⚠️ Пази се ПРАВОТО, не отметката: образецът гласи „лицето НЯМА 6 месеца стаж“ и се отмята САМО когато стажът липсва."/>
+        <field name="bgP3TwelveMonthStaySelect" readonly="true"
+          help="Т. 3 — КСО чл. 48а. Взаимноизключваща се с т. 2: болничен за общо заболяване прави т. 3 неотносима и обратно."/>
+        <field name="bgP4InsuredTypeCode" readonly="true"
+          help="Т. 4 — кодът от договора към деня на настъпването. ⚠️ Приложение № 9 допуска СВОЙ, по-тесен набор кодове от номенклатурата на НАП; недопустим код дава ОТКАЗ с причина, а не преписване."/>
+        <field name="bgP5RelationshipCount" readonly="true"
+          help="Т. 5 — активните договори при СЪЩИЯ осигурител (същия ЕИК) към деня на настъпването. „Осигурен на друго основание“ НЕ се брои тук — то е при друг платец."/>
+        <field name="certificateSeqNo" readonly="true"
+          help="Т. 6 — поредният номер в 1..т.5, а НЕ брояч по лице. Полето на образеца е с две позиции и указанието връзва номера за т. 5."/>
+        <field name="bgP7TerminatedFrom" readonly="true"
+          help="Т. 7 — календарният ден НЕПОСРЕДСТВЕНО СЛЕД последния осигурен ден, тоест датата на прекратяване + 1."/>
+        <field name="benefitIban" readonly="true"
+          help="Т. 26 — копира се от лицето ПРИ ИЗВЕЖДАНЕТО и остава: точката удостоверява сметката, каквато е била при това подаване. Промяната се удостоверява по раздел II т. 16."/>
+        <field name="bgP26FirstSubmissionSelect" readonly="true"
+          help="Бележка *** на образеца: т. 26 се попълва само при ПЪРВОТО представяне на удостоверение."/>
+      </panel>
+
+      <panel name="manualPanel" title="Ръчни обстоятелства">
+        <!-- Т. 8 -->
+        <field name="bgP8InterruptedFrom"
+          help="Т. 8 — прекъснато, но НЕ прекратено осигуряване: самоотлъчка, незачитан неплатен отпуск, работа през определени дни в месеца. Същото правило „последен осигурен ден + 1“. Резолверът само ПРЕДЛАГА в присъдите си."/>
+
+        <!-- Т. 10 -->
+        <panel name="rehabPanel" title="Т. 10 · Трудоустрояване" colSpan="12">
+          <field name="bgP10RehabFrom"/>
+          <field name="bgP10RehabTo"/>
+          <field name="bgP10OrderNo"/>
+          <field name="bgP10OrderDate"/>
+          <field name="bgP10AvgPayAtStart"
+            help="Т. 10.1 — в ЕВРО и центове (изм. ДВ бр. 115 от 2025 г.)."/>
+          <field name="bgP10BasisAtStartSelect"/>
+          <field name="bgP10AvgPayAtEnd"
+            help="Т. 10.2 — за месеца, в който трудоустрояването ИЗТИЧА. Подава се допълнително с код „Корекция“."/>
+          <field name="bgP10BasisAtEndSelect"/>
+        </panel>
+
+        <!-- Т. 11 -->
+        <panel name="surveyPanel" title="Т. 11 · Анкетен лист (КСО чл. 46 ал. 1)" colSpan="12">
+          <field name="bgP11SurveyNo"/>
+          <field name="bgP11SurveyDate"/>
+          <field name="bgP11FindingSelect" colSpan="12"/>
+        </panel>
+
+        <!-- Т. 12 -->
+        <panel name="leavePanel" title="Т. 12 · Платен годишен отпуск" colSpan="12">
+          <field name="bgP12ConfirmedSelect"
+            help="Попълва се за случаите по чл. 9 ал. 3 от Наредбата за медицинската експертиза. ⚠️ Резолверът ПРЕДЛАГА от припокриване с отпуск, но НЕ потвърждава: припокриване по календар не е „разрешен отпуск съгласно заповед“, а най-честият изход е отпускът да е бил ОТМЕНЕН заради болничния."/>
+          <field name="bgP12LeaveOrderNo"/>
+          <field name="bgP12LeaveOrderDate"/>
+        </panel>
+
+        <!-- Т. 24 -->
+        <field name="bgP24OtherCircumstances" colSpan="12"/>
+      </panel>
+
+      <!-- ⚠️ ЦЕЛИЯТ РАЗДЕЛ СЕ ПОПЪЛВА САМО В ЕДИН СЛУЧАЙ, и това е бележка ** на образеца.
+        Не е скрит с условие, защото гейтът НЕ Е ИЗВОДИМ: речникът на отсъствията няма ос
+        „майчинство след 42-рия ден“ срещу „майчинство до 42-рия ден“, а чл. 167 КТ е отделен
+        вид. Скрит по категория, разделът щеше да изчезва точно в случаите по чл. 167. -->
+      <panel name="childPanel" title="Т. 13–23 · Дете (само майчинство след 42-ия ден)">
+        <static name="childNote" colSpan="12">
+          <![CDATA[<><Alert variant="info">Бележка ** на образеца: точки 13–23 се попълват САМО за обезщетение по болничен лист за майчинство СЛЕД 42-рия ден от раждането и за случаите по чл. 167 КТ. При обикновен болничен те са неотносими — резолверът го казва изрично в присъдите си.</Alert></>]]>
+        </static>
+        <field name="bgP13Child" grid-view="bg-employee-child-grid"
+          form-view="bg-employee-child-form"
+          help="Извежда се, когато лицето има ТОЧНО едно въведено дете. При няколко деца изборът е ръчен — точката удостоверява ЕДНО дете."/>
+        <!-- Онова от т. 13, което BgEmployeeChild не носи. -->
+        <field name="bgP13BirthCertNo" help="Попълва се, когато детето няма ЕГН."/>
+        <field name="bgP13BirthCertDate"/>
+        <field name="bgP13MotherName"/>
+        <field name="bgP13MotherId"/>
+        <field name="bgP13FatherName"/>
+        <field name="bgP13FatherId"/>
+        <field name="bgP14TwinCount"
+          help="При близнаци образецът иска данни за ВСЯКО дете — броят тук не заменя отделните редове."/>
+        <!-- ⚠️ Т. 15–23 са ОТРИЦАНИЯ: „Да“ значи „потвърждавам отрицанието, както е формулирано
+          в точката“. Празно значи „не е декларирано“ — и точно затова не са булеви полета. -->
+        <field name="bgP15ChildAlive"/>
+        <field name="bgP16NotForAdoption"/>
+        <field name="bgP17NotInStateCare"/>
+        <field name="bgP18NotUnderMaternityProgramme"/>
+        <field name="bgP19NotPlacedArt26"/>
+        <field name="bgP20NotDeprivedOfRights"/>
+        <field name="bgP21RightsNotRestricted"/>
+        <field name="bgP22GuardianshipNotTerminated"/>
+        <field name="bgP23Art26PlacementNotTerminated"/>
+      </panel>
+
+      <!-- Т. 9 и т. 25 нямат СВОИ полета тук — виж домейна за причината. Показват се през листа. -->
+      <panel name="referencePanel" title="Т. 9 и т. 25 · през листа">
+        <static name="referenceNote" colSpan="12">
+          <![CDATA[<><Alert variant="info">Т. 9 (работни дни/часове) са редовете BgSickLeavePeriodLine върху болничния лист и се пишат при ПРЕСМЯТАНЕ НА ФИША — тук не се копират и не се преизчисляват. Т. 25 (входящ № и дата при осигурителя) също стои на листа; копие тук би било трето число на същия документ. При болничен лист на САМООСИГУРЯВАЩО СЕ ЛИЦЕ т. 25 не се попълва.</Alert></>]]>
+        </static>
+        <field name="sickLeave.bgPeriodLineList" colSpan="12" readonly="true"
+          title="Т. 9 · Дни по месеци (Ф0)" grid-view="bg-sick-leave-period-line-grid"
+          form-view="bg-sick-leave-period-line-form"/>
+        <field name="sickLeave.bgEmployerReceivedNo" title="Т. 25 · Входящ № при осигурителя"
+          readonly="true"/>
+        <field name="sickLeave.bgEmployerReceivedDate" title="Т. 25 · Дата на представяне"
+          readonly="true"/>
+      </panel>
+
+    </panel-tabs>
+
+    <!-- ⚠️ ДВА ОТЧЕТА, А НЕ ЕДИН, И ТЕ ОТГОВАРЯТ НА РАЗЛИЧНИ ВЪПРОСИ. „Какво липсва“ се чете ПРЕДИ
+      да има файл; „Проверки“ — след като файлът вече съществува. И двата стоят до артефакта, за да
+      се вижда КОЙ файл са описали. -->
+    <panel name="noiExportPanel" title="Експорт към НОИ (Приложение № 9)">
+      <static name="noiExportNote" colSpan="12">
+        <![CDATA[<><Alert variant="warning">Файлът се произвежда и проверява ОФЛАЙН срещу схемата на НОИ. НЕ се подава: няма КЕП, няма подпис и няма връзка към портала — подаването е човешка стъпка. Прикаченият файл е НЕИЗМЕНЯЕМ: отпечатъкът SHA-256 се смята веднъж, при създаването.</Alert></>]]>
+      </static>
+      <field name="bgNoiArtifact" readonly="true"
+        help="Неизменяемият файл през общото ядро „институция“ — същият път, по който минават и файловете към НАП."/>
+      <field name="bgGeneratedOn" readonly="true"/>
+      <field name="bgLastAttempt" colSpan="12" readonly="true"
+        help="Кога, кой и с какъв изход е последният опит — от този бутон или от месечния експорт. При отказ файл НЕ се закача."/>
+      <field name="bgEmissionGaps" colSpan="12" readonly="true"
+        help="Какво липсва, за да е валидна декларацията. Всеки ред носи точката, елемента по схемата и мястото, на което се попълва. Празно значи, че емисията е минала."/>
+      <field name="bgValidationReport" colSpan="12" readonly="true"
+        help="Слой 1 — валидация срещу Pril9.xsd. Слой 2 — кръстосаните контроли на НОИ. Редовете с [~ ФЛАГ] са ОБЯВЕНА несигурност: правило, което указанието иска, а модулът не може да провери."/>
+    </panel>
+
+    <!-- ═══ ПОДАВАНЕТО В НОИ — ОТМЕТКАТА ═══
+      Отметката е на ФАЙЛА (един входящ номер от портала на файл): ако текущият файл на това
+      удостоверение е месечният износ, отбелязват се всички удостоверения в него. Отмяната е от
+      „НОИ › Подавания към НОИ“, само с причина. -->
+    <panel name="noiSubmissionPanel" title="Подаване в НОИ" colSpan="12">
+      <field name="bgNoiSubmission" readonly="true" colSpan="12"
+        form-view="bg-noi-submission-form" grid-view="bg-noi-submission-grid"/>
+      <field name="bgPortalIncomingNumber" showIf="!bgNoiSubmission"/>
+      <field name="bgPortalSubmittedDate" showIf="!bgNoiSubmission"/>
+      <button name="markSubmittedBtn" title="Отбележи като подадено в НОИ" colSpan="12"
+        showIf="!bgNoiSubmission" readonlyIf="bgNoiArtifact == null"
+        onClick="action-bg-app9-method-mark-submitted"
+        help="⚠️ ОТБЕЛЯЗВАНЕ, а не подаване: приложението не изпраща към НОИ и не подписва с КЕП. Иска входящия номер и датата от портала."/>
+    </panel>
+
+    <!-- ⚠️ ПАНЕЛЪТ, БЕЗ КОЙТО РЕЗОЛВЕРЪТ Е ПОЛОВИН РЕЗОЛВЕР. Присъдите СА изходът, не дневник:
+      всеки отказ тук е точка, останала празна с назована причина. Разгънат по подразбиране —
+      свит, той щеше да превърне отказите в мълчание, тоест точно дефекта, който този панел
+      съществува да не допусне. -->
+    <!-- ⚠️ САМО ЗА АДМИНИСТРАТОР: присъдите са техническият изход на
+      резолвера, текстовете им не са за оператора. Същото условие като AuthUtils.isAdmin и като BgApp9DeclarationController#report. -->
+    <panel name="verdictPanel" title="Присъди на резолвера"
+      if="__user__.code == 'admin' || __user__.group?.code == 'admins'">
+      <field name="bgResolvedAt" readonly="true"/>
+      <field name="resolverNotes" colSpan="12" showTitle="false" readonly="true"
+        help="По една присъда за всяка точка: изведена стойност с довода за нея, обявена неотносимост, обявена ръчност или ОТКАЗ с назована липса. Точка, останала празна заради отказ, НЕ значи, че обстоятелството не е налице."/>
+    </panel>
+
+  </form>
+
+  <action-method name="action-bg-app9-method-resolve">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9DeclarationController" method="resolve"/>
+  </action-method>
+
+  <action-method name="action-bg-app9-method-mark-submitted">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9DeclarationController"
+      method="markSubmitted"/>
+  </action-method>
+
+  <!-- ПРЕЗАРЕЖДАНЕТО СЛЕД ОТКАЗ. Клиентът (executor.ts) при „error“ спира веригата ПРЕДИ да
+    стигне до „reload“ — тоест отказът се записва в базата, а формата показва предишния. Това
+    действие се подава като действието на грешката: пуска се, след като човек затвори диалога. -->
+  <action-method name="action-bg-app9-method-reload">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9ExportController" method="reload"/>
+  </action-method>
+
+  <action-method name="action-bg-app9-method-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9DeclarationController"
+      method="generate"/>
+  </action-method>
+
+  <!-- Същият контролер, но повикан от формата на УДОСТОВЕРЕНИЕТО: там контекстът е декларацията,
+    а методът иска листа. Затова минава през action-record, който подава листа нататък. -->
+  <action-method name="action-bg-app9-method-resolve-from-declaration">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9DeclarationController"
+      method="resolveFromDeclaration"/>
+  </action-method>
+
+</object-views>

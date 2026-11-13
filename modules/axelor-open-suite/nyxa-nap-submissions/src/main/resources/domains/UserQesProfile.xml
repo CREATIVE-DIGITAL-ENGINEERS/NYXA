@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="napsubmissions" package="com.axelor.apps.napsubmissions.db"/>
+
+  <!-- ONE User -> ONE personal cloud-QES signing profile. Personal QES only: no company QES, no
+    USB/local-token QES, and NEVER any private-key material. It holds only what is needed to address
+    a signing request to the signer's OWN cloud-QES account at a provider:
+
+      - the provider id (which CloudQesProvider to use);
+      - an OPAQUE provider-side profile reference (not a secret, not a key);
+      - the signer's НАП IDENTIFIER + its official type (ЕГН/ЛНЧ/служебен номер/ЕИК — personal data,
+        NOT a credential; see signerPin below);
+      - an enabled/disabled flag;
+      - optional NON-SECRET certificate metadata (subject/serial for display only).
+
+    ⚠️ НИКОГА не се пази PIN/парола за отключване на устройство (USB токен) или частен ключ. Такъв
+    PIN се въвежда САМО на устройството на подписващия и не влиза в Nyxa.
+
+    The one-user-one-profile rule is pinned by unique="true" on user (DB constraint) and re-checked
+    in UserQesProfileService before insert. -->
+  <entity name="UserQesProfile">
+
+    <many-to-one name="user" title="User" ref="com.axelor.auth.db.User"
+      column="user_id" required="true" unique="true"/>
+
+    <!-- Which CloudQesProvider this profile signs through. The stored value is byte-identical to
+      CloudQesProvider.getProviderId() ("mock", "btrust", "evrotrust") — see CloudQesProviderIds and
+      the nap.qes.provider.select selection. NOT a Partner/supplier and NOT company-scoped: it names
+      an external electronic-signature service. -->
+    <string name="providerIdentifier" title="Cloud QES provider"
+      selection="nap.qes.provider.select"
+      help="The external cloud electronic-signature service this personal profile signs through (B-Trust, Evrotrust, or the test-only Mock). It is not a company supplier and not an Axelor partner. It must match the provider configured for the application, otherwise signing is refused."/>
+
+    <!-- Opaque, provider-side reference to the signer's profile. Non-secret; travels as the
+      QesSigningRequest signerProfileRef. Never a key or a password. Stays free text on purpose: the
+      external provider assigns the format and Nyxa must not constrain or invent it. -->
+    <string name="externalProfileRef" title="Profile identifier at the provider"
+      help="Identifier issued by B-Trust/Evrotrust when the cloud signature profile was registered. Not needed for the test-only Mock provider."/>
+
+    <!-- ⚠️ „PIN" ТУК Е ИДЕНТИФИКАТОР, НЕ КОД ЗА ОТКЛЮЧВАНЕ. Името следва речника на НАП: полето
+      `userPin` на API-то е „Идентификатор на потребител, подаващ/подписващ документа… чийто
+      сертификат се подава в userSignatureBase64" (Формат за API, т. userPin; Swagger
+      ApiDeclarationsSubmitInputDto.userPin). Допустимите видове са ЕГН, ЛН/ЛНЧ, служебен номер на
+      НАП, ЕИК по БУЛСТАТ на ФЛ и ЕИК на ЮЛ — тоест ИДЕНТИФИКАТОР НА ЛИЦЕ.
+
+      Следователно това НЕ е PIN за отключване на КЕП/USB токен и НЕ оторизира подпис. PIN-ът на
+      устройството се въвежда само на самото устройство и никога не влиза в Nyxa.
+
+      encrypted="true" се ЗАПАЗВА, но по друга причина: стойността е ЛИЧНИ ДАННИ (обикновено ЕГН), а
+      не тайна-удостоверение. Затова се криптира в покой и не се показва в справки/грид колони.
+      Името на колоната остава `signerPin`, за да съответства едно към едно на `userPin` от
+      договора — преименуване би било миграция на данни без смислова полза. -->
+    <string name="signerPin" title="Signer identifier (userPin)" encrypted="true"
+      massUpdate="false"
+      help="The identifier of the person whose certificate signs the files (EGN, LN/LNCh, NAP official number or EIK) — sent in NAP's userPin field. It is NOT the PIN that unlocks a QES/USB token; such a PIN is never entered or stored in Nyxa."/>
+    <string name="signerPinTypeSelect" title="Identifier type (userPinType)"
+      selection="nap.pin.type.select"
+      help="The identifier type under the NAP contract: EGN, LN/LNCh, official number, BULSTAT EIK of an individual or EIK of a legal entity."/>
+
+    <boolean name="enabled" title="Enabled" default="true"/>
+
+    <!-- NON-SECRET certificate metadata, for display only (provider, fingerprint, subject, issuer,
+      serial, validity). Never the certificate's private key.
+
+      SYSTEM-WRITTEN, NEVER TYPED: filled by QesSigningService from the certificate the provider
+      returns on a completed signature, and REPLACED when the signer's certificate is renewed (the
+      returned fingerprint differs). It always describes the certificate that signed most recently;
+      the frozen per-submission evidence lives on NapSubmissionFile.signerCertificateArtifact /
+      signerCertificateSha256, not here. readonly="true" + massUpdate="false" keep the operator out
+      of it in every generated view. -->
+    <string name="certificateMetadata" title="Certificate metadata (non-secret)"
+      large="true" multiline="true" readonly="true" massUpdate="false"
+      help="Filled in automatically after a successful signature. Contains no private key."/>
+
+  </entity>
+
+</domain-models>

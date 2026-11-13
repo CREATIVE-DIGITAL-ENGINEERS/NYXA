@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="aiaccountant" package="com.axelor.apps.aiaccountant.db"/>
+
+  <!-- The authoritative record of an AI Accountant job: what was authorised, by whom, in which company,
+    over which records, and how far each one got.
+
+    WHY IT IS IN THE DATABASE. The same state already travels in the conversation blob the browser stores
+    and returns, and that blob is the only copy today. It is unusable as an authorisation: it is held by
+    the client, so a second tab knows nothing of the first, a reload can lose it, and what comes back is
+    whatever the browser chose to send. For deciding what a write may do, the server has to hold the copy
+    that counts.
+
+    The blob does not go away — it still carries the job across turns and is what makes the assistant
+    responsive without a lookup. This row is what the server BELIEVES; a disagreement is resolved in favour
+    of this one, and the blob is treated as a hint.
+
+    SCOPE. One active row per (user, company, conversation). An authorisation is given by a person, inside
+    one set of books, in one chat panel, and no part is inferable from the others: the same user in two
+    companies is two jobs, the same company under two users is two authorisations, and the same user and
+    company in two browser tabs is two conversations that must not be able to continue each other's work.
+
+    CONCURRENCY. Axelor gives every entity a `version` column and JPA checks it on update, which is exactly
+    the guard two tabs need — the second write of a stale copy fails rather than silently overwriting the
+    first. AiWorkflowStore catches that, re-reads and re-applies; see its javadoc for why re-applying is
+    safe (every update is a union or a state read from the database, never a replacement).
+
+    The record lists themselves are held as JSON rather than as child rows. They are read and written whole,
+    exactly once per turn, by one owner; splitting them into a table would buy queryability nobody has asked
+    for and cost a join, a cascade and a second place for the same facts to live. -->
+  <entity name="AiWorkflowState">
+
+    <!-- Who and where. Both required for an authorisation to mean anything. -->
+    <!-- `column` is explicit because `user` is an SQL keyword and the generator refuses to derive a
+      column of that name. Stock does the same wherever it holds a User (ImportHistory, FECImport). -->
+    <many-to-one name="user" ref="com.axelor.auth.db.User" title="User" required="true"
+      index="true" column="user_id"/>
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Company"
+      required="true" index="true"/>
+
+    <!-- Identity of the job, minted when it opens and never reused. It is the ONLY thing that decides
+      whether two writes to this row are two turns of one job (merge their progress) or two different
+      jobs (never merge — their authorisations were each given for something specific). The request,
+      the goal and the task all repeat across jobs and so distinguish nothing. -->
+    <string name="workflowId" title="Workflow" index="true"/>
+
+    <!-- Which chat panel authorised this job. Part of the key, beside the user and the company: two
+      browser tabs are one user in one company, and before this they shared the row — so a job
+      authorised by a sentence typed in one tab could be continued by «продължи» typed in another.
+      Minted by the client, opaque here, only ever compared. See AiConversationKey. -->
+    <string name="conversationId" title="Conversation" index="true"/>
+
+    <!-- 1 ACTIVE, 2 SETTLED (every target done or blocked), 3 ABANDONED (superseded, or the company
+      changed under it). Only an ACTIVE row is ever resumed. -->
+    <integer name="statusSelect" title="Status" default="1" index="true"/>
+
+    <!-- The route this job was opened under, as the closed vocabularies name it. Kept as columns rather
+      than only inside the JSON so a job can be found and counted without parsing it. -->
+    <string name="task" title="Task"/>
+    <string name="goal" title="Goal"/>
+    <string name="routeDomain" title="Domain"/>
+    <string name="routeScope" title="Scope"/>
+    <string name="explicitness" title="Explicitness"/>
+
+    <!-- The user's own authorising words, verbatim and never re-interpreted. This is the audit trail:
+      what a person actually said, beside what was done under it. -->
+    <string name="request" title="Request" large="true"/>
+
+    <!-- The serialised AiWorkflow: targets, completed, and per-record blocker class, blocker code and
+      reason. One document because it is one fact. -->
+    <string name="stateJson" title="State" large="true"/>
+
+    <!-- Counters, for the metric line and for answering "how long has this been open" without diffing
+      two JSON documents. -->
+    <integer name="targetCount" title="Targets" default="0"/>
+    <integer name="completedCount" title="Completed" default="0"/>
+    <integer name="blockedCount" title="Blocked" default="0"/>
+    <integer name="turnCount" title="Turns" default="0"/>
+
+    <datetime name="lastTurnDateTime" title="Last turn"/>
+
+    <!-- The three statusSelect values live in AiWorkflowStore as constants. An `extra-code` block here
+      would be the natural home, but this platform version does not emit one into the generated entity
+      (stock domains that declare one come out without their constants too), so code referring to them
+      through the entity does not compile. Keep the two in step: 1 ACTIVE, 2 SETTLED, 3 ABANDONED. -->
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bank-payment" package="com.axelor.apps.bankpayment.db"/>
+
+  <!-- Gives a bank statement a company of its own, independent of its lifecycle.
+
+    Stock BankStatement has no company at all: the only route to one is through its lines'
+    bank accounts (BankStatementLine.bankDetails.company), which exist only after the file has
+    been imported. A RECEIVED statement therefore belongs, as far as the database is concerned,
+    to nobody — so every company-scoped read had to answer "not found" for a statement that is
+    plainly sitting on the Bank statements screen.
+
+    Nullable on purpose, and filled in from exactly four places — nothing else writes it:
+      * the form's onNew default (the active company), for statements created on the screen;
+      * OcrBankStatementCreatorImpl, from the company of the AI-OCR upload it came from;
+      * BankStatementImportRunService, after the imported lines have proved which account — and
+        therefore which company — the file is for, and only when the field was empty;
+      * a person choosing it on the form, which is the only route for a legacy RECEIVED record.
+
+    There is deliberately no save-time backfill. Stamping a line-less legacy statement with the
+    active company of whoever happens to open it attributes somebody's bank file on the strength
+    of a click, and a wrong company here is worse than no company: unattributed is visible and
+    correctable, wrong is invisible and believed. Legacy IMPORTED rows need no write at all — the
+    read scope derives their company from their lines when the lines are unanimous (see
+    BankStatementSearchService). -->
+  <entity name="BankStatement">
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Company"/>
+
+  </entity>
+
+</domain-models>

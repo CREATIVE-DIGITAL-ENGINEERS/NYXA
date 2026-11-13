@@ -1,0 +1,13 @@
+---
+name: BG Localization
+code: bg-localization
+typeSelect: standard
+installOrder: 2500
+description: |
+  Българска локализация (заплати и осигуряване)
+image: app-bg-localization.png
+modules:
+  axelor-bg-localization
+dependsOn:
+  - base
+sequence: 200

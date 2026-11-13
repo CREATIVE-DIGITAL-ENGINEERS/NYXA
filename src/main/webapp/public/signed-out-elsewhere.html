@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title data-i18n>You were signed out</title>
+    <!--
+      Shown when this browser's session was evicted because the same account signed in elsewhere;
+      see com.weaccount.SingleSessionEnforcer and com.weaccount.WeAccountSecurityLogic. Served from
+      /public/**, which is anonymous in the Shiro filter chain.
+
+      Deliberately has no automatic redirect back into the app. An evicted browser that bounces
+      straight to Keycloak gets signed back in by the still-valid SSO cookie and evicts the other
+      browser in turn, which is how two tabs end up trading the session every few seconds. Getting
+      back in has to be a deliberate click.
+
+      Strings are authored in English and translated from the application's own catalog via
+      /js/messages.js, exactly as the logout page does.
+    -->
+    <link rel="stylesheet" href="notice.css" />
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true"></div>
+      <h1 data-i18n>You were signed out</h1>
+      <p data-i18n>This account was signed in on another device. Only one session can be open at a time.</p>
+      <a href="../" data-i18n>Go to home</a>
+    </main>
+
+    <script>
+      (function () {
+        var SUPPORTED = ["bg", "en", "fr"];
+
+        function apply(bundle) {
+          var translated = false;
+
+          document.querySelectorAll("[data-i18n]").forEach(function (el) {
+            var source = el.textContent.trim();
+            var message = bundle[source];
+            if (message && message !== source) {
+              el.textContent = message;
+              translated = true;
+            }
+          });
+
+          if (!translated) return;
+
+          // The bundle carries no locale of its own. It was resolved from Accept-Language, which
+          // is the same preference list exposed here, so take the first supported entry.
+          var match = (navigator.languages || [navigator.language || ""])
+            .map(function (tag) {
+              return String(tag).split("-")[0];
+            })
+            .find(function (tag) {
+              return SUPPORTED.indexOf(tag) >= 0;
+            });
+
+          if (match) document.documentElement.lang = match;
+        }
+
+        fetch("../js/messages.js", { credentials: "omit" })
+          .then(function (res) {
+            return res.ok ? res.json() : null;
+          })
+          .then(function (bundle) {
+            if (bundle) apply(bundle);
+          })
+          .catch(function () {
+            // Keep the English source text.
+          });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ═══ FATCA СТАТУСЪТ НА ДРУЖЕСТВОТО ═══
+
+    Един на дружество. За обикновената фирма (активно или пасивно НФЧП) това е само записът на
+    статуса, който тя е декларирала пред банката (самосертификация, W-8BEN-E) —
+    отчет към НАП тя НЕ подава. Отчет подава само предоставящата информация
+    финансова институция; затова генерирането на FATCA отчет иска статус REPORTING_FI и GIIN.
+
+    ⚠️ Контролиращите лица на собственото дружество (при пасивно НФЧП) не се водят тук — отделна
+    задача. -->
+  <entity name="BgFatcaProfile">
+
+    <many-to-one name="company" title="Компания" required="true"
+      ref="com.axelor.apps.base.db.Company"/>
+
+    <!-- Без стойност по подразбиране: статусът е ДЕКЛАРАЦИЯ на дружеството, не наша догадка. -->
+    <string name="statusSelect" title="FATCA статус" selection="bg.fatca.entity.status.select"
+      required="true"/>
+
+    <!-- GIIN от регистъра на IRS — XXXXXX.XXXXX.XX.XXX, 19 знака. Задължителен само за финансова
+      институция за отчитане; проверява се при запис и пак при генериране. -->
+    <string name="giin" title="GIIN" max="19"/>
+
+    <string name="note" title="Бележка" large="true"/>
+
+    <unique-constraint columns="company"/>
+
+  </entity>
+
+</domain-models>

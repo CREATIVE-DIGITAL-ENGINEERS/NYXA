@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views https://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <dashboard name="welcome" title="Welcome!">
+    <dashlet title="All Contact" action="contact.all"/>
+    <dashlet title="Business Contacts" action="contacts.business"/>
+    <dashlet title="Sale Orders" action="sale.orders"/>
+    <dashlet title="Axelor!" action="axelor.web.url"/>
+  </dashboard>
+
+</object-views>

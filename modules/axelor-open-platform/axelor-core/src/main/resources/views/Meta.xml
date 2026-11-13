@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views https://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <selection name="view.type.selection">
+    <option value="grid">Grid</option>
+    <option value="form">Form</option>
+    <option value="tree">Tree</option>
+    <option value="chart">Chart</option>
+    <option value="dashboard">Dashboard</option>
+    <option value="calendar">Calendar</option>
+    <option value="gantt">Gantt</option>
+    <option value="cards">Cards</option>
+    <option value="kanban">Kanban</option>
+    <option value="custom">Custom</option>
+    <option value="search">Search</option>
+    <option value="search-filters">Filters</option>
+  </selection>
+
+  <selection name="action.type.selection">
+    <option value="action-attrs">action-attrs</option>
+    <option value="action-view">action-view</option>
+    <option value="action-script">action-script</option>
+    <option value="action-group">action-group</option>
+    <option value="action-validate">action-validate</option>
+    <option value="action-condition">action-condition</option>
+    <option value="action-record">action-record</option>
+    <option value="action-method">action-method</option>
+    <option value="action-import">action-import</option>
+    <option value="action-export">action-export</option>
+    <option value="action-report">action-report</option>
+    <option value="action-ws">action-ws</option>
+  </selection>
+
+  <selection name="label.style.selection">
+    <option value="default">Default</option>
+    <option value="important">Important</option>
+    <option value="success">Success</option>
+    <option value="warning">Warning</option>
+    <option value="inverse">Inverse</option>
+    <option value="info">Information</option>
+  </selection>
+
+  <selection name="help.type.selection">
+    <option value="tooltip">Tooltip</option>
+    <option value="placeholder">Placeholder</option>
+    <option value="inline">Inline</option>
+  </selection>
+
+  <selection name="color.name.selection">
+    <option value="red" color="red">Red</option>
+    <option value="pink" color="pink">Pink</option>
+    <option value="purple" color="purple">Purple</option>
+    <option value="deeppurple" color="deeppurple">Deep Purple</option>
+    <option value="indigo" color="indigo">Indigo</option>
+    <option value="blue" color="blue">Blue</option>
+    <option value="lightblue" color="lightblue">Light Blue</option>
+    <option value="cyan" color="cyan">Cyan</option>
+    <option value="teal" color="teal">Teal</option>
+    <option value="green" color="green">Green</option>
+    <option value="lightgreen" color="lightgreen">Light Green</option>
+    <option value="lime" color="lime">Lime</option>
+    <option value="yellow" color="yellow">Yellow</option>
+    <option value="amber" color="amber">Amber</option>
+    <option value="orange" color="orange">Orange</option>
+    <option value="deeporange" color="deeporange">Deep Orange</option>
+    <option value="brown" color="brown">Brown</option>
+    <option value="grey" color="grey">Grey</option>
+    <option value="bluegrey" color="bluegrey">Blue Grey</option>
+    <option value="black" color="black">Black</option>
+    <option value="white" color="white">White</option>
+  </selection>
+
+  <grid title="All Modules" name="meta-module-grid" model="com.axelor.meta.db.MetaModule"
+    canDelete="false" canNew="false" canEdit="false" edit-icon="false">
+    <field name="name"/>
+    <field name="title"/>
+    <field name="moduleVersion" width="200"/>
+  </grid>
+
+  <form name="meta-module-form" title="Module" model="com.axelor.meta.db.MetaModule"
+    canAttach="false" canCopy="false" canNew="false" canDelete="false" canEdit="false">
+    <panel title="Module">
+      <field name="name"/>
+      <field name="moduleVersion"/>
+      <field name="title"/>
+      <field name="application"/>
+    </panel>
+    <panel title="Depends On">
+      <field name="depends" widget="TagSelect" colSpan="12" showTitle="false"/>
+    </panel>
+    <panel title="Description">
+      <field name="description" showTitle="false" colSpan="12"/>
+    </panel>
+  </form>
+
+  <grid title="Views" name="simple-meta-view-grid" model="com.axelor.meta.db.MetaView" orderBy="priority,name">
+    <field name="name"/>
+    <field name="title"/>
+    <field name="type"/>
+    <field name="priority" width="75"/>
+  </grid>
+
+  <grid title="All Views" name="meta-view-grid" model="com.axelor.meta.db.MetaView" orderBy="priority,name">
+    <toolbar>
+      <button name="restoreAll" icon="eraser" help="Restore all…" prompt="All the customizations will be lost. Are you sure?" onClick="action-meta-restore-all"/>
+    </toolbar>
+    <hilite if="extension" color="warning"/>
+    <hilite if="computed" color="info"/>
+    <field name="name"/>
+    <field name="title"/>
+    <field name="type"/>
+    <field name="model"/>
+    <field name="module"/>
+    <field name="extension" hidden="true"/>
+    <field name="computed" hidden="true"/>
+    <field name="priority" width="75"/>
+  </grid>
+
+  <grid title="All Charts" name="meta-view-chart-grid" model="com.axelor.meta.db.MetaView" orderBy="priority,name">
+    <field name="name"/>
+    <field name="title"/>
+    <field name="module"/>
+    <field name="priority" width="75"/>
+  </grid>
+
+  <action-attrs name="action-view-defaults">
+    <attribute for="type" name="value" expr="#{defaultType}"/>
+  </action-attrs>
+
+  <form name="meta-view-form" title="View" model="com.axelor.meta.db.MetaView"
+    onNew="action-view-defaults"
+    onSave="action-view-validate,com.axelor.meta.web.MetaController:clearCache" width="large" >
+    <panel title="Overview">
+      <panel>
+        <field name="name" colSpan="12"/>
+        <field name="title" colSpan="12"/>
+        <field name="type"/>
+        <field name="priority"/>
+        <field name="helpLink" colSpan="12"/>
+      </panel>
+      <panel itemSpan="12">
+        <field name="model"/>
+        <field name="module"/>
+        <field name="groups" widget="TagSelect" x-create="code,name"/>
+        <panel showIf="['form', 'grid'].indexOf(type) >= 0">
+          <field name="extension"/>
+          <field name="computed"/>
+        </panel>
+      </panel>
+    </panel>
+    <panel title="Schema">
+      <field name="xml" showTitle="false" widget="CodeEditor" height="500" x-code-syntax="xml" colSpan="12"/>
+    </panel>
+  </form>
+
+  <grid title="Personalized Views" name="meta-view-custom-grid" model="com.axelor.meta.db.MetaViewCustom">
+    <field name="name"/>
+    <field name="title"/>
+    <field name="type"/>
+    <field name="model"/>
+    <field name="user"/>
+    <field name="shared"/>
+  </grid>
+
+  <form name="meta-view-custom-form" title="Personalized View" model="com.axelor.meta.db.MetaViewCustom"
+        onSave="com.axelor.meta.web.MetaController:clearCache" width="large">
+    <panel title="Overview">
+      <field name="name"/>
+      <field name="title"/>
+      <field name="type"/>
+      <field name="user"/>
+      <field name="shared"/>
+    </panel>
+    <panel title="Schema">
+      <field name="xml" showTitle="false" widget="CodeEditor" height="500" x-code-syntax="xml" colSpan="12"/>
+    </panel>
+  </form>
+
+  <grid title="All Actions" name="meta-action-grid" model="com.axelor.meta.db.MetaAction">
+    <field name="name" />
+    <field name="type"/>
+    <field name="model" />
+    <field name="module"/>
+    <field name="priority" />
+  </grid>
+
+  <form title="Action" name="meta-action-form" model="com.axelor.meta.db.MetaAction"
+    onSave="action-action-validate,com.axelor.meta.web.MetaController:clearCache" width="large">
+    <panel title="Overview">
+      <field name="name" readonlyIf="id"/>
+      <field name="type" readonlyIf="id"/>
+      <field name="model"/>
+      <field name="module"/>
+      <field name="priority"/>
+      <field name="home" />
+    </panel>
+    <panel title="Schema">
+      <field name="xml" showTitle="false" widget="CodeEditor" height="500" x-code-syntax="xml" colSpan="12"/>
+    </panel>
+  </form>
+
+  <grid title="Menu Items" name="simple-meta-menu-grid" model="com.axelor.meta.db.MetaMenu">
+    <field name="name"/>
+    <field name="title"/>
+    <field name="priority" width="75"/>
+  </grid>
+
+  <grid title="Menu Items" name="meta-menu-grid" model="com.axelor.meta.db.MetaMenu">
+    <field name="name"/>
+    <field name="title"/>
+    <field name="parent"/>
+    <field name="action"/>
+    <field name="module"/>
+    <field name="left"/>
+    <field name="mobile"/>
+    <field name="hidden"/>
+    <field name="order"/>
+    <field name="priority"/>
+  </grid>
+
+  <grid name="meta-menu-fav-grid" title="Favorites" model="com.axelor.meta.db.MetaMenu" orderBy="-priority" canNew="false" editable="true">
+    <field name="title"/>
+    <field name="link"/>
+    <field name="priority" width="100"/>
+  </grid>
+
+  <form name="meta-menu-fav-form" title="Favorite" model="com.axelor.meta.db.MetaMenu" canNew="false">
+    <panel title="Overview">
+      <field name="title"/>
+      <field name="priority"/>
+      <field name="link" colSpan="12" />
+    </panel>
+  </form>
+
+  <action-view name="menus.fav" model="com.axelor.meta.db.MetaMenu" title="Favorites">
+    <view name="meta-menu-fav-grid" type="grid"/>
+    <view name="meta-menu-fav-form" type="form"/>
+    <domain>self.user = :__user__ and self.link is not null</domain>
+  </action-view>
+
+  <form name="meta-menu-form" title="Menu Item" model="com.axelor.meta.db.MetaMenu">
+    <panel title="General" colSpan="12">
+      <field name="name"/>
+      <field name="parent" domain="self.name != :name" grid-view="meta-menu-grid" form-view="meta-menu-form"/>
+      <field name="title"/>
+      <field name="action"/>
+      <field name="icon"/>
+      <field name="iconBackground" />
+      <field name="link" />
+      <field name="module"/>
+    </panel>
+    <panel title="Visibility" sidebar="true" itemSpan="6">
+      <field name="order"/>
+      <field name="priority"/>
+      <field name="left" widget="inline-checkbox"/>
+      <field name="mobile" widget="inline-checkbox"/>
+      <field name="hidden" widget="inline-checkbox"/>
+      <field name="conditionToCheck" colSpan="12"/>
+      <field name="moduleToCheck" colSpan="12"/>
+    </panel>
+    <panel title="Tag" sidebar="true" itemSpan="6">
+      <field name="tag"/>
+      <field name="tagStyle"/>
+      <field name="tagGet"/>
+      <field name="tagCount"/>
+    </panel>
+    <panel-related field="groups"/>
+    <panel-related field="roles"/>
+  </form>
+
+  <grid title="Action Menus" name="meta-action-menu-grid" model="com.axelor.meta.db.MetaActionMenu">
+    <field name="name"/>
+    <field name="title"/>
+    <field name="parent"/>
+    <field name="category"/>
+    <field name="action"/>
+    <field name="module"/>
+    <field name="hidden"/>
+    <field name="order"/>
+    <field name="priority"/>
+  </grid>
+
+  <form title="Action Menu" name="meta-action-menu-form" model="com.axelor.meta.db.MetaActionMenu">
+    <panel title="Overview">
+      <field name="name"/>
+      <field name="title"/>
+      <field name="parent" domain="self.name != :name"/>
+      <field name="category"/>
+      <field name="action"/>
+      <field name="module"/>
+      <field name="hidden"/>
+      <field name="order"/>
+      <field name="priority"/>
+    </panel>
+  </form>
+
+  <grid title="All Selects" name="meta-select-grid" model="com.axelor.meta.db.MetaSelect">
+    <field name="name"/>
+    <field name="module"/>
+    <field name="priority"/>
+  </grid>
+
+  <form name="meta-select-form" title="form::Select" model="com.axelor.meta.db.MetaSelect">
+    <panel title="Overview">
+      <field name="name"/>
+      <field name="module"/>
+      <field name="priority"/>
+    </panel>
+    <panel-related field="items" editable="true" orderBy="order">
+      <field name="title"/>
+      <field name="value"/>
+      <field name="icon"/>
+      <field name="color" widget="SingleSelect" />
+      <field name="data"/>
+      <field name="hidden"/>
+      <field name="order" width="100"/>
+    </panel-related>
+  </form>
+
+  <form name="meta-select-item-form" title="Select Item" model="com.axelor.meta.db.MetaSelectItem">
+    <panel title="Overview">
+      <field name="title" />
+      <field name="value" />
+      <field name="icon" />
+      <field name="color" widget="SingleSelect" />
+      <field name="data" />
+      <field name="hidden" />
+      <field name="order" help="Sequence order" width="100" />
+    </panel>
+  </form>
+
+  <action-method name="action-view-validate">
+    <call class="com.axelor.meta.web.MetaController" method="validateView"/>
+  </action-method>
+
+  <action-method name="action-action-validate">
+    <call class="com.axelor.meta.web.MetaController" method="validateAction"/>
+  </action-method>
+
+  <action-method name="action-meta-restore-all">
+    <call class="com.axelor.meta.web.MetaController" method="restoreAll"/>
+  </action-method>
+
+  <grid name="meta-model-grid" title="Models" model="com.axelor.meta.db.MetaModel"
+    canNew="false" canEdit="false" canDelete="false" edit-icon="false">
+    <field name="packageName"/>
+    <field name="name"/>
+    <field name="tableName"/>
+  </grid>
+
+  <form name="meta-model-form" title="Model" model="com.axelor.meta.db.MetaModel"
+    canAttach="false" canCopy="false" canNew="false" canDelete="false" canEdit="false">
+    <panel title="Overview">
+      <field name="name"/>
+      <field name="tableName"/>
+      <field name="packageName"/>
+    </panel>
+    <panel-related field="metaFields" orderBy="id" x-can-export="true" />
+  </form>
+
+  <selection name="relationship.field.selection">
+    <option value="OneToOne">OneToOne</option>
+    <option value="ManyToOne">ManyToOne</option>
+    <option value="OneToMany">OneToMany</option>
+    <option value="ManyToMany">ManyToMany</option>
+  </selection>
+
+  <grid name="meta-field-grid" title="Fields" model="com.axelor.meta.db.MetaField">
+    <field name="name"/>
+    <field name="typeName"/>
+    <field name="label"/>
+    <field name="relationship" />
+    <field name="mappedBy" />
+  </grid>
+
+  <form name="meta-field-form" title="Field" model="com.axelor.meta.db.MetaField">
+    <panel title="Overview">
+      <field name="name"/>
+      <field name="packageName"/>
+      <field name="typeName"/>
+      <field name="label"/>
+      <field name="relationship"/>
+      <field name="mappedBy" showIf="relationship == 'OneToMany' || relationship == 'OneToOne' || relationship == 'ManyToMany'"/>
+      <button name="openModel" title="Show Model" hideIf="!relationship" onClick="meta-field-method-open-model"/>
+    </panel>
+    <panel title="Description">
+      <field name="description" showTitle="false" colSpan="12"/>
+    </panel>
+  </form>
+
+  <action-method name="meta-field-method-open-model">
+    <call class="com.axelor.meta.web.MetaController" method="openModel"/>
+  </action-method>
+
+  <grid title="All Translations" name="meta-translations-grid" model="com.axelor.meta.db.MetaTranslation" editable="true">
+    <toolbar>
+      <button name="btnExport" icon="download" help="Export" onClick="com.axelor.meta.web.MetaController:exportI18n"/>
+    </toolbar>
+    <field name="key"/>
+    <field name="message"/>
+    <field name="language"/>
+  </grid>
+
+  <form title="Translation" name="meta-translations-form" model="com.axelor.meta.db.MetaTranslation">
+    <panel title="Translation" itemSpan="12">
+      <field name="key"/>
+      <field name="message"/>
+      <field name="language"/>
+    </panel>
+  </form>
+
+  <grid title="All View Help" name="meta-help-view-grid" model="com.axelor.meta.db.MetaHelp">
+    <field name="model" />
+    <field name="field" />
+    <field name="type" selection="help.type.selection" />
+    <field name="view" />
+    <field name="language" />
+  </grid>
+
+  <form title="View Help" name="meta-help-view-form" model="com.axelor.meta.db.MetaHelp">
+    <panel title="Overview">
+      <field name="model" required="true" widget="ref-text"
+        x-target-name="fullName"
+        x-target="com.axelor.meta.db.MetaModel" />
+      <field name="field" required="true" widget="ref-text"
+        x-target-name="name"
+        x-target="com.axelor.meta.db.MetaField"
+        x-create="name"
+        x-domain="self.metaModel.fullName = :model AND self.name NOT IN ('id', 'version', 'archived', 'createdBy', 'updatedBy', 'createdOn', 'updatedOn')" />
+      <field name="type" selection="help.type.selection" />
+      <field name="style" />
+      <field name="view" widget="ref-text"
+        x-target-name="name"
+        x-target-search="module"
+        x-target="com.axelor.meta.db.MetaView"
+        x-domain="self.model = :model AND self.type IN ('form', 'grid')" />
+      <field name="language" />
+    </panel>
+    <panel title="Help">
+      <field name="help" showTitle="false" colSpan="12" />
+    </panel>
+  </form>
+
+  <grid title="All Menu Help" name="meta-help-menu-grid" model="com.axelor.meta.db.MetaHelp">
+    <field name="menu" />
+    <field name="language" />
+  </grid>
+
+  <form title="Menu Help" name="meta-help-menu-form" model="com.axelor.meta.db.MetaHelp">
+    <panel title="Overview">
+      <field name="menu" required="true" widget="ref-text"
+        x-target-name="name"
+        x-target="com.axelor.meta.db.MetaMenu" />
+      <field name="language" />
+    </panel>
+    <panel title="Help">
+      <field name="help" showTitle="false" colSpan="12" />
+    </panel>
+  </form>
+
+  <grid title="View Attributes" name="meta-attrs-grid" model="com.axelor.meta.db.MetaAttrs"
+    orderBy="model,view,order">
+    <field name="model" />
+    <field name="view" />
+    <field name="field" />
+    <field name="name" />
+    <field name="value" />
+    <field name="condition" />
+    <field name="order" />
+  </grid>
+
+  <form title="View Attribute" name="meta-attrs-form" model="com.axelor.meta.db.MetaAttrs">
+    <panel title="Overview">
+      <field name="model" />
+      <field name="view" />
+      <field name="field" />
+      <field name="order" />
+      <field name="name" />
+      <field name="value" />
+      <field name="condition" colSpan="12" />
+    </panel>
+    <panel-related field="roles" />
+  </form>
+
+  <grid title="Files" name="meta-files-grid" model="com.axelor.meta.db.MetaFile">
+    <field name="fileName"/>
+    <field name="sizeText" width="100"/>
+    <field name="fileType" width="175"/>
+    <field name="createdBy" width="175"/>
+    <field name="createdOn" width="150"/>
+  </grid>
+
+  <form title="Files" name="meta-files-form" model="com.axelor.meta.db.MetaFile">
+    <panel title="Overview">
+      <field name="content" widget="binary" title="File"/>
+      <field name="fileName"/>
+      <field name="fileSize"/>
+      <field name="fileType"/>
+      <field name="description"/>
+    </panel>
+  </form>
+
+</object-views>

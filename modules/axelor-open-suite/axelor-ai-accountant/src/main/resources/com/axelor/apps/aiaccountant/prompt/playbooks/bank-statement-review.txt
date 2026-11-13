@@ -1,0 +1,17 @@
+#version 1
+[Playbook: REVIEW a bank statement]
+GOAL: answer what the user asked about the statement or the set, and change nothing.
+
+ALLOWED WITHOUT ASKING: search_bank_statements; get_bank_statement. Reading is how you answer — never ask permission to look.
+
+PROCEDURE
+- With a bankStatementId, get_bank_statement ONCE: it returns the header, the per-account opening balance, movement total and closing balance with whether they agree, a capped sample of lines with linesTruncated when there are more, and how much is still to reconcile.
+- Without one, search_bank_statements by name, status, bank account or period. Both RECEIVED and IMPORTED are listed. Results are one page — when totalMatches exceeds what came back, say so or fetch the rest with offset.
+- A RECEIVED statement has no lines and no balances. That is the status, not a defect: say the file is attached and waiting to be imported.
+- 'Why will this not import' is answered from the balances: report the opening, the movements and the closing figure and where they stop agreeing. That is a fact about the file, and the answer is a corrected file from the bank, not a repair.
+- When a statement cannot be found, distinguish the two cases honestly. An id that does not exist is not there; an old record whose company was never set is not attributable, and the answer is that its company has to be set on the Bank statement form.
+- Answer, then say in ONE sentence what could be done next — import it, or take it up with the bank — and stop there.
+
+HARD BLOCKERS: none. This task writes nothing.
+
+DONE WHEN: the question is answered from the statement's real state, and nothing was written.

@@ -1,0 +1,2072 @@
+code,nameEn,nameBg
+10,group,група
+11,outfit,комплект
+13,ration,порция/дажба/част
+14,shot,доза/шот
+20,twenty foot container,двадесетфутов контейнер
+21,forty foot container,четиридесетфутов контейнер
+22,decilitre per gram,децилитър на грам
+23,gram per cubic centimetre,грам на кубичен сантиметър
+24,theoretical pound,теоретичен фунт
+25,gram per square centimetre,грам на квадратен сантиметър
+27,ton,тон
+28,kilogram per square metre,килограм на квадратен метър
+33,kilopascal square metre per gram,килопаскал по квадратен метър на грам
+34,kilopascal per millimetre,килопаскала на милиметър
+35,millilitre per square centimetre second,милилитър на квадратен сантиметър в секунда
+37,ounce per square foot,унция на квадратен фут
+38,"ounce per square foot per 0,01inch","унция на квадратен фут за 0,01 инча"
+40,millilitre per second,милилитър за секунда
+41,millilitre per minute,милилитър за минута
+56,sitas,ар
+58,net kilogram,килограм нето
+59,part per million,част на милион
+60,percent weight,процент от теглото
+61,part per billion (US),част на милиард (САЩ)
+74,millipascal,милипаскал
+77,milli-inch,милиинч
+80,pound per square inch absolute,фунт на абсолютен квадратен инч
+81,henry,хенри
+85,foot pound-force,фут фунт-сила
+87,pound per cubic foot,фунт на кубичен фут
+89,poise,поаз
+91,stokes,стокс
+2A,radian per second,радиан в секунда
+2B,radian per second squared,радиан за секунда на квадрат
+2C,roentgen,рентген
+2G,volt AC,волт AC
+2H,volt DC,волт DC
+2I,British thermal unit (international table) per hour,Британска топлинна единица (международна таблица) за час
+2J,cubic centimetre per second,кубичен сантиметър за секунда
+2K,cubic foot per hour,кубичен фут за час
+2L,cubic foot per minute,кубичен фут за минута
+2M,centimetre per second,сантиметър за секунда
+2N,decibel,децибел
+2P,kilobyte,килобайт
+2Q,kilobecquerel,килобекерел
+2R,kilocurie,килокюри
+2U,megagram,мегаграм
+2X,metre per minute,метър за минута
+2Y,milliroentgen,милирентген
+2Z,millivolt,миливолт
+3B,megajoule,мегаджаул
+4C,centistokes,сантистокс
+4G,microlitre,микролитър
+4H,micrometre (micron),микрометър (микрон)
+4K,milliampere,милиампер
+4L,megabyte,мегабайт
+4M,milligram per hour,милиграм за час
+4N,megabecquerel,мегабекерел
+4O,microfarad,микрофарад
+4P,newton per metre,нютон на метър
+4Q,ounce inch,унция  инч
+4R,ounce foot,унция фут
+4T,picofarad,пикофарад
+4U,pound per hour,фунт за час
+4W,ton (US) per hour,тон (САЩ) за час
+4X,kilolitre per hour,килолитър за час
+5A,barrel (US) per minute,барел (САЩ) за минута
+5B,batch,партида
+5E,MMSCF/day,MMSCF/ден (Милион стандартни кубически фута на ден)
+5J,hydraulic horse power,хидравлична конска сила
+A10,ampere square metre per joule second,ампер квадратен метър за джаул секунда
+A11,angstrom,ангстрьом
+A13,attojoule,атоджаул
+A14,barn,барн
+A20,British thermal unit (international table) per second square foot degree Rankine,Британска топлинна единица (международна таблица) на секунда квадратен фут градус Ранкин
+A21,British thermal unit (international table) per pound degree Rankine,Британска топлинна единица (международна таблица) за фунт по градус Ранкин
+A22,British thermal unit (international table) per second foot degree Rankine,Британска топлинна единица (международна таблица) на секунда фут градус Ранкин
+A23,British thermal unit (international table) per hour square foot degree Rankine,Британска топлинна единица (международна таблица) за час по квадратен фут по градус Ранкин
+A24,candela per square metre,кандела на квадратен метър
+A26,coulomb metre,кулонметър
+A27,coulomb metre squared per volt,кулонметър на квадрат за волт
+A28,coulomb per cubic centimetre,кулон за кубичен сантиметър
+A29,coulomb per cubic metre,кулон за кубичен метър
+A3,ampere per millimetre,ампер на милиметър
+A30,coulomb per cubic millimetre,кулон на кубичен милиметър
+A31,coulomb per kilogram second,кулон на килограм по секунда
+A32,coulomb per mole,кулон на мол
+A33,coulomb per square centimetre,кулон на квадратен сантиметър
+A34,coulomb per square metre,кулон на квадратен метър
+A35,coulomb per square millimetre,кулон на квадратен милиметър
+A36,cubic centimetre per mole,кубичен сантиметър за мол
+A37,cubic decimetre per mole,кубичен дециметър за мол
+A38,cubic metre per coulomb,кубичен метър на кулон
+A39,cubic metre per kilogram,кубичен метър за килограм
+A4,ampere per square centimetre,ампер на квадратен сантиметър
+A40,cubic metre per mole,кубичен метър за мол
+A41,ampere per square metre,ампер на квадратен метър
+A42,curie per kilogram,кюри на килограм
+A43,deadweight tonnage,дедуейт
+A44,decalitre,декалитър
+A45,decametre,декаметър
+A47,decitex,децитекc
+A48,degree Rankine,градус по скалата на Ранкин
+A49,denier,дение
+A5,ampere square metre,ампер  квадратен метър
+A53,electronvolt,електронволт
+A54,electronvolt per metre,електронволт на метър
+A55,electronvolt square metre,eлектронволт квадратен метър
+A56,electronvolt square metre per kilogram,електронволт квадратен метър за килограм
+A6,ampere per square metre kelvin squared,ампер за квадратен метър келвин на квадрат
+A68,exajoule,екзаджаул
+A69,farad per metre,фарад на метър
+A7,ampere per square millimetre,ампер на квадратен милиметър
+A70,femtojoule,фемтоджаул
+A71,femtometre,фемтометър
+A73,foot per second squared,фут в секунда на квадрат
+A74,foot pound-force per second,фунт-паунд за сила за секунда
+A75,freight ton,товарен тон
+A8,ampere second,ампер за секунда
+A84,gigacoulomb per cubic metre,гигакулон на кубичен метър
+A85,gigaelectronvolt,гигаелектронволт
+A86,gigahertz,гигахерц
+A87,gigaohm,гигаом
+A88,gigaohm metre,гигаом метър
+A89,gigapascal,гигапаскал
+A90,gigawatt,гигават
+A91,gon,гон
+A93,gram per cubic metre,грам за кубичен метър
+A94,gram per mole,грам за мол
+A95,gray,грей
+A96,gray per second,грей за секунда
+A97,hectopascal,хектопаскал
+A98,henry per metre,хенри на метър
+A99,bit,бит
+AA,ball,сфера
+AB,bulk pack,насипна опаковка
+ACR,acre,акър
+ACT,activity,дейност
+AD,byte,байт
+AE,ampere per metre,ампер на метър
+AI,average minute per call,средно минути на повикване
+AK,fathom,фатом
+AMH,ampere hour,амперчас
+AMP,ampere,ампер
+ANN,year,година
+APZ,troy ounce or apothecary ounce,тройунция или аптекарска унция
+AQ,anti-hemophilic factor (AHF) unit,единица за антихемофилен фактор (AHF)
+ASM,alcoholic strength by mass,алкохолно съдържание по маса
+ASU,alcoholic strength by volume,алкохолно съдържание по обем
+AWG,american wire gauge,американски габарит на проводник
+AY,assembly,монтажна единица
+AZ,British thermal unit (international table) per pound,Британска топлинна единица (международна таблица) за фунт
+B1,barrel (US) per day,барел (САЩ) на ден
+B10,bit per second,бит за секунда
+B11,joule per kilogram kelvin,джаул за килограм келвин
+B12,joule per metre,джаул за метър
+B13,joule per square metre,джаул на квадратен метър
+B14,joule per metre to the fourth power,джаул на метър до четвъртата степен
+B15,joule per mole,джаул на мол
+B16,joule per mole kelvin,джаул за мол келвин
+B18,joule second,джаул-секунда
+B20,joule square metre per kilogram,джаул квадратен метър за килограм
+B21,kelvin per watt,келвин за ват
+B22,kiloampere,килоампер
+B23,kiloampere per square metre,килоампер на квадратен метър
+B24,kiloampere per metre,килоампер на метър
+B25,kilobecquerel per kilogram,килобекерел на килограм
+B26,kilocoulomb,килокулон
+B27,kilocoulomb per cubic metre,килокулон на кубичен метър
+B28,kilocoulomb per square metre,килокулон на квадратен метър
+B29,kiloelectronvolt,килоелектронволт
+B3,batting pound,фунт за памучно влакно
+B30,gibit,гибит/гибибит
+B31,kilogram metre per second,килограм-метър за секунда
+B32,kilogram metre squared,килограм метър на квадрат
+B33,kilogram metre squared per second,килограм метър на квадрат за секунда
+B34,kilogram per cubic decimetre,килограм за кубичен дециметър
+B35,kilogram per litre,килограм за литър
+B4,"barrel, imperial","барел, имперски"
+B41,kilojoule per kelvin,килоджаул за келвин
+B42,kilojoule per kilogram,килоджаул за килограм
+B43,kilojoule per kilogram kelvin,килоджаул за килограм по келвин
+B44,kilojoule per mole,килоджаул за мол
+B45,kilomole,киломол
+B46,kilomole per cubic metre,киломол на кубичен метър
+B47,kilonewton,килонютон
+B48,kilonewton metre,килонютон метър
+B49,kiloohm,килоом
+B50,kiloohm metre,килоом на метър
+B52,kilosecond,килосекунда
+B53,kilosiemens,килосименс
+B54,kilosiemens per metre,килосименс на метър
+B55,kilovolt per metre,киловолт на метър
+B56,kiloweber per metre,киловебер на метър
+B58,litre per mole,литър за мол
+B59,lumen hour,лумен час
+B60,lumen per square metre,лумен на квадратен метър
+B61,lumen per watt,лумен за ват
+B62,lumen second,лумен секунда
+B66,megaampere per square metre,мегаампер на квадратен метър
+B67,megabecquerel per kilogram,мегабекерел на килограм
+B68,gigabit,гигабит
+B69,megacoulomb per cubic metre,мегакулон на кубичен метър
+B70,megacoulomb per square metre,мегакулон на квадратен метър
+B71,megaelectronvolt,мегаелектронволт
+B72,megagram per cubic metre,мегаграм на кубичен метър
+B73,meganewton,меганютон
+B74,meganewton metre,меганютон метър
+B75,megaohm,мегаом
+B76,megaohm metre,мегаом метър
+B77,megasiemens per metre,мегасименс на метър
+B78,megavolt,мегаволт
+B79,megavolt per metre,мегаволт на метър
+B8,joule per cubic metre,джаул на кубичен метър
+B80,gigabit per second,гигабит за секунда
+B82,inch per linear foot,инч на линеен фут
+B83,metre to the fourth power,метър на четвърта степен
+B84,microampere,микроампер
+B85,microbar,микробар
+B86,microcoulomb,микрокулон
+B87,microcoulomb per cubic metre,микрокулон на кубичен метър
+B88,microcoulomb per square metre,микрокулон на квадратен метър
+B89,microfarad per metre,микрофарад на метър
+B90,microhenry,микрохенри
+B91,microhenry per metre,микрохенри на метър
+B92,micronewton,микронютон
+B93,micronewton metre,микронютон метър
+B94,microohm,микроом
+B95,microohm metre,микроом метър
+B96,micropascal,микропаскал
+B97,microradian,микрорадиан
+B98,microsecond,микросекунда
+B99,microsiemens,микросименс
+BAR,bar [unit of pressure],бар [единица за налягане]
+BB,base box,базова кутия
+BFT,board foot,дъсчен фут
+BHP,brake horse power,спирачна конска сила
+BIL,billion (EUR),милиард (EUR)
+BLD,dry barrel (US),сух барел (САЩ)
+BLL,barrel (US),барел (САЩ)
+BP,hundred board foot,сто дъсчени фута
+BQL,becquerel,бекерел
+BTU,British thermal unit (international table),Британска топлинна единица (международна таблица)
+BUA,bushel (US),бушел (САЩ)
+BUI,bushel (UK),бушел (Великобритания)
+C0,call,обаждане
+C10,millifarad,милифарад
+C11,milligal,милигал
+C12,milligram per metre,милиграм на метър
+C13,milligray,милигрей
+C14,millihenry,милихенри
+C15,millijoule,милиджаул
+C16,millimetre per second,милиметър в секунда
+C17,millimetre squared per second,милиметър на квадрат за секунда
+C18,millimole,милимол
+C19,mole per kilogram,мол за килограм
+C20,millinewton,милинютон
+C21,kibibit,кибибит
+C22,millinewton per metre,милинютон на метър
+C23,milliohm metre,милиом метър
+C24,millipascal second,милипаскал секунда
+C25,milliradian,милирадиан
+C26,millisecond,милисекунда
+C27,millisiemens,милисименс
+C28,millisievert,милисиверт
+C29,millitesla,милитесла
+C3,microvolt per metre,микроволт на метър
+C30,millivolt per metre,миливолт на метър
+C31,milliwatt,миливат
+C32,milliwatt per square metre,миливат на квадратен метър
+C33,milliweber,миливебер
+C34,mole,мол
+C35,mole per cubic decimetre,мол за кубичен дециметър
+C36,mole per cubic metre,мол за кубичен метър
+C37,kilobit,килобит
+C38,mole per litre,мол на литър
+C39,nanoampere,наноампер
+C40,nanocoulomb,нанокулон
+C41,nanofarad,нанофарад
+C42,nanofarad per metre,нанофарад на метър
+C43,nanohenry,нанохенри
+C44,nanohenry per metre,нанохенри на метър
+C45,nanometre,нанометър
+C46,nanoohm metre,наноом метър
+C47,nanosecond,наносекунда
+C48,nanotesla,нанотесла
+C49,nanowatt,нановат
+C50,neper,непер
+C51,neper per second,непер за секунда
+C52,picometre,пикометър
+C53,newton metre second,нютон метър секунда
+C54,newton metre squared per kilogram squared,нютон метър на квадрат за килограм на квадрат
+C55,newton per square metre,нютон на квадратен метър
+C56,newton per square millimetre,нютон на квадратен милиметър
+C57,newton second,нютон секунда
+C58,newton second per metre,нютон секунда на метър
+C59,octave,октава
+C60,ohm centimetre,ом сантиметър
+C61,ohm metre,ом метър
+C62,mole,мол /единица/
+C63,parsec,парсек
+C64,pascal per kelvin,паскал за келвин
+C65,pascal second,паскал секунда
+C66,pascal second per cubic metre,паскал секунда на кубичен метър
+C67,pascal second per metre,паскал секунда на метър
+C68,petajoule,петаджаул
+C69,phon,фон
+C7,centipoise,сантипоаз
+C70,picoampere,пикоампер
+C71,picocoulomb,пикокулон
+C72,picofarad per metre,пикофарад на метър
+C73,picohenry,пикохенри
+C74,kilobit per second,килобит в секунда
+C75,picowatt,пиковат
+C76,picowatt per square metre,пиковат на квадратен метър
+C78,pound-force,фунт-сила
+C79,kilovolt ampere hour,киловолт амперчас
+C8,millicoulomb per kilogram,миликулон на килограм
+C80,rad,рад
+C81,radian,радиан
+C82,radian square metre per mole,радиан квадратен метър на мол
+C83,radian square metre per kilogram,радиан квадратен метър на килограм
+C84,radian per metre,радиан на метър
+C85,reciprocal angstrom,реципрочен ангстрьом
+C86,reciprocal cubic metre,реципрочен кубичен метър
+C87,reciprocal cubic metre per second,реципрочен кубичен метър за секунда
+C88,reciprocal electron volt per cubic metre,реципрочен електронен волт на кубичен метър
+C89,reciprocal henry,реципрочен хенри
+C90,reciprocal joule per cubic metre,реципрочен джаул на кубичен метър
+C91,reciprocal kelvin or kelvin to the power minus one,реципрочен келвин или келвин на степен минус едно
+C92,reciprocal metre,реципрочен метър
+C93,reciprocal square metre,реципрочен квадратен метър
+C94,reciprocal minute,реципрочна минута
+C95,reciprocal mole,реципрочен мол
+C96,reciprocal pascal or pascal to the power minus one,реципрочен паскал или паскал на степен минус едно
+C97,reciprocal second,реципрочна секунда
+C99,reciprocal second per metre squared,реципрочна секунда на метър на квадрат
+CCT,carrying capacity in metric ton,товароносимост в метричен тон
+CDL,candela,кандела
+CEL,degree Celsius,градус по Целзий
+CEN,hundred,сто
+CG,card,карта
+CGM,centigram,сантиграм
+CKG,coulomb per kilogram,кулон за килограм
+CLF,hundred leave,сто листа
+CLT,centilitre,сантилитър
+CMK,square centimetre,квадратен сантиметър
+CMQ,cubic centimetre,кубичен сантиметър
+CMT,centimetre,сантиметър
+CNP,hundred pack,сто в пакет
+CNT,cental (UK),центал (Великобритания)
+COU,coulomb,кулон
+CTG,content gram,грам съдържание
+CTM,metric carat,метричен карат
+CTN,content ton (metric),тон съдържание (метричен)
+CUR,curie,кюри
+CWA,hundred pound (cwt) / hundred weight (US),сто фунта (cwt) / хандредвейт (САЩ)
+CWI,hundred weight (UK),хандредвейт (Великобритания)
+D03,kilowatt hour per hour,киловатчас на час
+D04,lot  [unit of weight],лот [единица за тегло]
+D1,reciprocal second per steradian,реципрочна секунда за стерадиан
+D10,siemens per metre,сименс на метър
+D11,mebibit,мебибит
+D12,siemens square metre per mole,сименс квадратен метър на мол
+D13,sievert,сиверт
+D15,sone,сон
+D16,square centimetre per erg,квадратен сантиметър за ерг
+D17,square centimetre per steradian erg,квадратен сантиметър за стерадиан ерг
+D18,metre kelvin,метър келвин
+D19,square metre kelvin per watt,квадратен метър келвин за ват
+D2,reciprocal second per steradian metre squared,реципрочна секунда за стерадиан метър на квадрат
+D20,square metre per joule,квадратен метър на джаул
+D21,square metre per kilogram,квадратен метър на килограм
+D22,square metre per mole,квадратен метър на мол
+D23,pen gram (protein),грам за парентерално и ентерално въвеждане (белтък)
+D24,square metre per steradian,квадратен метър на стерадиан
+D25,square metre per steradian joule,квадратен метър на стерадиан джаул
+D26,square metre per volt second,квадратен метър на волт секунда
+D27,steradian,стерадиан
+D29,terahertz,терахерц
+D30,terajoule,тераджаул
+D31,terawatt,терават
+D32,terawatt hour,тераватчас
+D33,tesla,тесла
+D34,tex,текс
+D36,megabit,мегабит
+D41,tonne per cubic metre,тон на кубичен метър
+D42,tropical year,тропическа година
+D43,unified atomic mass unit,унифицирана единица за атомна маса
+D44,var,волтампер реактивна мощност
+D45,volt squared per kelvin squared,волт на квадрат на келвин на квадрат
+D46,volt - ampere,волтампер
+D47,volt per centimetre,волт на сантиметър
+D48,volt per kelvin,волта за келвин
+D49,millivolt per kelvin,миливолт за келвин
+D5,kilogram per square centimetre,килограм на квадратен сантиметър
+D50,volt per metre,волт на метър
+D51,volt per millimetre,волт на милиметър
+D52,watt per kelvin,ват за келвин
+D53,watt per metre kelvin,ват на метър келвин
+D54,watt per square metre,ват на квадратен метър
+D55,watt per square metre kelvin,ват на квадратен метър келвин
+D56,watt per square metre kelvin to the fourth power,ват на квадратен метър келвин на четвърта степен
+D57,watt per steradian,ват на стерадиан
+D58,watt per steradian square metre,ват на стерадиан квадратен метър
+D59,weber per metre,вебер на метър
+D6,roentgen per second,рентген в секунда
+D60,weber per millimetre,вебер на милиметър
+D61,minute [unit of angle],минута [единица за ъгъл]
+D62,second [unit of angle],секунда [единица за ъгъл]
+D63,book,книга
+D68,number of words,брой думи
+D69,inch to the fourth power,инч на четвърта степен
+D73,joule square metre,джаул квадратен метър
+D74,kilogram per mole,килограм на мол
+D77,megacoulomb,мегакулон
+D78,megajoule per second,мегаджаул в секунда
+D80,microwatt,микроват
+D81,microtesla,микротесла
+D82,microvolt,микроволт
+D83,millinewton metre,милинютон-метър
+D85,microwatt per square metre,микроват на квадратен метър
+D86,millicoulomb,миликулон
+D87,millimole per kilogram,милимол на килограм
+D88,millicoulomb per cubic metre,миликулон на кубичен метър
+D89,millicoulomb per square metre,миликулон на квадратен метър
+D91,rem,бер (биологичен еквивалент на рентгена)
+D93,second per cubic metre,секунда на кубичен метър
+D94,second per cubic metre radian,секунда на кубичен метър радиан
+D95,joule per gram,джаул на грам
+DAA,decare,декар
+DAD,ten day,десет дни
+DAY,day,ден
+DD,degree [unit of angle],градус [единица за ъгъл]
+DEC,decade,декада
+DG,decigram,дециграм
+DJ,decagram,декаграм
+DLT,decilitre,децилитър
+DMA,cubic decametre,кубичен декаметър
+DMK,square decimetre,квадратен дециметър
+DMO,standard kilolitre,стандартен килолитър
+DMQ,cubic decimetre,кубичен дециметър
+DMT,decimetre,дециметър
+DN,decinewton metre,децинютон метър
+DPC,dozen piece,дузина бройки
+DPR,dozen pair,дузина чифтове
+DPT,displacement tonnage,водоизместимост в тонове
+DRA,dram (US),драм (САЩ)
+DRI,dram (UK),драм (Великобритания)
+DRL,dozen roll,дузина ролки
+DTN,decitonne,децитон
+DWT,pennyweight,пенивейт
+DZN,dozen,дузина
+DZP,dozen pack,дванадесет в пакет
+E01,newton per square centimetre,нютон на квадратен сантиметър
+E07,megawatt hour per hour,мегаватчас на час
+E08,megawatt per hertz,мегават на херц
+E09,milliampere hour,милиамперчас
+E12,mille,хиляда
+E14,kilocalorie (international table),килокалория (международна таблица)
+E15,kilocalorie (thermochemical) per hour,килокалория (термохимична) на час
+E16,million Btu(IT) per hour,милион Btu(IT) на час
+E17,cubic foot per second,кубичен фут в секунда
+E18,tonne per hour,тон на час
+E19,ping,пинин
+E20,megabit per second,мегабит в секунда
+E21,shares,дялове
+E22,TEU,TEU
+E23,tyre,гума
+E25,active unit,активна единица
+E27,dose,доза
+E28,air dry ton,тон въздушно изсушена маса
+E31,square metre per litre,квадратен метър на литър
+E32,litre per hour,литър на час
+E33,foot per thousand,фут на хиляда
+E34,gigabyte,гигабайт
+E35,terabyte,терабайт
+E36,petabyte,петабайт
+E37,pixel,пиксел
+E38,megapixel,мегапиксел
+E39,dots per inch,точки на инч
+E4,gross kilogram,килограм бруто
+E40,part per hundred thousand,част на сто хиляди
+E41,kilogram-force per square millimetre,килограм-сила на квадратен милиметър
+E42,kilogram-force per square centimetre,килограм-сила на квадратен сантиметър
+E43,joule per square centimetre,джаул на квадратен сантиметър
+E44,kilogram-force metre per square centimetre,килограм-сила метър на квадратен сантиметър
+E45,milliohm,милиом
+E46,kilowatt hour per cubic metre,киловатчас на кубичен метър
+E47,kilowatt hour per kelvin,киловатчас на келвин
+E49,working day,работен ден
+E50,accounting unit,счетоводна единица
+E51,job,длъжност
+E52,run foot,фут пробег
+E58,exabit per second,екзабит в секунда
+E59,exbibyte,ексбибайт
+E60,pebibyte,пебибайт
+E61,tebibyte,тебибайт
+E62,gibibyte,гибибайт
+E63,mebibyte,мебибайт
+E64,kibibyte,кибибайт
+E65,exbibit per metre,ексбибит на метър
+E66,exbibit per square metre,ексбибит на квадратен метър
+E67,exbibit per cubic metre,ексбибит на кубичен метър
+E68,gigabyte per second,гигабайт в секунда
+E69,gibibit per metre,гибибит на метър
+E70,gibibit per square metre,гибибит на квадратен метър
+E71,gibibit per cubic metre,гибибит на кубичен метър
+E72,kibibit per metre,кибибит на метър
+E73,kibibit per square metre,кибибит на квадратен метър
+E74,kibibit per cubic metre,кибибит на кубичен метър
+E75,mebibit per metre,мебибит на метър
+E76,mebibit per square metre,мебибит на квадратен метър
+E77,mebibit per cubic metre,мебибит на кубичен метър
+E78,petabit,петабит
+E79,petabit per second,петабит в секунда
+E80,pebibit per metre,пебибит на метър
+E81,pebibit per square metre,пебибит на квадратен метър
+E82,pebibit per cubic metre,пебибит на кубичен метър
+E83,terabit,терабит
+E84,terabit per second,терабит в секунда
+E85,tebibit per metre,тебибит на метър
+E86,tebibit per cubic metre,тебибит на кубичен метър
+E87,tebibit per square metre,тебибит на квадратен метър
+E88,bit per metre,бит на метър
+E89,bit per square metre,бит на квадратен метър
+E92,cubic decimetre per hour,кубичен дециметър за час
+E93,kilogram per hour,килограм за час
+E94,kilomole per second,киломол за секунда
+E95,mole per second,мол за секунда
+E96,degree per second,градус в секунда
+E97,millimetre per degree Celcius metre,милиметър за градус по Целзий метър
+E98,degree Celsius per kelvin,градус по Целзий за келвин
+E99,hectopascal per bar,хектопаскал на бар
+EB,electronic mail box,електронна пощенска кутия
+EQ,equivalent gallon,еквивалентен галон
+F01,bit per cubic metre,бит на кубичен метър
+F02,kelvin per kelvin,келвин на келвин
+F03,kilopascal per bar,килопаскал на бар
+F04,millibar per bar,милибар на бар
+F05,megapascal per bar,мегапаскал на бар
+F06,poise per bar,поаз на бар
+F07,pascal per bar,паскал на бар
+F08,milliampere per inch,милиампер на инч
+F10,kelvin per hour,келвин за час
+F11,kelvin per minute,келвин за минута
+F12,kelvin per second,келвин за секунда
+F13,slug,слаг
+F14,gram per kelvin,грам на келвин
+F15,kilogram per kelvin,килограм на келвин
+F16,milligram per kelvin,милиграм на келвин
+F17,pound-force per foot,фунт-сила на фут
+F18,kilogram square centimetre,килограм квадратен сантиметър
+F19,kilogram square millimetre,килограм квадратен милиметър
+F20,pound inch squared,фунт инч на квадрат
+F21,pound-force inch,фунт-сила инч
+F22,pound-force foot per ampere,фунт-сила фут на ампер
+F23,gram per cubic decimetre,грам на кубичен дециметър
+F24,kilogram per kilomol,килограм на киломол
+F25,gram per hertz,грам на херц
+F26,gram per day,грам за ден
+F27,gram per hour,грам за час
+F28,gram per minute,грам в минута
+F29,gram per second,грам в секунда
+F30,kilogram per day,килограм на ден
+F31,kilogram per minute,килограм в минута
+F32,milligram per day,милиграм на ден
+F33,milligram per minute,милиграм в минута
+F34,milligram per second,милиграм в секунда
+F35,gram per day kelvin,грам на ден келвин
+F36,gram per hour kelvin,грам на час келвин
+F37,gram per minute kelvin,грам на минута келвин
+F38,gram per second kelvin,грам на секунда келвин
+F39,kilogram per day kelvin,килограм на ден келвин
+F40,kilogram per hour kelvin,килограм на час келвин
+F41,kilogram per minute kelvin,килограм на минута келвин
+F42,kilogram per second kelvin,килограм на секунда келвин
+F43,milligram per day kelvin,милиграм на ден келвин
+F44,milligram per hour kelvin,милиграм на час келвин
+F45,milligram per minute kelvin,милиграм на минута келвин
+F46,milligram per second kelvin,милиграм на секунда келвин
+F47,newton per millimetre,нютон на милиметър
+F48,pound-force per inch,фунт-сила на инч
+F49,rod [unit of distance],род [единица за разстояние]
+F50,micrometre per kelvin,микрометър на келвин
+F51,centimetre per kelvin,сантиметър на келвин
+F52,metre per kelvin,метър на келвин
+F53,millimetre per kelvin,милиметър на келвин
+F54,milliohm per metre,милиом на метър
+F55,ohm per mile (statute mile),ом на миля (щатска миля)
+F56,ohm per kilometre,ом на километър
+F57,milliampere per pound-force per square inch,милиампер на фунт-сила на квадратен инч
+F58,reciprocal bar,реципрочен бар
+F59,milliampere per bar,милиампер на бар
+F60,degree Celsius per bar,градус Целзий на бар
+F61,kelvin per bar,келвин на бар
+F62,gram per day bar,грам на ден бар
+F63,gram per hour bar,грам на час бар
+F64,gram per minute bar,грам на минута бар
+F65,gram per second bar,грам на секунда бар
+F66,kilogram per day bar,килограм на ден бар
+F67,kilogram per hour bar,килограм на час бар
+F68,kilogram per minute bar,килограм на минута бар
+F69,kilogram per second bar,килограм на секунда бар
+F70,milligram per day bar,милиграм на ден бар
+F71,milligram per hour bar,милиграм на час бар
+F72,milligram per minute bar,милиграм на минута бар
+F73,milligram per second bar,милиграм на секунда бар
+F74,gram per bar,грам на бар
+F75,milligram per bar,милиграм на бар
+F76,milliampere per millimetre,милиампер на милиметър
+F77,pascal second per kelvin,паскал секунда на келвин
+F78,inch of water,инч вода
+F79,inch of mercury,инч живак
+F81,bar per kelvin,бар на келвин
+F82,hectopascal per kelvin,хектопаскал на келвин
+F83,kilopascal per kelvin,килопаскал на келвин
+F84,millibar per kelvin,милибар на келвин
+F85,megapascal per kelvin,мегапаскал на келвин
+F86,poise per kelvin,поаз на келвин
+F87,volt per litre minute,волт на литър минута
+F88,newton centimetre,нютон сантиметър
+F89,newton metre per degree,нютон метър на градус
+F90,newton metre per ampere,нютон метър на ампер
+F91,bar litre per second,бар литър в секунда
+F92,bar cubic metre per second,бар кубичен метър в секунда
+F93,hectopascal litre per second,хектопаскал литър в секунда
+F94,hectopascal cubic metre per second,хектопаскал кубичен метър в секунда
+F95,millibar litre per second,милибар литър в секунда
+F96,millibar cubic metre per second,милибар кубичен метър в секунда
+F97,megapascal litre per second,мегапаскал литър в секунда
+F98,megapascal cubic metre per second,мегапаскал кубичен метър в секунда
+F99,pascal litre per second,паскал литър в секунда
+FAH,degree Fahrenheit,градус Фаренхайт
+FAR,farad,фарад
+FBM,fibre metre,метри влакно
+FC,thousand cubic foot,хиляда кубични фута
+FF,hundred cubic metre,сто кубични метра
+FH,micromole,микромол
+FIT,failures in time,грешки във времето
+FL,flake ton,тон люспи
+FOT,foot,фут
+FP,pound per square foot,килограм на квадратен фут
+FR,foot per minute,фут в минута
+FS,foot per second,фут в секунда
+FTK,square foot,квадратен фут
+FTQ,cubic foot,кубичен фут
+G01,pascal cubic metre per second,паскал кубичен метър в секунда
+G04,centimetre per bar,сантиметър на бар
+G05,metre per bar,метър на бар
+G06,millimetre per bar,милиметър на бр
+G08,square inch per second,квадратен инч в секунда
+G09,square metre per second kelvin,квадратен метър на секунда келвин
+G10,stokes per kelvin,стокс за келвин
+G11,gram per cubic centimetre bar,грам на кубичен сантиметър бар
+G12,gram per cubic decimetre bar,грам на кубичен дециметър бар
+G13,gram per litre bar,грам на литър бар
+G14,gram per cubic metre bar,грам на кубичен метър бар
+G15,gram per millilitre bar,грам на милилитър бар
+G16,kilogram per cubic centimetre bar,килограм на кубичен сантиметър бар
+G17,kilogram per litre bar,килограм на литър бар
+G18,kilogram per cubic metre bar,килограм на кубичен метър бар
+G19,newton metre per kilogram,нютон метър на килограм
+G2,US gallon per minute,американски галон за минута
+G20,pound-force foot per pound,фунт-сила фут на фунт
+G21,cup [unit of volume],чаша [единица за обем]
+G23,peck,пек
+G24,tablespoon (US),супена лъжица (САЩ)
+G25,teaspoon (US),чаена лъжичка (САЩ)
+G26,stere,стер
+G27,cubic centimetre per kelvin,кубичен сантиметър на келвин
+G28,litre per kelvin,литър на келвин
+G29,cubic metre per kelvin,кубичен метър на келвин
+G3,Imperial gallon per minute,галон за минута (имперски)
+G30,millilitre per kelvin,милилитър на келвин
+G31,kilogram per cubic centimetre,килограм на кубичен сантиметър
+G32,ounce (avoirdupois) per cubic yard,унция (авоардюпоа) на кубичен метър
+G33,gram per cubic centimetre kelvin,грам на кубичен сантиметър келвин
+G34,gram per cubic decimetre kelvin,грам на кубичен дециметър келвин
+G35,gram per litre kelvin,грам на литър келвин
+G36,gram per cubic metre kelvin,грам на кубичен метър келвин
+G37,gram per millilitre kelvin,грам на милилитър келвин
+G38,kilogram per cubic centimetre kelvin,килограм на кубичен сантиметър келвин
+G39,kilogram per litre kelvin,килограм на литър келвин
+G40,kilogram per cubic metre kelvin,килограм на кубичен метър келвин
+G41,square metre per second bar,квадратен метър за секунда бар
+G42,microsiemens per centimetre,микросименс на сантиметър
+G43,microsiemens per metre,микросименс на метър
+G44,nanosiemens per centimetre,наносименс на сантиметър
+G45,nanosiemens per metre,наносименс на метър
+G46,stokes per bar,стокс за бар
+G47,cubic centimetre per day,кубичен сантиметър за ден
+G48,cubic centimetre per hour,кубичен сантиметър за час
+G49,cubic centimetre per minute,кубичен сантиметър за минута
+G50,gallon (US) per hour,галон (САЩ) за час
+G51,litre per second,литър за секунда
+G52,cubic metre per day,кубичен метър за ден
+G53,cubic metre per minute,кубичен метър за минута
+G54,millilitre per day,милилитър за ден
+G55,millilitre per hour,милилитър за час
+G56,cubic inch per hour,кубичен инч за час
+G57,cubic inch per minute,кубичен инч за минута
+G58,cubic inch per second,кубичен инч за секунда
+G59,milliampere per litre minute,милиампер на литър минута
+G60,volt per bar,волт на бар
+G61,cubic centimetre per day kelvin,кубичен сантиметър на ден келвин
+G62,cubic centimetre per hour kelvin,кубичен сантиметър на час келвин
+G63,cubic centimetre per minute kelvin,кубичен сантиметър на минута келвин
+G64,cubic centimetre per second kelvin,кубичен сантиметър на секунда келвин
+G65,litre per day kelvin,литър на ден келвин
+G66,litre per hour kelvin,литър на час келвин
+G67,litre per minute kelvin,литър на минута келвин
+G68,litre per second kelvin,литър на секунда келвин
+G69,cubic metre per day kelvin,кубичен метър на ден келвин
+G70,cubic metre per hour kelvin,кубичен метър на час келвин
+G71,cubic metre per minute kelvin,кубичен метър на минута келвин
+G72,cubic metre per second kelvin,кубичен метър на секунда келвин
+G73,millilitre per day kelvin,милилитър на ден келвин
+G74,millilitre per hour kelvin,милилитър на час келвин
+G75,millilitre per minute kelvin,милилитър на минута келвин
+G76,millilitre per second kelvin,милилитър на секунда келвин
+G77,millimetre to the fourth power,милиметър на четвърта степен
+G78,cubic centimetre per day bar,кубичен сантиметър на ден бар
+G79,cubic centimetre per hour bar,кубичен сантиметър на час бар
+G80,cubic centimetre per minute bar,кубичен сантиметър на минута бар
+G81,cubic centimetre per second bar,кубичен сантиметър на секунда бар
+G82,litre per day bar,литър на ден бар
+G83,litre per hour bar,литър на час бар
+G84,litre per minute bar,литър на минута бар
+G85,litre per second bar,литър на секунда бар
+G86,cubic metre per day bar,кубичен метър на ден бар
+G87,cubic metre per hour bar,кубичен метър на час бар
+G88,cubic metre per minute bar,кубичен метър на минута бар
+G89,cubic metre per second bar,кубичен метър на секунда бар
+G90,millilitre per day bar,милилитър на ден бар
+G91,millilitre per hour bar,милилитър на час бар
+G92,millilitre per minute bar,милилитър на минута бар
+G93,millilitre per second bar,милилитър на секунда бар
+G94,cubic centimetre per bar,кубичен сантиметър на бар
+G95,litre per bar,литър на бар
+G96,cubic metre per bar,кубичен метър за бар
+G97,millilitre per bar,милилитър на бар
+G98,microhenry per kiloohm,микрохенри на килоом
+G99,microhenry per ohm,микрохенри на ом
+GB,gallon (US) per day,галон (САЩ) на ден
+GBQ,gigabecquerel,гигабекерел
+GDW,"gram, dry weight","грам, сухо тегло"
+GE,pound per gallon (US),фунт за галон (САЩ)
+GF,gram per metre (gram per 100 centimetres),грам на метър (грам на 100 сантиметра)
+GFI,gram of fissile isotope,грам делящ се изотоп
+GGR,great gross,голяма гроса
+GIA,gill (US),джил (САЩ)
+GIC,"gram, including container","грам, заедно с контейнера"
+GII,gill (UK),джил (Великобритания)
+GIP,"gram, including inner packaging","грам, заедно с вътрешната опаковка"
+GJ,gram per millilitre,грам на милилитър
+GL,gram per litre,грам на литър
+GLD,dry gallon (US),сух галон (САЩ)
+GLI,gallon (UK),галон (Великобритания)
+GLL,gallon (US),галон (САЩ)
+GM,gram per square metre,грам на квадратен метър
+GO,milligram per square metre,милиграм на квадратен метър
+GP,milligram per cubic metre,милиграм на кубичен метър
+GQ,microgram per cubic metre,микрограм на кубичен метър
+GRM,gram,грам
+GRN,grain,гран
+GRO,gross,гроса
+GV,gigajoule,гигаджаул
+GWH,gigawatt hour,гигаватчас
+H03,henry per kiloohm,хенри за килоом
+H04,henry per ohm,хенри на ом
+H05,millihenry per kiloohm,милихенри на килоом
+H06,millihenry per ohm,милихенри на ом
+H07,pascal second per bar,паскал секунда на бар
+H08,microbecquerel,микробекерел
+H12,degree Celsius per hour,градус Целзий в час
+H13,degree Celsius per minute,градус Целзий в минута
+H14,degree Celsius per second,градусо Целзий в секунда
+H15,square centimetre per gram,квадратен сантиметър на грам
+H16,square decametre,квадратен декаметър
+H18,square hectometre,квадратен хектометър
+H19,cubic hectometre,кубичен хектометър
+H20,cubic kilometre,кубичен километър
+H21,blank,празен
+H22,volt square inch per pound-force,волт квадратен инч за фунт-сила
+H23,volt per inch,волт на инч
+H24,volt per microsecond,волт за микросекунда
+H25,percent per kelvin,процент за келвин
+H26,ohm per metre,ом на метър
+H27,degree per metre,градус на метър
+H28,microfarad per kilometre,микрофарад на километър
+H29,microgram per litre,микрограм на литър
+H30,square micrometre (square micron),квадратен микрометър (квадратен микрон)
+H31,ampere per kilogram,ампер на килограм
+H32,ampere squared second,ампер на квадрат секунда
+H33,farad per kilometre,фарад на километър
+H34,hertz metre,херц метър
+H35,kelvin metre per watt,келвин метър за ват
+H36,megaohm per kilometre,мегаом на километър
+H37,megaohm per metre,мегаом на метър
+H38,megaampere,мегаампер
+H39,megahertz kilometre,мегахерц километър
+H40,newton per ampere,нютон на ампер
+H41,"newton metre watt to the power minus 0,5","нютон метър ват на степен минус 0,5"
+H42,pascal per metre,паскал на метър
+H43,siemens per centimetre,сименс на сантиметър
+H44,teraohm,тераом
+H45,volt second per metre,волт секунда на метър
+H46,volt per second,волт в секунда
+H47,watt per cubic metre,ват на кубичен метър
+H48,attofarad,атофарад
+H51,decibel per kilometre,децибел на километър
+H52,decibel per metre,децибел на метър
+H53,kilogram per bar,килограм за бар
+H54,kilogram per cubic decimetre kelvin,килограм на кубичен дециметър келвин
+H55,kilogram per cubic decimetre bar,килограм на кубичен дециметър бар
+H56,kilogram per square metre second,килограм на квадратен метър секунда
+H57,inch per two pi radiant,инч за 2π радиана
+H58,metre per volt second,метър за волт секунда
+H59,square metre per newton,квадратен метър на нютон
+H60,cubic metre per cubic metre,кубичен метър на кубичен метър
+H61,millisiemens per centimetre,милисименс на сантиметър
+H62,millivolt per minute,миливолт в минута
+H63,milligram per square centimetre,милиграм на квадратен сантиметър
+H64,milligram per gram,милиграм на грам
+H65,millilitre per cubic metre,милилитър на кубичен метър
+H66,millimetre per year,милиметър на година
+H67,millimetre per hour,милиметър в час
+H68,millimole per gram,милимол на грам
+H69,picopascal per kilometre,пикопаскал на километър
+H70,picosecond,пикосекунда
+H71,percent per month,процент на месец
+H72,percent per hectobar,процент на хектобар
+H73,percent per decakelvin,проценти на декакелвин
+H74,watt per metre,ват на метър
+H75,decapascal,декапаскал
+H76,gram per millimetre,грам на милиметър
+H79,French gauge,единица по скалата на Шариер
+H80,rack unit,единица за височина на стойка
+H81,millimetre per minute,милиметър в минута
+H83,litre per kilogram,литър на килограм
+H84,gram millimetre,грам милиметър
+H87,piece,бройка
+H88,megaohm kilometre,мегаом километър
+H89,percent per ohm,процент на ом
+H90,percent per degree,процент на градус
+H91,percent per ten thousand,процент на десет хиляди
+H92,percent per one hundred thousand,процент на сто хиляди
+H93,percent per hundred,процент на сто
+H94,percent per thousand,процент на хиляда
+H95,percent per volt,процент на волт
+H96,percent per bar,проценти на бар
+H98,percent per inch,процент на инч
+H99,percent per metre,процент на метър
+HA,hank,гранка
+HBA,hectobar,хектобар
+HBX,hundred boxes,сто кутии
+HDW,"hundred kilogram, dry weight","сто килограма, сухо тегло"
+HEA,head,глава
+HGM,hectogram,хектограм
+HH,hundred cubic foot,сто кубични фута
+HIU,hundred international unit,сто международни единици
+HKM,"hundred kilogram, net mass","сто килограма, нетна маса"
+HLT,hectolitre,хектолитър
+HM,mile per hour (statute mile),миля на час (сухопътна)
+HMQ,million cubic metre,милион кубически метра
+HMT,hectometre,хектометър
+HPA,hectolitre of pure alcohol,хектолитър чист алкохол
+HTZ,hertz,херц
+HUR,hour,час
+IA,inch pound (pound inch),инч фунт (фунт инч)
+IE,person,човек
+INH,inch,инч
+INK,square inch,квадратен инч
+INQ,cubic inch,кубичен инч
+ISD,international sugar degree,"захарен градус, международен"
+IU,inch per second,инч в секунда
+IUG,international unit per gram,международна единица на грам
+IV,inch per second squared,инч в секунда на квадрат
+J10,percent per millimetre,процент на милиметър
+J12,per mille per psi,промил за фунт-сила на квадратен инч
+J13,degree API,градус API
+J14,degree Baume (origin scale),градус Боме (оригинална скала)
+J15,degree Baume (US heavy),"сградус Боме (САЩ, за течности по-тежки от вода)"
+J16,degree Baume (US light),"градус Боме (САЩ, оригинална скала)"
+J17,degree Balling,градус Балинг
+J18,degree Brix,градус Брикс
+J19,degree Fahrenheit hour square foot per British thermal unit (thermochemical),градус Фаренхайт час квадратен фут за британска топлинна единица (термохимична)
+J2,joule per kilogram,джаул на килограм
+J20,degree Fahrenheit per kelvin,градус Фаренхайт за келвин
+J21,degree Fahrenheit per bar,градус Фаренхайт за бар
+J22,degree Fahrenheit hour square foot per British thermal unit (international table),градус Фаренхайт час квадратен фут за британска топлинна единица (международна таблица)
+J23,degree Fahrenheit per hour,градус Фаренхайт на час
+J24,degree Fahrenheit per minute,градус Фаренхайт в минута
+J25,degree Fahrenheit per second,градус Фаренхайт в секунда
+J26,reciprocal degree Fahrenheit,реципрочен градус Фаренхайт
+J27,degree Oechsle,градус Оксле
+J28,degree Rankine per hour,градус Ранкин на час
+J29,degree Rankine per minute,градус Ранкин на минута
+J30,degree Rankine per second,градус Ранкин на секунда
+J31,degree Twaddell,градус Твадел
+J32,micropoise,микропоаз
+J33,microgram per kilogram,микрограм на килограм
+J34,microgram per cubic metre kelvin,микрограм на кубичен метър келвин
+J35,microgram per cubic metre bar,микрограм на кубичен метър бар
+J36,microlitre per litre,микролитър на литър
+J38,baud,бод
+J39,British thermal unit (mean),Британска топлинна единица (средно)
+J40,British thermal unit (international table) foot per hour square foot degree Fahrenheit,Британска топлинна единица (международна таблица) фут на час квадратен фут градус Фаренхайт
+J41,British thermal unit (international table) inch per hour square foot degree Fahrenheit,Британска топлинна единица (международна таблица) инч на час квадратен фут градус Фаренхайт
+J42,British thermal unit (international table) inch per second square foot degree Fahrenheit,Британска топлинна единица (международна таблица) инч на секунда квадратен фут градус Фаренхайт
+J43,British thermal unit (international table) per pound degree Fahrenheit,Британска топлинна единица (международна таблица) на фунт градус Фаренхайт
+J44,British thermal unit (international table) per minute,Британска топлинна единица (международна таблица) в минута
+J45,British thermal unit (international table) per second,Британска топлинна единица (международна таблица) в секунда
+J46,British thermal unit (thermochemical) foot per hour square foot degree Fahrenheit,Британска топлинна единица (термохимична) фут на час квадратен фут градус Фаренхайт
+J47,British thermal unit (thermochemical) per hour,Британска топлинна единица (термохимична) в час
+J48,British thermal unit (thermochemical) inch per hour square foot degree Fahrenheit,Британска топлинна единица (термохимична) инч на час квадратен фут градус Фаренхайт
+J49,British thermal unit (thermochemical) inch per second square foot degree Fahrenheit,Британска топлинна единица (термохимична) инч на секунда квадратен фут градус Фаренхайт
+J50,British thermal unit (thermochemical) per pound degree Fahrenheit,Британска топлинна единица (термохимична) на фунт градус Фаренхайт
+J51,British thermal unit (thermochemical) per minute,Британска топлинна единица (термохимична) в минута
+J52,British thermal unit (thermochemical) per second,Британска топлинна единица (термохимична) в секунда
+J53,coulomb square metre per kilogram,кулон квадратен метър за килограм
+J54,megabaud,мегабод
+J55,watt second,ватсекунда
+J56,bar per bar,бар на бар
+J57,barrel (UK petroleum),"барел (Великобритания, нефтен)"
+J58,barrel (UK petroleum) per minute,"барел (Великобритания, нефтен) в минута"
+J59,barrel (UK petroleum) per day,"барел (Великобритания, нефтен) на ден"
+J60,barrel (UK petroleum) per hour,"барел (Великобритания, нефтен) на час"
+J61,barrel (UK petroleum) per second,"барел (Великобритания, нефтен) в секунда"
+J62,barrel (US petroleum) per hour,"барел (САЩ, нефтен) на час"
+J63,barrel (US petroleum) per second,"барел (САЩ, нефтен) в секунда"
+J64,bushel (UK) per day,бушел (Великобритания) на ден
+J65,bushel (UK) per hour,бушел (Великобритания) на час
+J66,bushel (UK) per minute,бушел (Великобритания) в минута
+J67,bushel (UK) per second,бушел (Великобритания) в секунда
+J68,bushel (US dry) per day,"бушел (САЩ, сух) на ден"
+J69,bushel (US dry) per hour,"бушел (САЩ, сух) в час"
+J70,bushel (US dry) per minute,"бушел (САЩ, сух) в минута"
+J71,bushel (US dry) per second,"бушел (САЩ, сух) в секунда"
+J72,centinewton metre,сантинютон метър
+J73,centipoise per kelvin,сантипоаз на келвин
+J74,centipoise per bar,сантипоаз на бар
+J75,calorie (mean),калория (средна)
+J76,calorie (international table) per gram degree Celsius,калория (международна таблица) за грам градус Целзий
+J78,calorie (thermochemical) per centimetre second degree Celsius,калория (термохимична) на сантиметър секунда градус Целзий
+J79,calorie (thermochemical) per gram degree Celsius,калория (термохимична) за грам градус Целзий
+J81,calorie (thermochemical) per minute,калория (термохимична) за минута
+J82,calorie (thermochemical) per second,калория (термохимична) за секунда
+J83,clo,clo
+J84,centimetre per second kelvin,сантиметър на секунда келвин
+J85,centimetre per second bar,сантиметър на секунда бар
+J87,cubic centimetre per cubic metre,кубичен сантиметър на кубичен метър
+J90,cubic decimetre per day,кубичен дециметър на ден
+J91,cubic decimetre per cubic metre,кубичен дециметър за кубичен метър
+J92,cubic decimetre per minute,кубичен дециметър в минута
+J93,cubic decimetre per second,кубичен дециметър в секунда
+J95,ounce (UK fluid) per day,"унция (Великобритания, течна) на ден"
+J96,ounce (UK fluid) per hour,"унция (Великобритания, течна) в час"
+J97,ounce (UK fluid) per minute,"унция (Великобритания, течна) в минута"
+J98,ounce (UK fluid) per second,"унция (Великобритания, течна) в секунда"
+J99,ounce (US fluid) per day,"унция (САЩ, течна) на ден"
+JE,joule per kelvin,джаул на келвин
+JK,megajoule per kilogram,мегаджаул на килограм
+JM,megajoule per cubic metre,мегаджаул на кубичен метър
+JOU,joule,джаул
+JPS,hundred metre,сто метра
+JWL,number of jewels,брой скъпоценни камъни
+K10,ounce (US fluid) per hour,"унция (САЩ, течна) на час"
+K11,ounce (US fluid) per minute,"унция (САЩ, течна) в минута"
+K12,ounce (US fluid) per second,"унция (САЩ, течна) в секунда"
+K13,foot per degree Fahrenheit,фут на градус Фаренхайт
+K14,foot per hour,фут в час
+K15,foot pound-force per hour,фут фунт-сила в час
+K16,foot pound-force per minute,фут фунт-сила в минута
+K17,foot per psi,фут на psi
+K18,foot per second degree Fahrenheit,фут на секунда градус Фаренхайт
+K19,foot per second psi,фут на секунда фунт-сила на квадратен инч
+K20,reciprocal cubic foot,реципрочен кубичен фут
+K21,cubic foot per degree Fahrenheit,кубичен фут на градус Фаренхайт
+K22,cubic foot per day,кубичен фут на ден
+K23,cubic foot per psi,кубичен фут на фунт-сила на квадратен инч
+K26,gallon (UK) per day,галон (Великобритания) на ден
+K27,gallon (UK) per hour,галон (Великобритания) в час
+K28,gallon (UK) per second,галон (Великобритания) в секунда
+K3,kilovolt ampere reactive hour,киловолт ампер реактивен час
+K30,gallon (US liquid) per second,"галон (САЩ, течен) в секунда"
+K31,gram-force per square centimetre,грам-сила на квадратен сантиметър
+K32,gill (UK) per day,джил (Великобритания) на ден
+K33,gill (UK) per hour,джил (Великобритания) на час
+K34,gill (UK) per minute,джил (Великобритания) в минута
+K35,gill (UK) per second,джил (Великобритания) в секунда
+K36,gill (US) per day,джил (САЩ) на ден
+K37,gill (US) per hour,джил (САЩ) в час
+K38,gill (US) per minute,джил (САЩ) в минута
+K39,gill (US) per second,джил (САЩ) в секунда
+K40,standard acceleration of free fall,стандартно ускорение при свободно падане
+K41,grain per gallon (US),фунт за галон (САЩ)
+K42,horsepower (boiler),конска сила (парна)
+K43,horsepower (electric),конска сила (електрически)
+K45,inch per degree Fahrenheit,инч за градус по Фаренхайт
+K46,inch per psi,инч на фунт-сила на квадратен инч
+K47,inch per second degree Fahrenheit,инч на секунда за градус Фаренхайт
+K48,inch per second psi,инч на секунда фунт-сила на квадратен инч
+K49,reciprocal cubic inch,реципрочен кубичен инч
+K50,kilobaud,килобод
+K51,kilocalorie (mean),килокалория (средно)
+K52,kilocalorie (international table) per hour metre degree Celsius,килокалория (международна таблица) в час метър градус по Целзий
+K53,kilocalorie (thermochemical),килокалория (термохимична)
+K54,kilocalorie (thermochemical) per minute,килокалория (термохимична) в минута
+K55,kilocalorie (thermochemical) per second,килокалория (термохимична) в секунда
+K58,kilomole per hour,киломол на час
+K59,kilomole per cubic metre kelvin,киломол на кубичен метър келвин
+K6,kilolitre,килолитър
+K60,kilomole per cubic metre bar,киломол на кубичен метър бар
+K61,kilomole per minute,киломол в минута
+K62,litre per litre,литър за литър
+K64,pound (avoirdupois) per degree Fahrenheit,фунт (авоардюпоа) за градус по Фаренхайт
+K65,pound (avoirdupois) square foot,фунт (авоардюпоа) квадратен фут
+K66,pound (avoirdupois) per day,фунт (авоардюпоа) на ден
+K67,pound per foot hour,фунт на фут час
+K68,pound per foot second,фунт на фут секунда
+K69,pound (avoirdupois) per cubic foot degree Fahrenheit,фунт (авоардюпоа) на кубичен фут градус по Фаренхайт
+K70,pound (avoirdupois) per cubic foot psi,фунт (авоардюпоа) на кубичен фут фунт-сила на квадратен инч
+K71,pound (avoirdupois) per gallon (UK),фунт (авоардюпоа) за галон (Великобритания)
+K73,pound (avoirdupois) per hour degree Fahrenheit,фунт (авоардюпоа) на час градус по Фаренхайт
+K74,pound (avoirdupois) per hour psi,фунт (авоардюпоа) на час фунт-сила на квадратен инч
+K75,pound (avoirdupois) per cubic inch degree Fahrenheit,фунт (авоардюпоа) на кубичен инч градус по Фаренхайт
+K76,pound (avoirdupois) per cubic inch psi,фунт (авоардюпоа) на кубичен инч фунт-сила на квадратен инч
+K77,pound (avoirdupois) per psi,фунт (авоардюпоа) на фунт-сила на квадратен инч
+K78,pound (avoirdupois) per minute,фунт (авоардюпоа) в минута
+K79,pound (avoirdupois) per minute degree Fahrenheit,фунт (авоардюпоа) на минута градус Фаренхайт
+K80,pound (avoirdupois) per minute psi,фунт (авоардюпоа) на минута фунт-сила на квадратен инч
+K81,pound (avoirdupois) per second,фунт (авоардюпоа) в секунда
+K82,pound (avoirdupois) per second degree Fahrenheit,фунт (авоардюпоа) на секунда градус по Фаренхайт
+K83,pound (avoirdupois) per second psi,фунт (авоардюпоа) на секунда фунт-сила на квадратен инч
+K84,pound per cubic yard,фунт на кубичен метър
+K85,pound-force per square foot,фунт-сила на квадратен фут
+K86,pound-force per square inch degree Fahrenheit,фунт-сила за квадратен инч градус по Фаренхайт
+K87,psi cubic inch per second,фунт-сила на квадратен инч кубичен инч в секунда
+K88,psi litre per second,фунт-сила на квадратен инч литър в секунда
+K89,psi cubic metre per second,фунт-сила на квадратен инч кубичен метър в секунда
+K90,psi cubic yard per second,фунт-сила на квадратен инч кубичен метър в секунда
+K91,pound-force second per square foot,фунт-сила секунда на квадратен фут
+K92,pound-force second per square inch,фунт-сила секунда на квадратен инч
+K94,quart (UK liquid) per day,"кварта (Великобритания, течна) на ден"
+K95,quart (UK liquid) per hour,"кварта (Великобритания, течна) в час"
+K96,quart (UK liquid) per minute,"кварта (Великобритания, течна) в минута"
+K97,quart (UK liquid) per second,"кварта (Великобритания, течна) в секунда"
+K98,quart (US liquid) per day,"кварта (САЩ, течна) на ден"
+K99,quart (US liquid) per hour,"кварта (САЩ, течна) на час"
+KA,cake,пита
+KAT,katal,катал
+KB,kilocharacter,килосимвол
+KBA,kilobar,килобар
+KCC,kilogram of choline chloride,килограм холинов хлорид
+KDW,kilogram drained net weight,килограм отцедено нетно тегло
+KEL,kelvin,келвин
+KGM,kilogram,килограм
+KGS,kilogram per second,килограм за секунда
+KHY,kilogram of hydrogen peroxide,килограм водороден пероксид
+KHZ,kilohertz,килохерц
+KI,kilogram per millimetre width,килограм на милиметър ширина
+KIC,"kilogram, including container","килограм, заедно с контейнера"
+KIP,"kilogram, including inner packaging","килограм,заедно с вътрешната опаковка"
+KJ,kilosegment,килосегмент
+KJO,kilojoule,килоджаул
+KL,kilogram per metre,килограм на метър
+KLK,lactic dry material percentage,процент млечно сухо вещество
+KLX,kilolux,килолукс
+KMA,kilogram of methylamine,килограм метиламин
+KMH,kilometre per hour,километър в час
+KMK,square kilometre,квадратен километър
+KMQ,kilogram per cubic metre,килограм на кубичен метър
+KMT,kilometre,километър
+KNI,kilogram of nitrogen,килограм азот
+KNM,kilonewton per square metre,килонютон на квадратен метър
+KNS,kilogram named substance,килограм указано вещество
+KNT,knot,възел
+KO,milliequivalence caustic potash per gram of product,милиеквивалент на калиева основа на грам продукт
+KPA,kilopascal,килопаскал
+KPH,kilogram of potassium hydroxide (caustic potash),килограм калиев хидроксид (калиева основа)
+KPO,kilogram of potassium oxide,килограм калиев оксид
+KPP,kilogram of phosphorus pentoxide (phosphoric anhydride),килограм фосфорен пентаоксид (фосфорен анхидрид)
+KR,kiloroentgen,килорентген
+KSD,kilogram of substance 90 % dry,килограм 90% суха субстанция
+KSH,kilogram of sodium hydroxide (caustic soda),килограм натриев хидроксид (сода каустик)
+KT,kit,комплект
+KTN,kilotonne,килотон
+KUR,kilogram of uranium,килограм уран
+KVA,kilovolt - ampere,киловолтампер
+KVR,kilovar,киловар
+KVT,kilovolt,киловолт
+KW,kilogram per millimetre,килограм на милиметър
+KWH,kilowatt hour,киловатчас
+KWN,Kilowatt hour per normalized cubic metre,Киловатчас на нормализиран кубичен метър
+KWO,kilogram of tungsten trioxide,килограм волфрамов триоксид
+KWS,Kilowatt hour per standard cubic metre,Киловатчас на стандартен кубичен метър
+KWT,kilowatt,киловат
+KX,millilitre per kilogram,милилитър на килограм
+L10,quart (US liquid) per minute,"кварта (САЩ, течна) в минута"
+L11,quart (US liquid) per second,"кварта (САЩ, течна) в секунда"
+L12,metre per second kelvin,метър на секунда келвин
+L13,metre per second bar,метър на секунда бар
+L14,square metre hour degree Celsius per kilocalorie (international table),квадратен метър час градус Целзий за килокалория (международна таблица)
+L15,millipascal second per kelvin,милипаскал секунда на келвин
+L16,millipascal second per bar,милипаскал секунда на бар
+L17,milligram per cubic metre kelvin,милиграм на кубичен метър келвин
+L18,milligram per cubic metre bar,милиграм на кубичен метър бар
+L19,millilitre per litre,милилитър за литър
+L2,litre per minute,литър за минута
+L21,cubic millimetre per cubic metre,кубичен милиметър на кубичен метър
+L23,mole per hour,мол на час
+L24,mole per kilogram kelvin,мол на килограм келвин
+L25,mole per kilogram bar,мол на килограм бар
+L26,mole per litre kelvin,мол на литър келвин
+L27,mole per litre bar,мол на литър бар
+L28,mole per cubic metre kelvin,мол на кубичен метър келвин
+L29,mole per cubic metre bar,мол на кубичен метър бар
+L30,mole per minute,мол на минута
+L31,milliroentgen aequivalent men,биологичен еквивалент на милирентген
+L32,nanogram per kilogram,нанограм на килограм
+L33,ounce (avoirdupois) per day,унция (авоардюпоа) на ден
+L34,ounce (avoirdupois) per hour,унция (авоардюпоа) на час
+L35,ounce (avoirdupois) per minute,унция (авоардюпоа) на минута
+L36,ounce (avoirdupois) per second,унция (авоардюпоа) на секунда
+L37,ounce (avoirdupois) per gallon (UK),унция (авоардюпоа) на галон (Великобритания)
+L38,ounce (avoirdupois) per gallon (US),унция (авоардюпоа) на галон (САЩ)
+L39,ounce (avoirdupois) per cubic inch,унция (авоардюпоа) на кубичен инч
+L40,ounce (avoirdupois)-force,унция (авоардюпоа)-сила
+L41,ounce (avoirdupois)-force inch,унция (авоардюпоа)-сила инч
+L42,picosiemens per metre,пикосименс за метър
+L43,peck (UK),пек (Великобритания)
+L44,peck (UK) per day,пек (Великобритания) на ден
+L45,peck (UK) per hour,пек (Великобритания) на час
+L46,peck (UK) per minute,пек (Великобритания) на минута
+L47,peck (UK) per second,пек (Великобритания) на секунда
+L48,peck (US dry) per day,"пек (САЩ, сух) на ден"
+L49,peck (US dry) per hour,"пек (САЩ, сух) на час"
+L50,peck (US dry) per minute,"пек (САЩ, сух) на минута"
+L51,peck (US dry) per second,"пек (САЩ, сух) на секунда"
+L52,psi per psi,фунт-сила на квадратен инч на фунт-сила на квадратен инч
+L53,pint (UK) per day,пинта (Великобритания) на ден
+L54,pint (UK) per hour,пинта (Великобритания) на час
+L55,pint (UK) per minute,пинта (Великобритания) на минута
+L56,pint (UK) per second,пинта (Великобритания) на секунда
+L57,pint (US liquid) per day,"пинта (САЩ, течнат) на ден"
+L58,pint (US liquid) per hour,"пинта (САЩ, течна) на час"
+L59,pint (US liquid) per minute,"пинта (САЩ, течна) на минута"
+L60,pint (US liquid) per second,"пинта (САЩ, течна) на секунда"
+L63,slug per day,слаг на ден
+L64,slug per foot second,сла на фут в секунда
+L65,slug per cubic foot,слаг на кубичен фут
+L66,slug per hour,слаг на час
+L67,slug per minute,слаг на минута
+L68,slug per second,слаг на секунда
+L69,tonne per kelvin,тон за келвин
+L70,tonne per bar,тон за бар
+L71,tonne per day,тон за ден
+L72,tonne per day kelvin,тон за ден келвин
+L73,tonne per day bar,тон за ден бар
+L74,tonne per hour kelvin,тон за час келвин
+L75,tonne per hour bar,тон за час бар
+L76,tonne per cubic metre kelvin,мол за кубичен метър келвин
+L77,tonne per cubic metre bar,тон за кубичен метър бар
+L78,tonne per minute,тон за минута
+L79,tonne per minute kelvin,тон за минута келвин
+L80,tonne per minute bar,тон за минута бар
+L81,tonne per second,тон за секунда
+L82,tonne per second kelvin,тон за секунда келвин
+L83,tonne per second bar,тон за секунда бар
+L84,ton (UK shipping),"тон (Великобритания, товарен)"
+L85,ton long per day,дълъг тон на ден
+L86,ton (US shipping),"тон (САЩ, товарен)"
+L87,ton short per degree Fahrenheit,къс тон на градус по Фаренхайт
+L88,ton short per day,къс тон на ден
+L89,ton short per hour degree Fahrenheit,къс тон в час градус по Фаренхайт
+L90,ton short per hour psi,къс тон в час фунт-сила на квадратен инч
+L91,ton short per psi,къс тон на фунт-сила на квадратен инч
+L92,ton (UK long) per cubic yard,"тон (Великобритания, дълъг) за кубичен ярд"
+L93,ton (US short) per cubic yard,"тон (САЩ, къс) за кубичен ярд"
+L94,ton-force (US short),"тон-сила (САЩ, къс)"
+L95,common year,невисокосна година
+L96,sidereal year,звездна година
+L98,yard per degree Fahrenheit,ярд на градус Фаренхайт
+L99,yard per psi,ярд на фунт-сила на квадратен инч
+LA,pound per cubic inch,фунт на кубичен инч
+LAC,lactose excess percentage,излишък на лактоза в процент
+LBR,pound,фунт
+LBT,troy pound (US),тройфунт (САЩ)
+LD,litre per day,литър на ден
+LEF,leaf,лист
+LF,linear foot,линеен фут
+LH,labour hour,работен час
+LK,link,брънка
+LM,linear metre,линеен метър
+LN,length,дължина
+LO,lot  [unit of procurement],партида [единица за снабдяване]
+LP,liquid pound,фунт течност
+LPA,litre of pure alcohol,литър чист алкохол
+LR,layer,слой
+LS,lump sum,обща сума
+LTN,ton (UK) or long ton (US),тон (Великобритания) или дълъг тон (САЩ)
+LTR,litre,литър
+LUB,"metric ton, lubricating oil","метричен тон, смазочно масло"
+LUM,lumen,лумен
+LUX,lux,лукс
+LY,linear yard,линеен ярд
+M1,milligram per litre,милиграм на литър
+M11,cubic yard per degree Fahrenheit,кубичен ярд на градус по Фаренхайт
+M12,cubic yard per day,кубичен ярд на ден
+M13,cubic yard per hour,кубичен ярд на час
+M14,cubic yard per psi,кубичен ярд на фунт-сила на квадратен инч
+M15,cubic yard per minute,кубичен ярд на минута
+M16,cubic yard per second,кубичен ярд на секунда
+M17,kilohertz metre,килохерц метър
+M18,gigahertz metre,гигахерц метър
+M19,Beaufort,Бофорт
+M22,millilitre per square centimetre minute,милилитър на квадратен сантиметър минута
+M23,newton per centimetre,нютон на сантиметър
+M24,ohm kilometre,ом километър
+M25,percent per degree Celsius,процент за градус Целзий
+M26,gigaohm per metre,гигаом на метър
+M27,megahertz metre,мегахерц метър
+M29,kilogram per kilogram,килограм на килограм
+M31,kilogram per kilometre,килограм на километър
+M32,pascal second per litre,паскал секунда на литър
+M33,millimole per litre,милимол на литър
+M34,newton metre per square metre,нютон метър на квадратен метър
+M35,millivolt - ampere,миливолтампер
+M36,30-day month,30-дневен месец
+M37,actual/360,фактически/360
+M38,kilometre per second squared,километър в секунда на квадрат
+M39,centimetre per second squared,сантиметър в секунда на квадрат
+M4,monetary value,парична стойност
+M40,yard per second squared,метър в секунда на квадрат
+M41,millimetre per second squared,милиметър на секунда на квадрат
+M42,mile (statute mile) per second squared,миля (щатска миля) за секунда на квадрат
+M43,mil,мил
+M44,revolution,оборот
+M45,degree [unit of angle] per second squared,градус [единица за ъгъл] на секунда на квадрат
+M46,revolution per minute,оборот в минута
+M47,circular mil,кръгов мил
+M48,square mile (based on U.S. survey foot),"квадратна миля (на база на земемерен фут, САЩ)"
+M5,microcurie,микрокюри
+M50,furlong,фърлонг
+M51,foot (U.S. survey),"фут (САЩ, земемерен)"
+M52,mile (based on U.S. survey foot),"миля (на база на земемерен фут, САЩ)"
+M53,metre per pascal,метър на паскал
+M55,metre per radiant,метър на радан
+M56,shake,шейк
+M57,mile per minute,миля в минута
+M58,mile per second,миля в секунда
+M59,metre per second pascal,метър на секунда паскал
+M60,metre per hour,метър в час
+M61,inch per year,инч на година
+M62,kilometre per second,километър в секунда
+M63,inch per minute,инч в минута
+M64,yard per second,ярд в секунда
+M65,yard per minute,ярд в минута
+M66,yard per hour,ярд на час
+M67,acre-foot (based on U.S. survey foot),"акър-фут (на база на земемерен фут, САЩ)"
+M68,cord (128 ft3),корд (128 кубични фута)
+M69,cubic mile (UK statute),"кубична миля (Великобритания, сухопътна)"
+M7,micro-inch,микроинч
+M70,"ton, register",регистър тон
+M71,cubic metre per pascal,кубичен метър на паскал
+M72,bel,бел
+M73,kilogram per cubic metre pascal,килограм на кубичен метър паскал
+M74,kilogram per pascal,килограм на паскал
+M75,kilopound-force,килофунт-сила
+M76,poundal,паундал
+M77,kilogram metre per second squared,килограм метър в секунда на квадрат
+M78,pond,понд
+M79,square foot per hour,квадратен фут на час
+M80,stokes per pascal,стокс на паскал
+M81,square centimetre per second,квадратен сантиметър за секунда
+M82,square metre per second pascal,квадратен метър за секунда паскал
+M83,denier,дение
+M84,pound per yard,фунт за ярд
+M85,"ton, assay","тон, пробен"
+M86,pfund,фунт
+M87,kilogram per second pascal,килограм на секунда паскал
+M88,tonne per month,тон на месец
+M89,tonne per year,тон за година
+M9,million Btu per 1000 cubic foot,милион Btu за 1000 кубични фута
+M90,kilopound per hour,килофунт в час
+M91,pound per pound,фунт на фунт
+M92,pound-force foot,фунт-сила фут
+M93,newton metre per radian,нютон метър на радиан
+M94,kilogram metre,килограм метър
+M95,poundal foot,паундал фут
+M96,poundal inch,паундал инч
+M97,dyne metre,дина метър
+M98,kilogram centimetre per second,килограм сантиметър в секунда
+M99,gram centimetre per second,грам сантиметър в секунда
+MAH,megavolt ampere reactive hour,реактивен мегаволтампер час
+MAL,megalitre,мегалитър
+MAM,megametre,мегаметър
+MAR,megavar,мегавар
+MAW,megawatt,мегават
+MBE,thousand standard brick equivalent,еквивалент на хиляда стандартни тухли
+MBF,thousand board foot,хиляда дъсчени фута
+MBR,millibar,милибар
+MC,microgram,микрограм
+MCU,millicurie,миликюри
+MD,air dry metric ton,метричен тон въздушно изсушена маса
+MGM,milligram,милиграм
+MHZ,megahertz,мегахерц
+MIK,square mile (statute mile),квадратна миля (сухопътна миля)
+MIL,thousand,хиляда
+MIN,minute [unit of time],минута [единица за време]
+MIO,million,милион
+MIU,million international unit,милион международни единици
+MLD,milliard,милиард
+MLT,millilitre,милилитър
+MMK,square millimetre,квадратен милиметър
+MMQ,cubic millimetre,кубичен милиметър
+MMT,millimetre,милиметър
+MND,"kilogram, dry weight","килограм, сухо тегло"
+MON,month,месец
+MPA,megapascal,мегапаскал
+MQH,cubic metre per hour,кубичен метър в час
+MQS,cubic metre per second,кубичен метър в секунда
+MSK,metre per second squared,метър в секунда на квадрат
+MTK,square metre,квадратен метър
+MTQ,cubic metre,кубичен метър
+MTR,metre,метър
+MTS,metre per second,метър в секунда
+MVA,megavolt - ampere,мегаволтампер
+MWH,megawatt hour (1000 kW.h),мегаватчас (1000 kW.h)
+N1,pen calorie,калория за парентерално и ентерално въвеждане
+N10,pound foot per second,фунт фут за секунда
+N11,pound inch per second,фунт инч за секунда
+N12,Pferdestaerke,Pferdestaerke
+N13,centimetre of mercury (0 ºC),сантиметър живачен стълб (0 ºC)
+N14,centimetre of water (4 ºC),сантиметър воден стълб (4 ºC)
+N15,foot of water (39.2 ºF),"фут воден стълб (39,2 ºF)"
+N16,inch of mercury (32 ºF),инч живачен стълб (32 ºF)
+N17,inch of mercury (60 ºF),инч живачен стълб (60 ºF)
+N18,inch of water (39.2 ºF),"инч воден стълб (39,2 ºF)"
+N19,inch of water (60 ºF),инч воден стълб (60 ºF)
+N20,kip per square inch,килофунт-сила за квадратен инч
+N21,poundal per square foot,паундал на квадратен фут
+N22,ounce (avoirdupois) per square inch,унция (авоардюпоа) на квадратен инч
+N23,conventional metre of water,стандартен метър воден стълб
+N24,gram per square millimetre,грам на квадратен милиметър
+N25,pound per square yard,фунт на квадратен метър
+N26,poundal per square inch,паундал на квадратен инч
+N27,foot to the fourth power,фут на четвърта степен
+N28,cubic decimetre per kilogram,кубичен дециметър на килограм
+N29,cubic foot per pound,кубичен фут на фунт
+N3,print point,точка при отпечатване
+N30,cubic inch per pound,кубичен инч на фунт
+N31,kilonewton per metre,килонютон на метър
+N32,poundal per inch,паундал на инч
+N33,pound-force per yard,фунт-сила за ярд
+N34,poundal second per square foot,паундал секунда на квадратен фут
+N35,poise per pascal,поаз на паскал
+N36,newton second per square metre,нютон секунда на квадратен метър
+N37,kilogram per metre second,килограм на метър секунда
+N38,kilogram per metre minute,килограм на метър минута
+N39,kilogram per metre day,килограм на метър ден
+N40,kilogram per metre hour,килограм на метър час
+N41,gram per centimetre second,грам на сантиметър секунда
+N42,poundal second per square inch,паундал секунда на квадратен инч
+N43,pound per foot minute,фунт на фут минута
+N44,pound per foot day,фунт на фут ден
+N45,cubic metre per second pascal,кубичен метър на секунда паскал
+N46,foot poundal,фут паундал
+N47,inch poundal,инч паундал
+N48,watt per square centimetre,ват на квадратен сантиметър
+N49,watt per square inch,ват на квадратен инч
+N50,British thermal unit (international table) per square foot hour,Британска топлинна единица (международна таблица) на квадратен фут час
+N51,British thermal unit (thermochemical) per square foot hour,Британска топлинна единица (термохимична) на квадратен фут час
+N52,British thermal unit (thermochemical) per square foot minute,Британска топлинна единица (термохимична) на квадратен фут минута
+N53,British thermal unit (international table) per square foot second,Британска топлинна единица (международна таблица) на квадратен фут секунда
+N54,British thermal unit (thermochemical) per square foot second,Британска топлинна единица (термохимична) на квадратен фут секунда
+N55,British thermal unit (international table) per square inch second,Британска топлинна единица (международна таблица) на квадратен инч секунда
+N56,calorie (thermochemical) per square centimetre minute,калория (термохимична) на квадратен сантиметър в минута
+N57,calorie (thermochemical) per square centimetre second,калория (термохимична) на квадратен сантиметър в секунда
+N58,British thermal unit (international table) per cubic foot,Британска топлинна единица (международна таблица) на кубичен фут
+N59,British thermal unit (thermochemical) per cubic foot,Британска топлинна единица (термохимична) на кубичен фут
+N60,British thermal unit (international table) per degree Fahrenheit,Британска топлинна единица (международна таблица) на градус Фаренхайт
+N61,British thermal unit (thermochemical) per degree Fahrenheit,Британска топлинна единица (термохимична) на градус Фаренхайт
+N62,British thermal unit (international table) per degree Rankine,Британска топлинна единица (международна таблица) на градус Ранкин
+N63,British thermal unit (thermochemical) per degree Rankine,Британска топлинна единица (термохимична) на градус Ранкин
+N64,British thermal unit (thermochemical) per pound degree Rankine,Британска топлинна единица (термохимична) за фунт градус Ранкин
+N65,kilocalorie (international table) per gram kelvin,килокалория (международна таблица) на грам келвин
+N66,British thermal unit (39 ºF),Британска топлинна единица (39 ºF)
+N67,British thermal unit (59 ºF),Британска топлинна единица (59 ºF)
+N68,British thermal unit (60 ºF),Британска топлинна единица (60 ºF)
+N69,calorie (20 ºC),калория (20 ºC)
+N70,quad (1015 BtuIT),"квадрилион (1015 британски топлинни единици, международна таблица)"
+N71,therm (EC),терм (EC)
+N72,therm (U.S.),терм (САЩ)
+N73,British thermal unit (thermochemical) per pound,Британска топлинна единица (термохимична) за фунт
+N74,British thermal unit (international table) per hour square foot degree Fahrenheit,Британска топлинна единица (международна таблица) на час квадратен фут градус Фаренхайт
+N75,British thermal unit (thermochemical) per hour square foot degree Fahrenheit,Британска топлинна единица (термохимична) на час квадратен фут градус Фаренхайт
+N76,British thermal unit (international table) per second square foot degree Fahrenheit,Британска топлинна единица (международна таблица) на секунда квадратен фут градус Фаренхайт
+N77,British thermal unit (thermochemical) per second square foot degree Fahrenheit,Британска топлинна единица (термохимична) на секунда квадратен фут градус Фаренхайт
+N78,kilowatt per square metre kelvin,киловат на квадратен метър келвин
+N79,kelvin per pascal,келвин на паскал
+N80,watt per metre degree Celsius,ват на метър градус Целзий
+N81,kilowatt per metre kelvin,киловат на метър келвин
+N82,kilowatt per metre degree Celsius,киловат на метър градус Целзий
+N83,metre per degree Celcius metre,метър на градус Целзий метър
+N84,degree Fahrenheit hour per British thermal unit (international table),градус Фаренхайт час за британска топлинна единица (международна таблица)
+N85,degree Fahrenheit hour per British thermal unit (thermochemical),градус Фаренхайт час за британска топлинна единица (термохимична)
+N86,degree Fahrenheit second per British thermal unit (international table),градус Фаренхайт секунда за британска топлинна единица (международна таблица)
+N87,degree Fahrenheit second per British thermal unit (thermochemical),градус Фаренхайт секунда за британска топлинна единица (термохимична)
+N88,degree Fahrenheit hour square foot per British thermal unit (international table) inch,градус Фаренхайт час квадратен фут за британска топлинна единица (международна таблица) инч
+N89,degree Fahrenheit hour square foot per British thermal unit (thermochemical) inch,градус Фаренхайт час квадратен фут за британска топлинна единица (термохимична) инч
+N90,kilofarad,килофарад
+N91,reciprocal joule,реципрочен джаул
+N92,picosiemens,пикосименс
+N93,ampere per pascal,ампер на паскал
+N94,franklin,франклин
+N95,ampere minute,ампер минута
+N96,biot,биот
+N97,gilbert,жилберт
+N98,volt per pascal,волтана паскал
+N99,picovolt,пиковолт
+NA,milligram per kilogram,милиграм на килограм
+NAR,number of articles,брой артикули
+NCL,number of cells,брой клетки
+NEW,newton,нютон
+NIL,nil,брой празни
+NIU,number of international units,брой международни единици
+NL,load,товар
+NM3,Normalised cubic metre,Нормализиран кубичен метър
+NMI,nautical mile,морска миля
+NMP,number of packs,брой пакети
+NPT,number of parts,брой части
+NT,net ton,тон нето
+NU,newton metre,нютон метър
+NX,part per thousand,част на хиляда
+OA,panel,панел
+ODG,ODS Grams,ODS грамове
+ODK,ODS Kilograms,ODS килограми
+ODM,ODS Milligrams,ODS милиграми
+OHM,ohm,ом
+ON,ounce per square yard,унция на квадратен ярд
+ONZ,ounce (avoirdupois),унция (авоардюпоа)
+OPM,oscillations per minute,осцилации в минута
+OT,overtime hour,извънреден час
+OZA,fluid ounce (US),течна унция (САЩ)
+OZI,fluid ounce (UK),течна унция (Великобритания)
+P1,percent,процент
+P10,coulomb per metre,кулон на метър
+P11,kiloweber,киловебер
+P12,gamma,гама
+P13,kilotesla,килотесла
+P14,joule per second,джаул в секунда
+P15,joule per minute,джаул в минута
+P16,joule per hour,джаул в час
+P17,joule per day,джаул на ден
+P18,kilojoule per second,килоджаул в секунда
+P19,kilojoule per minute,килоджаул в минута
+P2,pound per foot,фунт на фут
+P20,kilojoule per hour,килоджаул в час
+P21,kilojoule per day,килоджаул на ден
+P22,nanoohm,наноом
+P23,ohm circular-mil per foot,ом кръгов мил за фут
+P24,kilohenry,килохенри
+P25,lumen per square foot,лумен на квадратен фут
+P26,phot,фот
+P27,footcandle,футкандел
+P28,candela per square inch,кандела на квадратен инч
+P29,footlambert,футламбер
+P30,lambert,ламбер
+P31,stilb,стилб
+P32,candela per square foot,кандела на квадратен фут
+P33,kilocandela,килокандела
+P34,millicandela,миликандела
+P35,Hefner-Kerze,хефнерхерце
+P36,international candle,"кандела, международна система"
+P37,British thermal unit (international table) per square foot,Британска топлинна единица (международна таблица) на квадратен фут
+P38,British thermal unit (thermochemical) per square foot,Британска топлинна единица (термохимична) на квадратен фут
+P39,calorie (thermochemical) per square centimetre,калория (термохимична) на квадратен сантиметър
+P40,langley,лангли
+P41,decade (logarithmic),декада (логаритмична)
+P42,pascal squared second,паскал на квадрат секунда
+P43,bel per metre,бел за метър
+P44,pound mole,фунт мол
+P45,pound mole per second,фунт мол в секунда
+P46,pound mole per minute,фунт мол в минута
+P47,kilomole per kilogram,киломол на килограм
+P48,pound mole per pound,фунт мол на фунт
+P49,newton square metre per ampere,нютон квадратен метър на ампер
+P5,five pack,пет в пакет
+P50,weber metre,вебер метър
+P51,mol per kilogram pascal,мол на килограм паскал
+P52,mol per cubic metre pascal,мол на кубичен метър паскал
+P53,unit pole,единица за магнитен полюс
+P54,milligray per second,милигрей за секунда
+P55,microgray per second,микрогрей за секунда
+P56,nanogray per second,наногрей за секунда
+P57,gray per minute,грей за минута
+P58,milligray per minute,милигрей за минута
+P59,microgray per minute,микрогрей за минута
+P60,nanogray per minute,наногрей за минута
+P61,gray per hour,грей за час
+P62,milligray per hour,милигрей за час
+P63,microgray per hour,микрогрей за час
+P64,nanogray per hour,наногрей за час
+P65,sievert per second,сиверт за секунда
+P66,millisievert per second,милисиверт за секунда
+P67,microsievert per second,микросиверт за секунда
+P68,nanosievert per second,наносиверт за секунда
+P69,rem per second,бер за секунда
+P70,sievert per hour,сиверт за час
+P71,millisievert per hour,милисиверт за час
+P72,microsievert per hour,микросиверт за час
+P73,nanosievert per hour,наносиверт за час
+P74,sievert per minute,сиверт за минута
+P75,millisievert per minute,милисиверт в минута
+P76,microsievert per minute,микросиверт за минута
+P77,nanosievert per minute,наносиверт за минута
+P78,reciprocal square inch,реципрочен квадратен инч
+P79,pascal square metre per kilogram,паскал квадратен метър на килограм
+P80,millipascal per metre,милипаскал на метър
+P81,kilopascal per metre,килопаскал на метър
+P82,hectopascal per metre,хектопаскал на метър
+P83,standard atmosphere per metre,стандартна атмосфера на метър
+P84,technical atmosphere per metre,техническа атмосфера на метър
+P85,torr per metre,тор на метър
+P86,psi per inch,фунт-сила на квадратен инч за инч
+P87,cubic metre per second square metre,кубичен метър на секунда квадратен метър
+P89,pound-force foot per inch,фунт-сила фут на инч
+P90,pound-force inch per inch,фунт-сила инч на инч
+P91,perm (0 ºC),перм (0 ºC)
+P92,perm (23 ºC),перм (23 ºC)
+P93,byte per second,байт в секунда
+P94,kilobyte per second,килобайт в секунда
+P95,megabyte per second,мегабайт в секунда
+P96,reciprocal volt,реципрочен волт
+P97,reciprocal radian,реципрочен радиан
+P98,pascal to the power sum of stoichiometric numbers,паскал на степен сумата от стехиометричните коефициенти
+P99,mole per cubiv metre to the power sum of stoichiometric numbers,мол за кубичен метър на степен сумата от стехиометричните коефициенти
+PAL,pascal,паскал
+PD,pad,пачка
+PFL,proof litre,алкохолно съдържание за литър
+PGL,proof gallon,алкохолно съдържание за галон
+PI,pitch,символ на инч
+PLA,degree Plato,градус Плато
+PO,pound per inch of length,фунт на инч дължина
+PQ,page per inch,страница на инч
+PR,pair,двойка
+PS,pound-force per square inch,фунт-сила на квадратен инч
+PTD,dry pint (US),суха пинта (САЩ)
+PTI,pint (UK),пинта (Великобритания)
+PTL,liquid pint (US),течна пинта (САЩ)
+PTN,portion,порция
+Q10,joule per tesla,джаул на тесла
+Q11,erlang,ерланг
+Q12,octet,октет
+Q13,octet per second,октет в секунда
+Q14,shannon,шанън
+Q15,hartley,хартли
+Q16,natural unit of information,естествена единица за информация
+Q17,shannon per second,шанън в секунда
+Q18,hartley per second,хартли в секунда
+Q19,natural unit of information per second,естествена единица за информация в секунда
+Q20,second per kilogramm,секунда за килограм
+Q21,watt square metre,ват квадратен метър
+Q22,second per radian cubic metre,секунда на радиан кубичен метър
+Q23,weber to the power minus one,вебер на степен минус първа
+Q24,reciprocal inch,реципрочен инч
+Q25,dioptre,диоптър
+Q26,one per one,едно към едно
+Q27,newton metre per metre,нютон метър на метър
+Q28,kilogram per square metre pascal second,килограм на квадратен метър паскал секунда
+Q29,microgram per hectogram,микрограм на хектограм
+Q30,pH (potential of Hydrogen),pH (водороден показател)
+Q31,kilojoule per gram,килоджаул на грам
+Q32,femtolitre,фемтолитър
+Q33,picolitre,пиколитър
+Q34,nanolitre,нанолитър
+Q35,megawatts per minute,мегавати в минута
+Q36,square metre per cubic metre,квадратен метър на кубичен метър
+Q37,Standard cubic metre per day,Стандартен кубичен метър на ден
+Q38,Standard cubic metre per hour,Стандартен кубичен метър на час
+Q39,Normalized cubic metre per day,Нормализиран кубичен метър на ден
+Q40,Normalized cubic metre per hour,Нормализиран кубичен метър на час
+Q41,Joule per normalised cubic metre,Джаул на нормализиран кубичен метър
+Q42,Joule per standard cubic metre,Джаул на стандартен кубичен метър
+Q3,meal,хранене
+QA,page - facsimile,страница – факсимиле
+QAN,quarter (of a year),тримесечие (на година)
+QB,page - hardcopy,страница – на хартиен носител
+QR,quire,сгъната печатна кола
+QTD,dry quart (US),суха кварта (САЩ)
+QTI,quart (UK),кварта (Великобритания)
+QTL,liquid quart (US),течна кварта (САЩ)
+QTR,quarter (UK),квартер (Великобритания)
+R1,pica,пайк
+R9,thousand cubic metre,хиляда кубични метра
+RH,running or operating hour,час изпълнение или експлоатация
+RM,ream,топ хартия
+ROM,room,стая
+RP,pound per ream,фунт за топ хартия
+RPM,revolutions per minute,обороти в минута
+RPS,revolutions per second,обороти в секунда
+RT,revenue ton mile,тон приход за миля
+S3,square foot per second,квадратен фут в секунда
+S4,square metre per second,квадратен метър в секунда
+SAN,half year (6 months),половин година (6 месеца)
+SCO,score,двадесет
+SCR,scruple,скрупул
+SEC,second [unit of time],секунда [единица за време]
+SET,set,набор
+SG,segment,сегмент
+SIE,siemens,сименс
+SM3,Standard cubic metre,Стандартен кубичен метър
+SMI,mile (statute mile),миля (сухопътна миля)
+SQ,square,квадрат
+SQR,"square, roofing","квадратни, покривни материали"
+SR,strip,лента
+STC,stick,пръчка
+STI,stone (UK),камък (Великобритания)
+STK,"stick, cigarette",къс
+STL,standard litre,стандартен литър
+STN,ton (US) or short ton (UK/US),тон (САЩ) или къс тон (Великобритания/САЩ)
+STW,straw,сламка
+SW,skein,чиле прежда
+SX,shipment,пратка
+SYR,syringe,спринцовка
+T0,telecommunication line in service,телекомуникационна линия в експлоатация
+T3,thousand piece,хиляда бройки
+TAH,kiloampere hour (thousand ampere hour),килоамперчас (хиляда амперчаса)
+TAN,total acid number,общо киселинно число
+TI,thousand square inch,хиляда квадратни инча
+TIC,"metric ton, including container","метричен тон, включително контейнера"
+TIP,"metric ton, including inner packaging","метричен тон, включително вътрешната опаковка"
+TKM,tonne kilometre,тон километър
+TMS,"kilogram of imported meat, less offal","килограм вносно месо, без карантиите"
+TNE,tonne (metric ton),тон (метричен тон)
+TP,ten pack,десет в пакет
+TPI,teeth per inch,зъби на инч
+TPR,ten pair,десет двойки
+TQD,thousand cubic metre per day,хиляда кубични метра на ден
+TRL,trillion (EUR),трилион (EUR)
+TST,ten set,десет комплекта
+TTS,ten thousand sticks,десет хиляди пръчки
+U1,treatment,третиране
+U2,tablet,таблетка
+UB,telecommunication line in service average,среден брой телекомуникационни линии в експлоатация
+UC,telecommunication port,телекомуникационен порт
+VA,volt - ampere per kilogram,волтампер на килограм
+VLT,volt,волт
+VP,percent volume,обемен процент
+W2,wet kilo,килограм влажно вещество
+WA,watt per kilogram,ват на килограм
+WB,wet pound,фунт влажно вещество
+WCD,cord,корд
+WE,wet ton,тон влажно вещество
+WEB,weber,вебер
+WEE,week,седмица
+WG,wine gallon,галон вино
+WHR,watt hour,ватчас
+WM,working month,работен месец
+WSD,standard,стандартен кубичен фут
+WTT,watt,ват
+X1,Gunter's chain,Верига на Гюнтер
+YDK,square yard,квадратен ярд
+YDQ,cubic yard,кубичен ярд
+YRD,yard,ярд
+Z11,hanging container,окачен контейнер
+ZP,page,страница
+ZZ,mutually defined,взаимно определени
+X1A,"Drum, steel","Бидон, стоманен"
+X1B,"Drum, aluminium","Бидон, алуминиев"
+X1D,"Drum, plywood","Бидон, шперплатов"
+X1F,"Container, flexible","Контейнер, гъвкав"
+X1G,"Drum, fibre","Бидон, влакнест"
+X1W,"Drum, wooden","Бидон, дървен"
+X2C,"Barrel, wooden","Барел, дървен"
+X3A,"Jerrican, steel","Канистра, стоманена"
+X3H,"Jerrican, plastic","Канистра, пластмасова"
+X43,"Bag, super bulk","Торба, с голям обем"
+X44,"Bag, polybag","Торба, полибаг (Polybag)"
+X4A,"Box, steel","Кутия, стоманена"
+X4B,"Box, aluminium","Кутия, алуминиева"
+X4C,"Box, natural wood","Кутия, естествено дърво"
+X4D,"Box, plywood","Кутия, шперплатова"
+X4F,"Box, reconstituted wood","Кутия, възстановено дърво"
+X4G,"Box, fibreboard","Кутия, талашит"
+X4H,"Box, plastic","Кутия, пластмаса"
+X5H,"Bag, woven plastic","Торба, тъкана пластмаса"
+X5L,"Bag, textile","Торба, текстилна"
+X5M,"Bag, paper","Торба, хартиена"
+X6H,"Composite packaging, plastic receptacle","Композитна опаковка, пластмасов контейнер"
+X6P,"Composite packaging, glass receptacle","Композитна опаковка, стъклен контейнер"
+X7A,"Case, car","Каса, автомобил"
+X7B,"Case, wooden","Каса, дървена"
+X8A,"Pallet, wooden","Палет, дървен"
+X8B,"Crate, wooden","Щайга, дърво"
+X8C,"Bundle, wooden","Пакет, дървен"
+XAA,"Intermediate bulk container, rigid plastic","Междинен контейнер за насипни стоки, твърда пластмаса"
+XAB,"Receptacle, fibre","Съд, влакнест"
+XAC,"Receptacle, paper","Съд, хартиен"
+XAD,"Receptacle, wooden","Съд, дървен"
+XAE,Aerosol,Аерозол
+XAF,"Pallet, modular, collars 80cms * 60cms","Палет, модулен, обръчи 80 сm * 60 сm"
+XAG,"Pallet, shrinkwrapped","Палет, със свиваема опаковка"
+XAH,"Pallet, 100cms * 110cms","Палет, 100 cm * 110 cm"
+XAI,Clamshell,Загребвач
+XAJ,Cone,Конус
+XAL,Ball,Сфера
+XAM,"Ampoule, non-protected","Ампула, незащитена"
+XAP,"Ampoule, protected","Ампула, защитена"
+XAT,Atomizer,Пулверизатор
+XAV,Capsule,Капсула
+XB4,Belt,Колан
+XBA,Barrel,Барел
+XBB,Bobbin,Бобина
+XBC,Bottlecrate / bottlerack,Каса/кашон бутилки
+XBD,Board,Дъска
+XBE,Bundle,Връзка
+XBF,"Balloon, non-protected","Балон, незащитен"
+XBG,Bag,Торба
+XBH,Bunch,Сноп
+XBI,Bin,Кошче
+XBJ,Bucket,Ведро
+XBK,Basket,Кош
+XBL,"Bale, compressed","Бала, пресована"
+XBM,Basin,Леген
+XBN,"Bale, non-compressed","Бала, непресована"
+XBO,"Bottle, non-protected, cylindrical","Бутилка, незащитена, цилиндрична"
+XBP,"Balloon, protected","Балон, защитен"
+XBQ,"Bottle, protected cylindrical","Бутилка, защитена цилиндрична"
+XBR,Bar,Прът
+XBS,"Bottle, non-protected, bulbous","Бутилка, незащитена, подобна на луковица"
+XBT,Bolt,Руло
+XBU,Butt,варел
+XBV,"Bottle, protected bulbous","Бутилка, защитена,подобна на луковица"
+XBW,"Box, for liquids",Кутия за течности
+XBX,Box,Кутия
+XBY,"Board, in bundle/bunch/truss","Дъски, на сноп/връзка/пачка"
+XBZ,"Bars, in bundle/bunch/truss","Пръти, на сноп/връзка/пачка"
+XCA,"Can, rectangular","Кутия, метална, правоъгълна"
+XCB,"Crate, beer","Каса, бира"
+XCD,"Can, with handle and spout",Кутия с дръжка и гърло
+XCE,Creel,Малка кошница
+XCF,Coffer,Сандък
+XCG,Cage,Кафез
+XCH,Chest,Ракла
+XCI,Canister,Канистра
+XCJ,Coffin,Ковчег
+XCK,Cask,Бъчва
+XCL,Coil,Намотка
+XCM,Card,карта
+XCN,"Container, not otherwise specified as transport equipment","Контейнер, неспецифициран по друг начин като транспортно оборудване"
+XCO,"Carboy, non-protected","контейнер, незащитен"
+XCP,"Carboy, protected","контейнер, защитен"
+XCQ,Cartridge,Патрон
+XCR,Crate,щайга
+XCS,Case,Каса
+XCT,Carton,"Кутия, картонена"
+XCU,Cup,Чаша
+XCV,Cover,Похлупак
+XCW,"Cage, roll","Клетка, ролка"
+XCX,"Can, cylindrical","Кутия, метална, цилиндрична"
+XCY,Cylinder,Цилиндър
+XCZ,Canvas,Платно
+XDA,"Crate, multiple layer, plastic","Щайга, многослойна, пластмаса"
+XDB,"Crate, multiple layer, wooden","Щайга, няколко слоя, изработена от дърво"
+XDC,"Crate, multiple layer, cardboard","Щайга, няколко слоя, картон"
+XDG,"Cage, Commonwealth Handling Equipment Pool  (CHEP)","Кафез, набор от оборудване за обработка на Commonwealth (CHEP)"
+XDH,"Box, Commonwealth Handling Equipment Pool (CHEP), Eurobox","Кутия, набор от оборудване за обработка на Commonwealth (CHEP), еврокутия"
+XDI,"Drum, iron","Бидон, железен"
+XDJ,"Demijohn, non-protected","Дамаджана, незащитена"
+XDK,"Crate, bulk, cardboard","Щайга, насипно състояние, кашон"
+XDL,"Crate, bulk, plastic","Щайга, насипно състояние, пластмасова"
+XDM,"Crate, bulk, wooden","Щайга, насипно състояние, дърво"
+XDN,Dispenser,Диспенсър
+XDP,"Demijohn, protected","Дамаджана, защитена"
+XDR,Drum,Бидон
+XDS,"Tray, one layer no cover, plastic","Табла, еднослойна, без капак, пластмаса"
+XDT,"Tray, one layer no cover, wooden","Табла, еднослойна, без капак, дървена"
+XDU,"Tray, one layer no cover, polystyrene","Табла, еднослойна, без капак, стиропор"
+XDV,"Tray, one layer no cover, cardboard","Табла, еднослойна, без капак, твърд картон"
+XDW,"Tray, two layers no cover, plastic tray","Табла, двуслойна, без капак, пластмаса"
+XDX,"Tray, two layers no cover, wooden","Табла, двуслойна, без капак, дървена"
+XDY,"Tray, two layers no cover, cardboard","Табла, двуслойна, без капак, твърд картон"
+XEC,"Bag, plastic","Торба, пластмасова"
+XED,"Case, with pallet base","Каса, с палетна основа"
+XEE,"Case, with pallet base, wooden","Каса, с палетна основа, дървена"
+XEF,"Case, with pallet base, cardboard","Каса, с палетна основа, картон"
+XEG,"Case, with pallet base, plastic","Каса, с палетна основа, пластмасова"
+XEH,"Case, with pallet base, metal","Каса, с палетна основа, метална"
+XEI,"Case, isothermic","Каса, изотермична"
+XEN,Envelope,Плик
+XFB,Flexibag,"Торба, гъвкава"
+XFC,"Crate, fruit","Щайга, плодове"
+XFD,"Crate, framed","Щайга, в рамка"
+XFE,Flexitank,"Резервоар, гъвкав"
+XFI,Firkin,Фиркин
+XFL,Flask,Плоска бутилка
+XFO,Footlocker,Сандъче за обувки
+XFP,Filmpack,Кутия за филмови ленти
+XFR,Frame,Рамка
+XFT,Foodtainer,Контейнер за храна
+XFW,"Cart, flatbed",Магазинна количка
+XFX,"Bag, flexible container","Торба, гъвкав контейнер"
+XGB,"Bottle, gas","Бутилка, газова"
+XGI,Girder,Греда
+XGL,"Container, gallon","Контейнер, галон"
+XGR,"Receptacle, glass","Съд, стъклен"
+XGU,"Tray, containing horizontally stacked flat items","тави за плоски предмети, подредени хоризонтално"
+XGY,"Bag, gunny","чували, тип ""gunny"""
+XGZ,"Girders, in bundle/bunch/truss","Греди, на сноп/връзка/пачка"
+XHA,"Basket, with handle, plastic","Кош, с дръжка, пластмасов"
+XHB,"Basket, with handle, wooden","Кош, с дръжка, дървен"
+XHC,"Basket, with handle, cardboard","Кош, с дръжка, картонен"
+XHG,Hogshead,Голям варел
+XHN,Hanger,Кука
+XHR,Hamper,Кошница с капак
+XIA,"Package, display, wooden","Опаковка, демонстрационна, дървена"
+XIB,"Package, display, cardboard","Опаковка, демонстрационна, картонена"
+XIC,"Package, display, plastic","Опаковка, демонстрационна, пластмасова"
+XID,"Package, display, metal","Опаковка, демонстрационна, метална"
+XIF,"Package, flow","Опаковка, тръбна"
+XIG,"Package, paper wrapped","Пакет, увит в хартия"
+XIH,"Drum, plastic","Бидон, пластмасов"
+XIK,"Package, cardboard, with bottle grip-holes","Опаковка, картон, с отвори за захващане на бутилка"
+XIL,"Tray, rigid, lidded stackable (CEN TS 14482:2002)","Табла, твърда, с капак и възможност за подреждане една върху друга (CEN TS 14482:2002)"
+XIN,Ingot,Слитък
+XIZ,"Ingots, in bundle/bunch/truss","Слитъци, на сноп, връзка, пачка"
+XJB,"Bag, jumbo","Торба, джъмбо"
+XJC,"Jerrican, rectangular","Канистра, правоъгълна"
+XJG,Jug,Стомна
+XJR,Jar,Буркан
+XJT,Jutebag,Торба от юта
+XJY,"Jerrican, cylindrical","Канистра, цилиндрична"
+XKG,Keg,Кег
+XKI,Kit,Комплект
+XLE,Luggage,багаж
+XLG,Log,трупа
+XLT,Lot,Лот
+XLU,Lug,"щайга, тип ""Луг"""
+XLV,Liftvan,Товарен фургон
+XLZ,"Logs, in bundle/bunch/truss","трупи, на връзки/вързопи"
+XMA,"Crate, metal","Щайга, метална"
+XMB,"Bag, multiply","Торба, многопластова"
+XMC,"Crate, milk","Каса, мляко"
+XME,"Container, metal","Контейнер, метален"
+XMR,"Receptacle, metal","Съд, метален"
+XMS,"Sack, multi-wall","Чувал, многослоен"
+XMW,"Receptacle, plastic wrapped",Съд с пластмасова обвивка
+XMX,Matchbox,Кибритена кутия
+XNA,Not available,Не е налично
+XNE,Unpacked or unpackaged,Неопакован или непакетиран
+XNF,"Unpacked or unpackaged, single unit","Неопакован или непакетиран, един елемент"
+XNG,"Unpacked or unpackaged, multiple units","Неопакован или непакетиран, много елементи"
+XNS,Nest,"Серия еднакви предмети, които влизат един в друг"
+XNT,Net,Мрежа
+XNU,"Net, tube, plastic","Мрежа, тръбна, пластмаса"
+XNV,"Net, tube, textile","Мрежа, тръбна, текстил"
+XOA,"Pallet, CHEP 40 cm x 60 cm","Палет, CHEP 40 cm x 60 cm"
+XOB,"Pallet, CHEP 80 cm x 120 cm","Палет, CHEP 80 cm x 120 cm"
+XOC,"Pallet, CHEP 100 cm x 120 cm","Палет, CHEP 100 cm x 120 cm"
+XOD,"Pallet, AS 4068-1993","Палет, AS 4068-1993"
+XOE,"Pallet, ISO T11","Палет, ISO T11"
+XOF,"Platform, unspecified weight or dimension",Платформа с неспецифицирано тегло или измерение
+XOK,Block,Блок
+XOT,Octabin,Октабин
+XOU,"Container, outer","Контейнер, външен"
+XP2,Pan,"Контейнер, тип ""Pan"""
+XPA,Packet,Пакет
+XPB,"Pallet, box Combined open-ended box and pallet","Палет, кутия комбинирана кутия с отворени краища и палет"
+XPC,Parcel,Колет
+XPD,"Pallet, modular, collars 80cms * 100cms","Палет, модулен, обръчи 80 cm * 100 cm"
+XPE,"Pallet, modular, collars 80cms * 120cms","Палет, модулен, обръчи 80 cm * 120 cm"
+XPF,Pen,Pen (заграждение с отворен покрив за отглеждане на животни)
+XPG,Plate,Плато
+XPH,Pitcher,"Кана, тип ""Pitcher"""
+XPI,Pipe,Тръба
+XPJ,Punnet,"Кутия, тип ""Punnet"""
+XPK,Package,Пакет
+XPL,Pail,Кофа
+XPN,Plank,Талпа
+XPO,Pouch,Кесия
+XPP,Piece,Парче
+XPR,"Receptacle, plastic","Съд, пластмасов"
+XPT,Pot,Гърне
+XPU,Tray,Табла
+XPV,"Pipes, in bundle/bunch/truss","Тръби, на сноп/връзка/пачка"
+XPX,Pallet,Палет
+XPY,"Plates, in bundle/bunch/truss","Плочи, на сноп/връзка/пачка"
+XPZ,"Planks, in bundle/bunch/truss","Талпи, на сноп/връзка/пачка"
+XQA,"Drum, steel, non-removable head","Бидон, стоманен, неподвижен капак"
+XQB,"Drum, steel, removable head","Бидон, стоманен, подвижен капак"
+XQC,"Drum, aluminium, non-removable head","Бидон, алуминиев, неподвижен капак"
+XQD,"Drum, aluminium, removable head","Бидон, алуминиев, подвижен капак"
+XQF,"Drum, plastic, non-removable head","Бидон, пластмасов, неподвижен капак"
+XQG,"Drum, plastic, removable head","Бидон, пластмасов, подвижен капак"
+XQH,"Barrel, wooden, bung type","Бидон, дървен, тип бутало"
+XQJ,"Barrel, wooden, removable head","Бидон, дървен, с подвижен капак"
+XQK,"Jerrican, steel, non-removable head","Канистра, стоманена с неподвижен капак"
+XQL,"Jerrican, steel, removable head","Канистра, стоманена с подвижен капак"
+XQM,"Jerrican, plastic, non-removable head","Канистра, пластмасова с неподвижен капак"
+XQN,"Jerrican, plastic, removable head","Канистра, пластмасова с подвижен капак"
+XQP,"Box, wooden, natural wood, ordinary","Кутия, дървена, естествено дърво, обикновена"
+XQQ,"Box, wooden, natural wood, with sift proof walls","Кутия, дървена, естествена дървесина, с непропускливи стени"
+XQR,"Box, plastic, expanded","Кутия, пластмасова, експандирана"
+XQS,"Box, plastic, solid","Кутия, пластмасова, твърда"
+XRD,Rod,Прът
+XRG,Ring,Пръстен
+XRJ,"Rack, clothing hanger","Стойка, закачалка за дрехи"
+XRK,Rack,Стойка
+XRL,Reel,Макара
+XRO,Roll,Топ
+XRZ,"Rods, in bundle/bunch/truss","Пръти, на сноп/връзка/пачка"
+XSA,Sack,Чувал
+XSB,Slab,Сляба
+XSC,"Crate, shallow","Щайга, плитка"
+XSD,Spindle,Шпиндел
+XSH,Sachet,Саше
+XSI,Skid,Скара
+XSL,Slipsheet,Разделителен лист
+XSM,Sheetmetal,Прокат
+XSO,Spool,Шпула
+XSP,"Sheet, plastic wrapping","Лист, пластмасова опаковка"
+XSS,"Case, steel","Каса, стомана"
+XST,Sheet,Лист
+XSU,Suitcase,Куфар
+XSV,"Envelope, steel","Плик, стоманен"
+XSW,Shrinkwrapped,Свиваема опаковка
+XSZ,"Sheets, in bundle/bunch/truss","Прокат, на сноп/връзка/пачка"
+XT1,Tablet,Таблетка
+XTB,Tub,цилиндричен съд за съхранение
+XTC,Tea-chest,Сандъче за чай
+XTD,"Tube, collapsible","Туба, сгъваема"
+XTE,Tyre,Гума
+XTG,"Tank container, generic","Цистерна контейнер, общо"
+XTI,Tierce,Терце
+XTK,"Tank, rectangular","Резервоар, правоъгълен"
+XTL,"Tub, with lid",цилиндричен съд за съхранение с капак
+XTN,Tin,"Кутия, консервна"
+XTO,Tun,Голям варел
+XTR,Trunk,Пътнически сандък
+XTS,Truss,Вързоп
+XTT,"Bag, tote","Торба, багажна"
+XTU,Tube,Туба
+XTV,"Tube, with nozzle","Кутия, консервна"
+XTW,"Pallet, triwall","Палет, Triwall"
+XTY,"Tank, cylindrical","Резервоар, цилиндричен"
+XTZ,"Tubes, in bundle/bunch/truss","Тръби, на снопове/връзка"
+XUC,Uncaged,Свободен
+XUN,Unit,Единица
+XVG,"Bulk, gas (at 1031 mbar and 15°C)","Насипно, газ (при 1031 mbar и 15 °C)"
+XVI,Vial,Флакон
+XVK,Vanpack,Опаковка „Vanpack“
+XVL,"Bulk, liquid","Насипно, течност"
+XVO,"Bulk, solid, large particles (“nodules”)","Насипни, твърди, едри частици („валчести образувания“)"
+XVP,Vacuum-packed,Вакуумирана опаковка
+XVQ,"Bulk, liquefied gas (at abnormal temperature/pressure)","Насипно, втечнен газ (при неестествена температура/налягане)"
+XVN,Vehicle,Превозно средство
+XVR,"Bulk, solid, granular particles (“grains”)","Насипни, твърди, гранулирани частици („зърна“)"
+XVS,"Bulk, scrap metal","Насипно, метален скрап"
+XVY,"Bulk, solid, fine particles (“powders”)","Насипни, твърди, фини частици („прах“)"
+XWA,Intermediate bulk container,Междинен контейнер за насипни стоки
+XWB,Wickerbottle,Бутилка с външна oплетка
+XWC,"Intermediate bulk container, steel","Междинен контейнер за насипни стоки, стоманен"
+XWD,"Intermediate bulk container, aluminium","Междинен контейнер за насипни стоки, алуминиев"
+XWF,"Intermediate bulk container, metal","Междинен контейнер за насипни стоки, метален"
+XWG,"Intermediate bulk container, steel, pressurised > 10 kpa","Междинен контейнер за насипни стоки, стоманен, под налягане >10 kpa"
+XWH,"Intermediate bulk container, aluminium, pressurised > 10 kpa","Междинен контейнер за насипни стоки, алуминиев, под налягане >10 kpa"
+XWJ,"Intermediate bulk container, metal, pressure 10 kpa","Междинен контейнер за насипни стоки, метален, налягане 10 kpa"
+XWK,"Intermediate bulk container, steel, liquid","Междинен контейнер за насипни стоки, стоманен, течности"
+XWL,"Intermediate bulk container, aluminium, liquid","Междинен контейнер за насипни стоки, алуминиев, течности"
+XWM,"Intermediate bulk container, metal, liquid","Междинен контейнер за насипни стоки, метален, течности"
+XWN,"Intermediate bulk container, woven plastic, without coat/liner","Междинен контейнер за насипни стоки, от тъкана пластмаса, без обвивка/подплата"
+XWP,"Intermediate bulk container, woven plastic, coated","Междинен контейнер за насипни стоки, от тъкана пластмаса, с обвивка"
+XWQ,"Intermediate bulk container, woven plastic, with liner","Междинен контейнер за насипни стоки, от тъкана пластмаса, с обвивка"
+XWR,"Intermediate bulk container, woven plastic, coated and liner","Междинен контейнер за насипни стоки, от тъкана пластмаса, с обвивка и подплата"
+XWS,"Intermediate bulk container, plastic film","Междинен контейнер за насипни стоки, пластмасов филм"
+XWT,"Intermediate bulk container, textile with out coat/liner","Междинен контейнер за насипни стоки, текстил, с външна обвивка/подплата"
+XWU,"Intermediate bulk container, natural wood, with inner liner","Междинен контейнер за насипни стоки, естествено дърво, с вътрешна обшивка"
+XWV,"Intermediate bulk container, textile, coated","Междинен контейнер за насипни стоки, текстил, с обвивка"
+XWW,"Intermediate bulk container, textile, with liner","Междинен контейнер за насипни стоки, текстил, с подплата"
+XWX,"Intermediate bulk container, textile, coated and liner","Междинен контейнер за насипни стоки, текстил, с обвивка и подплата"
+XWY,"Intermediate bulk container, plywood, with inner liner","Междинен контейнер за насипни стоки, шперплат, с вътрешна подплата"
+XWZ,"Intermediate bulk container, reconstituted wood, with inner liner","Междинен контейнер за насипни стоки, от възстановено дърво, с вътрешна обшивка"
+XXA,"Bag, woven plastic, without inner coat/liner","Торба, тъкана пластмаса, без вътрешна обвивка/подплата"
+XXB,"Bag, woven plastic, sift proof","Торба, тъкана пластмаса, непропусклива"
+XXC,"Bag, woven plastic, water resistant","Торба, тъкана пластмаса, водоустойчива"
+XXD,"Bag, plastics film","Торба, тъкана пластмаса, пластмасов филм"
+XXF,"Bag, textile, without inner coat/liner","Торба, текстилна, без вътрешна обвивка/подплата"
+XXG,"Bag, textile, sift proof","Торба, текстилна, непропусклива"
+XXH,"Bag, textile, water resistant","Торба, текстилна, водоустойчива"
+XXJ,"Bag, paper, multi-wall","Торба, хартиена, многослойна"
+XXK,"Bag, paper, multi-wall, water resistant","Торба, хартиена, многослойна, водоустойчива"
+XYA,"Composite packaging, plastic receptacle in steel drum","Комбинирана опаковка, пластмасов контейнер в стоманен барабан"
+XYB,"Composite packaging, plastic receptacle in steel crate box","Комбинирана опаковка, пластмасов контейнер в стоманена каса"
+XYC,"Composite packaging, plastic receptacle in aluminium drum","Комбинирана опаковка, пластмасов контейнер в алуминиев барабан"
+XYD,"Composite packaging, plastic receptacle in aluminium crate","Комбинирана опаковка, пластмасов контейнер в алуминиева каса"
+XYF,"Composite packaging, plastic receptacle in wooden box","Комбинирана опаковка, пластмасов контейнер в дървена кутия"
+XYG,"Composite packaging, plastic receptacle in plywood drum","Комбинирана опаковка, пластмасов контейнер в шперплатов барабан"
+XYH,"Composite packaging, plastic receptacle in plywood box","Комбинирана опаковка, пластмасов контейнер в шперплатова кутия"
+XYJ,"Composite packaging, plastic receptacle in fibre drum","Комбинирана опаковка, пластмасов контейнер в фибров барабан"
+XYK,"Composite packaging, plastic receptacle in fibreboard box","Комбинирана опаковка, пластмасов контейнер в талашитена кутия"
+XYL,"Composite packaging, plastic receptacle in plastic drum","Комбинирана опаковка, пластмасов контейнер в пластмасов барабан"
+XYM,"Composite packaging, plastic receptacle in solid plastic box","Комбинирана опаковка, пластмасов контейнер в твърда пластмасова кутия"
+XYN,"Composite packaging, glass receptacle in steel drum","Комбинирана опаковка, стъклен контейнер в стоманен барабан"
+XYP,"Composite packaging, glass receptacle in steel crate box","Комбинирана опаковка, стъклен контейнер в стоманена кутия"
+XYQ,"Composite packaging, glass receptacle in aluminium drum","Комбинирана опаковка, стъклен контейнер в алуминиев барабан"
+XYR,"Composite packaging, glass receptacle in aluminium crate","Комбинирана опаковка, стъклен контейнер в алуминиева каса"
+XYS,"Composite packaging, glass receptacle in wooden box","Комбинирана опаковка, стъклен контейнер в дървена кутия"
+XYT,"Composite packaging, glass receptacle in plywood drum","Комбинирана опаковка, стъклен контейнер в шперплатов барабан"
+XYV,"Composite packaging, glass receptacle in wickerwork hamper","Комбинирана опаковка, стъклен контейнер в плетена кошница от ракита"
+XYW,"Composite packaging, glass receptacle in fibre drum","Комбинирана опаковка, стъклен контейнер във фибров барабан"
+XYX,"Composite packaging, glass receptacle in fibreboard box","Комбинирана опаковка, стъклен контейнер в талашитена кутия"
+XYY,"Composite packaging, glass receptacle in expandable plastic pack","Комбинирана опаковка, стъклен контейнер в разтягаща се пластмасова торба"
+XYZ,"Composite packaging, glass receptacle in solid plastic pack","Комбинирана опаковка, стъклен контейнер в твърд пластмасов плик"
+XZA,"Intermediate bulk container, paper, multi-wall","Междинен контейнер за насипни стоки, хартиен, многостенен"
+XZB,"Bag, large","Торба, голяма"
+XZC,"Intermediate bulk container, paper, multi-wall, water resistant","Междинен контейнер за насипни стоки, хартиен, многостенен, водоустойчив"
+XZD,"Intermediate bulk container, rigid plastic, with structural equipment, solids","Междинен контейнер за насипни стоки, твърда пластмаса, със структурно оборудване, твърди вещества"
+XZF,"Intermediate bulk container, rigid plastic, freestanding, solids","Междинен контейнер за насипни стоки, твърда пластмаса, свободностоящ, твърди вещества"
+XZG,"Intermediate bulk container, rigid plastic, with structural equipment, pressurised","Междинен контейнер за насипни стоки, твърда пластмаса, със структурно оборудване, под налягане"
+XZH,"Intermediate bulk container, rigid plastic, freestanding, pressurised","Междинен контейнер за насипни стоки, твърда пластмаса, свободностоящ, под налягане"
+XZJ,"Intermediate bulk container, rigid plastic, with structural equipment, liquids","Междинен контейнер за насипни стоки, твърда пластмаса, със структурно оборудване, течности"
+XZK,"Intermediate bulk container, rigid plastic, freestanding, liquids","Междинен контейнер за насипни стоки, твърда пластмаса, свободностоящ, течности"
+XZL,"Intermediate bulk container, composite, rigid plastic, solids","Междинен контейнер за насипни стоки, комбиниран, твърда пластмаса, твърди вещества"
+XZM,"Intermediate bulk container, composite, flexible plastic, solids","Междинен контейнер за насипни стоки, комбиниран, гъвкава пластмаса, твърди вещества"
+XZN,"Intermediate bulk container, composite, rigid plastic, pressurised","Междинен контейнер за насипни стоки, комбиниран, твърда пластмаса, под налягане"
+XZP,"Intermediate bulk container, composite, flexible plastic, pressurised","Междинен контейнер за насипни стоки, комбиниран, гъвкава пластмаса, под налягане"
+XZQ,"Intermediate bulk container, composite, rigid plastic, liquids","Междинен контейнер за насипни стоки, комбиниран, твърда пластмаса, течности"
+XZR,"Intermediate bulk container, composite, flexible plastic, liquids","Междинен контейнер за насипни стоки, комбиниран, гъвкава пластмаса, течности"
+XZS,"Intermediate bulk container, composite","Междинен контейнер за насипни стоки, комбиниран"
+XZT,"Intermediate bulk container, fibreboard","Междинен контейнер за насипни стоки, талашит"
+XZU,"Intermediate bulk container, flexible","Междинен контейнер за насипни стоки, гъвкав"
+XZV,"Intermediate bulk container, metal, other than steel","Междинен контейнер за насипни стоки, метал, различен от стомана"
+XZW,"Intermediate bulk container, natural wood","Междинен контейнер за насипни стоки, естествено дърво"
+XZX,"Intermediate bulk container, plywood","Междинен контейнер за насипни стоки, шперплат"
+XZY,"Intermediate bulk container, reconstituted wood","Междинен контейнер за насипни стоки, възстановено дърво"
+XLTR,"Bulk, litre of liquid petroleum products (at 1031 mbar and 15°C)","Насипно, литър течни нефтопродукти (при 1031 mbar и 15 °C)"
+KWY,kilowatt year,киловатгодина
+MNJ,Mega Joule per Normalised cubic Metre,Мегаджаул на нормализиран кубичен метър
+XO1,Two sided cage on wheels with fixing strap,Двустранен кафез на колела с лента за закрепване
+XO2,Trolley,"количка, тип ""Trolley"""
+XO3,Oneway pallet ISO 0 - 1/2 EURO Pallet,Еднократен палет ISO 0 - 1/2 ЕВРО палет
+XO4,Oneway pallet ISO 1 - 1/1 EURO Pallet,Еднократен палет ISO 1 - 1/1 ЕВРО палет
+XO5,Oneway pallet ISO 2 - 2/1 EURO Pallet,Еднократен палет ISO 2 - 2/1 ЕВРО палет
+XO6,Pallet with exceptional dimensions,Палети с изключителни размери
+XO7,Wooden pallet  40 cm x 80 cm,Дървен палет 40 cm x 80 cm
+XO8,Plastic pallet SRS 60 cm x 80 cm,Пластмасов палет SRS 60 cm x 80 cm
+XO9,Plastic pallet SRS 80 cm x 120 cm,Пластмасов палет SRS 80 cm x 120 cm
+XOG,Pallet ISO 0 - 1/2 EURO Pallet,Палет ISO 0 – 1/2 европалет
+XOH,Pallet ISO 1 - 1/1 EURO Pallet,Палет ISO 1 – 1/1 европалет
+XOI,Pallet ISO 2 – 2/1 EURO Pallet,Палет ISO 2 – 2/1 европалет
+XOJ,1/4 EURO Pallet,1/4 европалет
+XOL,1/8 EURO Pallet,1/8 европалет
+XOM,Synthetic pallet ISO 1,Синтетичен палет ISO 1
+XON,Synthetic pallet ISO 2,Синтетичен палет ISO 2
+XOP,Wholesaler pallet,Палет за търговия на едро
+XOQ,Pallet 80 X 100 cm,Палет 80 X 100 cm
+XOR,Pallet 60 X 100 cm,Палет 60 X 100 cm
+XOS,Oneway pallet,Еднократен палет
+XOV,Returnable pallet,Палет за многократно ползване
+XOW,"Large bag, pallet sized","Голяма торба, с размери за палет"
+XOX,A wheeled pallet with raised rim (81 x 67 x 135),Палет на колела с повдигнат ръб (81 x 67 x 135)
+XOY,A Wheeled pallet with raised rim (81 x 72 x 135),Палет на колела с повдигнат ръб (81 x 72 x 135)
+XOZ,Wheeled pallet with raised rim ( 81 x 60 x 16),Палет на колела с повдигнат ръб (81 x 60 x 16)
+XP1,CHEP pallet 60 cm x 80 cm,Палет CHEP 60 cm x 80 cm
+XP3,LPR pallet 60 cm x 80 cm,Палет LPR 60 cm x 80 cm
+XP4,LPR pallet 80 cm x 120 cm,Палет LPR 80 cm x 120 cm
+XSX,Set,Набор

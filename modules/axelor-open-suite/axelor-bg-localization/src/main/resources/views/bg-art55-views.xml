@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ Декларация по чл. 55, ал. 1 ЗДДФЛ — образец 4001 ============
+
+    Екранът следва ОБРАЗЕЦА: Част І (период), Част ІІ (данни за задълженото лице), Част ІV
+    (дължимият данък, колона 3). Номерата на редовете стоят в заглавията, защото те са
+    единственото, по което човек сверява екрана срещу хартията.
+
+    ⚠️ КОЛОНА 4 Я НЯМА НА ЕКРАНА. Тя се попълва от ПОЛУЧАТЕЛЯ на дохода, който подава СВОЯ
+    декларация (Част І, т. 2) — а на ред 2 образецът я е задраскал с „х“.
+
+    ⚠️ ГЕНЕРИРАНЕТО НЕ ПОДАВА НИЩО. „Закачи към НАП“ записва РЪЧНО подаване през портала. -->
+
+  <grid name="bg-art55-declaration-grid" title="Декларации по чл. 55 (обр. 4001)"
+    model="com.axelor.apps.bglocalization.db.BgArt55Declaration" orderBy="-taxYear,-quarter">
+    <field name="taxYear" width="120"/>
+    <field name="quarter" width="120"/>
+    <field name="company"/>
+    <field name="row1AdvanceTax"/>
+    <field name="row2DividendTax"/>
+    <field name="row3OtherFinalTax"/>
+    <field name="dueDate" width="130"/>
+    <field name="statusSelect" width="130"/>
+    <field name="napSubmission"/>
+    <field name="napIncomingNumber" width="150"/>
+  </grid>
+
+  <form name="bg-art55-declaration-form"
+    title="Декларация по чл. 55, ал. 1 ЗДДФЛ и чл. 201, ал. 1 ЗКПО (образец 4001)"
+    model="com.axelor.apps.bglocalization.db.BgArt55Declaration" width="large">
+
+    <panel name="partOnePanel" title="Част І — данни за декларацията">
+      <field name="company" colSpan="6"/>
+      <field name="statusSelect" colSpan="6" readonly="true"/>
+      <field name="taxYear" colSpan="4"
+        help="Т. 3.1 — ДАНЪЧНАТА година, не годината на подаване. Редовете влизат по годината на датата на изплащане (чл. 11)."/>
+      <field name="quarter" colSpan="4"
+        help="Т. 3.2 — тримесечието на ПРИДОБИВАНЕ на дохода. Плащане от 1 април е във второто тримесечие, не в първото."/>
+      <field name="dueDate" colSpan="4" readonly="true"
+        help="Чл. 56, ал. 1 във връзка с чл. 65, ал. 12 — до края на месеца, следващ тримесечието. За четвъртото тримесечие това е 31 януари на следващата година."/>
+      <static name="partOneNote"><![CDATA[
+        <p>Декларацията се подава по <b>т. 1</b> — от ПЛАТЕЦ на дохода, задължен да удържа и внася
+        авансов данък по чл. 43, ал. 4, чл. 44, ал. 4 и чл. 44а и окончателен данък по чл. 37 и 38
+        от ЗДДФЛ. ⚠️ Т. 4–7 (приложения № 1–4) не се попълват — виж границите.</p>
+      ]]></static>
+    </panel>
+
+    <panel name="partTwoPanel" title="Част ІІ — данни за данъчно задълженото лице">
+      <field name="payerIdentifier" colSpan="4"
+        help="Т. 1 — ЕИК/ЕГН/ЛН/ЛНЧ/Служебен № от регистъра на НАП. Замразява се при първото генериране: подадена декларация трябва да показва данните, с които Е БИЛА подадена."/>
+      <field name="payerCodeType" colSpan="2"
+        help="Т. 2 — образецът: ЕИК → 1, ЕГН → 2, ЛН → 3, ЛНЧ → 4, служебен № от регистъра на НАП → 5."/>
+      <field name="payerName" colSpan="6" help="Т. 3 — наименование/име."/>
+      <field name="contactPhone" colSpan="6" help="Т. 4.1 — телефон за контакт."/>
+      <field name="contactEmail" colSpan="6" help="Т. 4.2 — e-mail за контакт."/>
+      <field name="representativeName" colSpan="6"
+        help="Т. 7.1 — попълва се САМО когато декларацията се подава от юридическо лице (код „1“ по т. 2). Предлага се от декларатора на дружеството — вдигнатия „По подразбиране“, а при липса на флаг единствения. Двама без флаг не дават предложение. Полето остава редактируемо."/>
+      <field name="representativeIdentifier" colSpan="6" help="Т. 7.2 — ЕГН/ЛН/ЛНЧ/Служебен №."/>
+    </panel>
+
+    <panel name="partFourPanel"
+      title="Част ІV — деклариране на дължимия данък (колона 3: от ПЛАТЕЦ на дохода)">
+      <field name="row1AdvanceTax" colSpan="12"
+        help="РЕД 1 — авансов данък по чл. 43 (друга стопанска дейност), чл. 44 (наем) и чл. 44а (други доходи). Трите са на ЕДИН ред по образеца. ⚠️ За ЧЕТВЪРТОТО тримесечие е нула: чл. 65, ал. 13 забранява удържането, освен когато лицето поиска писмено. Виж границите за потиснатата сума."/>
+      <field name="row2DividendTax" colSpan="12"
+        help="РЕД 2 — окончателен данък за доходи от дивиденти и ликвидационни дялове по чл. 38, ал. 1 от източници в страната (5 на сто по чл. 46, ал. 3). ⚠️ Удържа се и за четвъртото тримесечие — изключението на чл. 65, ал. 13 е само за авансовия."/>
+      <field name="row3OtherFinalTax" colSpan="12"
+        help="РЕД 3 — окончателен данък по чл. 37 и чл. 38, БЕЗ дивидентите от ред 2 и БЕЗ данъка по чл. 67, ал. 4 (доходи от източник в чужбина, които се декларират в ГДД по чл. 50). ⚠️ Второто изключение не е направено автоматично — виж границите."/>
+      <static name="partFourNote"><![CDATA[
+        <p>⚠️ <b>Редове 4, 4.1–4.5 и 5 ги няма на този екран</b> — те са данъкът при източника по
+        чл. 194 и чл. 195 от ЗКПО, дължим за ЮРИДИЧЕСКИ лица. Регистърът, който захранва екрана, е
+        за доходи на ФИЗИЧЕСКИ лица. Ако дружеството дължи такъв данък, тези редове се попълват
+        ръчно на портала.</p>
+      ]]></static>
+    </panel>
+
+    <!-- ⚠️ Панелът е ОТВОРЕН, не сгънат: образецът, дословно, „За деклариране на неверни данни се
+      носи наказателна отговорност по Наказателния кодекс.“ Скрито зад щракване, обяснението защо
+      ред 1 е нула не се чете от този, който подава. -->
+    <panel name="boundaryPanel" title="⚠️ Граници на изведеното — прочети преди подаване">
+      <field name="bgBoundaryReport" showTitle="false" colSpan="12" readonly="true"
+        widget="text" height="18"/>
+    </panel>
+
+    <!-- ⚠️ ДВА БУТОНА ЗА ГЕНЕРИРАНЕ, А НЕ ЕДИН. Корекцията по образеца е НОВА декларация,
+      съдържаща ВСИЧКИ данни за периода, а не редакция на подадената — затова пресъздаването е
+      изрично и се вижда само след като декларацията е отбелязана като подадена.
+
+      ⚠️ НЯМА бутон „Изтегли файла": обр. 4001 се попълва на портала на НАП и машинен файл няма. -->
+    <panel name="submissionPanel" title="Подаване">
+      <field name="napSubmission" colSpan="6" readonly="true"/>
+      <button name="generateBtn" title="Генерирай от регистъра"
+        onClick="action-bg-art55-generate" colSpan="3"
+        hideIf="statusSelect == 'SUBMITTED' || statusSelect == 'ACCEPTED' || statusSelect == 'REJECTED'"/>
+      <button name="regenerateBtn" title="Генерирай НАНОВО (за корекция)"
+        onClick="action-bg-art55-regenerate" colSpan="3"
+        showIf="statusSelect == 'SUBMITTED' || statusSelect == 'ACCEPTED' || statusSelect == 'REJECTED'"
+        help="Строи декларацията наново и забравя предишния входящ номер. Образецът: „необходимо е да подадете нова данъчна декларация, в която се съдържат всички данни за периода“. Старото подаване остава в одитната следа."/>
+      <button name="attachBtn" title="Отбележи ПОДАДЕНА (портал)"
+        onClick="action-bg-art55-attach" colSpan="3"
+        showIf="napSubmission == null || statusSelect == 'GENERATED'"
+        help="Иска входящ № и дата от портала (попълни ги по-долу). Чл. 56, ал. 2 иска подаване само по електронен път. НИЩО не се изпраща оттук."/>
+      <static name="portalNote"><![CDATA[
+        <p>⚠️ <b>Обр. 4001 се подава на портала на НАП</b> — Nyxa не произвежда машинен файл за
+        него, защото публикувана структура на записа няма. Екранът изважда числата и ги проверява;
+        ти ги попълваш в портала и връщаш тук входящия номер.</p>
+      ]]></static>
+    </panel>
+
+    <!-- ⚠️ Полетата стоят отворени ПРЕДИ отбелязването: входящият номер е ВХОД за бутона, а не
+      резултат от него. -->
+    <panel name="outcomePanel" title="Портал (ръчно)" showIf="id != null">
+      <field name="napIncomingNumber" colSpan="6"
+        help="Входящият номер или номерът на протокола от портала."/>
+      <field name="napResponseDate" colSpan="6" help="Датата от портала — не днешната."/>
+      <field name="napResponseNote" colSpan="12" widget="text" height="4"/>
+      <button name="markAcceptedBtn" title="Отбележи ПРИЕТА"
+        onClick="action-bg-art55-mark-accepted" colSpan="3" showIf="napSubmission != null"/>
+      <button name="markRejectedBtn" title="Отбележи ОТХВЪРЛЕНА"
+        onClick="action-bg-art55-mark-rejected" colSpan="3" showIf="napSubmission != null"/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Actions ============ -->
+
+  <action-method name="action-bg-art55-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgArt55DeclarationController" method="generate"/>
+  </action-method>
+
+  <action-method name="action-bg-art55-regenerate">
+    <call class="com.axelor.apps.bglocalization.web.BgArt55DeclarationController"
+      method="regenerate"/>
+  </action-method>
+
+  <action-method name="action-bg-art55-attach">
+    <call class="com.axelor.apps.bglocalization.web.BgArt55DeclarationController" method="attach"/>
+  </action-method>
+
+  <action-method name="action-bg-art55-mark-accepted">
+    <call class="com.axelor.apps.bglocalization.web.BgArt55DeclarationController"
+      method="markAccepted"/>
+  </action-method>
+
+  <action-method name="action-bg-art55-mark-rejected">
+    <call class="com.axelor.apps.bglocalization.web.BgArt55DeclarationController"
+      method="markRejected"/>
+  </action-method>
+
+  <action-view name="bg.art55.declaration.all" title="Декларация по чл. 55 (обр. 4001)"
+    model="com.axelor.apps.bglocalization.db.BgArt55Declaration">
+    <view type="grid" name="bg-art55-declaration-grid"/>
+    <view type="form" name="bg-art55-declaration-form"/>
+  </action-view>
+
+  <!-- ⚠️ До регистъра и до справката по чл. 73, които я захранват — вече под „НАП“, където са и те.
+
+    ⚠️ 650, А НЕ 172: на 172 стоеше и справката по чл. 73 ал. 6. -->
+  <menuitem name="nyxa-payroll-art55" parent="nap-root" groups="admins"
+    title="Декларация чл. 55 (обр. 4001)" action="bg.art55.declaration.all" order="650"/>
+
+</object-views>

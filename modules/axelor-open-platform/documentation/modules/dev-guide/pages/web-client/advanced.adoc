@@ -1,0 +1,15 @@
+= Advanced Customization
+:toc:
+:toc-title:
+
+== Per module web resources
+
+Modules can include web resources from `src/main/webapp folder`. Make sure to run `./gradlew copyWebapp` whenever the web resources are changed.
+
+The `src/main/webapp` from modules will be copied in this dependency order:
+
+* copy webapp from axelor-web
+* copy webapp from all other modules in dependency order
+* finally, copy own webapp
+
+Depending on the structure of the webapp folder, it may overwrite resources of dependency modules.

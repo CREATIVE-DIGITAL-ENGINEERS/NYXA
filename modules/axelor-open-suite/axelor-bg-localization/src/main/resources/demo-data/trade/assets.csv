@@ -1,0 +1,7 @@
+# ДМА: заварени (IMPORT), по фактура (INVOICE, accMonths — счетоводен срок ≠ данъчния), продажба (DISPOSE)
+code;kind;name;partner;category;account;date;yearShift;gross;depreciated;pastMonths;doc;accMonths;reason
+SRV;IMPORT;Сървър „Демо“;S06;Компютърна техника;203;01-15;-1;4800.00;2400.00;12;;;
+FURN;IMPORT;Офис обзавеждане;S01;Офис обзавеждане;207;07-01;-2;8000.00;1800.00;18;;;
+CAR;INVOICE;;;;;03-10;0;;;;0000170099;60;
+LAP;INVOICE;;;;;05-06;0;;;;0000160100;;
+FURN;DISPOSE;;;;;09-22;0;5200.00;;;T-0083;;BG_SALE

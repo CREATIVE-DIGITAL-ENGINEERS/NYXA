@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Annual чл.73 ал.5 coefficient (частичен данъчен кредит). OPERATIONAL data — the accountant enters
+    it once per year from the client's turnover, so it is a convenient default source + history for the annual
+    adjustment (ал.8). The value that actually reaches a declaration is SNAPSHOTTED onto BgVatReturn.k33.
+    NOTE: importId is inherited from com.axelor.db.Model — do NOT declare it. -->
+  <entity name="BgVatCoefficient">
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"
+      required="true"/>
+    <integer name="year" title="Година" required="true"/>
+    <decimal name="coefficient" title="Коефициент чл.73 ал.5" scale="2" precision="5"
+      required="true"/>
+
+    <!-- ОКОНЧАТЕЛНИЯТ коефициент по чл. 73 ал. 6 — преизчисленият по РЕАЛНИЯ оборот на годината.
+
+      Дословно ал. 6: „Размерът на частичния данъчен кредит по ал. 2 се ПРЕИЗЧИСЛЯВА в последния
+      данъчен период на текущата календарна година на базата на показателите по ал. 3 и 4 за
+      ТЕКУЩАТА календарна година." Ал. 8 праща разликата от преизчислението в кл.14 на дневника за
+      покупките — това е годишната корекция по чл. 73 ал. 8 и е ДРУГА материя от 79а/79б.
+
+      ⚠️ ВТОРО ПОЛЕ НА СЪЩИЯ РЕД, А НЕ ВТОРА ТАБЛИЦА — и това е решението, не удобството. Двете
+      числа са на едно и също (дружество, година) и се разминават само по момента: `coefficient` е
+      прогнозният по ал. 5 (от оборота на ПРЕДХОДНАТА година) и пълни кл.33 през цялата година;
+      този тук се знае едва в последния данъчен период. Сложен в своя таблица, „коефициентът за
+      2028" щеше да има два носителя без нищо, което да казва кой от тях е верният.
+
+      ⚠️ И ТОЧНО ТОЗИ Е Кх ЗА ЧЛ. 79а/79б, не прогнозният. Определенията под ал. 3 казват
+      „коефициентът по чл. 73 за ГОДИНАТА на настъпване на изменението", а корекцията се прави в
+      последния данъчен период на същата година (ал. 4) — тоест в момента, в който ал. 6 вече е
+      преизчислила. Взет прогнозният, Кх щеше да описва оборота на ПРЕДХОДНАТА година.
+
+      Празно значи „още не е преизчислен": предложението за годишна корекция отказва да смята, вместо
+      да падне мълчаливо на прогнозния. Виж BgVatAnnualCorrectionService. -->
+    <decimal name="finalCoefficient" title="Окончателен коефициент чл.73 ал.6" scale="2"
+      precision="5"/>
+
+    <string name="notes" title="Бележки"/>
+
+    <unique-constraint columns="company,year"/>
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="saft-validation-issue-grid" title="Problems requiring action"
+    model="com.axelor.apps.napsubmissions.db.SaftValidationIssue" orderBy="-blocking,severitySelect">
+    <field name="saftReport"/>
+    <field name="severitySelect"/>
+    <field name="blocking"/>
+    <field name="sectionFieldId"/>
+    <field name="message"/>
+    <field name="targetModel"/>
+  </grid>
+
+  <form name="saft-validation-issue-form" title="Validation issue"
+    model="com.axelor.apps.napsubmissions.db.SaftValidationIssue" width="large">
+    <panel name="mainPanel" colSpan="12">
+      <field name="saftReport" readonly="true"/>
+      <field name="severitySelect" readonly="true"/>
+      <field name="blocking" readonly="true"/>
+      <field name="sectionFieldId" readonly="true"/>
+      <field name="period" readonly="true"/>
+      <field name="message" colSpan="12" readonly="true"/>
+      <field name="suggestedFix" colSpan="12" readonly="true"/>
+    </panel>
+    <panel name="sourcePanel" title="Source record" colSpan="12">
+      <field name="targetModel" readonly="true" colSpan="6"/>
+      <field name="targetRecordId" readonly="true" colSpan="3"/>
+      <button name="navigateBtn" title="Open source record" icon="fa-external-link"
+        colSpan="3" showIf="targetModel &amp;&amp; targetRecordId"
+        onClick="action-saft-validation-issue-method-navigate"/>
+    </panel>
+  </form>
+
+  <action-method name="action-saft-validation-issue-method-navigate">
+    <call class="com.axelor.apps.napsubmissions.web.SaftValidationIssueController"
+      method="navigateToSource"/>
+  </action-method>
+
+  <!-- "Problems requiring action": blocking issues and warnings across all reports. -->
+  <action-view name="action-saft-validation-issue-view-problems"
+    title="Problems requiring action" model="com.axelor.apps.napsubmissions.db.SaftValidationIssue">
+    <view type="grid" name="saft-validation-issue-grid"/>
+    <view type="form" name="saft-validation-issue-form"/>
+    <domain>self.saftReport.lifecycleStatusSelect != 'superseded'</domain>
+  </action-view>
+
+</object-views>

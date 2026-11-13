@@ -1,0 +1,27 @@
+# Explicit, human-confirmed overrides for the ETZ annex change-ground (BgContractAmendment.
+# bgChangeGround, one of 018/019/020/021) when Microinvest's own ContractReasonID for that specific
+# annex points at a ROOT CONTRACT TYPE code instead of a valid annex code -- see
+# MicroinvestPilotImportService#changeGroundOf.
+#
+# Each row is reviewed and entered BY HAND, per annex, by comparing that annex's actual
+# before/after contract state (position, salary, hours, dates) against the four valid codes' own
+# legal descriptions -- never guessed from the source ContractReasonID text. This file is
+# consulted BEFORE the normal ContractReasonID lookup, keyed by (company Bulstat, Microinvest
+# PayrollID) so it survives re-running the exporter (the source JSON is regenerated from
+# Microinvest; this file is not) and never silently applies to the wrong company/annex.
+#
+# Format: bulstat;payrollId;code;reason (reason is a short audit note, not machine-read)
+
+# PayrollID 12 (annex of PayrollID 5):
+# position changed Сервитьор -> Готвач 2022-08-08, contractual salary unchanged (88.75 both
+# sides, verified via ValueSalary/"Основно възнаграждение по договор"). Matches code 021 ("...с
+# което се изменя ... длъжността на работника или служителя...") -- the only one of the four
+# whose legal description covers a plain position change.
+100000026;12;021;position changed Сервитьор->Готвач 2022-08-08, salary unchanged (88.75)
+
+# PayrollID 19 (annex of PayrollID 18):
+# position unchanged (Чистач/Хигиенист throughout), contractual salary increased
+# 700.00 -> 807.75 effective 2025-03-01 (verified via ValueSalary/"Основно възнаграждение по
+# договор"). Matches code 019 ("...за изменение на основното трудово възнаграждение") -- the only
+# one of the four whose legal description covers a pay change.
+100000026;19;019;salary changed 700.00->807.75 2025-03-01, position unchanged

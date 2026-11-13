@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- OCR completeness flag, SEPARATE from the stock invoice statusSelect (which stays Draft). -->
+  <selection name="ai.ocr.invoice.review.status.select">
+    <option value="toReview" color="orange">To review</option>
+    <option value="complete" color="green">Completed</option>
+  </selection>
+
+  <!-- Show the OCR review flag as a column in the Supplier Invoices list, so accountants see which drafts
+    still need manual completion without opening each one. -->
+  <grid name="invoice-supplier-grid" title="Invoices" id="ai-ocr-invoice-supplier-grid"
+    model="com.axelor.apps.account.db.Invoice" extension="true">
+    <extend target="//field[@name='invoiceId']">
+      <insert position="before">
+        <!-- The record's own id. "Номер на фактурата" (invoiceId) beside it is the SUPPLIER'S document
+          number, not a Nyxa id, so before this column the list showed no id at all and an accountant
+          told "invoice 651" had nothing to match it against. -->
+        <field name="id" title="Record ID" width="90" hidden="false"/>
+      </insert>
+      <insert position="after">
+        <field name="ocrReviewStatus" widget="single-select"/>
+        <!-- The upload(s) this draft was created from, so the ~900 id on the OCR queue and the ~600 id
+          here can be reconciled without opening either record. Blank for a hand-typed invoice. -->
+        <field name="ocrUploadIds" width="110"/>
+      </insert>
+      <!-- invoiceId ("Invoice N°") is the stock internal sequence number, not the supplier's document
+        number — on a DRAFT OCR invoice it has no sequence yet and just echoes the record id already
+        shown above, so it is hidden on this list. supplierInvoiceNb (further down this grid) is the
+        supplier's real printed number and stays visible; the field itself is not removed from the
+        domain. -->
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <!-- Remove Archive/Unarchive from the delete-button dropdown (accidental archiving hides invoices
+      from the list). Plain delete stays. -->
+    <extend target="/">
+      <attribute name="canArchive" value="false"/>
+    </extend>
+  </grid>
+
+  <!-- Customer invoices are a different grid on the same entity (invoice-grid; the supplier list is
+    invoice-supplier-grid). Both ids are shown here too. Upload ID(s) is normally blank on this list,
+    because today's intake only ever creates SUPPLIER invoices — it is present anyway so the two lists
+    answer the same question the same way, and so that a customer invoice that DOES acquire an upload
+    (a scanned copy re-imported, a future intake path) is not the one place the link goes unreported. -->
+  <grid name="invoice-grid" title="Invoices" id="ai-ocr-invoice-grid"
+    model="com.axelor.apps.account.db.Invoice" extension="true">
+    <extend target="//field[@name='invoiceId']">
+      <insert position="before">
+        <field name="id" title="Record ID" width="90" hidden="false"/>
+      </insert>
+      <insert position="after">
+        <field name="ocrUploadIds" width="110"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <!-- Adds an "AI OCR" panel to the standard invoice form, shown only for AI-generated drafts. Non-accounting
+    metadata (confidence / review status / validation notes). The original PDF and blob URL live on the AiOcrUpload
+    record (linked via AiOcrUpload.invoice). -->
+  <form name="invoice-form" title="Invoice" id="ai-ocr-invoice-form"
+    model="com.axelor.apps.account.db.Invoice" extension="true">
+    <!-- Recompute the OCR review flag on load (so pre-existing OCR invoices show it) and on save (persist
+      + sync the upload). The stock groups run first; our hooks are appended. -->
+    <extend target="/">
+      <attribute name="onLoad"
+        value="action-account-invoice-onload-group,action-ai-ocr-invoice-onload-recalc"/>
+      <attribute name="onSave"
+        value="action-invoice-onsave-group,action-ai-ocr-invoice-onsave-recalc"/>
+      <!-- Remove Archive/Unarchive from the delete-button dropdown (see the grid extension above). -->
+      <attribute name="canArchive" value="false"/>
+    </extend>
+    <!-- The heading of the form. Stock axelor-account reads "Proforma #2" for a draft, but a proforma
+      invoice is a document type of its own: a draft is labelled a draft, by its record id (which is
+      what the draft number #2 is). Validated and cancelled invoices keep the stock wording. -->
+    <extend target="//field[@name='invoiceId']">
+      <replace>
+        <field name="invoiceId" colSpan="12" css="label-bold bold large" showTitle="false"
+          showIf="id">
+          <viewer>
+            <![CDATA[
+              <>
+                {statusSelect == 1 && <span>{_t('Draft no.')} {id}</span>}
+                {statusSelect == 2 && operationSubTypeSelect != 2 && <span>{_t('Proforma')} </span>}
+                {statusSelect == 4 && <span>{_t('Cancel invoice n°')}</span>}
+                {statusSelect != 1 && <span>{invoiceId}</span>}
+              </>
+            ]]>
+          </viewer>
+        </field>
+      </replace>
+    </extend>
+    <!-- The record's own id, on every invoice (not only OCR ones): the form otherwise names the document
+      only by the supplier's number, so an id quoted in a list, a report or by the assistant could not be
+      confirmed here. -->
+    <extend target="//field[@name='invoiceId']">
+      <insert position="after">
+        <field name="id" title="Record ID" readonly="true" hidden="false" colSpan="3"
+          showIf="id"/>
+      </insert>
+    </extend>
+    <extend target="//panel[@name='supplierInvoiceNbPanel']">
+      <insert position="after">
+        <panel name="aiOcrPanel" title="Invoice OCR — extraction info &amp; errors"
+          colSpan="12" showIf="aiGenerated">
+          <field name="ocrReviewStatus" widget="single-select" readonly="true" colSpan="4"/>
+          <field name="aiReviewStatus" colSpan="4"/>
+          <field name="aiConfidence" colSpan="4" readonly="true"/>
+          <!-- The OCR upload(s) this invoice came from. AiOcrUpload.invoice points here, but nothing
+            on Invoice points back, so without this an accountant reading "invoice 611" had no way to
+            confirm the assistant's "upload 932" is the same file. Set by recalcReviewOnLoad; a
+            re-scan or duplicate re-import can leave more than one upload linked, so this is never
+            assumed to be exactly one. -->
+          <field name="$aiOcrUploadIds" title="OCR Upload(s)" colSpan="8" readonly="true"
+            showIf="$aiOcrUploadIds"/>
+          <button name="openAiOcrUploadBtn" title="Open" colSpan="4" showIf="$aiOcrUploadIds"
+            onClick="action-ai-ocr-open-upload-for-invoice"/>
+          <!-- Which key fields are still missing and where each one is, in the user's language
+            (BgOcrInvoiceController.putReviewValues). The stored ocrMissingFields holds the same
+            list as stable English keys for the AI tools; it is not shown. -->
+          <field name="$ocrMissingText" title="Missing before validation" colSpan="12"
+            readonly="true" showIf="$ocrMissingText" css="label-danger"/>
+          <!-- Bank details / payment condition: needed to pay, never a reason to lock Validate. -->
+          <field name="$ocrPaymentWarnings" title="Needed later" colSpan="12" readonly="true"
+            showIf="$ocrPaymentWarnings" css="label-warning"/>
+          <!-- Extraction warnings / errors (e.g. IBAN owned by another partner, totals mismatch). -->
+          <field name="aiValidationNotes" colSpan="12" readonly="true"
+            showIf="aiValidationNotes"/>
+
+          <!-- Correct a mistaken OCR document total from the original document. Shown only for a
+            draft: a validated/posted invoice is no longer correctable (enforced server-side too).
+            The extracted total is kept as evidence; the correction overrides it for validation and
+            the VAT reconciler. Company scope, OCR provenance, draft status and write permission are
+            checked in OcrDocumentTotalCorrectionService / OcrDraftInvoiceGuard. -->
+          <panel name="ocrTotalCorrectionPanel" title="Document total — correction" colSpan="12"
+            showIf="statusSelect == 1">
+            <field name="ocrDocumentTotal" readonly="true" colSpan="4"/>
+            <!-- The applied correction and its audit, shown once one exists. -->
+            <field name="ocrDocumentTotalCorrected" readonly="true" colSpan="4"
+              showIf="ocrDocumentTotalCorrected"/>
+            <field name="ocrDocumentTotalCorrectedBy" readonly="true" colSpan="4"
+              showIf="ocrDocumentTotalCorrected"/>
+            <field name="ocrDocumentTotalCorrectedOn" readonly="true" colSpan="4"
+              showIf="ocrDocumentTotalCorrected"/>
+            <field name="ocrDocumentTotalCorrectionReason" readonly="true" colSpan="8"
+              showIf="ocrDocumentTotalCorrected"/>
+            <!-- The correction inputs. Net/VAT are optional: give both for a full breakdown (lets the
+              reconciler align the printed VAT) or neither (gross-only). -->
+            <field name="$ocrCorrectedTotal" title="Corrected total (as printed)" type="decimal"
+              colSpan="3"/>
+            <field name="$ocrCorrectedNet" title="Corrected net (optional)" type="decimal"
+              colSpan="3"/>
+            <field name="$ocrCorrectedVat" title="Corrected VAT (optional)" type="decimal"
+              colSpan="3"/>
+            <field name="$ocrCorrectionNote" title="Note (where on the document)" type="string"
+              colSpan="3"/>
+            <button name="applyOcrTotalCorrectionBtn" title="Apply document-total correction"
+              colSpan="4" onClick="action-ai-ocr-invoice-apply-total-correction"/>
+          </panel>
+        </panel>
+      </insert>
+    </extend>
+    <!-- Let the user create a missing supplier bank account inline (the "+ Create…" line in the dropdown),
+      exactly like the supplier address field. The stock field uses widget="SuggestBox", which does NOT render
+      the create option, so we redefine it without that widget and with canNew="true". Existing choices stay
+      restricted to the partner's own accounts (onSelect domain); a created one is linked to the partner on
+      save. -->
+    <extend target="//field[@name='bankDetails']">
+      <replace>
+        <field name="bankDetails" canEdit="false" canNew="true" colSpan="12"
+          onSelect="action-invoice-method-bank-details-from-partner-domain"
+          form-view="bank-details-form" grid-view="bank-details-grid"
+          onChange="action-invoice-method-update-invoice-term-bank-details,action-ai-ocr-invoice-onchange-recalc"/>
+      </replace>
+    </extend>
+    <!-- Recompute the review flag whenever a field it depends on changes, so Validate unlocks without
+      a Save first. Each value is the stock onChange of axelor-account with ours appended — keep them in
+      step when the stock action changes. The payment mode is left
+      alone: axelor-bank-payment already replaces its onChange, and it only affects a warning. -->
+    <extend target="//field[@name='partner']">
+      <attribute name="onChange"
+        value="action-invoice-group-partner-onchange,action-ai-ocr-invoice-onchange-recalc"/>
+    </extend>
+    <extend target="//field[@name='address']">
+      <attribute name="onChange"
+        value="action-method-invoice-address-str,action-ai-ocr-invoice-onchange-recalc"/>
+    </extend>
+    <extend target="//field[@name='currency']">
+      <attribute name="onChange"
+        value="action-invoice-group-currency-onchange,action-ai-ocr-invoice-onchange-recalc"/>
+    </extend>
+    <extend target="//field[@name='paymentCondition']">
+      <attribute name="onChange"
+        value="action-invoice-group-payment-condition-onchange,action-ai-ocr-invoice-onchange-recalc"/>
+    </extend>
+    <extend target="//panel-related[@name='invoiceLineListPanel']">
+      <attribute name="onChange"
+        value="action-invoice-group-invoice-line-list-on-change,action-ai-ocr-invoice-onchange-recalc"/>
+    </extend>
+    <!-- Disable Validate / Ventilate / Validate+Ventilate while the OCR review is still required. (Ventilate
+      is only reachable once Validated, but gate it explicitly too.) A locked button always says why,
+      right under it. Each button also first runs a check that says, in the user's language and with
+      the field to fix, what Validate or Ventilate would refuse further down
+      (BgOcrInvoiceController.checkBefore*); the stock action group follows unchanged. -->
+    <extend target="//button[@name='validateBtn']">
+      <attribute name="readonlyIf"
+        value="!invoiceLineList || invoiceLineList.length == 0 || ocrReviewStatus == 'toReview'"/>
+      <attribute name="onClick"
+        value="action-ai-ocr-invoice-check-before-validate,action-invoice-group-on-validate"/>
+    </extend>
+    <extend target="//button[@name='ventilateBtn']">
+      <attribute name="readonlyIf"
+        value="!invoiceLineList || invoiceLineList.length == 0 || ocrReviewStatus == 'toReview'"/>
+      <attribute name="onClick"
+        value="action-ai-ocr-invoice-check-before-ventilate,action-invoice-group-ventilate"/>
+    </extend>
+    <extend target="//button[@name='validateAndVentilateBtn']">
+      <attribute name="readonlyIf"
+        value="!invoiceLineList || invoiceLineList.length == 0 || ocrReviewStatus == 'toReview'"/>
+      <attribute name="onClick"
+        value="action-ai-ocr-invoice-check-before-validate-and-ventilate,action-invoice-group-validate-and-ventilate-onclick"/>
+      <insert position="after">
+        <field name="$ocrValidateLockHint" showTitle="false" readonly="true" colSpan="12"
+          showIf="$ocrValidateLockHint &amp;&amp; ocrReviewStatus == 'toReview' &amp;&amp; statusSelect == 1"
+          css="label-warning"/>
+      </insert>
+    </extend>
+  </form>
+
+  <action-method name="action-ai-ocr-invoice-onload-recalc">
+    <call class="com.axelor.apps.aiocr.web.BgOcrInvoiceController" method="recalcReviewOnLoad"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-invoice-check-before-validate">
+    <call class="com.axelor.apps.aiocr.web.BgOcrInvoiceController" method="checkBeforeValidate"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-invoice-apply-total-correction">
+    <call class="com.axelor.apps.aiocr.web.BgOcrInvoiceController"
+      method="applyDocumentTotalCorrection"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-invoice-check-before-ventilate">
+    <call class="com.axelor.apps.aiocr.web.BgOcrInvoiceController" method="checkBeforeVentilate"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-invoice-check-before-validate-and-ventilate">
+    <call class="com.axelor.apps.aiocr.web.BgOcrInvoiceController"
+      method="checkBeforeValidateAndVentilate"/>
+  </action-method>
+
+  <!-- Overrides axelor-account's action of the same name (own id, higher priority): a supplier
+    invoice paid by transfer without bank details is no longer refused at Validate — the account is
+    needed to pay, not to book, so it is a notice now. Sales keep the stock refusal unchanged. -->
+  <action-validate name="action-invoice-validate-check-bank-details"
+    id="ai-ocr-action-invoice-validate-check-bank-details">
+    <notify message="No bank account on this supplier invoice: it will be needed to pay it (field Bank details)."
+      if="bankDetails == null &amp;&amp; [1,2].contains(operationTypeSelect) &amp;&amp; paymentMode?.typeSelect == 9"/>
+    <error message="Bank details is required."
+      if="bankDetails == null &amp;&amp; [3,4].contains(operationTypeSelect) &amp;&amp; [2,10].contains(paymentMode?.typeSelect)"/>
+  </action-validate>
+
+  <action-method name="action-ai-ocr-invoice-onchange-recalc">
+    <call class="com.axelor.apps.aiocr.web.BgOcrInvoiceController" method="recalcReviewOnChange"/>
+  </action-method>
+
+  <!-- Opens the AiOcrUpload record(s) this invoice was built from, as a grid so one match or several
+    are shown the same way — there is no uniqueness constraint on AiOcrUpload.invoice. Company-scoped
+    in the domain itself (self.company = :company, the invoice's own company from context), not only
+    relied on via the invoice already being company-scoped when it was opened. -->
+  <action-view name="action-ai-ocr-open-upload-for-invoice" title="OCR Upload"
+    model="com.axelor.apps.aiocr.db.AiOcrUpload">
+    <view type="grid" name="ai-ocr-upload-grid"/>
+    <view type="form" name="ai-ocr-upload-form"/>
+    <domain>self.invoice.id = :id AND self.company = :company</domain>
+  </action-view>
+
+  <action-method name="action-ai-ocr-invoice-onsave-recalc">
+    <call class="com.axelor.apps.aiocr.web.BgOcrInvoiceController" method="recalcReviewOnSave"/>
+  </action-method>
+
+</object-views>

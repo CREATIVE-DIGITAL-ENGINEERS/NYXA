@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Persisted snapshot of ONE POKUPKI (дневник покупки) row (274-char record), frozen at generate()
+    time from the SAME collector pass that produced POKUPKI.TXT. Single source the BIRT diary report reads
+    (report == TXT). Rows are replaced on every regenerate (bulk delete by parent + orphanRemoval). Mirrors
+    BgVatPurchaseRowDto; col09..col15 = НАП кл.09..кл.15. NOTE: importId is inherited from com.axelor.db.Model
+    — do NOT declare it. -->
+  <entity name="BgVatPurchaseLine">
+
+    <many-to-one name="bgVatReturn" ref="com.axelor.apps.bglocalization.db.BgVatReturn"
+      title="Декларация" required="true"/>
+
+    <!-- Identification (mirror of BgVatPurchaseRowDto scalars). -->
+    <string name="companyVatNumber" title="ИН по ДДС"/>
+    <string name="periodCode" title="Период (ГГГГММ)"/>
+    <string name="branch" title="Клон"/>
+    <integer name="sequence" title="кл.01 №"/>
+    <string name="napDocumentType" title="кл.03 вид документ"/>
+    <string name="documentNumber" title="кл.04 № документ"/>
+    <date name="documentDate" title="кл.05 дата"/>
+    <string name="counterpartyVatNumber" title="кл.06 доставчик №"/>
+    <string name="counterpartyName" title="кл.07 доставчик"/>
+    <string name="subject" title="кл.08 предмет"/>
+    <string name="supplyTypeArt163a" title="кл.08а доставка по чл.163а"/>
+
+    <!-- Amount columns — НАП кл.09..кл.15 (7 columns, mirror of BgVatPurchaseColumn). -->
+    <decimal name="col09" title="кл.09 ДО без кредит" scale="2" precision="18"/>
+    <decimal name="col10" title="кл.10 ДО пълен кредит" scale="2" precision="18"/>
+    <decimal name="col11" title="кл.11 ДДС пълен кредит" scale="2" precision="18"/>
+    <decimal name="col12" title="кл.12 ДО частичен кредит" scale="2" precision="18"/>
+    <decimal name="col13" title="кл.13 ДДС частичен кредит" scale="2" precision="18"/>
+    <decimal name="col14" title="кл.14 год. корекция чл.73" scale="2" precision="18"/>
+    <decimal name="col15" title="кл.15 ДО придобиване тристранна" scale="2" precision="18"/>
+
+  </entity>
+
+</domain-models>

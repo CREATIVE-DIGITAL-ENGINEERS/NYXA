@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ НОМЕНКЛАТУРАТА НА НАП ЗА МЕРНИ ЕДИНИЦИ ═══
+
+    2071 кода по UN/ECE Rec. 20. Изгледите са МИНИМАЛНИ нарочно: редовете идват от началните данни и
+    се сменят ТАМ (nomenclatures/nra/unit_of_measure.csv → преписът в apps/init-data), не на ръка.
+    Образецът е bg-saf-mapping-views.xml от кръг 3.
+
+    ⚠️ ТАЗИ ТАБЛИЦА НЕ Е СПИСЪКЪТ С ОПЕРАТИВНИ ЕДИНИЦИ. Единиците, с които се работи, са Unit —
+    „Общи → Мерни единици“, 36 реда, всяка със свой код по НАП. Тук се гледа КОЙ код какво значи и
+    оттук се избира стойност за Unit.bgUomCode. Защо двете са разделени: domains/BgNraUnitOfMeasure.xml.
+  -->
+
+  <grid name="bg-nra-uom-grid" title="Мерни единици по НАП"
+    model="com.axelor.apps.bglocalization.db.BgNraUnitOfMeasure" orderBy="code" canNew="false"
+    canDelete="false">
+    <field name="code"/>
+    <field name="nameBg"/>
+    <field name="nameEn"/>
+  </grid>
+
+  <form name="bg-nra-uom-form" title="Мерна единица по НАП"
+    model="com.axelor.apps.bglocalization.db.BgNraUnitOfMeasure">
+    <panel name="mainPanel" title="Код по НАП">
+      <field name="code"
+        help="Кодът по UN/ECE Rec. 20, както го изписва НАП. Той излиза в SAF-T като UnitOfMeasure в
+          UOMTable и като UOMStandard в продуктовия блок."/>
+      <field name="nameBg"/>
+      <field name="nameEn"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-nra-uom" title="Мерни единици по НАП"
+    model="com.axelor.apps.bglocalization.db.BgNraUnitOfMeasure">
+    <view type="grid" name="bg-nra-uom-grid"/>
+    <view type="form" name="bg-nra-uom-form"/>
+  </action-view>
+
+  <!-- Под същия групов възел като четирите таблици от кръг 3. Ограничението groups="admins" стои на
+    родителя bg-saft-reference и важи и тук: MenuService#preChildVisit връща TERMINATE. -->
+  <menuitem name="bg-saft-reference-uom" parent="bg-saft-reference" title="Мерни единици по НАП"
+    action="action-bg-nra-uom" order="500"/>
+
+</object-views>

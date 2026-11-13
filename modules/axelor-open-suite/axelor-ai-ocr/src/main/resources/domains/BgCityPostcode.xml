@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="aiocr" package="com.axelor.apps.aiocr.db"/>
+
+  <!-- One exact valid postal code for a City, imported from resources/postal-codes/bg_valid_postcodes.csv
+    (columns: ekatte,postcode) by BgCityPostcodeImportService. A City with zero rows here has no known
+    validation data (existing free-entry behavior is preserved); one row makes City.zip readonly; more
+    than one row makes City.zip editable but restricted to this exact set (see BgCityPostcodeService). -->
+  <entity name="BgCityPostcode">
+
+    <many-to-one name="city" ref="com.axelor.apps.base.db.City" required="true" index="true"/>
+    <!-- String, not numeric: preserves leading zeroes and matches Address.zip's own type. -->
+    <string name="postcode" title="Postcode" required="true" index="true"/>
+
+    <unique-constraint columns="city,postcode"/>
+
+    <finder-method name="findByCityAndPostcode" using="city,postcode" filter="self.city = :city AND self.postcode = :postcode"/>
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgIncomeType — номенклатурата на вида доход по ЗДДФЛ ============
+
+    ⚠️ ИЗГЛЕДЪТ Е ПОД ПРОВЕРКА. Невалиден view XML не се пропуска мълчаливо, а събаря зареждането
+    на изгледите при boot. Затова BgViewSchemaTest сверява ВСЕКИ файл в тази папка срещу
+    object-views.xsd от axelor-core, тоест срещу същата схема, която чете и приложението.
+
+    ⚠️ ЕКРАНЪТ Е ЗА ОДИТ НА 90-ТЕ КОДА, НЕ ЗА ВЪВЕЖДАНЕ. Редовете идват от seed (bg_income_type.csv)
+    и се сверяват срещу ОБРАЗЕЦА за годината. Формата е отворена за администратор, защото нов
+    образец носи нови кодове и корекция по него не бива да чака билд — но всяка ръчна промяна тук
+    се разминава със seed-а при следващ App Install, ако не влезе и в CSV-то. -->
+
+  <!-- ⚠️ Подредбата е code, -validFrom — както при BgInsuredType и по същата причина: един код има
+    ПОВЕЧЕ ОТ ЕДИН ред във времето (уникалността е по code+validFrom, не по code), а одиторът иска
+    най-новата редакция първа. Подредба само по code слага версиите в произволен ред. -->
+  <grid name="bg-income-type-grid" title="Видове доходи (ЗДДФЛ)"
+    model="com.axelor.apps.bglocalization.db.BgIncomeType" orderBy="code,-validFrom">
+    <field name="code" width="90"/>
+    <field name="taxPattern" width="120"/>
+    <field name="article" width="200"/>
+    <!-- ⚠️ Наименованието е large="true" и стига до ~2000 знака (код 101). В грида то се показва
+      отрязано от самата клетка — това е приемливо ТУК, защото пълният текст е на формата, а
+      съкращаване в СЪДЪРЖАНИЕТО е точно грешката, срещу която каталогът съществува. -->
+    <field name="name" width="360"/>
+    <field name="expenseRate" width="110"/>
+    <field name="finalTaxRate" width="110"/>
+    <field name="advanceTaxRate" width="110"/>
+    <field name="withheldByPayer" width="100"/>
+    <field name="declarations" width="110"/>
+    <field name="validFrom" width="110"/>
+    <field name="validTo" width="110"/>
+  </grid>
+
+  <form name="bg-income-type-form" title="Вид доход (ЗДДФЛ)"
+    model="com.axelor.apps.bglocalization.db.BgIncomeType" width="large">
+
+    <panel name="mainPanel" title="Идентификация">
+      <field name="code" colSpan="3"/>
+      <field name="declarations" colSpan="4"/>
+      <field name="article" colSpan="5"/>
+      <field name="name" colSpan="12"/>
+    </panel>
+
+    <!-- ⚠️ ВСИЧКИ ставки се показват ВИНАГИ, без showIf по шаблон. Скриването би било по-подредено,
+      но одитът е точно обратното упражнение: човекът сверява, че код с шаблон A НЯМА окончателна
+      ставка и че код с шаблон C НЯМА разходи. Скрито поле със стойност не се вижда, а стойност там
+      е дефект в seed-а — тоест showIf би скрил именно това, което търсим. -->
+    <panel name="taxPanel" title="Облагане">
+      <field name="taxPattern" colSpan="6"
+        help="Шаблонът решава как се стига от бруто до основа и до данък. Той — не ставките — избира формулата при изчисление на плащане."/>
+      <field name="withheldByPayer" colSpan="6"
+        help="Стойност ПО ПОДРАЗБИРАНЕ за кода. За конкретно плащане решава чл. 43, ал. 5 и 6: получател самоосигуряващо се лице, декларирало писмено, внася данъка сам."/>
+      <field name="expenseRate" colSpan="4"
+        help="Нормативни разходи в % от БРУТНИЯ доход — само за шаблони A (чл. 29: 60/40/25) и B (чл. 31: 10). Шаблон D стои на нула, макар чл. 33 също да говори за 10 на сто: там процентът пада върху печалбата, не върху бруто."/>
+      <field name="finalTaxRate" colSpan="4"
+        help="Окончателен данък по чл. 46 — само за шаблон C: 10 на сто (чл. 37 и чл. 38, ал. 5, 8, 11, 12, 14 и 15), 7 на сто (чл. 38, ал. 8 при застраховка „Живот“ 15+ години), 5 на сто (чл. 38, ал. 1 — дивиденти)."/>
+      <field name="advanceTaxRate" colSpan="4"
+        help="Авансов данък: чл. 43, ал. 3 (чл. 29), чл. 44, ал. 3 (чл. 31), чл. 44а, ал. 1 (чл. 35) — и трите 10 на сто. За трудовите доходи чл. 42, ал. 4 дава 1 на сто за морско лице."/>
+    </panel>
+
+    <panel name="reportPanel" title="Попълване на справката">
+      <field name="isAggregate" colSpan="12"
+        help="Ред без имена — колони 2–9 на Част ІІ не се попълват (кодове 5031, 8141 и 820). ⚠️ Колона 14 „Брой лица“ иска САМО 5031 и 8141; 820 се подава без брой лица. Разликата е на попълването и живее във Фаза 3."/>
+    </panel>
+
+    <!-- ⚠️ Датирането не е метаданни, а самата валидност на кода: коригираща справка за минала
+      година ползва кодовете, валидни ТОГАВА. Затова е собствен панел, а не подред при код. -->
+    <panel name="validityPanel" title="Действие във времето">
+      <field name="validFrom" colSpan="6"/>
+      <field name="validTo" colSpan="6"
+        help="Празно означава „в сила и днес“. Кодовете 602, 818, 821, 901, 905 и 906 не са в образеца за 2025 г., но по-ранни образци ги носят."/>
+    </panel>
+
+  </form>
+
+  <action-view name="bg.income.type.all" title="Видове доходи (ЗДДФЛ)"
+    model="com.axelor.apps.bglocalization.db.BgIncomeType">
+    <view type="grid" name="bg-income-type-grid"/>
+    <view type="form" name="bg-income-type-form"/>
+  </action-view>
+
+  <!-- ⚠️ Под „Номенклатури“, при НКПД и НКИД — а не при „Параметри“. Параметрите са числа, които
+    смятат; това е СПИСЪК С КОДОВЕ, който се сверява срещу образец. Съседството е по работата на
+    човека, не по модула. -->
+  <menuitem name="nyxa-payroll-income-type" parent="nyxa-payroll-nomenclatures"
+    title="Видове доходи (ЗДДФЛ)" action="bg.income.type.all" order="300"/>
+
+</object-views>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="nap-artifact-grid" title="Files"
+    model="com.axelor.apps.napsubmissions.db.NapArtifact" orderBy="-createdOn">
+    <field name="artifactTypeSelect"/>
+    <field name="name"/>
+    <field name="originalFileName"/>
+    <field name="metaFile" widget="binary-link"/>
+    <field name="company"/>
+    <field name="saftReport"/>
+    <field name="finalized"/>
+    <field name="sha256"/>
+    <field name="byteLength"/>
+    <field name="mimeType"/>
+    <field name="createdOn"/>
+  </grid>
+
+  <form name="nap-artifact-form" title="File"
+    model="com.axelor.apps.napsubmissions.db.NapArtifact" width="large">
+    <panel name="mainPanel" colSpan="12">
+      <field name="artifactTypeSelect" readonly="true"/>
+      <field name="name" readonly="true"/>
+      <field name="originalFileName" readonly="true"/>
+      <field name="metaFile" widget="binary-link" readonly="true"/>
+      <field name="company" readonly="true"/>
+      <field name="saftReport" readonly="true"/>
+      <field name="finalized" readonly="true"/>
+      <field name="mimeType" readonly="true"/>
+      <field name="byteLength" readonly="true"/>
+      <field name="sha256" readonly="true" colSpan="12"/>
+    </panel>
+  </form>
+
+  <action-view name="action-nap-artifact-view-all" title="Files"
+    model="com.axelor.apps.napsubmissions.db.NapArtifact">
+    <view type="grid" name="nap-artifact-grid"/>
+    <view type="form" name="nap-artifact-form"/>
+  </action-view>
+
+</object-views>

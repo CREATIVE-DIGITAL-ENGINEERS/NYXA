@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Persisted snapshot of ONE PRODAGBI (дневник продажби) row (424-char record), frozen at generate()
+    time from the SAME collector pass that produced PRODAGBI.TXT. This is the single source the BIRT diary
+    report reads (report == TXT). Rows are replaced on every regenerate (bulk delete by parent + orphanRemoval).
+    Mirrors BgVatSalesRowDto; col09..col25 = НАП кл.09..кл.25. NOTE: importId is inherited from com.axelor.db.Model
+    — do NOT declare it. -->
+  <entity name="BgVatSalesLine">
+
+    <many-to-one name="bgVatReturn" ref="com.axelor.apps.bglocalization.db.BgVatReturn"
+      title="Декларация" required="true"/>
+
+    <!-- Identification (mirror of BgVatSalesRowDto scalars). -->
+    <string name="companyVatNumber" title="ЕИК по ДДС"/>
+    <string name="periodCode" title="Период (ГГГГММ)"/>
+    <string name="branch" title="Клон"/>
+    <integer name="sequence" title="кл.01 №"/>
+    <string name="napDocumentType" title="кл.03 вид документ"/>
+    <string name="documentNumber" title="кл.04 № документ"/>
+    <date name="documentDate" title="кл.05 дата"/>
+    <string name="counterpartyVatNumber" title="кл.06 контрагент №"/>
+    <string name="counterpartyName" title="кл.07 контрагент"/>
+    <string name="subject" title="кл.08 предмет"/>
+    <string name="supplyTypeArt163a" title="кл.08а доставка по чл.163а"/>
+
+    <!-- Amount columns — НАП кл.09..кл.25 (17 columns, mirror of BgVatSalesColumn). -->
+    <decimal name="col09" title="кл.09 ДО общо" scale="2" precision="18"/>
+    <decimal name="col10" title="кл.10 ДДС общо" scale="2" precision="18"/>
+    <decimal name="col11" title="кл.11 ДО 20%" scale="2" precision="18"/>
+    <decimal name="col12" title="кл.12 ДДС 20%" scale="2" precision="18"/>
+    <decimal name="col13" title="кл.13 ДО ВОП" scale="2" precision="18"/>
+    <decimal name="col14" title="кл.14 ДО обр. начисляване" scale="2" precision="18"/>
+    <decimal name="col15" title="кл.15 ДДС ВОП/обр." scale="2" precision="18"/>
+    <decimal name="col16" title="кл.16 ДДС лична употреба" scale="2" precision="18"/>
+    <decimal name="col17" title="кл.17 ДО 9%" scale="2" precision="18"/>
+    <decimal name="col18" title="кл.18 ДДС 9%" scale="2" precision="18"/>
+    <decimal name="col19" title="кл.19 ДО 0% гл.3" scale="2" precision="18"/>
+    <decimal name="col20" title="кл.20 ДО ВОД" scale="2" precision="18"/>
+    <decimal name="col21" title="кл.21 ДО чл.140/146/173" scale="2" precision="18"/>
+    <decimal name="col22" title="кл.22 ДО услуги в ЕС" scale="2" precision="18"/>
+    <decimal name="col23" title="кл.23 ДО чл.69 ал.2" scale="2" precision="18"/>
+    <decimal name="col24" title="кл.24 ДО освободени" scale="2" precision="18"/>
+    <decimal name="col25" title="кл.25 ДО тристранна" scale="2" precision="18"/>
+
+  </entity>
+
+</domain-models>

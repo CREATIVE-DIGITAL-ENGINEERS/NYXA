@@ -1,0 +1,2072 @@
+importId;code;nameEn;nameBg
+SAFTUOM-10;10;group;група
+SAFTUOM-11;11;outfit;комплект
+SAFTUOM-13;13;ration;порция/дажба/част
+SAFTUOM-14;14;shot;доза/шот
+SAFTUOM-20;20;twenty foot container;двадесетфутов контейнер
+SAFTUOM-21;21;forty foot container;четиридесетфутов контейнер
+SAFTUOM-22;22;decilitre per gram;децилитър на грам
+SAFTUOM-23;23;gram per cubic centimetre;грам на кубичен сантиметър
+SAFTUOM-24;24;theoretical pound;теоретичен фунт
+SAFTUOM-25;25;gram per square centimetre;грам на квадратен сантиметър
+SAFTUOM-27;27;ton;тон
+SAFTUOM-28;28;kilogram per square metre;килограм на квадратен метър
+SAFTUOM-33;33;kilopascal square metre per gram;килопаскал по квадратен метър на грам
+SAFTUOM-34;34;kilopascal per millimetre;килопаскала на милиметър
+SAFTUOM-35;35;millilitre per square centimetre second;милилитър на квадратен сантиметър в секунда
+SAFTUOM-37;37;ounce per square foot;унция на квадратен фут
+SAFTUOM-38;38;ounce per square foot per 0,01inch;унция на квадратен фут за 0,01 инча
+SAFTUOM-40;40;millilitre per second;милилитър за секунда
+SAFTUOM-41;41;millilitre per minute;милилитър за минута
+SAFTUOM-56;56;sitas;ар
+SAFTUOM-58;58;net kilogram;килограм нето
+SAFTUOM-59;59;part per million;част на милион
+SAFTUOM-60;60;percent weight;процент от теглото
+SAFTUOM-61;61;part per billion (US);част на милиард (САЩ)
+SAFTUOM-74;74;millipascal;милипаскал
+SAFTUOM-77;77;milli-inch;милиинч
+SAFTUOM-80;80;pound per square inch absolute;фунт на абсолютен квадратен инч
+SAFTUOM-81;81;henry;хенри
+SAFTUOM-85;85;foot pound-force;фут фунт-сила
+SAFTUOM-87;87;pound per cubic foot;фунт на кубичен фут
+SAFTUOM-89;89;poise;поаз
+SAFTUOM-91;91;stokes;стокс
+SAFTUOM-2A;2A;radian per second;радиан в секунда
+SAFTUOM-2B;2B;radian per second squared;радиан за секунда на квадрат
+SAFTUOM-2C;2C;roentgen;рентген
+SAFTUOM-2G;2G;volt AC;волт AC
+SAFTUOM-2H;2H;volt DC;волт DC
+SAFTUOM-2I;2I;British thermal unit (international table) per hour;Британска топлинна единица (международна таблица) за час
+SAFTUOM-2J;2J;cubic centimetre per second;кубичен сантиметър за секунда
+SAFTUOM-2K;2K;cubic foot per hour;кубичен фут за час
+SAFTUOM-2L;2L;cubic foot per minute;кубичен фут за минута
+SAFTUOM-2M;2M;centimetre per second;сантиметър за секунда
+SAFTUOM-2N;2N;decibel;децибел
+SAFTUOM-2P;2P;kilobyte;килобайт
+SAFTUOM-2Q;2Q;kilobecquerel;килобекерел
+SAFTUOM-2R;2R;kilocurie;килокюри
+SAFTUOM-2U;2U;megagram;мегаграм
+SAFTUOM-2X;2X;metre per minute;метър за минута
+SAFTUOM-2Y;2Y;milliroentgen;милирентген
+SAFTUOM-2Z;2Z;millivolt;миливолт
+SAFTUOM-3B;3B;megajoule;мегаджаул
+SAFTUOM-4C;4C;centistokes;сантистокс
+SAFTUOM-4G;4G;microlitre;микролитър
+SAFTUOM-4H;4H;micrometre (micron);микрометър (микрон)
+SAFTUOM-4K;4K;milliampere;милиампер
+SAFTUOM-4L;4L;megabyte;мегабайт
+SAFTUOM-4M;4M;milligram per hour;милиграм за час
+SAFTUOM-4N;4N;megabecquerel;мегабекерел
+SAFTUOM-4O;4O;microfarad;микрофарад
+SAFTUOM-4P;4P;newton per metre;нютон на метър
+SAFTUOM-4Q;4Q;ounce inch;унция  инч
+SAFTUOM-4R;4R;ounce foot;унция фут
+SAFTUOM-4T;4T;picofarad;пикофарад
+SAFTUOM-4U;4U;pound per hour;фунт за час
+SAFTUOM-4W;4W;ton (US) per hour;тон (САЩ) за час
+SAFTUOM-4X;4X;kilolitre per hour;килолитър за час
+SAFTUOM-5A;5A;barrel (US) per minute;барел (САЩ) за минута
+SAFTUOM-5B;5B;batch;партида
+SAFTUOM-5E;5E;MMSCF/day;MMSCF/ден (Милион стандартни кубически фута на ден)
+SAFTUOM-5J;5J;hydraulic horse power;хидравлична конска сила
+SAFTUOM-A10;A10;ampere square metre per joule second;ампер квадратен метър за джаул секунда
+SAFTUOM-A11;A11;angstrom;ангстрьом
+SAFTUOM-A13;A13;attojoule;атоджаул
+SAFTUOM-A14;A14;barn;барн
+SAFTUOM-A20;A20;British thermal unit (international table) per second square foot degree Rankine;Британска топлинна единица (международна таблица) на секунда квадратен фут градус Ранкин
+SAFTUOM-A21;A21;British thermal unit (international table) per pound degree Rankine;Британска топлинна единица (международна таблица) за фунт по градус Ранкин
+SAFTUOM-A22;A22;British thermal unit (international table) per second foot degree Rankine;Британска топлинна единица (международна таблица) на секунда фут градус Ранкин
+SAFTUOM-A23;A23;British thermal unit (international table) per hour square foot degree Rankine;Британска топлинна единица (международна таблица) за час по квадратен фут по градус Ранкин
+SAFTUOM-A24;A24;candela per square metre;кандела на квадратен метър
+SAFTUOM-A26;A26;coulomb metre;кулонметър
+SAFTUOM-A27;A27;coulomb metre squared per volt;кулонметър на квадрат за волт
+SAFTUOM-A28;A28;coulomb per cubic centimetre;кулон за кубичен сантиметър
+SAFTUOM-A29;A29;coulomb per cubic metre;кулон за кубичен метър
+SAFTUOM-A3;A3;ampere per millimetre;ампер на милиметър
+SAFTUOM-A30;A30;coulomb per cubic millimetre;кулон на кубичен милиметър
+SAFTUOM-A31;A31;coulomb per kilogram second;кулон на килограм по секунда
+SAFTUOM-A32;A32;coulomb per mole;кулон на мол
+SAFTUOM-A33;A33;coulomb per square centimetre;кулон на квадратен сантиметър
+SAFTUOM-A34;A34;coulomb per square metre;кулон на квадратен метър
+SAFTUOM-A35;A35;coulomb per square millimetre;кулон на квадратен милиметър
+SAFTUOM-A36;A36;cubic centimetre per mole;кубичен сантиметър за мол
+SAFTUOM-A37;A37;cubic decimetre per mole;кубичен дециметър за мол
+SAFTUOM-A38;A38;cubic metre per coulomb;кубичен метър на кулон
+SAFTUOM-A39;A39;cubic metre per kilogram;кубичен метър за килограм
+SAFTUOM-A4;A4;ampere per square centimetre;ампер на квадратен сантиметър
+SAFTUOM-A40;A40;cubic metre per mole;кубичен метър за мол
+SAFTUOM-A41;A41;ampere per square metre;ампер на квадратен метър
+SAFTUOM-A42;A42;curie per kilogram;кюри на килограм
+SAFTUOM-A43;A43;deadweight tonnage;дедуейт
+SAFTUOM-A44;A44;decalitre;декалитър
+SAFTUOM-A45;A45;decametre;декаметър
+SAFTUOM-A47;A47;decitex;децитекc
+SAFTUOM-A48;A48;degree Rankine;градус по скалата на Ранкин
+SAFTUOM-A49;A49;denier;дение
+SAFTUOM-A5;A5;ampere square metre;ампер  квадратен метър
+SAFTUOM-A53;A53;electronvolt;електронволт
+SAFTUOM-A54;A54;electronvolt per metre;електронволт на метър
+SAFTUOM-A55;A55;electronvolt square metre;eлектронволт квадратен метър
+SAFTUOM-A56;A56;electronvolt square metre per kilogram;електронволт квадратен метър за килограм
+SAFTUOM-A6;A6;ampere per square metre kelvin squared;ампер за квадратен метър келвин на квадрат
+SAFTUOM-A68;A68;exajoule;екзаджаул
+SAFTUOM-A69;A69;farad per metre;фарад на метър
+SAFTUOM-A7;A7;ampere per square millimetre;ампер на квадратен милиметър
+SAFTUOM-A70;A70;femtojoule;фемтоджаул
+SAFTUOM-A71;A71;femtometre;фемтометър
+SAFTUOM-A73;A73;foot per second squared;фут в секунда на квадрат
+SAFTUOM-A74;A74;foot pound-force per second;фунт-паунд за сила за секунда
+SAFTUOM-A75;A75;freight ton;товарен тон
+SAFTUOM-A8;A8;ampere second;ампер за секунда
+SAFTUOM-A84;A84;gigacoulomb per cubic metre;гигакулон на кубичен метър
+SAFTUOM-A85;A85;gigaelectronvolt;гигаелектронволт
+SAFTUOM-A86;A86;gigahertz;гигахерц
+SAFTUOM-A87;A87;gigaohm;гигаом
+SAFTUOM-A88;A88;gigaohm metre;гигаом метър
+SAFTUOM-A89;A89;gigapascal;гигапаскал
+SAFTUOM-A90;A90;gigawatt;гигават
+SAFTUOM-A91;A91;gon;гон
+SAFTUOM-A93;A93;gram per cubic metre;грам за кубичен метър
+SAFTUOM-A94;A94;gram per mole;грам за мол
+SAFTUOM-A95;A95;gray;грей
+SAFTUOM-A96;A96;gray per second;грей за секунда
+SAFTUOM-A97;A97;hectopascal;хектопаскал
+SAFTUOM-A98;A98;henry per metre;хенри на метър
+SAFTUOM-A99;A99;bit;бит
+SAFTUOM-AA;AA;ball;сфера
+SAFTUOM-AB;AB;bulk pack;насипна опаковка
+SAFTUOM-ACR;ACR;acre;акър
+SAFTUOM-ACT;ACT;activity;дейност
+SAFTUOM-AD;AD;byte;байт
+SAFTUOM-AE;AE;ampere per metre;ампер на метър
+SAFTUOM-AI;AI;average minute per call;средно минути на повикване
+SAFTUOM-AK;AK;fathom;фатом
+SAFTUOM-AMH;AMH;ampere hour;амперчас
+SAFTUOM-AMP;AMP;ampere;ампер
+SAFTUOM-ANN;ANN;year;година
+SAFTUOM-APZ;APZ;troy ounce or apothecary ounce;тройунция или аптекарска унция
+SAFTUOM-AQ;AQ;anti-hemophilic factor (AHF) unit;единица за антихемофилен фактор (AHF)
+SAFTUOM-ASM;ASM;alcoholic strength by mass;алкохолно съдържание по маса
+SAFTUOM-ASU;ASU;alcoholic strength by volume;алкохолно съдържание по обем
+SAFTUOM-AWG;AWG;american wire gauge;американски габарит на проводник
+SAFTUOM-AY;AY;assembly;монтажна единица
+SAFTUOM-AZ;AZ;British thermal unit (international table) per pound;Британска топлинна единица (международна таблица) за фунт
+SAFTUOM-B1;B1;barrel (US) per day;барел (САЩ) на ден
+SAFTUOM-B10;B10;bit per second;бит за секунда
+SAFTUOM-B11;B11;joule per kilogram kelvin;джаул за килограм келвин
+SAFTUOM-B12;B12;joule per metre;джаул за метър
+SAFTUOM-B13;B13;joule per square metre;джаул на квадратен метър
+SAFTUOM-B14;B14;joule per metre to the fourth power;джаул на метър до четвъртата степен
+SAFTUOM-B15;B15;joule per mole;джаул на мол
+SAFTUOM-B16;B16;joule per mole kelvin;джаул за мол келвин
+SAFTUOM-B18;B18;joule second;джаул-секунда
+SAFTUOM-B20;B20;joule square metre per kilogram;джаул квадратен метър за килограм
+SAFTUOM-B21;B21;kelvin per watt;келвин за ват
+SAFTUOM-B22;B22;kiloampere;килоампер
+SAFTUOM-B23;B23;kiloampere per square metre;килоампер на квадратен метър
+SAFTUOM-B24;B24;kiloampere per metre;килоампер на метър
+SAFTUOM-B25;B25;kilobecquerel per kilogram;килобекерел на килограм
+SAFTUOM-B26;B26;kilocoulomb;килокулон
+SAFTUOM-B27;B27;kilocoulomb per cubic metre;килокулон на кубичен метър
+SAFTUOM-B28;B28;kilocoulomb per square metre;килокулон на квадратен метър
+SAFTUOM-B29;B29;kiloelectronvolt;килоелектронволт
+SAFTUOM-B3;B3;batting pound;фунт за памучно влакно
+SAFTUOM-B30;B30;gibit;гибит/гибибит
+SAFTUOM-B31;B31;kilogram metre per second;килограм-метър за секунда
+SAFTUOM-B32;B32;kilogram metre squared;килограм метър на квадрат
+SAFTUOM-B33;B33;kilogram metre squared per second;килограм метър на квадрат за секунда
+SAFTUOM-B34;B34;kilogram per cubic decimetre;килограм за кубичен дециметър
+SAFTUOM-B35;B35;kilogram per litre;килограм за литър
+SAFTUOM-B4;B4;barrel, imperial;барел, имперски
+SAFTUOM-B41;B41;kilojoule per kelvin;килоджаул за келвин
+SAFTUOM-B42;B42;kilojoule per kilogram;килоджаул за килограм
+SAFTUOM-B43;B43;kilojoule per kilogram kelvin;килоджаул за килограм по келвин
+SAFTUOM-B44;B44;kilojoule per mole;килоджаул за мол
+SAFTUOM-B45;B45;kilomole;киломол
+SAFTUOM-B46;B46;kilomole per cubic metre;киломол на кубичен метър
+SAFTUOM-B47;B47;kilonewton;килонютон
+SAFTUOM-B48;B48;kilonewton metre;килонютон метър
+SAFTUOM-B49;B49;kiloohm;килоом
+SAFTUOM-B50;B50;kiloohm metre;килоом на метър
+SAFTUOM-B52;B52;kilosecond;килосекунда
+SAFTUOM-B53;B53;kilosiemens;килосименс
+SAFTUOM-B54;B54;kilosiemens per metre;килосименс на метър
+SAFTUOM-B55;B55;kilovolt per metre;киловолт на метър
+SAFTUOM-B56;B56;kiloweber per metre;киловебер на метър
+SAFTUOM-B58;B58;litre per mole;литър за мол
+SAFTUOM-B59;B59;lumen hour;лумен час
+SAFTUOM-B60;B60;lumen per square metre;лумен на квадратен метър
+SAFTUOM-B61;B61;lumen per watt;лумен за ват
+SAFTUOM-B62;B62;lumen second;лумен секунда
+SAFTUOM-B66;B66;megaampere per square metre;мегаампер на квадратен метър
+SAFTUOM-B67;B67;megabecquerel per kilogram;мегабекерел на килограм
+SAFTUOM-B68;B68;gigabit;гигабит
+SAFTUOM-B69;B69;megacoulomb per cubic metre;мегакулон на кубичен метър
+SAFTUOM-B70;B70;megacoulomb per square metre;мегакулон на квадратен метър
+SAFTUOM-B71;B71;megaelectronvolt;мегаелектронволт
+SAFTUOM-B72;B72;megagram per cubic metre;мегаграм на кубичен метър
+SAFTUOM-B73;B73;meganewton;меганютон
+SAFTUOM-B74;B74;meganewton metre;меганютон метър
+SAFTUOM-B75;B75;megaohm;мегаом
+SAFTUOM-B76;B76;megaohm metre;мегаом метър
+SAFTUOM-B77;B77;megasiemens per metre;мегасименс на метър
+SAFTUOM-B78;B78;megavolt;мегаволт
+SAFTUOM-B79;B79;megavolt per metre;мегаволт на метър
+SAFTUOM-B8;B8;joule per cubic metre;джаул на кубичен метър
+SAFTUOM-B80;B80;gigabit per second;гигабит за секунда
+SAFTUOM-B82;B82;inch per linear foot;инч на линеен фут
+SAFTUOM-B83;B83;metre to the fourth power;метър на четвърта степен
+SAFTUOM-B84;B84;microampere;микроампер
+SAFTUOM-B85;B85;microbar;микробар
+SAFTUOM-B86;B86;microcoulomb;микрокулон
+SAFTUOM-B87;B87;microcoulomb per cubic metre;микрокулон на кубичен метър
+SAFTUOM-B88;B88;microcoulomb per square metre;микрокулон на квадратен метър
+SAFTUOM-B89;B89;microfarad per metre;микрофарад на метър
+SAFTUOM-B90;B90;microhenry;микрохенри
+SAFTUOM-B91;B91;microhenry per metre;микрохенри на метър
+SAFTUOM-B92;B92;micronewton;микронютон
+SAFTUOM-B93;B93;micronewton metre;микронютон метър
+SAFTUOM-B94;B94;microohm;микроом
+SAFTUOM-B95;B95;microohm metre;микроом метър
+SAFTUOM-B96;B96;micropascal;микропаскал
+SAFTUOM-B97;B97;microradian;микрорадиан
+SAFTUOM-B98;B98;microsecond;микросекунда
+SAFTUOM-B99;B99;microsiemens;микросименс
+SAFTUOM-BAR;BAR;bar [unit of pressure];бар [единица за налягане]
+SAFTUOM-BB;BB;base box;базова кутия
+SAFTUOM-BFT;BFT;board foot;дъсчен фут
+SAFTUOM-BHP;BHP;brake horse power;спирачна конска сила
+SAFTUOM-BIL;BIL;billion (EUR);милиард (EUR)
+SAFTUOM-BLD;BLD;dry barrel (US);сух барел (САЩ)
+SAFTUOM-BLL;BLL;barrel (US);барел (САЩ)
+SAFTUOM-BP;BP;hundred board foot;сто дъсчени фута
+SAFTUOM-BQL;BQL;becquerel;бекерел
+SAFTUOM-BTU;BTU;British thermal unit (international table);Британска топлинна единица (международна таблица)
+SAFTUOM-BUA;BUA;bushel (US);бушел (САЩ)
+SAFTUOM-BUI;BUI;bushel (UK);бушел (Великобритания)
+SAFTUOM-C0;C0;call;обаждане
+SAFTUOM-C10;C10;millifarad;милифарад
+SAFTUOM-C11;C11;milligal;милигал
+SAFTUOM-C12;C12;milligram per metre;милиграм на метър
+SAFTUOM-C13;C13;milligray;милигрей
+SAFTUOM-C14;C14;millihenry;милихенри
+SAFTUOM-C15;C15;millijoule;милиджаул
+SAFTUOM-C16;C16;millimetre per second;милиметър в секунда
+SAFTUOM-C17;C17;millimetre squared per second;милиметър на квадрат за секунда
+SAFTUOM-C18;C18;millimole;милимол
+SAFTUOM-C19;C19;mole per kilogram;мол за килограм
+SAFTUOM-C20;C20;millinewton;милинютон
+SAFTUOM-C21;C21;kibibit;кибибит
+SAFTUOM-C22;C22;millinewton per metre;милинютон на метър
+SAFTUOM-C23;C23;milliohm metre;милиом метър
+SAFTUOM-C24;C24;millipascal second;милипаскал секунда
+SAFTUOM-C25;C25;milliradian;милирадиан
+SAFTUOM-C26;C26;millisecond;милисекунда
+SAFTUOM-C27;C27;millisiemens;милисименс
+SAFTUOM-C28;C28;millisievert;милисиверт
+SAFTUOM-C29;C29;millitesla;милитесла
+SAFTUOM-C3;C3;microvolt per metre;микроволт на метър
+SAFTUOM-C30;C30;millivolt per metre;миливолт на метър
+SAFTUOM-C31;C31;milliwatt;миливат
+SAFTUOM-C32;C32;milliwatt per square metre;миливат на квадратен метър
+SAFTUOM-C33;C33;milliweber;миливебер
+SAFTUOM-C34;C34;mole;мол
+SAFTUOM-C35;C35;mole per cubic decimetre;мол за кубичен дециметър
+SAFTUOM-C36;C36;mole per cubic metre;мол за кубичен метър
+SAFTUOM-C37;C37;kilobit;килобит
+SAFTUOM-C38;C38;mole per litre;мол на литър
+SAFTUOM-C39;C39;nanoampere;наноампер
+SAFTUOM-C40;C40;nanocoulomb;нанокулон
+SAFTUOM-C41;C41;nanofarad;нанофарад
+SAFTUOM-C42;C42;nanofarad per metre;нанофарад на метър
+SAFTUOM-C43;C43;nanohenry;нанохенри
+SAFTUOM-C44;C44;nanohenry per metre;нанохенри на метър
+SAFTUOM-C45;C45;nanometre;нанометър
+SAFTUOM-C46;C46;nanoohm metre;наноом метър
+SAFTUOM-C47;C47;nanosecond;наносекунда
+SAFTUOM-C48;C48;nanotesla;нанотесла
+SAFTUOM-C49;C49;nanowatt;нановат
+SAFTUOM-C50;C50;neper;непер
+SAFTUOM-C51;C51;neper per second;непер за секунда
+SAFTUOM-C52;C52;picometre;пикометър
+SAFTUOM-C53;C53;newton metre second;нютон метър секунда
+SAFTUOM-C54;C54;newton metre squared per kilogram squared;нютон метър на квадрат за килограм на квадрат
+SAFTUOM-C55;C55;newton per square metre;нютон на квадратен метър
+SAFTUOM-C56;C56;newton per square millimetre;нютон на квадратен милиметър
+SAFTUOM-C57;C57;newton second;нютон секунда
+SAFTUOM-C58;C58;newton second per metre;нютон секунда на метър
+SAFTUOM-C59;C59;octave;октава
+SAFTUOM-C60;C60;ohm centimetre;ом сантиметър
+SAFTUOM-C61;C61;ohm metre;ом метър
+SAFTUOM-C62;C62;mole;мол /единица/
+SAFTUOM-C63;C63;parsec;парсек
+SAFTUOM-C64;C64;pascal per kelvin;паскал за келвин
+SAFTUOM-C65;C65;pascal second;паскал секунда
+SAFTUOM-C66;C66;pascal second per cubic metre;паскал секунда на кубичен метър
+SAFTUOM-C67;C67;pascal second per metre;паскал секунда на метър
+SAFTUOM-C68;C68;petajoule;петаджаул
+SAFTUOM-C69;C69;phon;фон
+SAFTUOM-C7;C7;centipoise;сантипоаз
+SAFTUOM-C70;C70;picoampere;пикоампер
+SAFTUOM-C71;C71;picocoulomb;пикокулон
+SAFTUOM-C72;C72;picofarad per metre;пикофарад на метър
+SAFTUOM-C73;C73;picohenry;пикохенри
+SAFTUOM-C74;C74;kilobit per second;килобит в секунда
+SAFTUOM-C75;C75;picowatt;пиковат
+SAFTUOM-C76;C76;picowatt per square metre;пиковат на квадратен метър
+SAFTUOM-C78;C78;pound-force;фунт-сила
+SAFTUOM-C79;C79;kilovolt ampere hour;киловолт амперчас
+SAFTUOM-C8;C8;millicoulomb per kilogram;миликулон на килограм
+SAFTUOM-C80;C80;rad;рад
+SAFTUOM-C81;C81;radian;радиан
+SAFTUOM-C82;C82;radian square metre per mole;радиан квадратен метър на мол
+SAFTUOM-C83;C83;radian square metre per kilogram;радиан квадратен метър на килограм
+SAFTUOM-C84;C84;radian per metre;радиан на метър
+SAFTUOM-C85;C85;reciprocal angstrom;реципрочен ангстрьом
+SAFTUOM-C86;C86;reciprocal cubic metre;реципрочен кубичен метър
+SAFTUOM-C87;C87;reciprocal cubic metre per second;реципрочен кубичен метър за секунда
+SAFTUOM-C88;C88;reciprocal electron volt per cubic metre;реципрочен електронен волт на кубичен метър
+SAFTUOM-C89;C89;reciprocal henry;реципрочен хенри
+SAFTUOM-C90;C90;reciprocal joule per cubic metre;реципрочен джаул на кубичен метър
+SAFTUOM-C91;C91;reciprocal kelvin or kelvin to the power minus one;реципрочен келвин или келвин на степен минус едно
+SAFTUOM-C92;C92;reciprocal metre;реципрочен метър
+SAFTUOM-C93;C93;reciprocal square metre;реципрочен квадратен метър
+SAFTUOM-C94;C94;reciprocal minute;реципрочна минута
+SAFTUOM-C95;C95;reciprocal mole;реципрочен мол
+SAFTUOM-C96;C96;reciprocal pascal or pascal to the power minus one;реципрочен паскал или паскал на степен минус едно
+SAFTUOM-C97;C97;reciprocal second;реципрочна секунда
+SAFTUOM-C99;C99;reciprocal second per metre squared;реципрочна секунда на метър на квадрат
+SAFTUOM-CCT;CCT;carrying capacity in metric ton;товароносимост в метричен тон
+SAFTUOM-CDL;CDL;candela;кандела
+SAFTUOM-CEL;CEL;degree Celsius;градус по Целзий
+SAFTUOM-CEN;CEN;hundred;сто
+SAFTUOM-CG;CG;card;карта
+SAFTUOM-CGM;CGM;centigram;сантиграм
+SAFTUOM-CKG;CKG;coulomb per kilogram;кулон за килограм
+SAFTUOM-CLF;CLF;hundred leave;сто листа
+SAFTUOM-CLT;CLT;centilitre;сантилитър
+SAFTUOM-CMK;CMK;square centimetre;квадратен сантиметър
+SAFTUOM-CMQ;CMQ;cubic centimetre;кубичен сантиметър
+SAFTUOM-CMT;CMT;centimetre;сантиметър
+SAFTUOM-CNP;CNP;hundred pack;сто в пакет
+SAFTUOM-CNT;CNT;cental (UK);центал (Великобритания)
+SAFTUOM-COU;COU;coulomb;кулон
+SAFTUOM-CTG;CTG;content gram;грам съдържание
+SAFTUOM-CTM;CTM;metric carat;метричен карат
+SAFTUOM-CTN;CTN;content ton (metric);тон съдържание (метричен)
+SAFTUOM-CUR;CUR;curie;кюри
+SAFTUOM-CWA;CWA;hundred pound (cwt) / hundred weight (US);сто фунта (cwt) / хандредвейт (САЩ)
+SAFTUOM-CWI;CWI;hundred weight (UK);хандредвейт (Великобритания)
+SAFTUOM-D03;D03;kilowatt hour per hour;киловатчас на час
+SAFTUOM-D04;D04;lot  [unit of weight];лот [единица за тегло]
+SAFTUOM-D1;D1;reciprocal second per steradian;реципрочна секунда за стерадиан
+SAFTUOM-D10;D10;siemens per metre;сименс на метър
+SAFTUOM-D11;D11;mebibit;мебибит
+SAFTUOM-D12;D12;siemens square metre per mole;сименс квадратен метър на мол
+SAFTUOM-D13;D13;sievert;сиверт
+SAFTUOM-D15;D15;sone;сон
+SAFTUOM-D16;D16;square centimetre per erg;квадратен сантиметър за ерг
+SAFTUOM-D17;D17;square centimetre per steradian erg;квадратен сантиметър за стерадиан ерг
+SAFTUOM-D18;D18;metre kelvin;метър келвин
+SAFTUOM-D19;D19;square metre kelvin per watt;квадратен метър келвин за ват
+SAFTUOM-D2;D2;reciprocal second per steradian metre squared;реципрочна секунда за стерадиан метър на квадрат
+SAFTUOM-D20;D20;square metre per joule;квадратен метър на джаул
+SAFTUOM-D21;D21;square metre per kilogram;квадратен метър на килограм
+SAFTUOM-D22;D22;square metre per mole;квадратен метър на мол
+SAFTUOM-D23;D23;pen gram (protein);грам за парентерално и ентерално въвеждане (белтък)
+SAFTUOM-D24;D24;square metre per steradian;квадратен метър на стерадиан
+SAFTUOM-D25;D25;square metre per steradian joule;квадратен метър на стерадиан джаул
+SAFTUOM-D26;D26;square metre per volt second;квадратен метър на волт секунда
+SAFTUOM-D27;D27;steradian;стерадиан
+SAFTUOM-D29;D29;terahertz;терахерц
+SAFTUOM-D30;D30;terajoule;тераджаул
+SAFTUOM-D31;D31;terawatt;терават
+SAFTUOM-D32;D32;terawatt hour;тераватчас
+SAFTUOM-D33;D33;tesla;тесла
+SAFTUOM-D34;D34;tex;текс
+SAFTUOM-D36;D36;megabit;мегабит
+SAFTUOM-D41;D41;tonne per cubic metre;тон на кубичен метър
+SAFTUOM-D42;D42;tropical year;тропическа година
+SAFTUOM-D43;D43;unified atomic mass unit;унифицирана единица за атомна маса
+SAFTUOM-D44;D44;var;волтампер реактивна мощност
+SAFTUOM-D45;D45;volt squared per kelvin squared;волт на квадрат на келвин на квадрат
+SAFTUOM-D46;D46;volt - ampere;волтампер
+SAFTUOM-D47;D47;volt per centimetre;волт на сантиметър
+SAFTUOM-D48;D48;volt per kelvin;волта за келвин
+SAFTUOM-D49;D49;millivolt per kelvin;миливолт за келвин
+SAFTUOM-D5;D5;kilogram per square centimetre;килограм на квадратен сантиметър
+SAFTUOM-D50;D50;volt per metre;волт на метър
+SAFTUOM-D51;D51;volt per millimetre;волт на милиметър
+SAFTUOM-D52;D52;watt per kelvin;ват за келвин
+SAFTUOM-D53;D53;watt per metre kelvin;ват на метър келвин
+SAFTUOM-D54;D54;watt per square metre;ват на квадратен метър
+SAFTUOM-D55;D55;watt per square metre kelvin;ват на квадратен метър келвин
+SAFTUOM-D56;D56;watt per square metre kelvin to the fourth power;ват на квадратен метър келвин на четвърта степен
+SAFTUOM-D57;D57;watt per steradian;ват на стерадиан
+SAFTUOM-D58;D58;watt per steradian square metre;ват на стерадиан квадратен метър
+SAFTUOM-D59;D59;weber per metre;вебер на метър
+SAFTUOM-D6;D6;roentgen per second;рентген в секунда
+SAFTUOM-D60;D60;weber per millimetre;вебер на милиметър
+SAFTUOM-D61;D61;minute [unit of angle];минута [единица за ъгъл]
+SAFTUOM-D62;D62;second [unit of angle];секунда [единица за ъгъл]
+SAFTUOM-D63;D63;book;книга
+SAFTUOM-D68;D68;number of words;брой думи
+SAFTUOM-D69;D69;inch to the fourth power;инч на четвърта степен
+SAFTUOM-D73;D73;joule square metre;джаул квадратен метър
+SAFTUOM-D74;D74;kilogram per mole;килограм на мол
+SAFTUOM-D77;D77;megacoulomb;мегакулон
+SAFTUOM-D78;D78;megajoule per second;мегаджаул в секунда
+SAFTUOM-D80;D80;microwatt;микроват
+SAFTUOM-D81;D81;microtesla;микротесла
+SAFTUOM-D82;D82;microvolt;микроволт
+SAFTUOM-D83;D83;millinewton metre;милинютон-метър
+SAFTUOM-D85;D85;microwatt per square metre;микроват на квадратен метър
+SAFTUOM-D86;D86;millicoulomb;миликулон
+SAFTUOM-D87;D87;millimole per kilogram;милимол на килограм
+SAFTUOM-D88;D88;millicoulomb per cubic metre;миликулон на кубичен метър
+SAFTUOM-D89;D89;millicoulomb per square metre;миликулон на квадратен метър
+SAFTUOM-D91;D91;rem;бер (биологичен еквивалент на рентгена)
+SAFTUOM-D93;D93;second per cubic metre;секунда на кубичен метър
+SAFTUOM-D94;D94;second per cubic metre radian;секунда на кубичен метър радиан
+SAFTUOM-D95;D95;joule per gram;джаул на грам
+SAFTUOM-DAA;DAA;decare;декар
+SAFTUOM-DAD;DAD;ten day;десет дни
+SAFTUOM-DAY;DAY;day;ден
+SAFTUOM-DD;DD;degree [unit of angle];градус [единица за ъгъл]
+SAFTUOM-DEC;DEC;decade;декада
+SAFTUOM-DG;DG;decigram;дециграм
+SAFTUOM-DJ;DJ;decagram;декаграм
+SAFTUOM-DLT;DLT;decilitre;децилитър
+SAFTUOM-DMA;DMA;cubic decametre;кубичен декаметър
+SAFTUOM-DMK;DMK;square decimetre;квадратен дециметър
+SAFTUOM-DMO;DMO;standard kilolitre;стандартен килолитър
+SAFTUOM-DMQ;DMQ;cubic decimetre;кубичен дециметър
+SAFTUOM-DMT;DMT;decimetre;дециметър
+SAFTUOM-DN;DN;decinewton metre;децинютон метър
+SAFTUOM-DPC;DPC;dozen piece;дузина бройки
+SAFTUOM-DPR;DPR;dozen pair;дузина чифтове
+SAFTUOM-DPT;DPT;displacement tonnage;водоизместимост в тонове
+SAFTUOM-DRA;DRA;dram (US);драм (САЩ)
+SAFTUOM-DRI;DRI;dram (UK);драм (Великобритания)
+SAFTUOM-DRL;DRL;dozen roll;дузина ролки
+SAFTUOM-DTN;DTN;decitonne;децитон
+SAFTUOM-DWT;DWT;pennyweight;пенивейт
+SAFTUOM-DZN;DZN;dozen;дузина
+SAFTUOM-DZP;DZP;dozen pack;дванадесет в пакет
+SAFTUOM-E01;E01;newton per square centimetre;нютон на квадратен сантиметър
+SAFTUOM-E07;E07;megawatt hour per hour;мегаватчас на час
+SAFTUOM-E08;E08;megawatt per hertz;мегават на херц
+SAFTUOM-E09;E09;milliampere hour;милиамперчас
+SAFTUOM-E12;E12;mille;хиляда
+SAFTUOM-E14;E14;kilocalorie (international table);килокалория (международна таблица)
+SAFTUOM-E15;E15;kilocalorie (thermochemical) per hour;килокалория (термохимична) на час
+SAFTUOM-E16;E16;million Btu(IT) per hour;милион Btu(IT) на час
+SAFTUOM-E17;E17;cubic foot per second;кубичен фут в секунда
+SAFTUOM-E18;E18;tonne per hour;тон на час
+SAFTUOM-E19;E19;ping;пинин
+SAFTUOM-E20;E20;megabit per second;мегабит в секунда
+SAFTUOM-E21;E21;shares;дялове
+SAFTUOM-E22;E22;TEU;TEU
+SAFTUOM-E23;E23;tyre;гума
+SAFTUOM-E25;E25;active unit;активна единица
+SAFTUOM-E27;E27;dose;доза
+SAFTUOM-E28;E28;air dry ton;тон въздушно изсушена маса
+SAFTUOM-E31;E31;square metre per litre;квадратен метър на литър
+SAFTUOM-E32;E32;litre per hour;литър на час
+SAFTUOM-E33;E33;foot per thousand;фут на хиляда
+SAFTUOM-E34;E34;gigabyte;гигабайт
+SAFTUOM-E35;E35;terabyte;терабайт
+SAFTUOM-E36;E36;petabyte;петабайт
+SAFTUOM-E37;E37;pixel;пиксел
+SAFTUOM-E38;E38;megapixel;мегапиксел
+SAFTUOM-E39;E39;dots per inch;точки на инч
+SAFTUOM-E4;E4;gross kilogram;килограм бруто
+SAFTUOM-E40;E40;part per hundred thousand;част на сто хиляди
+SAFTUOM-E41;E41;kilogram-force per square millimetre;килограм-сила на квадратен милиметър
+SAFTUOM-E42;E42;kilogram-force per square centimetre;килограм-сила на квадратен сантиметър
+SAFTUOM-E43;E43;joule per square centimetre;джаул на квадратен сантиметър
+SAFTUOM-E44;E44;kilogram-force metre per square centimetre;килограм-сила метър на квадратен сантиметър
+SAFTUOM-E45;E45;milliohm;милиом
+SAFTUOM-E46;E46;kilowatt hour per cubic metre;киловатчас на кубичен метър
+SAFTUOM-E47;E47;kilowatt hour per kelvin;киловатчас на келвин
+SAFTUOM-E49;E49;working day;работен ден
+SAFTUOM-E50;E50;accounting unit;счетоводна единица
+SAFTUOM-E51;E51;job;длъжност
+SAFTUOM-E52;E52;run foot;фут пробег
+SAFTUOM-E58;E58;exabit per second;екзабит в секунда
+SAFTUOM-E59;E59;exbibyte;ексбибайт
+SAFTUOM-E60;E60;pebibyte;пебибайт
+SAFTUOM-E61;E61;tebibyte;тебибайт
+SAFTUOM-E62;E62;gibibyte;гибибайт
+SAFTUOM-E63;E63;mebibyte;мебибайт
+SAFTUOM-E64;E64;kibibyte;кибибайт
+SAFTUOM-E65;E65;exbibit per metre;ексбибит на метър
+SAFTUOM-E66;E66;exbibit per square metre;ексбибит на квадратен метър
+SAFTUOM-E67;E67;exbibit per cubic metre;ексбибит на кубичен метър
+SAFTUOM-E68;E68;gigabyte per second;гигабайт в секунда
+SAFTUOM-E69;E69;gibibit per metre;гибибит на метър
+SAFTUOM-E70;E70;gibibit per square metre;гибибит на квадратен метър
+SAFTUOM-E71;E71;gibibit per cubic metre;гибибит на кубичен метър
+SAFTUOM-E72;E72;kibibit per metre;кибибит на метър
+SAFTUOM-E73;E73;kibibit per square metre;кибибит на квадратен метър
+SAFTUOM-E74;E74;kibibit per cubic metre;кибибит на кубичен метър
+SAFTUOM-E75;E75;mebibit per metre;мебибит на метър
+SAFTUOM-E76;E76;mebibit per square metre;мебибит на квадратен метър
+SAFTUOM-E77;E77;mebibit per cubic metre;мебибит на кубичен метър
+SAFTUOM-E78;E78;petabit;петабит
+SAFTUOM-E79;E79;petabit per second;петабит в секунда
+SAFTUOM-E80;E80;pebibit per metre;пебибит на метър
+SAFTUOM-E81;E81;pebibit per square metre;пебибит на квадратен метър
+SAFTUOM-E82;E82;pebibit per cubic metre;пебибит на кубичен метър
+SAFTUOM-E83;E83;terabit;терабит
+SAFTUOM-E84;E84;terabit per second;терабит в секунда
+SAFTUOM-E85;E85;tebibit per metre;тебибит на метър
+SAFTUOM-E86;E86;tebibit per cubic metre;тебибит на кубичен метър
+SAFTUOM-E87;E87;tebibit per square metre;тебибит на квадратен метър
+SAFTUOM-E88;E88;bit per metre;бит на метър
+SAFTUOM-E89;E89;bit per square metre;бит на квадратен метър
+SAFTUOM-E92;E92;cubic decimetre per hour;кубичен дециметър за час
+SAFTUOM-E93;E93;kilogram per hour;килограм за час
+SAFTUOM-E94;E94;kilomole per second;киломол за секунда
+SAFTUOM-E95;E95;mole per second;мол за секунда
+SAFTUOM-E96;E96;degree per second;градус в секунда
+SAFTUOM-E97;E97;millimetre per degree Celcius metre;милиметър за градус по Целзий метър
+SAFTUOM-E98;E98;degree Celsius per kelvin;градус по Целзий за келвин
+SAFTUOM-E99;E99;hectopascal per bar;хектопаскал на бар
+SAFTUOM-EB;EB;electronic mail box;електронна пощенска кутия
+SAFTUOM-EQ;EQ;equivalent gallon;еквивалентен галон
+SAFTUOM-F01;F01;bit per cubic metre;бит на кубичен метър
+SAFTUOM-F02;F02;kelvin per kelvin;келвин на келвин
+SAFTUOM-F03;F03;kilopascal per bar;килопаскал на бар
+SAFTUOM-F04;F04;millibar per bar;милибар на бар
+SAFTUOM-F05;F05;megapascal per bar;мегапаскал на бар
+SAFTUOM-F06;F06;poise per bar;поаз на бар
+SAFTUOM-F07;F07;pascal per bar;паскал на бар
+SAFTUOM-F08;F08;milliampere per inch;милиампер на инч
+SAFTUOM-F10;F10;kelvin per hour;келвин за час
+SAFTUOM-F11;F11;kelvin per minute;келвин за минута
+SAFTUOM-F12;F12;kelvin per second;келвин за секунда
+SAFTUOM-F13;F13;slug;слаг
+SAFTUOM-F14;F14;gram per kelvin;грам на келвин
+SAFTUOM-F15;F15;kilogram per kelvin;килограм на келвин
+SAFTUOM-F16;F16;milligram per kelvin;милиграм на келвин
+SAFTUOM-F17;F17;pound-force per foot;фунт-сила на фут
+SAFTUOM-F18;F18;kilogram square centimetre;килограм квадратен сантиметър
+SAFTUOM-F19;F19;kilogram square millimetre;килограм квадратен милиметър
+SAFTUOM-F20;F20;pound inch squared;фунт инч на квадрат
+SAFTUOM-F21;F21;pound-force inch;фунт-сила инч
+SAFTUOM-F22;F22;pound-force foot per ampere;фунт-сила фут на ампер
+SAFTUOM-F23;F23;gram per cubic decimetre;грам на кубичен дециметър
+SAFTUOM-F24;F24;kilogram per kilomol;килограм на киломол
+SAFTUOM-F25;F25;gram per hertz;грам на херц
+SAFTUOM-F26;F26;gram per day;грам за ден
+SAFTUOM-F27;F27;gram per hour;грам за час
+SAFTUOM-F28;F28;gram per minute;грам в минута
+SAFTUOM-F29;F29;gram per second;грам в секунда
+SAFTUOM-F30;F30;kilogram per day;килограм на ден
+SAFTUOM-F31;F31;kilogram per minute;килограм в минута
+SAFTUOM-F32;F32;milligram per day;милиграм на ден
+SAFTUOM-F33;F33;milligram per minute;милиграм в минута
+SAFTUOM-F34;F34;milligram per second;милиграм в секунда
+SAFTUOM-F35;F35;gram per day kelvin;грам на ден келвин
+SAFTUOM-F36;F36;gram per hour kelvin;грам на час келвин
+SAFTUOM-F37;F37;gram per minute kelvin;грам на минута келвин
+SAFTUOM-F38;F38;gram per second kelvin;грам на секунда келвин
+SAFTUOM-F39;F39;kilogram per day kelvin;килограм на ден келвин
+SAFTUOM-F40;F40;kilogram per hour kelvin;килограм на час келвин
+SAFTUOM-F41;F41;kilogram per minute kelvin;килограм на минута келвин
+SAFTUOM-F42;F42;kilogram per second kelvin;килограм на секунда келвин
+SAFTUOM-F43;F43;milligram per day kelvin;милиграм на ден келвин
+SAFTUOM-F44;F44;milligram per hour kelvin;милиграм на час келвин
+SAFTUOM-F45;F45;milligram per minute kelvin;милиграм на минута келвин
+SAFTUOM-F46;F46;milligram per second kelvin;милиграм на секунда келвин
+SAFTUOM-F47;F47;newton per millimetre;нютон на милиметър
+SAFTUOM-F48;F48;pound-force per inch;фунт-сила на инч
+SAFTUOM-F49;F49;rod [unit of distance];род [единица за разстояние]
+SAFTUOM-F50;F50;micrometre per kelvin;микрометър на келвин
+SAFTUOM-F51;F51;centimetre per kelvin;сантиметър на келвин
+SAFTUOM-F52;F52;metre per kelvin;метър на келвин
+SAFTUOM-F53;F53;millimetre per kelvin;милиметър на келвин
+SAFTUOM-F54;F54;milliohm per metre;милиом на метър
+SAFTUOM-F55;F55;ohm per mile (statute mile);ом на миля (щатска миля)
+SAFTUOM-F56;F56;ohm per kilometre;ом на километър
+SAFTUOM-F57;F57;milliampere per pound-force per square inch;милиампер на фунт-сила на квадратен инч
+SAFTUOM-F58;F58;reciprocal bar;реципрочен бар
+SAFTUOM-F59;F59;milliampere per bar;милиампер на бар
+SAFTUOM-F60;F60;degree Celsius per bar;градус Целзий на бар
+SAFTUOM-F61;F61;kelvin per bar;келвин на бар
+SAFTUOM-F62;F62;gram per day bar;грам на ден бар
+SAFTUOM-F63;F63;gram per hour bar;грам на час бар
+SAFTUOM-F64;F64;gram per minute bar;грам на минута бар
+SAFTUOM-F65;F65;gram per second bar;грам на секунда бар
+SAFTUOM-F66;F66;kilogram per day bar;килограм на ден бар
+SAFTUOM-F67;F67;kilogram per hour bar;килограм на час бар
+SAFTUOM-F68;F68;kilogram per minute bar;килограм на минута бар
+SAFTUOM-F69;F69;kilogram per second bar;килограм на секунда бар
+SAFTUOM-F70;F70;milligram per day bar;милиграм на ден бар
+SAFTUOM-F71;F71;milligram per hour bar;милиграм на час бар
+SAFTUOM-F72;F72;milligram per minute bar;милиграм на минута бар
+SAFTUOM-F73;F73;milligram per second bar;милиграм на секунда бар
+SAFTUOM-F74;F74;gram per bar;грам на бар
+SAFTUOM-F75;F75;milligram per bar;милиграм на бар
+SAFTUOM-F76;F76;milliampere per millimetre;милиампер на милиметър
+SAFTUOM-F77;F77;pascal second per kelvin;паскал секунда на келвин
+SAFTUOM-F78;F78;inch of water;инч вода
+SAFTUOM-F79;F79;inch of mercury;инч живак
+SAFTUOM-F81;F81;bar per kelvin;бар на келвин
+SAFTUOM-F82;F82;hectopascal per kelvin;хектопаскал на келвин
+SAFTUOM-F83;F83;kilopascal per kelvin;килопаскал на келвин
+SAFTUOM-F84;F84;millibar per kelvin;милибар на келвин
+SAFTUOM-F85;F85;megapascal per kelvin;мегапаскал на келвин
+SAFTUOM-F86;F86;poise per kelvin;поаз на келвин
+SAFTUOM-F87;F87;volt per litre minute;волт на литър минута
+SAFTUOM-F88;F88;newton centimetre;нютон сантиметър
+SAFTUOM-F89;F89;newton metre per degree;нютон метър на градус
+SAFTUOM-F90;F90;newton metre per ampere;нютон метър на ампер
+SAFTUOM-F91;F91;bar litre per second;бар литър в секунда
+SAFTUOM-F92;F92;bar cubic metre per second;бар кубичен метър в секунда
+SAFTUOM-F93;F93;hectopascal litre per second;хектопаскал литър в секунда
+SAFTUOM-F94;F94;hectopascal cubic metre per second;хектопаскал кубичен метър в секунда
+SAFTUOM-F95;F95;millibar litre per second;милибар литър в секунда
+SAFTUOM-F96;F96;millibar cubic metre per second;милибар кубичен метър в секунда
+SAFTUOM-F97;F97;megapascal litre per second;мегапаскал литър в секунда
+SAFTUOM-F98;F98;megapascal cubic metre per second;мегапаскал кубичен метър в секунда
+SAFTUOM-F99;F99;pascal litre per second;паскал литър в секунда
+SAFTUOM-FAH;FAH;degree Fahrenheit;градус Фаренхайт
+SAFTUOM-FAR;FAR;farad;фарад
+SAFTUOM-FBM;FBM;fibre metre;метри влакно
+SAFTUOM-FC;FC;thousand cubic foot;хиляда кубични фута
+SAFTUOM-FF;FF;hundred cubic metre;сто кубични метра
+SAFTUOM-FH;FH;micromole;микромол
+SAFTUOM-FIT;FIT;failures in time;грешки във времето
+SAFTUOM-FL;FL;flake ton;тон люспи
+SAFTUOM-FOT;FOT;foot;фут
+SAFTUOM-FP;FP;pound per square foot;килограм на квадратен фут
+SAFTUOM-FR;FR;foot per minute;фут в минута
+SAFTUOM-FS;FS;foot per second;фут в секунда
+SAFTUOM-FTK;FTK;square foot;квадратен фут
+SAFTUOM-FTQ;FTQ;cubic foot;кубичен фут
+SAFTUOM-G01;G01;pascal cubic metre per second;паскал кубичен метър в секунда
+SAFTUOM-G04;G04;centimetre per bar;сантиметър на бар
+SAFTUOM-G05;G05;metre per bar;метър на бар
+SAFTUOM-G06;G06;millimetre per bar;милиметър на бр
+SAFTUOM-G08;G08;square inch per second;квадратен инч в секунда
+SAFTUOM-G09;G09;square metre per second kelvin;квадратен метър на секунда келвин
+SAFTUOM-G10;G10;stokes per kelvin;стокс за келвин
+SAFTUOM-G11;G11;gram per cubic centimetre bar;грам на кубичен сантиметър бар
+SAFTUOM-G12;G12;gram per cubic decimetre bar;грам на кубичен дециметър бар
+SAFTUOM-G13;G13;gram per litre bar;грам на литър бар
+SAFTUOM-G14;G14;gram per cubic metre bar;грам на кубичен метър бар
+SAFTUOM-G15;G15;gram per millilitre bar;грам на милилитър бар
+SAFTUOM-G16;G16;kilogram per cubic centimetre bar;килограм на кубичен сантиметър бар
+SAFTUOM-G17;G17;kilogram per litre bar;килограм на литър бар
+SAFTUOM-G18;G18;kilogram per cubic metre bar;килограм на кубичен метър бар
+SAFTUOM-G19;G19;newton metre per kilogram;нютон метър на килограм
+SAFTUOM-G2;G2;US gallon per minute;американски галон за минута
+SAFTUOM-G20;G20;pound-force foot per pound;фунт-сила фут на фунт
+SAFTUOM-G21;G21;cup [unit of volume];чаша [единица за обем]
+SAFTUOM-G23;G23;peck;пек
+SAFTUOM-G24;G24;tablespoon (US);супена лъжица (САЩ)
+SAFTUOM-G25;G25;teaspoon (US);чаена лъжичка (САЩ)
+SAFTUOM-G26;G26;stere;стер
+SAFTUOM-G27;G27;cubic centimetre per kelvin;кубичен сантиметър на келвин
+SAFTUOM-G28;G28;litre per kelvin;литър на келвин
+SAFTUOM-G29;G29;cubic metre per kelvin;кубичен метър на келвин
+SAFTUOM-G3;G3;Imperial gallon per minute;галон за минута (имперски)
+SAFTUOM-G30;G30;millilitre per kelvin;милилитър на келвин
+SAFTUOM-G31;G31;kilogram per cubic centimetre;килограм на кубичен сантиметър
+SAFTUOM-G32;G32;ounce (avoirdupois) per cubic yard;унция (авоардюпоа) на кубичен метър
+SAFTUOM-G33;G33;gram per cubic centimetre kelvin;грам на кубичен сантиметър келвин
+SAFTUOM-G34;G34;gram per cubic decimetre kelvin;грам на кубичен дециметър келвин
+SAFTUOM-G35;G35;gram per litre kelvin;грам на литър келвин
+SAFTUOM-G36;G36;gram per cubic metre kelvin;грам на кубичен метър келвин
+SAFTUOM-G37;G37;gram per millilitre kelvin;грам на милилитър келвин
+SAFTUOM-G38;G38;kilogram per cubic centimetre kelvin;килограм на кубичен сантиметър келвин
+SAFTUOM-G39;G39;kilogram per litre kelvin;килограм на литър келвин
+SAFTUOM-G40;G40;kilogram per cubic metre kelvin;килограм на кубичен метър келвин
+SAFTUOM-G41;G41;square metre per second bar;квадратен метър за секунда бар
+SAFTUOM-G42;G42;microsiemens per centimetre;микросименс на сантиметър
+SAFTUOM-G43;G43;microsiemens per metre;микросименс на метър
+SAFTUOM-G44;G44;nanosiemens per centimetre;наносименс на сантиметър
+SAFTUOM-G45;G45;nanosiemens per metre;наносименс на метър
+SAFTUOM-G46;G46;stokes per bar;стокс за бар
+SAFTUOM-G47;G47;cubic centimetre per day;кубичен сантиметър за ден
+SAFTUOM-G48;G48;cubic centimetre per hour;кубичен сантиметър за час
+SAFTUOM-G49;G49;cubic centimetre per minute;кубичен сантиметър за минута
+SAFTUOM-G50;G50;gallon (US) per hour;галон (САЩ) за час
+SAFTUOM-G51;G51;litre per second;литър за секунда
+SAFTUOM-G52;G52;cubic metre per day;кубичен метър за ден
+SAFTUOM-G53;G53;cubic metre per minute;кубичен метър за минута
+SAFTUOM-G54;G54;millilitre per day;милилитър за ден
+SAFTUOM-G55;G55;millilitre per hour;милилитър за час
+SAFTUOM-G56;G56;cubic inch per hour;кубичен инч за час
+SAFTUOM-G57;G57;cubic inch per minute;кубичен инч за минута
+SAFTUOM-G58;G58;cubic inch per second;кубичен инч за секунда
+SAFTUOM-G59;G59;milliampere per litre minute;милиампер на литър минута
+SAFTUOM-G60;G60;volt per bar;волт на бар
+SAFTUOM-G61;G61;cubic centimetre per day kelvin;кубичен сантиметър на ден келвин
+SAFTUOM-G62;G62;cubic centimetre per hour kelvin;кубичен сантиметър на час келвин
+SAFTUOM-G63;G63;cubic centimetre per minute kelvin;кубичен сантиметър на минута келвин
+SAFTUOM-G64;G64;cubic centimetre per second kelvin;кубичен сантиметър на секунда келвин
+SAFTUOM-G65;G65;litre per day kelvin;литър на ден келвин
+SAFTUOM-G66;G66;litre per hour kelvin;литър на час келвин
+SAFTUOM-G67;G67;litre per minute kelvin;литър на минута келвин
+SAFTUOM-G68;G68;litre per second kelvin;литър на секунда келвин
+SAFTUOM-G69;G69;cubic metre per day kelvin;кубичен метър на ден келвин
+SAFTUOM-G70;G70;cubic metre per hour kelvin;кубичен метър на час келвин
+SAFTUOM-G71;G71;cubic metre per minute kelvin;кубичен метър на минута келвин
+SAFTUOM-G72;G72;cubic metre per second kelvin;кубичен метър на секунда келвин
+SAFTUOM-G73;G73;millilitre per day kelvin;милилитър на ден келвин
+SAFTUOM-G74;G74;millilitre per hour kelvin;милилитър на час келвин
+SAFTUOM-G75;G75;millilitre per minute kelvin;милилитър на минута келвин
+SAFTUOM-G76;G76;millilitre per second kelvin;милилитър на секунда келвин
+SAFTUOM-G77;G77;millimetre to the fourth power;милиметър на четвърта степен
+SAFTUOM-G78;G78;cubic centimetre per day bar;кубичен сантиметър на ден бар
+SAFTUOM-G79;G79;cubic centimetre per hour bar;кубичен сантиметър на час бар
+SAFTUOM-G80;G80;cubic centimetre per minute bar;кубичен сантиметър на минута бар
+SAFTUOM-G81;G81;cubic centimetre per second bar;кубичен сантиметър на секунда бар
+SAFTUOM-G82;G82;litre per day bar;литър на ден бар
+SAFTUOM-G83;G83;litre per hour bar;литър на час бар
+SAFTUOM-G84;G84;litre per minute bar;литър на минута бар
+SAFTUOM-G85;G85;litre per second bar;литър на секунда бар
+SAFTUOM-G86;G86;cubic metre per day bar;кубичен метър на ден бар
+SAFTUOM-G87;G87;cubic metre per hour bar;кубичен метър на час бар
+SAFTUOM-G88;G88;cubic metre per minute bar;кубичен метър на минута бар
+SAFTUOM-G89;G89;cubic metre per second bar;кубичен метър на секунда бар
+SAFTUOM-G90;G90;millilitre per day bar;милилитър на ден бар
+SAFTUOM-G91;G91;millilitre per hour bar;милилитър на час бар
+SAFTUOM-G92;G92;millilitre per minute bar;милилитър на минута бар
+SAFTUOM-G93;G93;millilitre per second bar;милилитър на секунда бар
+SAFTUOM-G94;G94;cubic centimetre per bar;кубичен сантиметър на бар
+SAFTUOM-G95;G95;litre per bar;литър на бар
+SAFTUOM-G96;G96;cubic metre per bar;кубичен метър за бар
+SAFTUOM-G97;G97;millilitre per bar;милилитър на бар
+SAFTUOM-G98;G98;microhenry per kiloohm;микрохенри на килоом
+SAFTUOM-G99;G99;microhenry per ohm;микрохенри на ом
+SAFTUOM-GB;GB;gallon (US) per day;галон (САЩ) на ден
+SAFTUOM-GBQ;GBQ;gigabecquerel;гигабекерел
+SAFTUOM-GDW;GDW;gram, dry weight;грам, сухо тегло
+SAFTUOM-GE;GE;pound per gallon (US);фунт за галон (САЩ)
+SAFTUOM-GF;GF;gram per metre (gram per 100 centimetres);грам на метър (грам на 100 сантиметра)
+SAFTUOM-GFI;GFI;gram of fissile isotope;грам делящ се изотоп
+SAFTUOM-GGR;GGR;great gross;голяма гроса
+SAFTUOM-GIA;GIA;gill (US);джил (САЩ)
+SAFTUOM-GIC;GIC;gram, including container;грам, заедно с контейнера
+SAFTUOM-GII;GII;gill (UK);джил (Великобритания)
+SAFTUOM-GIP;GIP;gram, including inner packaging;грам, заедно с вътрешната опаковка
+SAFTUOM-GJ;GJ;gram per millilitre;грам на милилитър
+SAFTUOM-GL;GL;gram per litre;грам на литър
+SAFTUOM-GLD;GLD;dry gallon (US);сух галон (САЩ)
+SAFTUOM-GLI;GLI;gallon (UK);галон (Великобритания)
+SAFTUOM-GLL;GLL;gallon (US);галон (САЩ)
+SAFTUOM-GM;GM;gram per square metre;грам на квадратен метър
+SAFTUOM-GO;GO;milligram per square metre;милиграм на квадратен метър
+SAFTUOM-GP;GP;milligram per cubic metre;милиграм на кубичен метър
+SAFTUOM-GQ;GQ;microgram per cubic metre;микрограм на кубичен метър
+SAFTUOM-GRM;GRM;gram;грам
+SAFTUOM-GRN;GRN;grain;гран
+SAFTUOM-GRO;GRO;gross;гроса
+SAFTUOM-GV;GV;gigajoule;гигаджаул
+SAFTUOM-GWH;GWH;gigawatt hour;гигаватчас
+SAFTUOM-H03;H03;henry per kiloohm;хенри за килоом
+SAFTUOM-H04;H04;henry per ohm;хенри на ом
+SAFTUOM-H05;H05;millihenry per kiloohm;милихенри на килоом
+SAFTUOM-H06;H06;millihenry per ohm;милихенри на ом
+SAFTUOM-H07;H07;pascal second per bar;паскал секунда на бар
+SAFTUOM-H08;H08;microbecquerel;микробекерел
+SAFTUOM-H12;H12;degree Celsius per hour;градус Целзий в час
+SAFTUOM-H13;H13;degree Celsius per minute;градус Целзий в минута
+SAFTUOM-H14;H14;degree Celsius per second;градусо Целзий в секунда
+SAFTUOM-H15;H15;square centimetre per gram;квадратен сантиметър на грам
+SAFTUOM-H16;H16;square decametre;квадратен декаметър
+SAFTUOM-H18;H18;square hectometre;квадратен хектометър
+SAFTUOM-H19;H19;cubic hectometre;кубичен хектометър
+SAFTUOM-H20;H20;cubic kilometre;кубичен километър
+SAFTUOM-H21;H21;blank;празен
+SAFTUOM-H22;H22;volt square inch per pound-force;волт квадратен инч за фунт-сила
+SAFTUOM-H23;H23;volt per inch;волт на инч
+SAFTUOM-H24;H24;volt per microsecond;волт за микросекунда
+SAFTUOM-H25;H25;percent per kelvin;процент за келвин
+SAFTUOM-H26;H26;ohm per metre;ом на метър
+SAFTUOM-H27;H27;degree per metre;градус на метър
+SAFTUOM-H28;H28;microfarad per kilometre;микрофарад на километър
+SAFTUOM-H29;H29;microgram per litre;микрограм на литър
+SAFTUOM-H30;H30;square micrometre (square micron);квадратен микрометър (квадратен микрон)
+SAFTUOM-H31;H31;ampere per kilogram;ампер на килограм
+SAFTUOM-H32;H32;ampere squared second;ампер на квадрат секунда
+SAFTUOM-H33;H33;farad per kilometre;фарад на километър
+SAFTUOM-H34;H34;hertz metre;херц метър
+SAFTUOM-H35;H35;kelvin metre per watt;келвин метър за ват
+SAFTUOM-H36;H36;megaohm per kilometre;мегаом на километър
+SAFTUOM-H37;H37;megaohm per metre;мегаом на метър
+SAFTUOM-H38;H38;megaampere;мегаампер
+SAFTUOM-H39;H39;megahertz kilometre;мегахерц километър
+SAFTUOM-H40;H40;newton per ampere;нютон на ампер
+SAFTUOM-H41;H41;newton metre watt to the power minus 0,5;нютон метър ват на степен минус 0,5
+SAFTUOM-H42;H42;pascal per metre;паскал на метър
+SAFTUOM-H43;H43;siemens per centimetre;сименс на сантиметър
+SAFTUOM-H44;H44;teraohm;тераом
+SAFTUOM-H45;H45;volt second per metre;волт секунда на метър
+SAFTUOM-H46;H46;volt per second;волт в секунда
+SAFTUOM-H47;H47;watt per cubic metre;ват на кубичен метър
+SAFTUOM-H48;H48;attofarad;атофарад
+SAFTUOM-H51;H51;decibel per kilometre;децибел на километър
+SAFTUOM-H52;H52;decibel per metre;децибел на метър
+SAFTUOM-H53;H53;kilogram per bar;килограм за бар
+SAFTUOM-H54;H54;kilogram per cubic decimetre kelvin;килограм на кубичен дециметър келвин
+SAFTUOM-H55;H55;kilogram per cubic decimetre bar;килограм на кубичен дециметър бар
+SAFTUOM-H56;H56;kilogram per square metre second;килограм на квадратен метър секунда
+SAFTUOM-H57;H57;inch per two pi radiant;инч за 2π радиана
+SAFTUOM-H58;H58;metre per volt second;метър за волт секунда
+SAFTUOM-H59;H59;square metre per newton;квадратен метър на нютон
+SAFTUOM-H60;H60;cubic metre per cubic metre;кубичен метър на кубичен метър
+SAFTUOM-H61;H61;millisiemens per centimetre;милисименс на сантиметър
+SAFTUOM-H62;H62;millivolt per minute;миливолт в минута
+SAFTUOM-H63;H63;milligram per square centimetre;милиграм на квадратен сантиметър
+SAFTUOM-H64;H64;milligram per gram;милиграм на грам
+SAFTUOM-H65;H65;millilitre per cubic metre;милилитър на кубичен метър
+SAFTUOM-H66;H66;millimetre per year;милиметър на година
+SAFTUOM-H67;H67;millimetre per hour;милиметър в час
+SAFTUOM-H68;H68;millimole per gram;милимол на грам
+SAFTUOM-H69;H69;picopascal per kilometre;пикопаскал на километър
+SAFTUOM-H70;H70;picosecond;пикосекунда
+SAFTUOM-H71;H71;percent per month;процент на месец
+SAFTUOM-H72;H72;percent per hectobar;процент на хектобар
+SAFTUOM-H73;H73;percent per decakelvin;проценти на декакелвин
+SAFTUOM-H74;H74;watt per metre;ват на метър
+SAFTUOM-H75;H75;decapascal;декапаскал
+SAFTUOM-H76;H76;gram per millimetre;грам на милиметър
+SAFTUOM-H79;H79;French gauge;единица по скалата на Шариер
+SAFTUOM-H80;H80;rack unit;единица за височина на стойка
+SAFTUOM-H81;H81;millimetre per minute;милиметър в минута
+SAFTUOM-H83;H83;litre per kilogram;литър на килограм
+SAFTUOM-H84;H84;gram millimetre;грам милиметър
+SAFTUOM-H87;H87;piece;бройка
+SAFTUOM-H88;H88;megaohm kilometre;мегаом километър
+SAFTUOM-H89;H89;percent per ohm;процент на ом
+SAFTUOM-H90;H90;percent per degree;процент на градус
+SAFTUOM-H91;H91;percent per ten thousand;процент на десет хиляди
+SAFTUOM-H92;H92;percent per one hundred thousand;процент на сто хиляди
+SAFTUOM-H93;H93;percent per hundred;процент на сто
+SAFTUOM-H94;H94;percent per thousand;процент на хиляда
+SAFTUOM-H95;H95;percent per volt;процент на волт
+SAFTUOM-H96;H96;percent per bar;проценти на бар
+SAFTUOM-H98;H98;percent per inch;процент на инч
+SAFTUOM-H99;H99;percent per metre;процент на метър
+SAFTUOM-HA;HA;hank;гранка
+SAFTUOM-HBA;HBA;hectobar;хектобар
+SAFTUOM-HBX;HBX;hundred boxes;сто кутии
+SAFTUOM-HDW;HDW;hundred kilogram, dry weight;сто килограма, сухо тегло
+SAFTUOM-HEA;HEA;head;глава
+SAFTUOM-HGM;HGM;hectogram;хектограм
+SAFTUOM-HH;HH;hundred cubic foot;сто кубични фута
+SAFTUOM-HIU;HIU;hundred international unit;сто международни единици
+SAFTUOM-HKM;HKM;hundred kilogram, net mass;сто килограма, нетна маса
+SAFTUOM-HLT;HLT;hectolitre;хектолитър
+SAFTUOM-HM;HM;mile per hour (statute mile);миля на час (сухопътна)
+SAFTUOM-HMQ;HMQ;million cubic metre;милион кубически метра
+SAFTUOM-HMT;HMT;hectometre;хектометър
+SAFTUOM-HPA;HPA;hectolitre of pure alcohol;хектолитър чист алкохол
+SAFTUOM-HTZ;HTZ;hertz;херц
+SAFTUOM-HUR;HUR;hour;час
+SAFTUOM-IA;IA;inch pound (pound inch);инч фунт (фунт инч)
+SAFTUOM-IE;IE;person;човек
+SAFTUOM-INH;INH;inch;инч
+SAFTUOM-INK;INK;square inch;квадратен инч
+SAFTUOM-INQ;INQ;cubic inch;кубичен инч
+SAFTUOM-ISD;ISD;international sugar degree;захарен градус, международен
+SAFTUOM-IU;IU;inch per second;инч в секунда
+SAFTUOM-IUG;IUG;international unit per gram;международна единица на грам
+SAFTUOM-IV;IV;inch per second squared;инч в секунда на квадрат
+SAFTUOM-J10;J10;percent per millimetre;процент на милиметър
+SAFTUOM-J12;J12;per mille per psi;промил за фунт-сила на квадратен инч
+SAFTUOM-J13;J13;degree API;градус API
+SAFTUOM-J14;J14;degree Baume (origin scale);градус Боме (оригинална скала)
+SAFTUOM-J15;J15;degree Baume (US heavy);сградус Боме (САЩ, за течности по-тежки от вода)
+SAFTUOM-J16;J16;degree Baume (US light);градус Боме (САЩ, оригинална скала)
+SAFTUOM-J17;J17;degree Balling;градус Балинг
+SAFTUOM-J18;J18;degree Brix;градус Брикс
+SAFTUOM-J19;J19;degree Fahrenheit hour square foot per British thermal unit (thermochemical);градус Фаренхайт час квадратен фут за британска топлинна единица (термохимична)
+SAFTUOM-J2;J2;joule per kilogram;джаул на килограм
+SAFTUOM-J20;J20;degree Fahrenheit per kelvin;градус Фаренхайт за келвин
+SAFTUOM-J21;J21;degree Fahrenheit per bar;градус Фаренхайт за бар
+SAFTUOM-J22;J22;degree Fahrenheit hour square foot per British thermal unit (international table);градус Фаренхайт час квадратен фут за британска топлинна единица (международна таблица)
+SAFTUOM-J23;J23;degree Fahrenheit per hour;градус Фаренхайт на час
+SAFTUOM-J24;J24;degree Fahrenheit per minute;градус Фаренхайт в минута
+SAFTUOM-J25;J25;degree Fahrenheit per second;градус Фаренхайт в секунда
+SAFTUOM-J26;J26;reciprocal degree Fahrenheit;реципрочен градус Фаренхайт
+SAFTUOM-J27;J27;degree Oechsle;градус Оксле
+SAFTUOM-J28;J28;degree Rankine per hour;градус Ранкин на час
+SAFTUOM-J29;J29;degree Rankine per minute;градус Ранкин на минута
+SAFTUOM-J30;J30;degree Rankine per second;градус Ранкин на секунда
+SAFTUOM-J31;J31;degree Twaddell;градус Твадел
+SAFTUOM-J32;J32;micropoise;микропоаз
+SAFTUOM-J33;J33;microgram per kilogram;микрограм на килограм
+SAFTUOM-J34;J34;microgram per cubic metre kelvin;микрограм на кубичен метър келвин
+SAFTUOM-J35;J35;microgram per cubic metre bar;микрограм на кубичен метър бар
+SAFTUOM-J36;J36;microlitre per litre;микролитър на литър
+SAFTUOM-J38;J38;baud;бод
+SAFTUOM-J39;J39;British thermal unit (mean);Британска топлинна единица (средно)
+SAFTUOM-J40;J40;British thermal unit (international table) foot per hour square foot degree Fahrenheit;Британска топлинна единица (международна таблица) фут на час квадратен фут градус Фаренхайт
+SAFTUOM-J41;J41;British thermal unit (international table) inch per hour square foot degree Fahrenheit;Британска топлинна единица (международна таблица) инч на час квадратен фут градус Фаренхайт
+SAFTUOM-J42;J42;British thermal unit (international table) inch per second square foot degree Fahrenheit;Британска топлинна единица (международна таблица) инч на секунда квадратен фут градус Фаренхайт
+SAFTUOM-J43;J43;British thermal unit (international table) per pound degree Fahrenheit;Британска топлинна единица (международна таблица) на фунт градус Фаренхайт
+SAFTUOM-J44;J44;British thermal unit (international table) per minute;Британска топлинна единица (международна таблица) в минута
+SAFTUOM-J45;J45;British thermal unit (international table) per second;Британска топлинна единица (международна таблица) в секунда
+SAFTUOM-J46;J46;British thermal unit (thermochemical) foot per hour square foot degree Fahrenheit;Британска топлинна единица (термохимична) фут на час квадратен фут градус Фаренхайт
+SAFTUOM-J47;J47;British thermal unit (thermochemical) per hour;Британска топлинна единица (термохимична) в час
+SAFTUOM-J48;J48;British thermal unit (thermochemical) inch per hour square foot degree Fahrenheit;Британска топлинна единица (термохимична) инч на час квадратен фут градус Фаренхайт
+SAFTUOM-J49;J49;British thermal unit (thermochemical) inch per second square foot degree Fahrenheit;Британска топлинна единица (термохимична) инч на секунда квадратен фут градус Фаренхайт
+SAFTUOM-J50;J50;British thermal unit (thermochemical) per pound degree Fahrenheit;Британска топлинна единица (термохимична) на фунт градус Фаренхайт
+SAFTUOM-J51;J51;British thermal unit (thermochemical) per minute;Британска топлинна единица (термохимична) в минута
+SAFTUOM-J52;J52;British thermal unit (thermochemical) per second;Британска топлинна единица (термохимична) в секунда
+SAFTUOM-J53;J53;coulomb square metre per kilogram;кулон квадратен метър за килограм
+SAFTUOM-J54;J54;megabaud;мегабод
+SAFTUOM-J55;J55;watt second;ватсекунда
+SAFTUOM-J56;J56;bar per bar;бар на бар
+SAFTUOM-J57;J57;barrel (UK petroleum);барел (Великобритания, нефтен)
+SAFTUOM-J58;J58;barrel (UK petroleum) per minute;барел (Великобритания, нефтен) в минута
+SAFTUOM-J59;J59;barrel (UK petroleum) per day;барел (Великобритания, нефтен) на ден
+SAFTUOM-J60;J60;barrel (UK petroleum) per hour;барел (Великобритания, нефтен) на час
+SAFTUOM-J61;J61;barrel (UK petroleum) per second;барел (Великобритания, нефтен) в секунда
+SAFTUOM-J62;J62;barrel (US petroleum) per hour;барел (САЩ, нефтен) на час
+SAFTUOM-J63;J63;barrel (US petroleum) per second;барел (САЩ, нефтен) в секунда
+SAFTUOM-J64;J64;bushel (UK) per day;бушел (Великобритания) на ден
+SAFTUOM-J65;J65;bushel (UK) per hour;бушел (Великобритания) на час
+SAFTUOM-J66;J66;bushel (UK) per minute;бушел (Великобритания) в минута
+SAFTUOM-J67;J67;bushel (UK) per second;бушел (Великобритания) в секунда
+SAFTUOM-J68;J68;bushel (US dry) per day;бушел (САЩ, сух) на ден
+SAFTUOM-J69;J69;bushel (US dry) per hour;бушел (САЩ, сух) в час
+SAFTUOM-J70;J70;bushel (US dry) per minute;бушел (САЩ, сух) в минута
+SAFTUOM-J71;J71;bushel (US dry) per second;бушел (САЩ, сух) в секунда
+SAFTUOM-J72;J72;centinewton metre;сантинютон метър
+SAFTUOM-J73;J73;centipoise per kelvin;сантипоаз на келвин
+SAFTUOM-J74;J74;centipoise per bar;сантипоаз на бар
+SAFTUOM-J75;J75;calorie (mean);калория (средна)
+SAFTUOM-J76;J76;calorie (international table) per gram degree Celsius;калория (международна таблица) за грам градус Целзий
+SAFTUOM-J78;J78;calorie (thermochemical) per centimetre second degree Celsius;калория (термохимична) на сантиметър секунда градус Целзий
+SAFTUOM-J79;J79;calorie (thermochemical) per gram degree Celsius;калория (термохимична) за грам градус Целзий
+SAFTUOM-J81;J81;calorie (thermochemical) per minute;калория (термохимична) за минута
+SAFTUOM-J82;J82;calorie (thermochemical) per second;калория (термохимична) за секунда
+SAFTUOM-J83;J83;clo;clo
+SAFTUOM-J84;J84;centimetre per second kelvin;сантиметър на секунда келвин
+SAFTUOM-J85;J85;centimetre per second bar;сантиметър на секунда бар
+SAFTUOM-J87;J87;cubic centimetre per cubic metre;кубичен сантиметър на кубичен метър
+SAFTUOM-J90;J90;cubic decimetre per day;кубичен дециметър на ден
+SAFTUOM-J91;J91;cubic decimetre per cubic metre;кубичен дециметър за кубичен метър
+SAFTUOM-J92;J92;cubic decimetre per minute;кубичен дециметър в минута
+SAFTUOM-J93;J93;cubic decimetre per second;кубичен дециметър в секунда
+SAFTUOM-J95;J95;ounce (UK fluid) per day;унция (Великобритания, течна) на ден
+SAFTUOM-J96;J96;ounce (UK fluid) per hour;унция (Великобритания, течна) в час
+SAFTUOM-J97;J97;ounce (UK fluid) per minute;унция (Великобритания, течна) в минута
+SAFTUOM-J98;J98;ounce (UK fluid) per second;унция (Великобритания, течна) в секунда
+SAFTUOM-J99;J99;ounce (US fluid) per day;унция (САЩ, течна) на ден
+SAFTUOM-JE;JE;joule per kelvin;джаул на келвин
+SAFTUOM-JK;JK;megajoule per kilogram;мегаджаул на килограм
+SAFTUOM-JM;JM;megajoule per cubic metre;мегаджаул на кубичен метър
+SAFTUOM-JOU;JOU;joule;джаул
+SAFTUOM-JPS;JPS;hundred metre;сто метра
+SAFTUOM-JWL;JWL;number of jewels;брой скъпоценни камъни
+SAFTUOM-K10;K10;ounce (US fluid) per hour;унция (САЩ, течна) на час
+SAFTUOM-K11;K11;ounce (US fluid) per minute;унция (САЩ, течна) в минута
+SAFTUOM-K12;K12;ounce (US fluid) per second;унция (САЩ, течна) в секунда
+SAFTUOM-K13;K13;foot per degree Fahrenheit;фут на градус Фаренхайт
+SAFTUOM-K14;K14;foot per hour;фут в час
+SAFTUOM-K15;K15;foot pound-force per hour;фут фунт-сила в час
+SAFTUOM-K16;K16;foot pound-force per minute;фут фунт-сила в минута
+SAFTUOM-K17;K17;foot per psi;фут на psi
+SAFTUOM-K18;K18;foot per second degree Fahrenheit;фут на секунда градус Фаренхайт
+SAFTUOM-K19;K19;foot per second psi;фут на секунда фунт-сила на квадратен инч
+SAFTUOM-K20;K20;reciprocal cubic foot;реципрочен кубичен фут
+SAFTUOM-K21;K21;cubic foot per degree Fahrenheit;кубичен фут на градус Фаренхайт
+SAFTUOM-K22;K22;cubic foot per day;кубичен фут на ден
+SAFTUOM-K23;K23;cubic foot per psi;кубичен фут на фунт-сила на квадратен инч
+SAFTUOM-K26;K26;gallon (UK) per day;галон (Великобритания) на ден
+SAFTUOM-K27;K27;gallon (UK) per hour;галон (Великобритания) в час
+SAFTUOM-K28;K28;gallon (UK) per second;галон (Великобритания) в секунда
+SAFTUOM-K3;K3;kilovolt ampere reactive hour;киловолт ампер реактивен час
+SAFTUOM-K30;K30;gallon (US liquid) per second;галон (САЩ, течен) в секунда
+SAFTUOM-K31;K31;gram-force per square centimetre;грам-сила на квадратен сантиметър
+SAFTUOM-K32;K32;gill (UK) per day;джил (Великобритания) на ден
+SAFTUOM-K33;K33;gill (UK) per hour;джил (Великобритания) на час
+SAFTUOM-K34;K34;gill (UK) per minute;джил (Великобритания) в минута
+SAFTUOM-K35;K35;gill (UK) per second;джил (Великобритания) в секунда
+SAFTUOM-K36;K36;gill (US) per day;джил (САЩ) на ден
+SAFTUOM-K37;K37;gill (US) per hour;джил (САЩ) в час
+SAFTUOM-K38;K38;gill (US) per minute;джил (САЩ) в минута
+SAFTUOM-K39;K39;gill (US) per second;джил (САЩ) в секунда
+SAFTUOM-K40;K40;standard acceleration of free fall;стандартно ускорение при свободно падане
+SAFTUOM-K41;K41;grain per gallon (US);фунт за галон (САЩ)
+SAFTUOM-K42;K42;horsepower (boiler);конска сила (парна)
+SAFTUOM-K43;K43;horsepower (electric);конска сила (електрически)
+SAFTUOM-K45;K45;inch per degree Fahrenheit;инч за градус по Фаренхайт
+SAFTUOM-K46;K46;inch per psi;инч на фунт-сила на квадратен инч
+SAFTUOM-K47;K47;inch per second degree Fahrenheit;инч на секунда за градус Фаренхайт
+SAFTUOM-K48;K48;inch per second psi;инч на секунда фунт-сила на квадратен инч
+SAFTUOM-K49;K49;reciprocal cubic inch;реципрочен кубичен инч
+SAFTUOM-K50;K50;kilobaud;килобод
+SAFTUOM-K51;K51;kilocalorie (mean);килокалория (средно)
+SAFTUOM-K52;K52;kilocalorie (international table) per hour metre degree Celsius;килокалория (международна таблица) в час метър градус по Целзий
+SAFTUOM-K53;K53;kilocalorie (thermochemical);килокалория (термохимична)
+SAFTUOM-K54;K54;kilocalorie (thermochemical) per minute;килокалория (термохимична) в минута
+SAFTUOM-K55;K55;kilocalorie (thermochemical) per second;килокалория (термохимична) в секунда
+SAFTUOM-K58;K58;kilomole per hour;киломол на час
+SAFTUOM-K59;K59;kilomole per cubic metre kelvin;киломол на кубичен метър келвин
+SAFTUOM-K6;K6;kilolitre;килолитър
+SAFTUOM-K60;K60;kilomole per cubic metre bar;киломол на кубичен метър бар
+SAFTUOM-K61;K61;kilomole per minute;киломол в минута
+SAFTUOM-K62;K62;litre per litre;литър за литър
+SAFTUOM-K64;K64;pound (avoirdupois) per degree Fahrenheit;фунт (авоардюпоа) за градус по Фаренхайт
+SAFTUOM-K65;K65;pound (avoirdupois) square foot;фунт (авоардюпоа) квадратен фут
+SAFTUOM-K66;K66;pound (avoirdupois) per day;фунт (авоардюпоа) на ден
+SAFTUOM-K67;K67;pound per foot hour;фунт на фут час
+SAFTUOM-K68;K68;pound per foot second;фунт на фут секунда
+SAFTUOM-K69;K69;pound (avoirdupois) per cubic foot degree Fahrenheit;фунт (авоардюпоа) на кубичен фут градус по Фаренхайт
+SAFTUOM-K70;K70;pound (avoirdupois) per cubic foot psi;фунт (авоардюпоа) на кубичен фут фунт-сила на квадратен инч
+SAFTUOM-K71;K71;pound (avoirdupois) per gallon (UK);фунт (авоардюпоа) за галон (Великобритания)
+SAFTUOM-K73;K73;pound (avoirdupois) per hour degree Fahrenheit;фунт (авоардюпоа) на час градус по Фаренхайт
+SAFTUOM-K74;K74;pound (avoirdupois) per hour psi;фунт (авоардюпоа) на час фунт-сила на квадратен инч
+SAFTUOM-K75;K75;pound (avoirdupois) per cubic inch degree Fahrenheit;фунт (авоардюпоа) на кубичен инч градус по Фаренхайт
+SAFTUOM-K76;K76;pound (avoirdupois) per cubic inch psi;фунт (авоардюпоа) на кубичен инч фунт-сила на квадратен инч
+SAFTUOM-K77;K77;pound (avoirdupois) per psi;фунт (авоардюпоа) на фунт-сила на квадратен инч
+SAFTUOM-K78;K78;pound (avoirdupois) per minute;фунт (авоардюпоа) в минута
+SAFTUOM-K79;K79;pound (avoirdupois) per minute degree Fahrenheit;фунт (авоардюпоа) на минута градус Фаренхайт
+SAFTUOM-K80;K80;pound (avoirdupois) per minute psi;фунт (авоардюпоа) на минута фунт-сила на квадратен инч
+SAFTUOM-K81;K81;pound (avoirdupois) per second;фунт (авоардюпоа) в секунда
+SAFTUOM-K82;K82;pound (avoirdupois) per second degree Fahrenheit;фунт (авоардюпоа) на секунда градус по Фаренхайт
+SAFTUOM-K83;K83;pound (avoirdupois) per second psi;фунт (авоардюпоа) на секунда фунт-сила на квадратен инч
+SAFTUOM-K84;K84;pound per cubic yard;фунт на кубичен метър
+SAFTUOM-K85;K85;pound-force per square foot;фунт-сила на квадратен фут
+SAFTUOM-K86;K86;pound-force per square inch degree Fahrenheit;фунт-сила за квадратен инч градус по Фаренхайт
+SAFTUOM-K87;K87;psi cubic inch per second;фунт-сила на квадратен инч кубичен инч в секунда
+SAFTUOM-K88;K88;psi litre per second;фунт-сила на квадратен инч литър в секунда
+SAFTUOM-K89;K89;psi cubic metre per second;фунт-сила на квадратен инч кубичен метър в секунда
+SAFTUOM-K90;K90;psi cubic yard per second;фунт-сила на квадратен инч кубичен метър в секунда
+SAFTUOM-K91;K91;pound-force second per square foot;фунт-сила секунда на квадратен фут
+SAFTUOM-K92;K92;pound-force second per square inch;фунт-сила секунда на квадратен инч
+SAFTUOM-K94;K94;quart (UK liquid) per day;кварта (Великобритания, течна) на ден
+SAFTUOM-K95;K95;quart (UK liquid) per hour;кварта (Великобритания, течна) в час
+SAFTUOM-K96;K96;quart (UK liquid) per minute;кварта (Великобритания, течна) в минута
+SAFTUOM-K97;K97;quart (UK liquid) per second;кварта (Великобритания, течна) в секунда
+SAFTUOM-K98;K98;quart (US liquid) per day;кварта (САЩ, течна) на ден
+SAFTUOM-K99;K99;quart (US liquid) per hour;кварта (САЩ, течна) на час
+SAFTUOM-KA;KA;cake;пита
+SAFTUOM-KAT;KAT;katal;катал
+SAFTUOM-KB;KB;kilocharacter;килосимвол
+SAFTUOM-KBA;KBA;kilobar;килобар
+SAFTUOM-KCC;KCC;kilogram of choline chloride;килограм холинов хлорид
+SAFTUOM-KDW;KDW;kilogram drained net weight;килограм отцедено нетно тегло
+SAFTUOM-KEL;KEL;kelvin;келвин
+SAFTUOM-KGM;KGM;kilogram;килограм
+SAFTUOM-KGS;KGS;kilogram per second;килограм за секунда
+SAFTUOM-KHY;KHY;kilogram of hydrogen peroxide;килограм водороден пероксид
+SAFTUOM-KHZ;KHZ;kilohertz;килохерц
+SAFTUOM-KI;KI;kilogram per millimetre width;килограм на милиметър ширина
+SAFTUOM-KIC;KIC;kilogram, including container;килограм, заедно с контейнера
+SAFTUOM-KIP;KIP;kilogram, including inner packaging;килограм,заедно с вътрешната опаковка
+SAFTUOM-KJ;KJ;kilosegment;килосегмент
+SAFTUOM-KJO;KJO;kilojoule;килоджаул
+SAFTUOM-KL;KL;kilogram per metre;килограм на метър
+SAFTUOM-KLK;KLK;lactic dry material percentage;процент млечно сухо вещество
+SAFTUOM-KLX;KLX;kilolux;килолукс
+SAFTUOM-KMA;KMA;kilogram of methylamine;килограм метиламин
+SAFTUOM-KMH;KMH;kilometre per hour;километър в час
+SAFTUOM-KMK;KMK;square kilometre;квадратен километър
+SAFTUOM-KMQ;KMQ;kilogram per cubic metre;килограм на кубичен метър
+SAFTUOM-KMT;KMT;kilometre;километър
+SAFTUOM-KNI;KNI;kilogram of nitrogen;килограм азот
+SAFTUOM-KNM;KNM;kilonewton per square metre;килонютон на квадратен метър
+SAFTUOM-KNS;KNS;kilogram named substance;килограм указано вещество
+SAFTUOM-KNT;KNT;knot;възел
+SAFTUOM-KO;KO;milliequivalence caustic potash per gram of product;милиеквивалент на калиева основа на грам продукт
+SAFTUOM-KPA;KPA;kilopascal;килопаскал
+SAFTUOM-KPH;KPH;kilogram of potassium hydroxide (caustic potash);килограм калиев хидроксид (калиева основа)
+SAFTUOM-KPO;KPO;kilogram of potassium oxide;килограм калиев оксид
+SAFTUOM-KPP;KPP;kilogram of phosphorus pentoxide (phosphoric anhydride);килограм фосфорен пентаоксид (фосфорен анхидрид)
+SAFTUOM-KR;KR;kiloroentgen;килорентген
+SAFTUOM-KSD;KSD;kilogram of substance 90 % dry;килограм 90% суха субстанция
+SAFTUOM-KSH;KSH;kilogram of sodium hydroxide (caustic soda);килограм натриев хидроксид (сода каустик)
+SAFTUOM-KT;KT;kit;комплект
+SAFTUOM-KTN;KTN;kilotonne;килотон
+SAFTUOM-KUR;KUR;kilogram of uranium;килограм уран
+SAFTUOM-KVA;KVA;kilovolt - ampere;киловолтампер
+SAFTUOM-KVR;KVR;kilovar;киловар
+SAFTUOM-KVT;KVT;kilovolt;киловолт
+SAFTUOM-KW;KW;kilogram per millimetre;килограм на милиметър
+SAFTUOM-KWH;KWH;kilowatt hour;киловатчас
+SAFTUOM-KWN;KWN;Kilowatt hour per normalized cubic metre;Киловатчас на нормализиран кубичен метър
+SAFTUOM-KWO;KWO;kilogram of tungsten trioxide;килограм волфрамов триоксид
+SAFTUOM-KWS;KWS;Kilowatt hour per standard cubic metre;Киловатчас на стандартен кубичен метър
+SAFTUOM-KWT;KWT;kilowatt;киловат
+SAFTUOM-KX;KX;millilitre per kilogram;милилитър на килограм
+SAFTUOM-L10;L10;quart (US liquid) per minute;кварта (САЩ, течна) в минута
+SAFTUOM-L11;L11;quart (US liquid) per second;кварта (САЩ, течна) в секунда
+SAFTUOM-L12;L12;metre per second kelvin;метър на секунда келвин
+SAFTUOM-L13;L13;metre per second bar;метър на секунда бар
+SAFTUOM-L14;L14;square metre hour degree Celsius per kilocalorie (international table);квадратен метър час градус Целзий за килокалория (международна таблица)
+SAFTUOM-L15;L15;millipascal second per kelvin;милипаскал секунда на келвин
+SAFTUOM-L16;L16;millipascal second per bar;милипаскал секунда на бар
+SAFTUOM-L17;L17;milligram per cubic metre kelvin;милиграм на кубичен метър келвин
+SAFTUOM-L18;L18;milligram per cubic metre bar;милиграм на кубичен метър бар
+SAFTUOM-L19;L19;millilitre per litre;милилитър за литър
+SAFTUOM-L2;L2;litre per minute;литър за минута
+SAFTUOM-L21;L21;cubic millimetre per cubic metre;кубичен милиметър на кубичен метър
+SAFTUOM-L23;L23;mole per hour;мол на час
+SAFTUOM-L24;L24;mole per kilogram kelvin;мол на килограм келвин
+SAFTUOM-L25;L25;mole per kilogram bar;мол на килограм бар
+SAFTUOM-L26;L26;mole per litre kelvin;мол на литър келвин
+SAFTUOM-L27;L27;mole per litre bar;мол на литър бар
+SAFTUOM-L28;L28;mole per cubic metre kelvin;мол на кубичен метър келвин
+SAFTUOM-L29;L29;mole per cubic metre bar;мол на кубичен метър бар
+SAFTUOM-L30;L30;mole per minute;мол на минута
+SAFTUOM-L31;L31;milliroentgen aequivalent men;биологичен еквивалент на милирентген
+SAFTUOM-L32;L32;nanogram per kilogram;нанограм на килограм
+SAFTUOM-L33;L33;ounce (avoirdupois) per day;унция (авоардюпоа) на ден
+SAFTUOM-L34;L34;ounce (avoirdupois) per hour;унция (авоардюпоа) на час
+SAFTUOM-L35;L35;ounce (avoirdupois) per minute;унция (авоардюпоа) на минута
+SAFTUOM-L36;L36;ounce (avoirdupois) per second;унция (авоардюпоа) на секунда
+SAFTUOM-L37;L37;ounce (avoirdupois) per gallon (UK);унция (авоардюпоа) на галон (Великобритания)
+SAFTUOM-L38;L38;ounce (avoirdupois) per gallon (US);унция (авоардюпоа) на галон (САЩ)
+SAFTUOM-L39;L39;ounce (avoirdupois) per cubic inch;унция (авоардюпоа) на кубичен инч
+SAFTUOM-L40;L40;ounce (avoirdupois)-force;унция (авоардюпоа)-сила
+SAFTUOM-L41;L41;ounce (avoirdupois)-force inch;унция (авоардюпоа)-сила инч
+SAFTUOM-L42;L42;picosiemens per metre;пикосименс за метър
+SAFTUOM-L43;L43;peck (UK);пек (Великобритания)
+SAFTUOM-L44;L44;peck (UK) per day;пек (Великобритания) на ден
+SAFTUOM-L45;L45;peck (UK) per hour;пек (Великобритания) на час
+SAFTUOM-L46;L46;peck (UK) per minute;пек (Великобритания) на минута
+SAFTUOM-L47;L47;peck (UK) per second;пек (Великобритания) на секунда
+SAFTUOM-L48;L48;peck (US dry) per day;пек (САЩ, сух) на ден
+SAFTUOM-L49;L49;peck (US dry) per hour;пек (САЩ, сух) на час
+SAFTUOM-L50;L50;peck (US dry) per minute;пек (САЩ, сух) на минута
+SAFTUOM-L51;L51;peck (US dry) per second;пек (САЩ, сух) на секунда
+SAFTUOM-L52;L52;psi per psi;фунт-сила на квадратен инч на фунт-сила на квадратен инч
+SAFTUOM-L53;L53;pint (UK) per day;пинта (Великобритания) на ден
+SAFTUOM-L54;L54;pint (UK) per hour;пинта (Великобритания) на час
+SAFTUOM-L55;L55;pint (UK) per minute;пинта (Великобритания) на минута
+SAFTUOM-L56;L56;pint (UK) per second;пинта (Великобритания) на секунда
+SAFTUOM-L57;L57;pint (US liquid) per day;пинта (САЩ, течнат) на ден
+SAFTUOM-L58;L58;pint (US liquid) per hour;пинта (САЩ, течна) на час
+SAFTUOM-L59;L59;pint (US liquid) per minute;пинта (САЩ, течна) на минута
+SAFTUOM-L60;L60;pint (US liquid) per second;пинта (САЩ, течна) на секунда
+SAFTUOM-L63;L63;slug per day;слаг на ден
+SAFTUOM-L64;L64;slug per foot second;сла на фут в секунда
+SAFTUOM-L65;L65;slug per cubic foot;слаг на кубичен фут
+SAFTUOM-L66;L66;slug per hour;слаг на час
+SAFTUOM-L67;L67;slug per minute;слаг на минута
+SAFTUOM-L68;L68;slug per second;слаг на секунда
+SAFTUOM-L69;L69;tonne per kelvin;тон за келвин
+SAFTUOM-L70;L70;tonne per bar;тон за бар
+SAFTUOM-L71;L71;tonne per day;тон за ден
+SAFTUOM-L72;L72;tonne per day kelvin;тон за ден келвин
+SAFTUOM-L73;L73;tonne per day bar;тон за ден бар
+SAFTUOM-L74;L74;tonne per hour kelvin;тон за час келвин
+SAFTUOM-L75;L75;tonne per hour bar;тон за час бар
+SAFTUOM-L76;L76;tonne per cubic metre kelvin;мол за кубичен метър келвин
+SAFTUOM-L77;L77;tonne per cubic metre bar;тон за кубичен метър бар
+SAFTUOM-L78;L78;tonne per minute;тон за минута
+SAFTUOM-L79;L79;tonne per minute kelvin;тон за минута келвин
+SAFTUOM-L80;L80;tonne per minute bar;тон за минута бар
+SAFTUOM-L81;L81;tonne per second;тон за секунда
+SAFTUOM-L82;L82;tonne per second kelvin;тон за секунда келвин
+SAFTUOM-L83;L83;tonne per second bar;тон за секунда бар
+SAFTUOM-L84;L84;ton (UK shipping);тон (Великобритания, товарен)
+SAFTUOM-L85;L85;ton long per day;дълъг тон на ден
+SAFTUOM-L86;L86;ton (US shipping);тон (САЩ, товарен)
+SAFTUOM-L87;L87;ton short per degree Fahrenheit;къс тон на градус по Фаренхайт
+SAFTUOM-L88;L88;ton short per day;къс тон на ден
+SAFTUOM-L89;L89;ton short per hour degree Fahrenheit;къс тон в час градус по Фаренхайт
+SAFTUOM-L90;L90;ton short per hour psi;къс тон в час фунт-сила на квадратен инч
+SAFTUOM-L91;L91;ton short per psi;къс тон на фунт-сила на квадратен инч
+SAFTUOM-L92;L92;ton (UK long) per cubic yard;тон (Великобритания, дълъг) за кубичен ярд
+SAFTUOM-L93;L93;ton (US short) per cubic yard;тон (САЩ, къс) за кубичен ярд
+SAFTUOM-L94;L94;ton-force (US short);тон-сила (САЩ, къс)
+SAFTUOM-L95;L95;common year;невисокосна година
+SAFTUOM-L96;L96;sidereal year;звездна година
+SAFTUOM-L98;L98;yard per degree Fahrenheit;ярд на градус Фаренхайт
+SAFTUOM-L99;L99;yard per psi;ярд на фунт-сила на квадратен инч
+SAFTUOM-LA;LA;pound per cubic inch;фунт на кубичен инч
+SAFTUOM-LAC;LAC;lactose excess percentage;излишък на лактоза в процент
+SAFTUOM-LBR;LBR;pound;фунт
+SAFTUOM-LBT;LBT;troy pound (US);тройфунт (САЩ)
+SAFTUOM-LD;LD;litre per day;литър на ден
+SAFTUOM-LEF;LEF;leaf;лист
+SAFTUOM-LF;LF;linear foot;линеен фут
+SAFTUOM-LH;LH;labour hour;работен час
+SAFTUOM-LK;LK;link;брънка
+SAFTUOM-LM;LM;linear metre;линеен метър
+SAFTUOM-LN;LN;length;дължина
+SAFTUOM-LO;LO;lot  [unit of procurement];партида [единица за снабдяване]
+SAFTUOM-LP;LP;liquid pound;фунт течност
+SAFTUOM-LPA;LPA;litre of pure alcohol;литър чист алкохол
+SAFTUOM-LR;LR;layer;слой
+SAFTUOM-LS;LS;lump sum;обща сума
+SAFTUOM-LTN;LTN;ton (UK) or long ton (US);тон (Великобритания) или дълъг тон (САЩ)
+SAFTUOM-LTR;LTR;litre;литър
+SAFTUOM-LUB;LUB;metric ton, lubricating oil;метричен тон, смазочно масло
+SAFTUOM-LUM;LUM;lumen;лумен
+SAFTUOM-LUX;LUX;lux;лукс
+SAFTUOM-LY;LY;linear yard;линеен ярд
+SAFTUOM-M1;M1;milligram per litre;милиграм на литър
+SAFTUOM-M11;M11;cubic yard per degree Fahrenheit;кубичен ярд на градус по Фаренхайт
+SAFTUOM-M12;M12;cubic yard per day;кубичен ярд на ден
+SAFTUOM-M13;M13;cubic yard per hour;кубичен ярд на час
+SAFTUOM-M14;M14;cubic yard per psi;кубичен ярд на фунт-сила на квадратен инч
+SAFTUOM-M15;M15;cubic yard per minute;кубичен ярд на минута
+SAFTUOM-M16;M16;cubic yard per second;кубичен ярд на секунда
+SAFTUOM-M17;M17;kilohertz metre;килохерц метър
+SAFTUOM-M18;M18;gigahertz metre;гигахерц метър
+SAFTUOM-M19;M19;Beaufort;Бофорт
+SAFTUOM-M22;M22;millilitre per square centimetre minute;милилитър на квадратен сантиметър минута
+SAFTUOM-M23;M23;newton per centimetre;нютон на сантиметър
+SAFTUOM-M24;M24;ohm kilometre;ом километър
+SAFTUOM-M25;M25;percent per degree Celsius;процент за градус Целзий
+SAFTUOM-M26;M26;gigaohm per metre;гигаом на метър
+SAFTUOM-M27;M27;megahertz metre;мегахерц метър
+SAFTUOM-M29;M29;kilogram per kilogram;килограм на килограм
+SAFTUOM-M31;M31;kilogram per kilometre;килограм на километър
+SAFTUOM-M32;M32;pascal second per litre;паскал секунда на литър
+SAFTUOM-M33;M33;millimole per litre;милимол на литър
+SAFTUOM-M34;M34;newton metre per square metre;нютон метър на квадратен метър
+SAFTUOM-M35;M35;millivolt - ampere;миливолтампер
+SAFTUOM-M36;M36;30-day month;30-дневен месец
+SAFTUOM-M37;M37;actual/360;фактически/360
+SAFTUOM-M38;M38;kilometre per second squared;километър в секунда на квадрат
+SAFTUOM-M39;M39;centimetre per second squared;сантиметър в секунда на квадрат
+SAFTUOM-M4;M4;monetary value;парична стойност
+SAFTUOM-M40;M40;yard per second squared;метър в секунда на квадрат
+SAFTUOM-M41;M41;millimetre per second squared;милиметър на секунда на квадрат
+SAFTUOM-M42;M42;mile (statute mile) per second squared;миля (щатска миля) за секунда на квадрат
+SAFTUOM-M43;M43;mil;мил
+SAFTUOM-M44;M44;revolution;оборот
+SAFTUOM-M45;M45;degree [unit of angle] per second squared;градус [единица за ъгъл] на секунда на квадрат
+SAFTUOM-M46;M46;revolution per minute;оборот в минута
+SAFTUOM-M47;M47;circular mil;кръгов мил
+SAFTUOM-M48;M48;square mile (based on U.S. survey foot);квадратна миля (на база на земемерен фут, САЩ)
+SAFTUOM-M5;M5;microcurie;микрокюри
+SAFTUOM-M50;M50;furlong;фърлонг
+SAFTUOM-M51;M51;foot (U.S. survey);фут (САЩ, земемерен)
+SAFTUOM-M52;M52;mile (based on U.S. survey foot);миля (на база на земемерен фут, САЩ)
+SAFTUOM-M53;M53;metre per pascal;метър на паскал
+SAFTUOM-M55;M55;metre per radiant;метър на радан
+SAFTUOM-M56;M56;shake;шейк
+SAFTUOM-M57;M57;mile per minute;миля в минута
+SAFTUOM-M58;M58;mile per second;миля в секунда
+SAFTUOM-M59;M59;metre per second pascal;метър на секунда паскал
+SAFTUOM-M60;M60;metre per hour;метър в час
+SAFTUOM-M61;M61;inch per year;инч на година
+SAFTUOM-M62;M62;kilometre per second;километър в секунда
+SAFTUOM-M63;M63;inch per minute;инч в минута
+SAFTUOM-M64;M64;yard per second;ярд в секунда
+SAFTUOM-M65;M65;yard per minute;ярд в минута
+SAFTUOM-M66;M66;yard per hour;ярд на час
+SAFTUOM-M67;M67;acre-foot (based on U.S. survey foot);акър-фут (на база на земемерен фут, САЩ)
+SAFTUOM-M68;M68;cord (128 ft3);корд (128 кубични фута)
+SAFTUOM-M69;M69;cubic mile (UK statute);кубична миля (Великобритания, сухопътна)
+SAFTUOM-M7;M7;micro-inch;микроинч
+SAFTUOM-M70;M70;ton, register;регистър тон
+SAFTUOM-M71;M71;cubic metre per pascal;кубичен метър на паскал
+SAFTUOM-M72;M72;bel;бел
+SAFTUOM-M73;M73;kilogram per cubic metre pascal;килограм на кубичен метър паскал
+SAFTUOM-M74;M74;kilogram per pascal;килограм на паскал
+SAFTUOM-M75;M75;kilopound-force;килофунт-сила
+SAFTUOM-M76;M76;poundal;паундал
+SAFTUOM-M77;M77;kilogram metre per second squared;килограм метър в секунда на квадрат
+SAFTUOM-M78;M78;pond;понд
+SAFTUOM-M79;M79;square foot per hour;квадратен фут на час
+SAFTUOM-M80;M80;stokes per pascal;стокс на паскал
+SAFTUOM-M81;M81;square centimetre per second;квадратен сантиметър за секунда
+SAFTUOM-M82;M82;square metre per second pascal;квадратен метър за секунда паскал
+SAFTUOM-M83;M83;denier;дение
+SAFTUOM-M84;M84;pound per yard;фунт за ярд
+SAFTUOM-M85;M85;ton, assay;тон, пробен
+SAFTUOM-M86;M86;pfund;фунт
+SAFTUOM-M87;M87;kilogram per second pascal;килограм на секунда паскал
+SAFTUOM-M88;M88;tonne per month;тон на месец
+SAFTUOM-M89;M89;tonne per year;тон за година
+SAFTUOM-M9;M9;million Btu per 1000 cubic foot;милион Btu за 1000 кубични фута
+SAFTUOM-M90;M90;kilopound per hour;килофунт в час
+SAFTUOM-M91;M91;pound per pound;фунт на фунт
+SAFTUOM-M92;M92;pound-force foot;фунт-сила фут
+SAFTUOM-M93;M93;newton metre per radian;нютон метър на радиан
+SAFTUOM-M94;M94;kilogram metre;килограм метър
+SAFTUOM-M95;M95;poundal foot;паундал фут
+SAFTUOM-M96;M96;poundal inch;паундал инч
+SAFTUOM-M97;M97;dyne metre;дина метър
+SAFTUOM-M98;M98;kilogram centimetre per second;килограм сантиметър в секунда
+SAFTUOM-M99;M99;gram centimetre per second;грам сантиметър в секунда
+SAFTUOM-MAH;MAH;megavolt ampere reactive hour;реактивен мегаволтампер час
+SAFTUOM-MAL;MAL;megalitre;мегалитър
+SAFTUOM-MAM;MAM;megametre;мегаметър
+SAFTUOM-MAR;MAR;megavar;мегавар
+SAFTUOM-MAW;MAW;megawatt;мегават
+SAFTUOM-MBE;MBE;thousand standard brick equivalent;еквивалент на хиляда стандартни тухли
+SAFTUOM-MBF;MBF;thousand board foot;хиляда дъсчени фута
+SAFTUOM-MBR;MBR;millibar;милибар
+SAFTUOM-MC;MC;microgram;микрограм
+SAFTUOM-MCU;MCU;millicurie;миликюри
+SAFTUOM-MD;MD;air dry metric ton;метричен тон въздушно изсушена маса
+SAFTUOM-MGM;MGM;milligram;милиграм
+SAFTUOM-MHZ;MHZ;megahertz;мегахерц
+SAFTUOM-MIK;MIK;square mile (statute mile);квадратна миля (сухопътна миля)
+SAFTUOM-MIL;MIL;thousand;хиляда
+SAFTUOM-MIN;MIN;minute [unit of time];минута [единица за време]
+SAFTUOM-MIO;MIO;million;милион
+SAFTUOM-MIU;MIU;million international unit;милион международни единици
+SAFTUOM-MLD;MLD;milliard;милиард
+SAFTUOM-MLT;MLT;millilitre;милилитър
+SAFTUOM-MMK;MMK;square millimetre;квадратен милиметър
+SAFTUOM-MMQ;MMQ;cubic millimetre;кубичен милиметър
+SAFTUOM-MMT;MMT;millimetre;милиметър
+SAFTUOM-MND;MND;kilogram, dry weight;килограм, сухо тегло
+SAFTUOM-MON;MON;month;месец
+SAFTUOM-MPA;MPA;megapascal;мегапаскал
+SAFTUOM-MQH;MQH;cubic metre per hour;кубичен метър в час
+SAFTUOM-MQS;MQS;cubic metre per second;кубичен метър в секунда
+SAFTUOM-MSK;MSK;metre per second squared;метър в секунда на квадрат
+SAFTUOM-MTK;MTK;square metre;квадратен метър
+SAFTUOM-MTQ;MTQ;cubic metre;кубичен метър
+SAFTUOM-MTR;MTR;metre;метър
+SAFTUOM-MTS;MTS;metre per second;метър в секунда
+SAFTUOM-MVA;MVA;megavolt - ampere;мегаволтампер
+SAFTUOM-MWH;MWH;megawatt hour (1000 kW.h);мегаватчас (1000 kW.h)
+SAFTUOM-N1;N1;pen calorie;калория за парентерално и ентерално въвеждане
+SAFTUOM-N10;N10;pound foot per second;фунт фут за секунда
+SAFTUOM-N11;N11;pound inch per second;фунт инч за секунда
+SAFTUOM-N12;N12;Pferdestaerke;Pferdestaerke
+SAFTUOM-N13;N13;centimetre of mercury (0 ºC);сантиметър живачен стълб (0 ºC)
+SAFTUOM-N14;N14;centimetre of water (4 ºC);сантиметър воден стълб (4 ºC)
+SAFTUOM-N15;N15;foot of water (39.2 ºF);фут воден стълб (39,2 ºF)
+SAFTUOM-N16;N16;inch of mercury (32 ºF);инч живачен стълб (32 ºF)
+SAFTUOM-N17;N17;inch of mercury (60 ºF);инч живачен стълб (60 ºF)
+SAFTUOM-N18;N18;inch of water (39.2 ºF);инч воден стълб (39,2 ºF)
+SAFTUOM-N19;N19;inch of water (60 ºF);инч воден стълб (60 ºF)
+SAFTUOM-N20;N20;kip per square inch;килофунт-сила за квадратен инч
+SAFTUOM-N21;N21;poundal per square foot;паундал на квадратен фут
+SAFTUOM-N22;N22;ounce (avoirdupois) per square inch;унция (авоардюпоа) на квадратен инч
+SAFTUOM-N23;N23;conventional metre of water;стандартен метър воден стълб
+SAFTUOM-N24;N24;gram per square millimetre;грам на квадратен милиметър
+SAFTUOM-N25;N25;pound per square yard;фунт на квадратен метър
+SAFTUOM-N26;N26;poundal per square inch;паундал на квадратен инч
+SAFTUOM-N27;N27;foot to the fourth power;фут на четвърта степен
+SAFTUOM-N28;N28;cubic decimetre per kilogram;кубичен дециметър на килограм
+SAFTUOM-N29;N29;cubic foot per pound;кубичен фут на фунт
+SAFTUOM-N3;N3;print point;точка при отпечатване
+SAFTUOM-N30;N30;cubic inch per pound;кубичен инч на фунт
+SAFTUOM-N31;N31;kilonewton per metre;килонютон на метър
+SAFTUOM-N32;N32;poundal per inch;паундал на инч
+SAFTUOM-N33;N33;pound-force per yard;фунт-сила за ярд
+SAFTUOM-N34;N34;poundal second per square foot;паундал секунда на квадратен фут
+SAFTUOM-N35;N35;poise per pascal;поаз на паскал
+SAFTUOM-N36;N36;newton second per square metre;нютон секунда на квадратен метър
+SAFTUOM-N37;N37;kilogram per metre second;килограм на метър секунда
+SAFTUOM-N38;N38;kilogram per metre minute;килограм на метър минута
+SAFTUOM-N39;N39;kilogram per metre day;килограм на метър ден
+SAFTUOM-N40;N40;kilogram per metre hour;килограм на метър час
+SAFTUOM-N41;N41;gram per centimetre second;грам на сантиметър секунда
+SAFTUOM-N42;N42;poundal second per square inch;паундал секунда на квадратен инч
+SAFTUOM-N43;N43;pound per foot minute;фунт на фут минута
+SAFTUOM-N44;N44;pound per foot day;фунт на фут ден
+SAFTUOM-N45;N45;cubic metre per second pascal;кубичен метър на секунда паскал
+SAFTUOM-N46;N46;foot poundal;фут паундал
+SAFTUOM-N47;N47;inch poundal;инч паундал
+SAFTUOM-N48;N48;watt per square centimetre;ват на квадратен сантиметър
+SAFTUOM-N49;N49;watt per square inch;ват на квадратен инч
+SAFTUOM-N50;N50;British thermal unit (international table) per square foot hour;Британска топлинна единица (международна таблица) на квадратен фут час
+SAFTUOM-N51;N51;British thermal unit (thermochemical) per square foot hour;Британска топлинна единица (термохимична) на квадратен фут час
+SAFTUOM-N52;N52;British thermal unit (thermochemical) per square foot minute;Британска топлинна единица (термохимична) на квадратен фут минута
+SAFTUOM-N53;N53;British thermal unit (international table) per square foot second;Британска топлинна единица (международна таблица) на квадратен фут секунда
+SAFTUOM-N54;N54;British thermal unit (thermochemical) per square foot second;Британска топлинна единица (термохимична) на квадратен фут секунда
+SAFTUOM-N55;N55;British thermal unit (international table) per square inch second;Британска топлинна единица (международна таблица) на квадратен инч секунда
+SAFTUOM-N56;N56;calorie (thermochemical) per square centimetre minute;калория (термохимична) на квадратен сантиметър в минута
+SAFTUOM-N57;N57;calorie (thermochemical) per square centimetre second;калория (термохимична) на квадратен сантиметър в секунда
+SAFTUOM-N58;N58;British thermal unit (international table) per cubic foot;Британска топлинна единица (международна таблица) на кубичен фут
+SAFTUOM-N59;N59;British thermal unit (thermochemical) per cubic foot;Британска топлинна единица (термохимична) на кубичен фут
+SAFTUOM-N60;N60;British thermal unit (international table) per degree Fahrenheit;Британска топлинна единица (международна таблица) на градус Фаренхайт
+SAFTUOM-N61;N61;British thermal unit (thermochemical) per degree Fahrenheit;Британска топлинна единица (термохимична) на градус Фаренхайт
+SAFTUOM-N62;N62;British thermal unit (international table) per degree Rankine;Британска топлинна единица (международна таблица) на градус Ранкин
+SAFTUOM-N63;N63;British thermal unit (thermochemical) per degree Rankine;Британска топлинна единица (термохимична) на градус Ранкин
+SAFTUOM-N64;N64;British thermal unit (thermochemical) per pound degree Rankine;Британска топлинна единица (термохимична) за фунт градус Ранкин
+SAFTUOM-N65;N65;kilocalorie (international table) per gram kelvin;килокалория (международна таблица) на грам келвин
+SAFTUOM-N66;N66;British thermal unit (39 ºF);Британска топлинна единица (39 ºF)
+SAFTUOM-N67;N67;British thermal unit (59 ºF);Британска топлинна единица (59 ºF)
+SAFTUOM-N68;N68;British thermal unit (60 ºF);Британска топлинна единица (60 ºF)
+SAFTUOM-N69;N69;calorie (20 ºC);калория (20 ºC)
+SAFTUOM-N70;N70;quad (1015 BtuIT);квадрилион (1015 британски топлинни единици, международна таблица)
+SAFTUOM-N71;N71;therm (EC);терм (EC)
+SAFTUOM-N72;N72;therm (U.S.);терм (САЩ)
+SAFTUOM-N73;N73;British thermal unit (thermochemical) per pound;Британска топлинна единица (термохимична) за фунт
+SAFTUOM-N74;N74;British thermal unit (international table) per hour square foot degree Fahrenheit;Британска топлинна единица (международна таблица) на час квадратен фут градус Фаренхайт
+SAFTUOM-N75;N75;British thermal unit (thermochemical) per hour square foot degree Fahrenheit;Британска топлинна единица (термохимична) на час квадратен фут градус Фаренхайт
+SAFTUOM-N76;N76;British thermal unit (international table) per second square foot degree Fahrenheit;Британска топлинна единица (международна таблица) на секунда квадратен фут градус Фаренхайт
+SAFTUOM-N77;N77;British thermal unit (thermochemical) per second square foot degree Fahrenheit;Британска топлинна единица (термохимична) на секунда квадратен фут градус Фаренхайт
+SAFTUOM-N78;N78;kilowatt per square metre kelvin;киловат на квадратен метър келвин
+SAFTUOM-N79;N79;kelvin per pascal;келвин на паскал
+SAFTUOM-N80;N80;watt per metre degree Celsius;ват на метър градус Целзий
+SAFTUOM-N81;N81;kilowatt per metre kelvin;киловат на метър келвин
+SAFTUOM-N82;N82;kilowatt per metre degree Celsius;киловат на метър градус Целзий
+SAFTUOM-N83;N83;metre per degree Celcius metre;метър на градус Целзий метър
+SAFTUOM-N84;N84;degree Fahrenheit hour per British thermal unit (international table);градус Фаренхайт час за британска топлинна единица (международна таблица)
+SAFTUOM-N85;N85;degree Fahrenheit hour per British thermal unit (thermochemical);градус Фаренхайт час за британска топлинна единица (термохимична)
+SAFTUOM-N86;N86;degree Fahrenheit second per British thermal unit (international table);градус Фаренхайт секунда за британска топлинна единица (международна таблица)
+SAFTUOM-N87;N87;degree Fahrenheit second per British thermal unit (thermochemical);градус Фаренхайт секунда за британска топлинна единица (термохимична)
+SAFTUOM-N88;N88;degree Fahrenheit hour square foot per British thermal unit (international table) inch;градус Фаренхайт час квадратен фут за британска топлинна единица (международна таблица) инч
+SAFTUOM-N89;N89;degree Fahrenheit hour square foot per British thermal unit (thermochemical) inch;градус Фаренхайт час квадратен фут за британска топлинна единица (термохимична) инч
+SAFTUOM-N90;N90;kilofarad;килофарад
+SAFTUOM-N91;N91;reciprocal joule;реципрочен джаул
+SAFTUOM-N92;N92;picosiemens;пикосименс
+SAFTUOM-N93;N93;ampere per pascal;ампер на паскал
+SAFTUOM-N94;N94;franklin;франклин
+SAFTUOM-N95;N95;ampere minute;ампер минута
+SAFTUOM-N96;N96;biot;биот
+SAFTUOM-N97;N97;gilbert;жилберт
+SAFTUOM-N98;N98;volt per pascal;волтана паскал
+SAFTUOM-N99;N99;picovolt;пиковолт
+SAFTUOM-NA;NA;milligram per kilogram;милиграм на килограм
+SAFTUOM-NAR;NAR;number of articles;брой артикули
+SAFTUOM-NCL;NCL;number of cells;брой клетки
+SAFTUOM-NEW;NEW;newton;нютон
+SAFTUOM-NIL;NIL;nil;брой празни
+SAFTUOM-NIU;NIU;number of international units;брой международни единици
+SAFTUOM-NL;NL;load;товар
+SAFTUOM-NM3;NM3;Normalised cubic metre;Нормализиран кубичен метър
+SAFTUOM-NMI;NMI;nautical mile;морска миля
+SAFTUOM-NMP;NMP;number of packs;брой пакети
+SAFTUOM-NPT;NPT;number of parts;брой части
+SAFTUOM-NT;NT;net ton;тон нето
+SAFTUOM-NU;NU;newton metre;нютон метър
+SAFTUOM-NX;NX;part per thousand;част на хиляда
+SAFTUOM-OA;OA;panel;панел
+SAFTUOM-ODG;ODG;ODS Grams;ODS грамове
+SAFTUOM-ODK;ODK;ODS Kilograms;ODS килограми
+SAFTUOM-ODM;ODM;ODS Milligrams;ODS милиграми
+SAFTUOM-OHM;OHM;ohm;ом
+SAFTUOM-ON;ON;ounce per square yard;унция на квадратен ярд
+SAFTUOM-ONZ;ONZ;ounce (avoirdupois);унция (авоардюпоа)
+SAFTUOM-OPM;OPM;oscillations per minute;осцилации в минута
+SAFTUOM-OT;OT;overtime hour;извънреден час
+SAFTUOM-OZA;OZA;fluid ounce (US);течна унция (САЩ)
+SAFTUOM-OZI;OZI;fluid ounce (UK);течна унция (Великобритания)
+SAFTUOM-P1;P1;percent;процент
+SAFTUOM-P10;P10;coulomb per metre;кулон на метър
+SAFTUOM-P11;P11;kiloweber;киловебер
+SAFTUOM-P12;P12;gamma;гама
+SAFTUOM-P13;P13;kilotesla;килотесла
+SAFTUOM-P14;P14;joule per second;джаул в секунда
+SAFTUOM-P15;P15;joule per minute;джаул в минута
+SAFTUOM-P16;P16;joule per hour;джаул в час
+SAFTUOM-P17;P17;joule per day;джаул на ден
+SAFTUOM-P18;P18;kilojoule per second;килоджаул в секунда
+SAFTUOM-P19;P19;kilojoule per minute;килоджаул в минута
+SAFTUOM-P2;P2;pound per foot;фунт на фут
+SAFTUOM-P20;P20;kilojoule per hour;килоджаул в час
+SAFTUOM-P21;P21;kilojoule per day;килоджаул на ден
+SAFTUOM-P22;P22;nanoohm;наноом
+SAFTUOM-P23;P23;ohm circular-mil per foot;ом кръгов мил за фут
+SAFTUOM-P24;P24;kilohenry;килохенри
+SAFTUOM-P25;P25;lumen per square foot;лумен на квадратен фут
+SAFTUOM-P26;P26;phot;фот
+SAFTUOM-P27;P27;footcandle;футкандел
+SAFTUOM-P28;P28;candela per square inch;кандела на квадратен инч
+SAFTUOM-P29;P29;footlambert;футламбер
+SAFTUOM-P30;P30;lambert;ламбер
+SAFTUOM-P31;P31;stilb;стилб
+SAFTUOM-P32;P32;candela per square foot;кандела на квадратен фут
+SAFTUOM-P33;P33;kilocandela;килокандела
+SAFTUOM-P34;P34;millicandela;миликандела
+SAFTUOM-P35;P35;Hefner-Kerze;хефнерхерце
+SAFTUOM-P36;P36;international candle;кандела, международна система
+SAFTUOM-P37;P37;British thermal unit (international table) per square foot;Британска топлинна единица (международна таблица) на квадратен фут
+SAFTUOM-P38;P38;British thermal unit (thermochemical) per square foot;Британска топлинна единица (термохимична) на квадратен фут
+SAFTUOM-P39;P39;calorie (thermochemical) per square centimetre;калория (термохимична) на квадратен сантиметър
+SAFTUOM-P40;P40;langley;лангли
+SAFTUOM-P41;P41;decade (logarithmic);декада (логаритмична)
+SAFTUOM-P42;P42;pascal squared second;паскал на квадрат секунда
+SAFTUOM-P43;P43;bel per metre;бел за метър
+SAFTUOM-P44;P44;pound mole;фунт мол
+SAFTUOM-P45;P45;pound mole per second;фунт мол в секунда
+SAFTUOM-P46;P46;pound mole per minute;фунт мол в минута
+SAFTUOM-P47;P47;kilomole per kilogram;киломол на килограм
+SAFTUOM-P48;P48;pound mole per pound;фунт мол на фунт
+SAFTUOM-P49;P49;newton square metre per ampere;нютон квадратен метър на ампер
+SAFTUOM-P5;P5;five pack;пет в пакет
+SAFTUOM-P50;P50;weber metre;вебер метър
+SAFTUOM-P51;P51;mol per kilogram pascal;мол на килограм паскал
+SAFTUOM-P52;P52;mol per cubic metre pascal;мол на кубичен метър паскал
+SAFTUOM-P53;P53;unit pole;единица за магнитен полюс
+SAFTUOM-P54;P54;milligray per second;милигрей за секунда
+SAFTUOM-P55;P55;microgray per second;микрогрей за секунда
+SAFTUOM-P56;P56;nanogray per second;наногрей за секунда
+SAFTUOM-P57;P57;gray per minute;грей за минута
+SAFTUOM-P58;P58;milligray per minute;милигрей за минута
+SAFTUOM-P59;P59;microgray per minute;микрогрей за минута
+SAFTUOM-P60;P60;nanogray per minute;наногрей за минута
+SAFTUOM-P61;P61;gray per hour;грей за час
+SAFTUOM-P62;P62;milligray per hour;милигрей за час
+SAFTUOM-P63;P63;microgray per hour;микрогрей за час
+SAFTUOM-P64;P64;nanogray per hour;наногрей за час
+SAFTUOM-P65;P65;sievert per second;сиверт за секунда
+SAFTUOM-P66;P66;millisievert per second;милисиверт за секунда
+SAFTUOM-P67;P67;microsievert per second;микросиверт за секунда
+SAFTUOM-P68;P68;nanosievert per second;наносиверт за секунда
+SAFTUOM-P69;P69;rem per second;бер за секунда
+SAFTUOM-P70;P70;sievert per hour;сиверт за час
+SAFTUOM-P71;P71;millisievert per hour;милисиверт за час
+SAFTUOM-P72;P72;microsievert per hour;микросиверт за час
+SAFTUOM-P73;P73;nanosievert per hour;наносиверт за час
+SAFTUOM-P74;P74;sievert per minute;сиверт за минута
+SAFTUOM-P75;P75;millisievert per minute;милисиверт в минута
+SAFTUOM-P76;P76;microsievert per minute;микросиверт за минута
+SAFTUOM-P77;P77;nanosievert per minute;наносиверт за минута
+SAFTUOM-P78;P78;reciprocal square inch;реципрочен квадратен инч
+SAFTUOM-P79;P79;pascal square metre per kilogram;паскал квадратен метър на килограм
+SAFTUOM-P80;P80;millipascal per metre;милипаскал на метър
+SAFTUOM-P81;P81;kilopascal per metre;килопаскал на метър
+SAFTUOM-P82;P82;hectopascal per metre;хектопаскал на метър
+SAFTUOM-P83;P83;standard atmosphere per metre;стандартна атмосфера на метър
+SAFTUOM-P84;P84;technical atmosphere per metre;техническа атмосфера на метър
+SAFTUOM-P85;P85;torr per metre;тор на метър
+SAFTUOM-P86;P86;psi per inch;фунт-сила на квадратен инч за инч
+SAFTUOM-P87;P87;cubic metre per second square metre;кубичен метър на секунда квадратен метър
+SAFTUOM-P89;P89;pound-force foot per inch;фунт-сила фут на инч
+SAFTUOM-P90;P90;pound-force inch per inch;фунт-сила инч на инч
+SAFTUOM-P91;P91;perm (0 ºC);перм (0 ºC)
+SAFTUOM-P92;P92;perm (23 ºC);перм (23 ºC)
+SAFTUOM-P93;P93;byte per second;байт в секунда
+SAFTUOM-P94;P94;kilobyte per second;килобайт в секунда
+SAFTUOM-P95;P95;megabyte per second;мегабайт в секунда
+SAFTUOM-P96;P96;reciprocal volt;реципрочен волт
+SAFTUOM-P97;P97;reciprocal radian;реципрочен радиан
+SAFTUOM-P98;P98;pascal to the power sum of stoichiometric numbers;паскал на степен сумата от стехиометричните коефициенти
+SAFTUOM-P99;P99;mole per cubiv metre to the power sum of stoichiometric numbers;мол за кубичен метър на степен сумата от стехиометричните коефициенти
+SAFTUOM-PAL;PAL;pascal;паскал
+SAFTUOM-PD;PD;pad;пачка
+SAFTUOM-PFL;PFL;proof litre;алкохолно съдържание за литър
+SAFTUOM-PGL;PGL;proof gallon;алкохолно съдържание за галон
+SAFTUOM-PI;PI;pitch;символ на инч
+SAFTUOM-PLA;PLA;degree Plato;градус Плато
+SAFTUOM-PO;PO;pound per inch of length;фунт на инч дължина
+SAFTUOM-PQ;PQ;page per inch;страница на инч
+SAFTUOM-PR;PR;pair;двойка
+SAFTUOM-PS;PS;pound-force per square inch;фунт-сила на квадратен инч
+SAFTUOM-PTD;PTD;dry pint (US);суха пинта (САЩ)
+SAFTUOM-PTI;PTI;pint (UK);пинта (Великобритания)
+SAFTUOM-PTL;PTL;liquid pint (US);течна пинта (САЩ)
+SAFTUOM-PTN;PTN;portion;порция
+SAFTUOM-Q10;Q10;joule per tesla;джаул на тесла
+SAFTUOM-Q11;Q11;erlang;ерланг
+SAFTUOM-Q12;Q12;octet;октет
+SAFTUOM-Q13;Q13;octet per second;октет в секунда
+SAFTUOM-Q14;Q14;shannon;шанън
+SAFTUOM-Q15;Q15;hartley;хартли
+SAFTUOM-Q16;Q16;natural unit of information;естествена единица за информация
+SAFTUOM-Q17;Q17;shannon per second;шанън в секунда
+SAFTUOM-Q18;Q18;hartley per second;хартли в секунда
+SAFTUOM-Q19;Q19;natural unit of information per second;естествена единица за информация в секунда
+SAFTUOM-Q20;Q20;second per kilogramm;секунда за килограм
+SAFTUOM-Q21;Q21;watt square metre;ват квадратен метър
+SAFTUOM-Q22;Q22;second per radian cubic metre;секунда на радиан кубичен метър
+SAFTUOM-Q23;Q23;weber to the power minus one;вебер на степен минус първа
+SAFTUOM-Q24;Q24;reciprocal inch;реципрочен инч
+SAFTUOM-Q25;Q25;dioptre;диоптър
+SAFTUOM-Q26;Q26;one per one;едно към едно
+SAFTUOM-Q27;Q27;newton metre per metre;нютон метър на метър
+SAFTUOM-Q28;Q28;kilogram per square metre pascal second;килограм на квадратен метър паскал секунда
+SAFTUOM-Q29;Q29;microgram per hectogram;микрограм на хектограм
+SAFTUOM-Q30;Q30;pH (potential of Hydrogen);pH (водороден показател)
+SAFTUOM-Q31;Q31;kilojoule per gram;килоджаул на грам
+SAFTUOM-Q32;Q32;femtolitre;фемтолитър
+SAFTUOM-Q33;Q33;picolitre;пиколитър
+SAFTUOM-Q34;Q34;nanolitre;нанолитър
+SAFTUOM-Q35;Q35;megawatts per minute;мегавати в минута
+SAFTUOM-Q36;Q36;square metre per cubic metre;квадратен метър на кубичен метър
+SAFTUOM-Q37;Q37;Standard cubic metre per day;Стандартен кубичен метър на ден
+SAFTUOM-Q38;Q38;Standard cubic metre per hour;Стандартен кубичен метър на час
+SAFTUOM-Q39;Q39;Normalized cubic metre per day;Нормализиран кубичен метър на ден
+SAFTUOM-Q40;Q40;Normalized cubic metre per hour;Нормализиран кубичен метър на час
+SAFTUOM-Q41;Q41;Joule per normalised cubic metre;Джаул на нормализиран кубичен метър
+SAFTUOM-Q42;Q42;Joule per standard cubic metre;Джаул на стандартен кубичен метър
+SAFTUOM-Q3;Q3;meal;хранене
+SAFTUOM-QA;QA;page - facsimile;страница – факсимиле
+SAFTUOM-QAN;QAN;quarter (of a year);тримесечие (на година)
+SAFTUOM-QB;QB;page - hardcopy;страница – на хартиен носител
+SAFTUOM-QR;QR;quire;сгъната печатна кола
+SAFTUOM-QTD;QTD;dry quart (US);суха кварта (САЩ)
+SAFTUOM-QTI;QTI;quart (UK);кварта (Великобритания)
+SAFTUOM-QTL;QTL;liquid quart (US);течна кварта (САЩ)
+SAFTUOM-QTR;QTR;quarter (UK);квартер (Великобритания)
+SAFTUOM-R1;R1;pica;пайк
+SAFTUOM-R9;R9;thousand cubic metre;хиляда кубични метра
+SAFTUOM-RH;RH;running or operating hour;час изпълнение или експлоатация
+SAFTUOM-RM;RM;ream;топ хартия
+SAFTUOM-ROM;ROM;room;стая
+SAFTUOM-RP;RP;pound per ream;фунт за топ хартия
+SAFTUOM-RPM;RPM;revolutions per minute;обороти в минута
+SAFTUOM-RPS;RPS;revolutions per second;обороти в секунда
+SAFTUOM-RT;RT;revenue ton mile;тон приход за миля
+SAFTUOM-S3;S3;square foot per second;квадратен фут в секунда
+SAFTUOM-S4;S4;square metre per second;квадратен метър в секунда
+SAFTUOM-SAN;SAN;half year (6 months);половин година (6 месеца)
+SAFTUOM-SCO;SCO;score;двадесет
+SAFTUOM-SCR;SCR;scruple;скрупул
+SAFTUOM-SEC;SEC;second [unit of time];секунда [единица за време]
+SAFTUOM-SET;SET;set;набор
+SAFTUOM-SG;SG;segment;сегмент
+SAFTUOM-SIE;SIE;siemens;сименс
+SAFTUOM-SM3;SM3;Standard cubic metre;Стандартен кубичен метър
+SAFTUOM-SMI;SMI;mile (statute mile);миля (сухопътна миля)
+SAFTUOM-SQ;SQ;square;квадрат
+SAFTUOM-SQR;SQR;square, roofing;квадратни, покривни материали
+SAFTUOM-SR;SR;strip;лента
+SAFTUOM-STC;STC;stick;пръчка
+SAFTUOM-STI;STI;stone (UK);камък (Великобритания)
+SAFTUOM-STK;STK;stick, cigarette;къс
+SAFTUOM-STL;STL;standard litre;стандартен литър
+SAFTUOM-STN;STN;ton (US) or short ton (UK/US);тон (САЩ) или къс тон (Великобритания/САЩ)
+SAFTUOM-STW;STW;straw;сламка
+SAFTUOM-SW;SW;skein;чиле прежда
+SAFTUOM-SX;SX;shipment;пратка
+SAFTUOM-SYR;SYR;syringe;спринцовка
+SAFTUOM-T0;T0;telecommunication line in service;телекомуникационна линия в експлоатация
+SAFTUOM-T3;T3;thousand piece;хиляда бройки
+SAFTUOM-TAH;TAH;kiloampere hour (thousand ampere hour);килоамперчас (хиляда амперчаса)
+SAFTUOM-TAN;TAN;total acid number;общо киселинно число
+SAFTUOM-TI;TI;thousand square inch;хиляда квадратни инча
+SAFTUOM-TIC;TIC;metric ton, including container;метричен тон, включително контейнера
+SAFTUOM-TIP;TIP;metric ton, including inner packaging;метричен тон, включително вътрешната опаковка
+SAFTUOM-TKM;TKM;tonne kilometre;тон километър
+SAFTUOM-TMS;TMS;kilogram of imported meat, less offal;килограм вносно месо, без карантиите
+SAFTUOM-TNE;TNE;tonne (metric ton);тон (метричен тон)
+SAFTUOM-TP;TP;ten pack;десет в пакет
+SAFTUOM-TPI;TPI;teeth per inch;зъби на инч
+SAFTUOM-TPR;TPR;ten pair;десет двойки
+SAFTUOM-TQD;TQD;thousand cubic metre per day;хиляда кубични метра на ден
+SAFTUOM-TRL;TRL;trillion (EUR);трилион (EUR)
+SAFTUOM-TST;TST;ten set;десет комплекта
+SAFTUOM-TTS;TTS;ten thousand sticks;десет хиляди пръчки
+SAFTUOM-U1;U1;treatment;третиране
+SAFTUOM-U2;U2;tablet;таблетка
+SAFTUOM-UB;UB;telecommunication line in service average;среден брой телекомуникационни линии в експлоатация
+SAFTUOM-UC;UC;telecommunication port;телекомуникационен порт
+SAFTUOM-VA;VA;volt - ampere per kilogram;волтампер на килограм
+SAFTUOM-VLT;VLT;volt;волт
+SAFTUOM-VP;VP;percent volume;обемен процент
+SAFTUOM-W2;W2;wet kilo;килограм влажно вещество
+SAFTUOM-WA;WA;watt per kilogram;ват на килограм
+SAFTUOM-WB;WB;wet pound;фунт влажно вещество
+SAFTUOM-WCD;WCD;cord;корд
+SAFTUOM-WE;WE;wet ton;тон влажно вещество
+SAFTUOM-WEB;WEB;weber;вебер
+SAFTUOM-WEE;WEE;week;седмица
+SAFTUOM-WG;WG;wine gallon;галон вино
+SAFTUOM-WHR;WHR;watt hour;ватчас
+SAFTUOM-WM;WM;working month;работен месец
+SAFTUOM-WSD;WSD;standard;стандартен кубичен фут
+SAFTUOM-WTT;WTT;watt;ват
+SAFTUOM-X1;X1;Gunter's chain;Верига на Гюнтер
+SAFTUOM-YDK;YDK;square yard;квадратен ярд
+SAFTUOM-YDQ;YDQ;cubic yard;кубичен ярд
+SAFTUOM-YRD;YRD;yard;ярд
+SAFTUOM-Z11;Z11;hanging container;окачен контейнер
+SAFTUOM-ZP;ZP;page;страница
+SAFTUOM-ZZ;ZZ;mutually defined;взаимно определени
+SAFTUOM-X1A;X1A;Drum, steel;Бидон, стоманен
+SAFTUOM-X1B;X1B;Drum, aluminium;Бидон, алуминиев
+SAFTUOM-X1D;X1D;Drum, plywood;Бидон, шперплатов
+SAFTUOM-X1F;X1F;Container, flexible;Контейнер, гъвкав
+SAFTUOM-X1G;X1G;Drum, fibre;Бидон, влакнест
+SAFTUOM-X1W;X1W;Drum, wooden;Бидон, дървен
+SAFTUOM-X2C;X2C;Barrel, wooden;Барел, дървен
+SAFTUOM-X3A;X3A;Jerrican, steel;Канистра, стоманена
+SAFTUOM-X3H;X3H;Jerrican, plastic;Канистра, пластмасова
+SAFTUOM-X43;X43;Bag, super bulk;Торба, с голям обем
+SAFTUOM-X44;X44;Bag, polybag;Торба, полибаг (Polybag)
+SAFTUOM-X4A;X4A;Box, steel;Кутия, стоманена
+SAFTUOM-X4B;X4B;Box, aluminium;Кутия, алуминиева
+SAFTUOM-X4C;X4C;Box, natural wood;Кутия, естествено дърво
+SAFTUOM-X4D;X4D;Box, plywood;Кутия, шперплатова
+SAFTUOM-X4F;X4F;Box, reconstituted wood;Кутия, възстановено дърво
+SAFTUOM-X4G;X4G;Box, fibreboard;Кутия, талашит
+SAFTUOM-X4H;X4H;Box, plastic;Кутия, пластмаса
+SAFTUOM-X5H;X5H;Bag, woven plastic;Торба, тъкана пластмаса
+SAFTUOM-X5L;X5L;Bag, textile;Торба, текстилна
+SAFTUOM-X5M;X5M;Bag, paper;Торба, хартиена
+SAFTUOM-X6H;X6H;Composite packaging, plastic receptacle;Композитна опаковка, пластмасов контейнер
+SAFTUOM-X6P;X6P;Composite packaging, glass receptacle;Композитна опаковка, стъклен контейнер
+SAFTUOM-X7A;X7A;Case, car;Каса, автомобил
+SAFTUOM-X7B;X7B;Case, wooden;Каса, дървена
+SAFTUOM-X8A;X8A;Pallet, wooden;Палет, дървен
+SAFTUOM-X8B;X8B;Crate, wooden;Щайга, дърво
+SAFTUOM-X8C;X8C;Bundle, wooden;Пакет, дървен
+SAFTUOM-XAA;XAA;Intermediate bulk container, rigid plastic;Междинен контейнер за насипни стоки, твърда пластмаса
+SAFTUOM-XAB;XAB;Receptacle, fibre;Съд, влакнест
+SAFTUOM-XAC;XAC;Receptacle, paper;Съд, хартиен
+SAFTUOM-XAD;XAD;Receptacle, wooden;Съд, дървен
+SAFTUOM-XAE;XAE;Aerosol;Аерозол
+SAFTUOM-XAF;XAF;Pallet, modular, collars 80cms * 60cms;Палет, модулен, обръчи 80 сm * 60 сm
+SAFTUOM-XAG;XAG;Pallet, shrinkwrapped;Палет, със свиваема опаковка
+SAFTUOM-XAH;XAH;Pallet, 100cms * 110cms;Палет, 100 cm * 110 cm
+SAFTUOM-XAI;XAI;Clamshell;Загребвач
+SAFTUOM-XAJ;XAJ;Cone;Конус
+SAFTUOM-XAL;XAL;Ball;Сфера
+SAFTUOM-XAM;XAM;Ampoule, non-protected;Ампула, незащитена
+SAFTUOM-XAP;XAP;Ampoule, protected;Ампула, защитена
+SAFTUOM-XAT;XAT;Atomizer;Пулверизатор
+SAFTUOM-XAV;XAV;Capsule;Капсула
+SAFTUOM-XB4;XB4;Belt;Колан
+SAFTUOM-XBA;XBA;Barrel;Барел
+SAFTUOM-XBB;XBB;Bobbin;Бобина
+SAFTUOM-XBC;XBC;Bottlecrate / bottlerack;Каса/кашон бутилки
+SAFTUOM-XBD;XBD;Board;Дъска
+SAFTUOM-XBE;XBE;Bundle;Връзка
+SAFTUOM-XBF;XBF;Balloon, non-protected;Балон, незащитен
+SAFTUOM-XBG;XBG;Bag;Торба
+SAFTUOM-XBH;XBH;Bunch;Сноп
+SAFTUOM-XBI;XBI;Bin;Кошче
+SAFTUOM-XBJ;XBJ;Bucket;Ведро
+SAFTUOM-XBK;XBK;Basket;Кош
+SAFTUOM-XBL;XBL;Bale, compressed;Бала, пресована
+SAFTUOM-XBM;XBM;Basin;Леген
+SAFTUOM-XBN;XBN;Bale, non-compressed;Бала, непресована
+SAFTUOM-XBO;XBO;Bottle, non-protected, cylindrical;Бутилка, незащитена, цилиндрична
+SAFTUOM-XBP;XBP;Balloon, protected;Балон, защитен
+SAFTUOM-XBQ;XBQ;Bottle, protected cylindrical;Бутилка, защитена цилиндрична
+SAFTUOM-XBR;XBR;Bar;Прът
+SAFTUOM-XBS;XBS;Bottle, non-protected, bulbous;Бутилка, незащитена, подобна на луковица
+SAFTUOM-XBT;XBT;Bolt;Руло
+SAFTUOM-XBU;XBU;Butt;варел
+SAFTUOM-XBV;XBV;Bottle, protected bulbous;Бутилка, защитена,подобна на луковица
+SAFTUOM-XBW;XBW;Box, for liquids;Кутия за течности
+SAFTUOM-XBX;XBX;Box;Кутия
+SAFTUOM-XBY;XBY;Board, in bundle/bunch/truss;Дъски, на сноп/връзка/пачка
+SAFTUOM-XBZ;XBZ;Bars, in bundle/bunch/truss;Пръти, на сноп/връзка/пачка
+SAFTUOM-XCA;XCA;Can, rectangular;Кутия, метална, правоъгълна
+SAFTUOM-XCB;XCB;Crate, beer;Каса, бира
+SAFTUOM-XCD;XCD;Can, with handle and spout;Кутия с дръжка и гърло
+SAFTUOM-XCE;XCE;Creel;Малка кошница
+SAFTUOM-XCF;XCF;Coffer;Сандък
+SAFTUOM-XCG;XCG;Cage;Кафез
+SAFTUOM-XCH;XCH;Chest;Ракла
+SAFTUOM-XCI;XCI;Canister;Канистра
+SAFTUOM-XCJ;XCJ;Coffin;Ковчег
+SAFTUOM-XCK;XCK;Cask;Бъчва
+SAFTUOM-XCL;XCL;Coil;Намотка
+SAFTUOM-XCM;XCM;Card;карта
+SAFTUOM-XCN;XCN;Container, not otherwise specified as transport equipment;Контейнер, неспецифициран по друг начин като транспортно оборудване
+SAFTUOM-XCO;XCO;Carboy, non-protected;контейнер, незащитен
+SAFTUOM-XCP;XCP;Carboy, protected;контейнер, защитен
+SAFTUOM-XCQ;XCQ;Cartridge;Патрон
+SAFTUOM-XCR;XCR;Crate;щайга
+SAFTUOM-XCS;XCS;Case;Каса
+SAFTUOM-XCT;XCT;Carton;Кутия, картонена
+SAFTUOM-XCU;XCU;Cup;Чаша
+SAFTUOM-XCV;XCV;Cover;Похлупак
+SAFTUOM-XCW;XCW;Cage, roll;Клетка, ролка
+SAFTUOM-XCX;XCX;Can, cylindrical;Кутия, метална, цилиндрична
+SAFTUOM-XCY;XCY;Cylinder;Цилиндър
+SAFTUOM-XCZ;XCZ;Canvas;Платно
+SAFTUOM-XDA;XDA;Crate, multiple layer, plastic;Щайга, многослойна, пластмаса
+SAFTUOM-XDB;XDB;Crate, multiple layer, wooden;Щайга, няколко слоя, изработена от дърво
+SAFTUOM-XDC;XDC;Crate, multiple layer, cardboard;Щайга, няколко слоя, картон
+SAFTUOM-XDG;XDG;Cage, Commonwealth Handling Equipment Pool  (CHEP);Кафез, набор от оборудване за обработка на Commonwealth (CHEP)
+SAFTUOM-XDH;XDH;Box, Commonwealth Handling Equipment Pool (CHEP), Eurobox;Кутия, набор от оборудване за обработка на Commonwealth (CHEP), еврокутия
+SAFTUOM-XDI;XDI;Drum, iron;Бидон, железен
+SAFTUOM-XDJ;XDJ;Demijohn, non-protected;Дамаджана, незащитена
+SAFTUOM-XDK;XDK;Crate, bulk, cardboard;Щайга, насипно състояние, кашон
+SAFTUOM-XDL;XDL;Crate, bulk, plastic;Щайга, насипно състояние, пластмасова
+SAFTUOM-XDM;XDM;Crate, bulk, wooden;Щайга, насипно състояние, дърво
+SAFTUOM-XDN;XDN;Dispenser;Диспенсър
+SAFTUOM-XDP;XDP;Demijohn, protected;Дамаджана, защитена
+SAFTUOM-XDR;XDR;Drum;Бидон
+SAFTUOM-XDS;XDS;Tray, one layer no cover, plastic;Табла, еднослойна, без капак, пластмаса
+SAFTUOM-XDT;XDT;Tray, one layer no cover, wooden;Табла, еднослойна, без капак, дървена
+SAFTUOM-XDU;XDU;Tray, one layer no cover, polystyrene;Табла, еднослойна, без капак, стиропор
+SAFTUOM-XDV;XDV;Tray, one layer no cover, cardboard;Табла, еднослойна, без капак, твърд картон
+SAFTUOM-XDW;XDW;Tray, two layers no cover, plastic tray;Табла, двуслойна, без капак, пластмаса
+SAFTUOM-XDX;XDX;Tray, two layers no cover, wooden;Табла, двуслойна, без капак, дървена
+SAFTUOM-XDY;XDY;Tray, two layers no cover, cardboard;Табла, двуслойна, без капак, твърд картон
+SAFTUOM-XEC;XEC;Bag, plastic;Торба, пластмасова
+SAFTUOM-XED;XED;Case, with pallet base;Каса, с палетна основа
+SAFTUOM-XEE;XEE;Case, with pallet base, wooden;Каса, с палетна основа, дървена
+SAFTUOM-XEF;XEF;Case, with pallet base, cardboard;Каса, с палетна основа, картон
+SAFTUOM-XEG;XEG;Case, with pallet base, plastic;Каса, с палетна основа, пластмасова
+SAFTUOM-XEH;XEH;Case, with pallet base, metal;Каса, с палетна основа, метална
+SAFTUOM-XEI;XEI;Case, isothermic;Каса, изотермична
+SAFTUOM-XEN;XEN;Envelope;Плик
+SAFTUOM-XFB;XFB;Flexibag;Торба, гъвкава
+SAFTUOM-XFC;XFC;Crate, fruit;Щайга, плодове
+SAFTUOM-XFD;XFD;Crate, framed;Щайга, в рамка
+SAFTUOM-XFE;XFE;Flexitank;Резервоар, гъвкав
+SAFTUOM-XFI;XFI;Firkin;Фиркин
+SAFTUOM-XFL;XFL;Flask;Плоска бутилка
+SAFTUOM-XFO;XFO;Footlocker;Сандъче за обувки
+SAFTUOM-XFP;XFP;Filmpack;Кутия за филмови ленти
+SAFTUOM-XFR;XFR;Frame;Рамка
+SAFTUOM-XFT;XFT;Foodtainer;Контейнер за храна
+SAFTUOM-XFW;XFW;Cart, flatbed;Магазинна количка
+SAFTUOM-XFX;XFX;Bag, flexible container;Торба, гъвкав контейнер
+SAFTUOM-XGB;XGB;Bottle, gas;Бутилка, газова
+SAFTUOM-XGI;XGI;Girder;Греда
+SAFTUOM-XGL;XGL;Container, gallon;Контейнер, галон
+SAFTUOM-XGR;XGR;Receptacle, glass;Съд, стъклен
+SAFTUOM-XGU;XGU;Tray, containing horizontally stacked flat items;тави за плоски предмети, подредени хоризонтално
+SAFTUOM-XGY;XGY;Bag, gunny;"чували, тип ""gunny"""
+SAFTUOM-XGZ;XGZ;Girders, in bundle/bunch/truss;Греди, на сноп/връзка/пачка
+SAFTUOM-XHA;XHA;Basket, with handle, plastic;Кош, с дръжка, пластмасов
+SAFTUOM-XHB;XHB;Basket, with handle, wooden;Кош, с дръжка, дървен
+SAFTUOM-XHC;XHC;Basket, with handle, cardboard;Кош, с дръжка, картонен
+SAFTUOM-XHG;XHG;Hogshead;Голям варел
+SAFTUOM-XHN;XHN;Hanger;Кука
+SAFTUOM-XHR;XHR;Hamper;Кошница с капак
+SAFTUOM-XIA;XIA;Package, display, wooden;Опаковка, демонстрационна, дървена
+SAFTUOM-XIB;XIB;Package, display, cardboard;Опаковка, демонстрационна, картонена
+SAFTUOM-XIC;XIC;Package, display, plastic;Опаковка, демонстрационна, пластмасова
+SAFTUOM-XID;XID;Package, display, metal;Опаковка, демонстрационна, метална
+SAFTUOM-XIF;XIF;Package, flow;Опаковка, тръбна
+SAFTUOM-XIG;XIG;Package, paper wrapped;Пакет, увит в хартия
+SAFTUOM-XIH;XIH;Drum, plastic;Бидон, пластмасов
+SAFTUOM-XIK;XIK;Package, cardboard, with bottle grip-holes;Опаковка, картон, с отвори за захващане на бутилка
+SAFTUOM-XIL;XIL;Tray, rigid, lidded stackable (CEN TS 14482:2002);Табла, твърда, с капак и възможност за подреждане една върху друга (CEN TS 14482:2002)
+SAFTUOM-XIN;XIN;Ingot;Слитък
+SAFTUOM-XIZ;XIZ;Ingots, in bundle/bunch/truss;Слитъци, на сноп, връзка, пачка
+SAFTUOM-XJB;XJB;Bag, jumbo;Торба, джъмбо
+SAFTUOM-XJC;XJC;Jerrican, rectangular;Канистра, правоъгълна
+SAFTUOM-XJG;XJG;Jug;Стомна
+SAFTUOM-XJR;XJR;Jar;Буркан
+SAFTUOM-XJT;XJT;Jutebag;Торба от юта
+SAFTUOM-XJY;XJY;Jerrican, cylindrical;Канистра, цилиндрична
+SAFTUOM-XKG;XKG;Keg;Кег
+SAFTUOM-XKI;XKI;Kit;Комплект
+SAFTUOM-XLE;XLE;Luggage;багаж
+SAFTUOM-XLG;XLG;Log;трупа
+SAFTUOM-XLT;XLT;Lot;Лот
+SAFTUOM-XLU;XLU;Lug;"щайга, тип ""Луг"""
+SAFTUOM-XLV;XLV;Liftvan;Товарен фургон
+SAFTUOM-XLZ;XLZ;Logs, in bundle/bunch/truss;трупи, на връзки/вързопи
+SAFTUOM-XMA;XMA;Crate, metal;Щайга, метална
+SAFTUOM-XMB;XMB;Bag, multiply;Торба, многопластова
+SAFTUOM-XMC;XMC;Crate, milk;Каса, мляко
+SAFTUOM-XME;XME;Container, metal;Контейнер, метален
+SAFTUOM-XMR;XMR;Receptacle, metal;Съд, метален
+SAFTUOM-XMS;XMS;Sack, multi-wall;Чувал, многослоен
+SAFTUOM-XMW;XMW;Receptacle, plastic wrapped;Съд с пластмасова обвивка
+SAFTUOM-XMX;XMX;Matchbox;Кибритена кутия
+SAFTUOM-XNA;XNA;Not available;Не е налично
+SAFTUOM-XNE;XNE;Unpacked or unpackaged;Неопакован или непакетиран
+SAFTUOM-XNF;XNF;Unpacked or unpackaged, single unit;Неопакован или непакетиран, един елемент
+SAFTUOM-XNG;XNG;Unpacked or unpackaged, multiple units;Неопакован или непакетиран, много елементи
+SAFTUOM-XNS;XNS;Nest;Серия еднакви предмети, които влизат един в друг
+SAFTUOM-XNT;XNT;Net;Мрежа
+SAFTUOM-XNU;XNU;Net, tube, plastic;Мрежа, тръбна, пластмаса
+SAFTUOM-XNV;XNV;Net, tube, textile;Мрежа, тръбна, текстил
+SAFTUOM-XOA;XOA;Pallet, CHEP 40 cm x 60 cm;Палет, CHEP 40 cm x 60 cm
+SAFTUOM-XOB;XOB;Pallet, CHEP 80 cm x 120 cm;Палет, CHEP 80 cm x 120 cm
+SAFTUOM-XOC;XOC;Pallet, CHEP 100 cm x 120 cm;Палет, CHEP 100 cm x 120 cm
+SAFTUOM-XOD;XOD;Pallet, AS 4068-1993;Палет, AS 4068-1993
+SAFTUOM-XOE;XOE;Pallet, ISO T11;Палет, ISO T11
+SAFTUOM-XOF;XOF;Platform, unspecified weight or dimension;Платформа с неспецифицирано тегло или измерение
+SAFTUOM-XOK;XOK;Block;Блок
+SAFTUOM-XOT;XOT;Octabin;Октабин
+SAFTUOM-XOU;XOU;Container, outer;Контейнер, външен
+SAFTUOM-XP2;XP2;Pan;"Контейнер, тип ""Pan"""
+SAFTUOM-XPA;XPA;Packet;Пакет
+SAFTUOM-XPB;XPB;Pallet, box Combined open-ended box and pallet;Палет, кутия комбинирана кутия с отворени краища и палет
+SAFTUOM-XPC;XPC;Parcel;Колет
+SAFTUOM-XPD;XPD;Pallet, modular, collars 80cms * 100cms;Палет, модулен, обръчи 80 cm * 100 cm
+SAFTUOM-XPE;XPE;Pallet, modular, collars 80cms * 120cms;Палет, модулен, обръчи 80 cm * 120 cm
+SAFTUOM-XPF;XPF;Pen;Pen (заграждение с отворен покрив за отглеждане на животни)
+SAFTUOM-XPG;XPG;Plate;Плато
+SAFTUOM-XPH;XPH;Pitcher;"Кана, тип ""Pitcher"""
+SAFTUOM-XPI;XPI;Pipe;Тръба
+SAFTUOM-XPJ;XPJ;Punnet;"Кутия, тип ""Punnet"""
+SAFTUOM-XPK;XPK;Package;Пакет
+SAFTUOM-XPL;XPL;Pail;Кофа
+SAFTUOM-XPN;XPN;Plank;Талпа
+SAFTUOM-XPO;XPO;Pouch;Кесия
+SAFTUOM-XPP;XPP;Piece;Парче
+SAFTUOM-XPR;XPR;Receptacle, plastic;Съд, пластмасов
+SAFTUOM-XPT;XPT;Pot;Гърне
+SAFTUOM-XPU;XPU;Tray;Табла
+SAFTUOM-XPV;XPV;Pipes, in bundle/bunch/truss;Тръби, на сноп/връзка/пачка
+SAFTUOM-XPX;XPX;Pallet;Палет
+SAFTUOM-XPY;XPY;Plates, in bundle/bunch/truss;Плочи, на сноп/връзка/пачка
+SAFTUOM-XPZ;XPZ;Planks, in bundle/bunch/truss;Талпи, на сноп/връзка/пачка
+SAFTUOM-XQA;XQA;Drum, steel, non-removable head;Бидон, стоманен, неподвижен капак
+SAFTUOM-XQB;XQB;Drum, steel, removable head;Бидон, стоманен, подвижен капак
+SAFTUOM-XQC;XQC;Drum, aluminium, non-removable head;Бидон, алуминиев, неподвижен капак
+SAFTUOM-XQD;XQD;Drum, aluminium, removable head;Бидон, алуминиев, подвижен капак
+SAFTUOM-XQF;XQF;Drum, plastic, non-removable head;Бидон, пластмасов, неподвижен капак
+SAFTUOM-XQG;XQG;Drum, plastic, removable head;Бидон, пластмасов, подвижен капак
+SAFTUOM-XQH;XQH;Barrel, wooden, bung type;Бидон, дървен, тип бутало
+SAFTUOM-XQJ;XQJ;Barrel, wooden, removable head;Бидон, дървен, с подвижен капак
+SAFTUOM-XQK;XQK;Jerrican, steel, non-removable head;Канистра, стоманена с неподвижен капак
+SAFTUOM-XQL;XQL;Jerrican, steel, removable head;Канистра, стоманена с подвижен капак
+SAFTUOM-XQM;XQM;Jerrican, plastic, non-removable head;Канистра, пластмасова с неподвижен капак
+SAFTUOM-XQN;XQN;Jerrican, plastic, removable head;Канистра, пластмасова с подвижен капак
+SAFTUOM-XQP;XQP;Box, wooden, natural wood, ordinary;Кутия, дървена, естествено дърво, обикновена
+SAFTUOM-XQQ;XQQ;Box, wooden, natural wood, with sift proof walls;Кутия, дървена, естествена дървесина, с непропускливи стени
+SAFTUOM-XQR;XQR;Box, plastic, expanded;Кутия, пластмасова, експандирана
+SAFTUOM-XQS;XQS;Box, plastic, solid;Кутия, пластмасова, твърда
+SAFTUOM-XRD;XRD;Rod;Прът
+SAFTUOM-XRG;XRG;Ring;Пръстен
+SAFTUOM-XRJ;XRJ;Rack, clothing hanger;Стойка, закачалка за дрехи
+SAFTUOM-XRK;XRK;Rack;Стойка
+SAFTUOM-XRL;XRL;Reel;Макара
+SAFTUOM-XRO;XRO;Roll;Топ
+SAFTUOM-XRZ;XRZ;Rods, in bundle/bunch/truss;Пръти, на сноп/връзка/пачка
+SAFTUOM-XSA;XSA;Sack;Чувал
+SAFTUOM-XSB;XSB;Slab;Сляба
+SAFTUOM-XSC;XSC;Crate, shallow;Щайга, плитка
+SAFTUOM-XSD;XSD;Spindle;Шпиндел
+SAFTUOM-XSH;XSH;Sachet;Саше
+SAFTUOM-XSI;XSI;Skid;Скара
+SAFTUOM-XSL;XSL;Slipsheet;Разделителен лист
+SAFTUOM-XSM;XSM;Sheetmetal;Прокат
+SAFTUOM-XSO;XSO;Spool;Шпула
+SAFTUOM-XSP;XSP;Sheet, plastic wrapping;Лист, пластмасова опаковка
+SAFTUOM-XSS;XSS;Case, steel;Каса, стомана
+SAFTUOM-XST;XST;Sheet;Лист
+SAFTUOM-XSU;XSU;Suitcase;Куфар
+SAFTUOM-XSV;XSV;Envelope, steel;Плик, стоманен
+SAFTUOM-XSW;XSW;Shrinkwrapped;Свиваема опаковка
+SAFTUOM-XSZ;XSZ;Sheets, in bundle/bunch/truss;Прокат, на сноп/връзка/пачка
+SAFTUOM-XT1;XT1;Tablet;Таблетка
+SAFTUOM-XTB;XTB;Tub;цилиндричен съд за съхранение
+SAFTUOM-XTC;XTC;Tea-chest;Сандъче за чай
+SAFTUOM-XTD;XTD;Tube, collapsible;Туба, сгъваема
+SAFTUOM-XTE;XTE;Tyre;Гума
+SAFTUOM-XTG;XTG;Tank container, generic;Цистерна контейнер, общо
+SAFTUOM-XTI;XTI;Tierce;Терце
+SAFTUOM-XTK;XTK;Tank, rectangular;Резервоар, правоъгълен
+SAFTUOM-XTL;XTL;Tub, with lid;цилиндричен съд за съхранение с капак
+SAFTUOM-XTN;XTN;Tin;Кутия, консервна
+SAFTUOM-XTO;XTO;Tun;Голям варел
+SAFTUOM-XTR;XTR;Trunk;Пътнически сандък
+SAFTUOM-XTS;XTS;Truss;Вързоп
+SAFTUOM-XTT;XTT;Bag, tote;Торба, багажна
+SAFTUOM-XTU;XTU;Tube;Туба
+SAFTUOM-XTV;XTV;Tube, with nozzle;Кутия, консервна
+SAFTUOM-XTW;XTW;Pallet, triwall;Палет, Triwall
+SAFTUOM-XTY;XTY;Tank, cylindrical;Резервоар, цилиндричен
+SAFTUOM-XTZ;XTZ;Tubes, in bundle/bunch/truss;Тръби, на снопове/връзка
+SAFTUOM-XUC;XUC;Uncaged;Свободен
+SAFTUOM-XUN;XUN;Unit;Единица
+SAFTUOM-XVG;XVG;Bulk, gas (at 1031 mbar and 15°C);Насипно, газ (при 1031 mbar и 15 °C)
+SAFTUOM-XVI;XVI;Vial;Флакон
+SAFTUOM-XVK;XVK;Vanpack;Опаковка „Vanpack“
+SAFTUOM-XVL;XVL;Bulk, liquid;Насипно, течност
+SAFTUOM-XVO;XVO;Bulk, solid, large particles (“nodules”);Насипни, твърди, едри частици („валчести образувания“)
+SAFTUOM-XVP;XVP;Vacuum-packed;Вакуумирана опаковка
+SAFTUOM-XVQ;XVQ;Bulk, liquefied gas (at abnormal temperature/pressure);Насипно, втечнен газ (при неестествена температура/налягане)
+SAFTUOM-XVN;XVN;Vehicle;Превозно средство
+SAFTUOM-XVR;XVR;Bulk, solid, granular particles (“grains”);Насипни, твърди, гранулирани частици („зърна“)
+SAFTUOM-XVS;XVS;Bulk, scrap metal;Насипно, метален скрап
+SAFTUOM-XVY;XVY;Bulk, solid, fine particles (“powders”);Насипни, твърди, фини частици („прах“)
+SAFTUOM-XWA;XWA;Intermediate bulk container;Междинен контейнер за насипни стоки
+SAFTUOM-XWB;XWB;Wickerbottle;Бутилка с външна oплетка
+SAFTUOM-XWC;XWC;Intermediate bulk container, steel;Междинен контейнер за насипни стоки, стоманен
+SAFTUOM-XWD;XWD;Intermediate bulk container, aluminium;Междинен контейнер за насипни стоки, алуминиев
+SAFTUOM-XWF;XWF;Intermediate bulk container, metal;Междинен контейнер за насипни стоки, метален
+SAFTUOM-XWG;XWG;Intermediate bulk container, steel, pressurised > 10 kpa;Междинен контейнер за насипни стоки, стоманен, под налягане >10 kpa
+SAFTUOM-XWH;XWH;Intermediate bulk container, aluminium, pressurised > 10 kpa;Междинен контейнер за насипни стоки, алуминиев, под налягане >10 kpa
+SAFTUOM-XWJ;XWJ;Intermediate bulk container, metal, pressure 10 kpa;Междинен контейнер за насипни стоки, метален, налягане 10 kpa
+SAFTUOM-XWK;XWK;Intermediate bulk container, steel, liquid;Междинен контейнер за насипни стоки, стоманен, течности
+SAFTUOM-XWL;XWL;Intermediate bulk container, aluminium, liquid;Междинен контейнер за насипни стоки, алуминиев, течности
+SAFTUOM-XWM;XWM;Intermediate bulk container, metal, liquid;Междинен контейнер за насипни стоки, метален, течности
+SAFTUOM-XWN;XWN;Intermediate bulk container, woven plastic, without coat/liner;Междинен контейнер за насипни стоки, от тъкана пластмаса, без обвивка/подплата
+SAFTUOM-XWP;XWP;Intermediate bulk container, woven plastic, coated;Междинен контейнер за насипни стоки, от тъкана пластмаса, с обвивка
+SAFTUOM-XWQ;XWQ;Intermediate bulk container, woven plastic, with liner;Междинен контейнер за насипни стоки, от тъкана пластмаса, с обвивка
+SAFTUOM-XWR;XWR;Intermediate bulk container, woven plastic, coated and liner;Междинен контейнер за насипни стоки, от тъкана пластмаса, с обвивка и подплата
+SAFTUOM-XWS;XWS;Intermediate bulk container, plastic film;Междинен контейнер за насипни стоки, пластмасов филм
+SAFTUOM-XWT;XWT;Intermediate bulk container, textile with out coat/liner;Междинен контейнер за насипни стоки, текстил, с външна обвивка/подплата
+SAFTUOM-XWU;XWU;Intermediate bulk container, natural wood, with inner liner;Междинен контейнер за насипни стоки, естествено дърво, с вътрешна обшивка
+SAFTUOM-XWV;XWV;Intermediate bulk container, textile, coated;Междинен контейнер за насипни стоки, текстил, с обвивка
+SAFTUOM-XWW;XWW;Intermediate bulk container, textile, with liner;Междинен контейнер за насипни стоки, текстил, с подплата
+SAFTUOM-XWX;XWX;Intermediate bulk container, textile, coated and liner;Междинен контейнер за насипни стоки, текстил, с обвивка и подплата
+SAFTUOM-XWY;XWY;Intermediate bulk container, plywood, with inner liner;Междинен контейнер за насипни стоки, шперплат, с вътрешна подплата
+SAFTUOM-XWZ;XWZ;Intermediate bulk container, reconstituted wood, with inner liner;Междинен контейнер за насипни стоки, от възстановено дърво, с вътрешна обшивка
+SAFTUOM-XXA;XXA;Bag, woven plastic, without inner coat/liner;Торба, тъкана пластмаса, без вътрешна обвивка/подплата
+SAFTUOM-XXB;XXB;Bag, woven plastic, sift proof;Торба, тъкана пластмаса, непропусклива
+SAFTUOM-XXC;XXC;Bag, woven plastic, water resistant;Торба, тъкана пластмаса, водоустойчива
+SAFTUOM-XXD;XXD;Bag, plastics film;Торба, тъкана пластмаса, пластмасов филм
+SAFTUOM-XXF;XXF;Bag, textile, without inner coat/liner;Торба, текстилна, без вътрешна обвивка/подплата
+SAFTUOM-XXG;XXG;Bag, textile, sift proof;Торба, текстилна, непропусклива
+SAFTUOM-XXH;XXH;Bag, textile, water resistant;Торба, текстилна, водоустойчива
+SAFTUOM-XXJ;XXJ;Bag, paper, multi-wall;Торба, хартиена, многослойна
+SAFTUOM-XXK;XXK;Bag, paper, multi-wall, water resistant;Торба, хартиена, многослойна, водоустойчива
+SAFTUOM-XYA;XYA;Composite packaging, plastic receptacle in steel drum;Комбинирана опаковка, пластмасов контейнер в стоманен барабан
+SAFTUOM-XYB;XYB;Composite packaging, plastic receptacle in steel crate box;Комбинирана опаковка, пластмасов контейнер в стоманена каса
+SAFTUOM-XYC;XYC;Composite packaging, plastic receptacle in aluminium drum;Комбинирана опаковка, пластмасов контейнер в алуминиев барабан
+SAFTUOM-XYD;XYD;Composite packaging, plastic receptacle in aluminium crate;Комбинирана опаковка, пластмасов контейнер в алуминиева каса
+SAFTUOM-XYF;XYF;Composite packaging, plastic receptacle in wooden box;Комбинирана опаковка, пластмасов контейнер в дървена кутия
+SAFTUOM-XYG;XYG;Composite packaging, plastic receptacle in plywood drum;Комбинирана опаковка, пластмасов контейнер в шперплатов барабан
+SAFTUOM-XYH;XYH;Composite packaging, plastic receptacle in plywood box;Комбинирана опаковка, пластмасов контейнер в шперплатова кутия
+SAFTUOM-XYJ;XYJ;Composite packaging, plastic receptacle in fibre drum;Комбинирана опаковка, пластмасов контейнер в фибров барабан
+SAFTUOM-XYK;XYK;Composite packaging, plastic receptacle in fibreboard box;Комбинирана опаковка, пластмасов контейнер в талашитена кутия
+SAFTUOM-XYL;XYL;Composite packaging, plastic receptacle in plastic drum;Комбинирана опаковка, пластмасов контейнер в пластмасов барабан
+SAFTUOM-XYM;XYM;Composite packaging, plastic receptacle in solid plastic box;Комбинирана опаковка, пластмасов контейнер в твърда пластмасова кутия
+SAFTUOM-XYN;XYN;Composite packaging, glass receptacle in steel drum;Комбинирана опаковка, стъклен контейнер в стоманен барабан
+SAFTUOM-XYP;XYP;Composite packaging, glass receptacle in steel crate box;Комбинирана опаковка, стъклен контейнер в стоманена кутия
+SAFTUOM-XYQ;XYQ;Composite packaging, glass receptacle in aluminium drum;Комбинирана опаковка, стъклен контейнер в алуминиев барабан
+SAFTUOM-XYR;XYR;Composite packaging, glass receptacle in aluminium crate;Комбинирана опаковка, стъклен контейнер в алуминиева каса
+SAFTUOM-XYS;XYS;Composite packaging, glass receptacle in wooden box;Комбинирана опаковка, стъклен контейнер в дървена кутия
+SAFTUOM-XYT;XYT;Composite packaging, glass receptacle in plywood drum;Комбинирана опаковка, стъклен контейнер в шперплатов барабан
+SAFTUOM-XYV;XYV;Composite packaging, glass receptacle in wickerwork hamper;Комбинирана опаковка, стъклен контейнер в плетена кошница от ракита
+SAFTUOM-XYW;XYW;Composite packaging, glass receptacle in fibre drum;Комбинирана опаковка, стъклен контейнер във фибров барабан
+SAFTUOM-XYX;XYX;Composite packaging, glass receptacle in fibreboard box;Комбинирана опаковка, стъклен контейнер в талашитена кутия
+SAFTUOM-XYY;XYY;Composite packaging, glass receptacle in expandable plastic pack;Комбинирана опаковка, стъклен контейнер в разтягаща се пластмасова торба
+SAFTUOM-XYZ;XYZ;Composite packaging, glass receptacle in solid plastic pack;Комбинирана опаковка, стъклен контейнер в твърд пластмасов плик
+SAFTUOM-XZA;XZA;Intermediate bulk container, paper, multi-wall;Междинен контейнер за насипни стоки, хартиен, многостенен
+SAFTUOM-XZB;XZB;Bag, large;Торба, голяма
+SAFTUOM-XZC;XZC;Intermediate bulk container, paper, multi-wall, water resistant;Междинен контейнер за насипни стоки, хартиен, многостенен, водоустойчив
+SAFTUOM-XZD;XZD;Intermediate bulk container, rigid plastic, with structural equipment, solids;Междинен контейнер за насипни стоки, твърда пластмаса, със структурно оборудване, твърди вещества
+SAFTUOM-XZF;XZF;Intermediate bulk container, rigid plastic, freestanding, solids;Междинен контейнер за насипни стоки, твърда пластмаса, свободностоящ, твърди вещества
+SAFTUOM-XZG;XZG;Intermediate bulk container, rigid plastic, with structural equipment, pressurised;Междинен контейнер за насипни стоки, твърда пластмаса, със структурно оборудване, под налягане
+SAFTUOM-XZH;XZH;Intermediate bulk container, rigid plastic, freestanding, pressurised;Междинен контейнер за насипни стоки, твърда пластмаса, свободностоящ, под налягане
+SAFTUOM-XZJ;XZJ;Intermediate bulk container, rigid plastic, with structural equipment, liquids;Междинен контейнер за насипни стоки, твърда пластмаса, със структурно оборудване, течности
+SAFTUOM-XZK;XZK;Intermediate bulk container, rigid plastic, freestanding, liquids;Междинен контейнер за насипни стоки, твърда пластмаса, свободностоящ, течности
+SAFTUOM-XZL;XZL;Intermediate bulk container, composite, rigid plastic, solids;Междинен контейнер за насипни стоки, комбиниран, твърда пластмаса, твърди вещества
+SAFTUOM-XZM;XZM;Intermediate bulk container, composite, flexible plastic, solids;Междинен контейнер за насипни стоки, комбиниран, гъвкава пластмаса, твърди вещества
+SAFTUOM-XZN;XZN;Intermediate bulk container, composite, rigid plastic, pressurised;Междинен контейнер за насипни стоки, комбиниран, твърда пластмаса, под налягане
+SAFTUOM-XZP;XZP;Intermediate bulk container, composite, flexible plastic, pressurised;Междинен контейнер за насипни стоки, комбиниран, гъвкава пластмаса, под налягане
+SAFTUOM-XZQ;XZQ;Intermediate bulk container, composite, rigid plastic, liquids;Междинен контейнер за насипни стоки, комбиниран, твърда пластмаса, течности
+SAFTUOM-XZR;XZR;Intermediate bulk container, composite, flexible plastic, liquids;Междинен контейнер за насипни стоки, комбиниран, гъвкава пластмаса, течности
+SAFTUOM-XZS;XZS;Intermediate bulk container, composite;Междинен контейнер за насипни стоки, комбиниран
+SAFTUOM-XZT;XZT;Intermediate bulk container, fibreboard;Междинен контейнер за насипни стоки, талашит
+SAFTUOM-XZU;XZU;Intermediate bulk container, flexible;Междинен контейнер за насипни стоки, гъвкав
+SAFTUOM-XZV;XZV;Intermediate bulk container, metal, other than steel;Междинен контейнер за насипни стоки, метал, различен от стомана
+SAFTUOM-XZW;XZW;Intermediate bulk container, natural wood;Междинен контейнер за насипни стоки, естествено дърво
+SAFTUOM-XZX;XZX;Intermediate bulk container, plywood;Междинен контейнер за насипни стоки, шперплат
+SAFTUOM-XZY;XZY;Intermediate bulk container, reconstituted wood;Междинен контейнер за насипни стоки, възстановено дърво
+SAFTUOM-XLTR;XLTR;Bulk, litre of liquid petroleum products (at 1031 mbar and 15°C);Насипно, литър течни нефтопродукти (при 1031 mbar и 15 °C)
+SAFTUOM-KWY;KWY;kilowatt year;киловатгодина
+SAFTUOM-MNJ;MNJ;Mega Joule per Normalised cubic Metre;Мегаджаул на нормализиран кубичен метър
+SAFTUOM-XO1;XO1;Two sided cage on wheels with fixing strap;Двустранен кафез на колела с лента за закрепване
+SAFTUOM-XO2;XO2;Trolley;"количка, тип ""Trolley"""
+SAFTUOM-XO3;XO3;Oneway pallet ISO 0 - 1/2 EURO Pallet;Еднократен палет ISO 0 - 1/2 ЕВРО палет
+SAFTUOM-XO4;XO4;Oneway pallet ISO 1 - 1/1 EURO Pallet;Еднократен палет ISO 1 - 1/1 ЕВРО палет
+SAFTUOM-XO5;XO5;Oneway pallet ISO 2 - 2/1 EURO Pallet;Еднократен палет ISO 2 - 2/1 ЕВРО палет
+SAFTUOM-XO6;XO6;Pallet with exceptional dimensions;Палети с изключителни размери
+SAFTUOM-XO7;XO7;Wooden pallet  40 cm x 80 cm;Дървен палет 40 cm x 80 cm
+SAFTUOM-XO8;XO8;Plastic pallet SRS 60 cm x 80 cm;Пластмасов палет SRS 60 cm x 80 cm
+SAFTUOM-XO9;XO9;Plastic pallet SRS 80 cm x 120 cm;Пластмасов палет SRS 80 cm x 120 cm
+SAFTUOM-XOG;XOG;Pallet ISO 0 - 1/2 EURO Pallet;Палет ISO 0 – 1/2 европалет
+SAFTUOM-XOH;XOH;Pallet ISO 1 - 1/1 EURO Pallet;Палет ISO 1 – 1/1 европалет
+SAFTUOM-XOI;XOI;Pallet ISO 2 – 2/1 EURO Pallet;Палет ISO 2 – 2/1 европалет
+SAFTUOM-XOJ;XOJ;1/4 EURO Pallet;1/4 европалет
+SAFTUOM-XOL;XOL;1/8 EURO Pallet;1/8 европалет
+SAFTUOM-XOM;XOM;Synthetic pallet ISO 1;Синтетичен палет ISO 1
+SAFTUOM-XON;XON;Synthetic pallet ISO 2;Синтетичен палет ISO 2
+SAFTUOM-XOP;XOP;Wholesaler pallet;Палет за търговия на едро
+SAFTUOM-XOQ;XOQ;Pallet 80 X 100 cm;Палет 80 X 100 cm
+SAFTUOM-XOR;XOR;Pallet 60 X 100 cm;Палет 60 X 100 cm
+SAFTUOM-XOS;XOS;Oneway pallet;Еднократен палет
+SAFTUOM-XOV;XOV;Returnable pallet;Палет за многократно ползване
+SAFTUOM-XOW;XOW;Large bag, pallet sized;Голяма торба, с размери за палет
+SAFTUOM-XOX;XOX;A wheeled pallet with raised rim (81 x 67 x 135);Палет на колела с повдигнат ръб (81 x 67 x 135)
+SAFTUOM-XOY;XOY;A Wheeled pallet with raised rim (81 x 72 x 135);Палет на колела с повдигнат ръб (81 x 72 x 135)
+SAFTUOM-XOZ;XOZ;Wheeled pallet with raised rim ( 81 x 60 x 16);Палет на колела с повдигнат ръб (81 x 60 x 16)
+SAFTUOM-XP1;XP1;CHEP pallet 60 cm x 80 cm;Палет CHEP 60 cm x 80 cm
+SAFTUOM-XP3;XP3;LPR pallet 60 cm x 80 cm;Палет LPR 60 cm x 80 cm
+SAFTUOM-XP4;XP4;LPR pallet 80 cm x 120 cm;Палет LPR 80 cm x 120 cm
+SAFTUOM-XSX;XSX;Set;Набор

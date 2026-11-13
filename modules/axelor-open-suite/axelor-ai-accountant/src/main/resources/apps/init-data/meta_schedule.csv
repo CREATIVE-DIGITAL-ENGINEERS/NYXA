@@ -1,0 +1,4 @@
+"name";"job";"cron";"active";"description"
+"ai-accountant-azure-monitor-hourly";"com.axelor.apps.aiaccountant.job.AiAzureMonitorHourlyJob";"0 5/15 * * * ?";"true";"Refresh the hourly Azure Monitor series for the AI Accountant statistics (no-op unless aiaccountant.azure.monitor.enabled=true)"
+"ai-accountant-azure-monitor-daily";"com.axelor.apps.aiaccountant.job.AiAzureMonitorDailyJob";"0 20 3 * * ?";"true";"Refresh the daily Azure Monitor series, which the 7-day and 30-day views are drawn from"
+"ai-accountant-retention";"com.axelor.apps.aiaccountant.job.AiAccountantRetentionJob";"0 40 3 * * ?";"true";"Prune AI Accountant usage rows and both Azure snapshot series, each by its own retention window"

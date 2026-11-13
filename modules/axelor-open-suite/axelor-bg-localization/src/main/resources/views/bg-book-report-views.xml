@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+  <selection name="bg.book.report.kind">
+    <option value="TRIAL">Оборотна ведомост</option>
+    <option value="GENERAL">Главна книга</option>
+    <option value="PARTNER">Салда по партньори</option>
+  </selection>
+  <form name="bg-book-report-form" title="Справки по счетоводна валута" model="com.axelor.apps.bglocalization.db.BgBookReport" canSave="false">
+    <panel name="parameters">
+      <field name="fromDate"
+        help="До 31.12.2025 отчетът е в BGN, от 01.01.2026 е в EUR. При пресичане на границата историческата BGN част се преобразува в EUR по фиксиран курс 1 EUR = 1.95583 BGN."/>
+      <field name="toDate"/><field name="reportKind"/>
+      <button name="generate" title="Генерирай" onClick="action-bg-book-report-generate"/>
+      <field name="reportText" showTitle="false" colSpan="12" widget="text" height="24"
+        readonly="true"/>
+    </panel>
+  </form>
+  <action-method name="action-bg-book-report-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgBookReportController" method="generate"/>
+  </action-method>
+  <action-view name="action-bg-book-report" title="Справки по счетоводна валута" model="com.axelor.apps.bglocalization.db.BgBookReport">
+    <view type="form" name="bg-book-report-form"/>
+    <view-param name="popup" value="false"/>
+  </action-view>
+  <menuitem name="bg-book-reports" parent="account-root-move" title="Справки по счетоводна валута" action="action-bg-book-report" order="510"/>
+</object-views>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ ИЗП: „НЕОСЧЕТОВОДЕНИ ИЗПИСВАНИЯ“ ═══
+
+    Задачите „чака оценка“ с ГРЕШКА или чакащи — решение 4: изписването не спира реализирането, а
+    влиза тук; периодът не се затваря, докато списъкът за него не е празен (BgStockPeriodCloseGuard).
+    „Обработи отново“ връща задачата в опашката и я обработва веднага. -->
+
+  <grid name="bg-stock-valuation-task-grid" title="Неосчетоводени изписвания"
+    model="com.axelor.apps.bglocalization.db.BgStockValuationTask" orderBy="id" canNew="false"
+    canEdit="false">
+    <field name="stockMove"/>
+    <field name="company"/>
+    <field name="documentDate"/>
+    <field name="statusSelect"/>
+    <field name="errorMessage"/>
+    <field name="attempts"/>
+    <field name="processedOn"/>
+  </grid>
+
+  <form name="bg-stock-valuation-task-form" title="Изписване за оценка"
+    model="com.axelor.apps.bglocalization.db.BgStockValuationTask" canNew="false" canEdit="false"
+    width="large">
+    <toolbar>
+      <button name="retryBtn" title="Обработи отново" showIf="statusSelect == 3"
+        onClick="action-bg-stock-valuation-task-method-retry"/>
+    </toolbar>
+    <panel name="mainPanel">
+      <field name="stockMove"/>
+      <field name="company"/>
+      <field name="documentDate"/>
+      <field name="statusSelect"/>
+      <field name="errorMessage" colSpan="12"/>
+      <field name="attempts"/>
+      <field name="processedOn"/>
+      <field name="move"/>
+    </panel>
+  </form>
+
+  <grid name="bg-stock-move-line-valuation-grid" title="Оценка на складовите движения"
+    model="com.axelor.apps.bglocalization.db.BgStockMoveLineValuation" orderBy="-id"
+    canNew="false" canEdit="false">
+    <field name="stockMove"/>
+    <field name="product"/>
+    <field name="warehouse"/>
+    <field name="movementCode"/>
+    <field name="directionSelect"/>
+    <field name="qty"/>
+    <field name="amount"/>
+    <field name="move"/>
+  </grid>
+
+  <grid name="bg-stock-cost-layer-grid" title="Слоеве на себестойността"
+    model="com.axelor.apps.bglocalization.db.BgStockCostLayer" orderBy="product.code"
+    canNew="false" canEdit="false">
+    <field name="company"/>
+    <field name="product"/>
+    <field name="warehouse"/>
+    <field name="originSelect"/>
+    <field name="qty"/>
+    <field name="stockValue"/>
+    <field name="unitCost"/>
+  </grid>
+
+  <action-view name="action-bg-stock-valuation-task-view" title="Неосчетоводени изписвания"
+    model="com.axelor.apps.bglocalization.db.BgStockValuationTask">
+    <view type="grid" name="bg-stock-valuation-task-grid"/>
+    <view type="form" name="bg-stock-valuation-task-form"/>
+    <domain>self.statusSelect IN (1, 3)</domain>
+  </action-view>
+
+  <action-view name="action-bg-stock-move-line-valuation-view"
+    title="Оценка на складовите движения"
+    model="com.axelor.apps.bglocalization.db.BgStockMoveLineValuation">
+    <view type="grid" name="bg-stock-move-line-valuation-grid"/>
+  </action-view>
+
+  <action-view name="action-bg-stock-cost-layer-view" title="Слоеве на себестойността"
+    model="com.axelor.apps.bglocalization.db.BgStockCostLayer">
+    <view type="grid" name="bg-stock-cost-layer-grid"/>
+  </action-view>
+
+  <action-method name="action-bg-stock-valuation-task-method-retry">
+    <call class="com.axelor.apps.bglocalization.web.BgStockValuationTaskController"
+      method="retry"/>
+  </action-method>
+
+</object-views>

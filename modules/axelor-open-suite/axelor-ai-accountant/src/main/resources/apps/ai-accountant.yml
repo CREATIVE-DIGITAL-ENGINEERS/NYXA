@@ -1,0 +1,13 @@
+---
+name: AI Accountant
+code: ai-accountant
+typeSelect: standard
+installOrder: 2610
+description: |
+  Global AI assistant: Foundry agent chat + validated Java tool handlers.
+image: app-ai-accountant.png
+modules:
+  axelor-ai-accountant
+dependsOn:
+  - base
+sequence: 220

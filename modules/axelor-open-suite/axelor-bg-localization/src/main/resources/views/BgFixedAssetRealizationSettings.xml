@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Deliberately just the four things the task requires: the on/off switch, the time, the
+    company scope and Run now. No dashboard, history, graphs or raw Quartz fields — see
+    BgFixedAssetRealizationSettingsService for where the schedule itself is derived.
+
+    The run is MONTHLY (the 1st of each month, at the time set here). The day is fixed in that
+    service, not a field: it is the only day that exists in every month and always falls after
+    the previous month's last depreciation date. -->
+  <form name="bg-fixed-asset-realization-settings-form" title="Depreciation Automation"
+    model="com.axelor.apps.bglocalization.db.BgFixedAssetRealizationSettings"
+    onSave="action-bg-fixed-asset-realization-settings-deny-non-admin,save,action-bg-fixed-asset-realization-settings-sync-schedule">
+
+    <panel title="Depreciation Automation" colSpan="12">
+      <field name="active" colSpan="12"/>
+      <field name="executionTime" colSpan="12"/>
+      <field name="companySet" canNew="false" colSpan="12"/>
+      <button name="runNowBtn" title="Run now" colSpan="12"
+        onClick="save,action-bg-fixed-asset-realization-settings-run-now"/>
+    </panel>
+
+  </form>
+
+  <!-- Opens the one row, creating it if this is the first time anybody has looked. -->
+  <action-method name="action-bg-fixed-asset-realization-settings-open">
+    <call class="com.axelor.apps.bglocalization.web.BgFixedAssetRealizationSettingsController"
+      method="openSettings"/>
+  </action-method>
+
+  <action-method name="action-bg-fixed-asset-realization-settings-deny-non-admin">
+    <call class="com.axelor.apps.bglocalization.web.BgFixedAssetRealizationSettingsController"
+      method="denyNonAdminOnSave"/>
+  </action-method>
+
+  <action-method name="action-bg-fixed-asset-realization-settings-sync-schedule">
+    <call class="com.axelor.apps.bglocalization.web.BgFixedAssetRealizationSettingsController"
+      method="syncScheduleAfterSave"/>
+  </action-method>
+
+  <action-method name="action-bg-fixed-asset-realization-settings-run-now">
+    <call class="com.axelor.apps.bglocalization.web.BgFixedAssetRealizationSettingsController"
+      method="runNow"/>
+  </action-method>
+
+</object-views>

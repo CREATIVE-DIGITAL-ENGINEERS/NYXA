@@ -1,0 +1,25 @@
+plugins {
+	id 'com.axelor.app'
+}
+
+apply from: "../libs.gradle"
+apply from: "../version.gradle"
+
+apply {
+	version = openSuiteVersion
+}
+
+axelor {
+	title "Axelor AI Banking"
+	description "AI Accountant tools over bank statements"
+}
+
+dependencies {
+	// The domain this module is about. Brings axelor-account transitively (bank-payment declares it
+	// as `api`), which is what BankStatementLine.moveLine and the Currency/BankDetails types need.
+	api project(":modules:axelor-bank-payment")
+
+	// The assistant's tool SPI. No cycle: ai-accountant depends only on axelor-base, and
+	// bank-payment depends on nothing in the ai-* tree.
+	api project(":modules:axelor-ai-accountant")
+}

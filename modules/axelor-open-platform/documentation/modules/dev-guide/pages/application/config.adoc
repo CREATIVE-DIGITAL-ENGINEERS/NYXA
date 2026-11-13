@@ -1,0 +1,610 @@
+= Configurations
+:toc:
+:toc-title:
+
+:url-mysql: https://www.mysql.com/
+:url-oracle: http://www.oracle.com/technetwork/indexes/downloads/index.html#database
+
+:url-caffeine: https://github.com/ben-manes/caffeine
+:url-hazelcast: https://hazelcast.com/
+:url-redis: https://redis.io/
+:url-infinispan: https://infinispan.org/
+:url-ehcache: https://www.ehcache.org/
+
+In this chapter we will see various configuration options available to the {page-component-title}
+applications.
+
+== Introduction
+
+The application configuration is provided through various configuration files.
+These are:
+
+- `axelor-config.properties` - the application configuration
+- `persistence.xml` - hibernate/jpa configuration
+
+The most important of them is `axelor-config.properties`.
+
+== Application Configuration
+
+AOP reads configuration values from multiple sources (in this ascendant order):
+
+* Internal configuration file under `src/main/resources`.
+* External configuration file using `AXELOR_CONFIG` environment variable
+or `axelor.config` system property.
+* Environment variables prefixed with `AXELOR_CONFIG_`
+* System properties prefixed with `axelor.config.`
+
+Each of these sources overrides values of the previous. The final configuration is the
+aggregation of the properties defined by all these sources.
+For example, a property configured using an environment property  overrides the value
+provided using the axelor-config.properties file.
+
+=== Internal configuration
+
+The main `axelor-config.properties` provides various configuration values for the
+application. It's located under `src/main/resources` directory of the
+application project.
+
+Note that this internal configuration file is optional.
+
+YAML format is also supported. `axelor-config.properties` can be in YAML format
+(`yml` or `yaml` ext). It should only have a one internal configuration file
+(in properties or YAML format).
+
+=== External configuration
+
+The external configuration file is similar to the internal configuration file.
+It can a properties file or a YAML file format.
+
+To use external configuration file, either add `AXELOR_CONFIG` environment variable
+or `axelor.config` system property. Note that system properties gets preferences
+over the environment variable
+
+[source,sh]
+----
+$ export JAVA_OPTS="-Daxelor.config=/path/to/dev.properties"
+----
+
+=== Environment variables
+
+Environment variables should be prefixed by `AXELOR_CONFIG_`.
+It uses the `AXELOR_CONFIG_<key>=value` format, where `<key>` is underscored
+uppercase equivalent of the configuration key. For example
+`db.default.user` becomes `AXELOR_CONFIG_DB_DEFAULT_USER`.
+
+[source,sh]
+----
+$ export AXELOR_CONFIG_DB_DEFAULT_PASSWORD="secret"
+----
+
+=== System properties
+
+System properties can be handed to the application through the `-D` flag during startup
+System properties should be prefixed by `axelor.config.`.
+It uses the `axelor.config<key>=value` format, where `<key>` is a setting name.
+
+[source,sh]
+----
+$ export JAVA_OPTS="-Daxelor.config.db.default.password=secret"
+----
+
+=== Encoded properties
+
+Configuration values can be encrypted. Value should be wrapped in `ENC()` to indicate
+that the value is encrypted: `db.default.password = ENC(<some_thing>)`
+
+To use encrypted secrets, `config.encryptor.password` properties
+should be added: this is the secret key used to encrypt/decrypt data.
+
+Others optional properties can be added to use custom encryption:
+
+* `config.encryptor.algorithm`:Algorithm to be used by the encryptor
+* `config.encryptor.key-obtention-iterations`: Number of hashing iterations to obtain the signing key
+* `config.encryptor.provider-name`: Name of the security provider to be asked for the encryption algorithm
+* `config.encryptor.provider-class-name`: Security provider to be used for obtaining the encryption algorithm
+* `config.encryptor.salt-generator-classname`: Salt generator to be used by the encryptor
+* `config.encryptor.iv-generator-classname`: IV generator to be used by the encryptor
+* `config.encryptor.string-output-type`: Sets the form in which String output will be encoded
+
+The default algorithm is `PBEWITHHMACSHA512ANDAES_256`. Most of the time,
+default encryption configuration will be enough.
+
+For convenience, 2 Gradle task has been added to deal with encryption :
+
+* `encryptText` : Encrypt a single given String
+* `encryptFile` : Search and encrypt for values wrapped with `ENC()` in configuration file
+
+==== Task 'encryptText'
+
+To encrypt a single given String, run:
+
+[source,bash]
+----
+$ ./gradlew :encryptText --text="A secret to encode" --password="MySecureKey"
+
+-------Configs-------
+config.encryptor.password = MySecureKey
+
+WARNING : Do not add property `config.encryptor.password` with the password in your configuration file.
+Use a reference to an external file : `file:<path_to_file>` as password value.
+
+-------OUTPUT-------
+EFevga4IJ68kgt+YS8nuRXt/7TmvL94aVGCU2l5WeBLDn4ie8tZM7UjypiBZA4rCTv4VogKAB1wRAJZpa3q12w==
+----
+
+This will generate for you, the necessary properties and the
+encrypted value to used inside `ENC()`.
+
+==== Task 'encryptFile'
+
+To search and encrypt all properties wrapped with `ENC()` in configuration file, run:
+
+[source,bash]
+----
+$ ./gradlew :encryptFile --password="MySecureKey"
+
+-------Configs-------
+config.encryptor.password = MySecureKey
+
+WARNING : Do not add property `config.encryptor.password` with the password in your configuration file.
+Use a reference to an external file : `file:<path_to_file>` as password value.
+
+-------OUTPUT-------
+Found and encrypt 1 setting(s) : db.default.password
+----
+
+This will encrypt all settings in the configuration file for you.
+By default, it looks for a configuration file in current project. If needed,
+that file can be overridden with parameter `--file="<path_to_file>"`.
+Encryption settings (`algorithm`, `key-obtention-iterations`, ...) are
+determinate from that configuration file. This can be overridden with
+CLI arguments : `--algorithm="PBEWithMD5AndTripleDES"`, ...
+
+== Database Settings
+
+We can configure database connection settings with following properties:
+
+[source,properties]
+----
+# Database settings
+# ~~~~~
+# See hibernate documentation for connection parameters
+db.default.ddl = update <1>
+db.default.url = jdbc:postgresql://localhost:5432/my-database <2>
+db.default.user = username <3>
+db.default.password = secret <4>
+----
+<1> automatic schema generation option
+<2> the jdbc url to connect to
+<3> user name to be used to connect to the database server
+<4> user password to authenticate the user
+
+If you want to use {url-mysql}[MySQL], update the JDBC URL : `db.default.url = jdbc:mysql://localhost:3306/my_database`.
+
+The `db.default.ddl` configuration property is used to customize the Hibernate database schema generation process, and
+it can take the following values:
+
+- _none_ : Does not perform any schema generation or validation
+- _create_ – Creates the database schema from scratch. This will drop any existing tables and recreate them based on
+the mappings defined in the Hibernate configuration.
+- _create-drop_ – Creates the database schema and drops it when the SessionFactory is closed.
+- _validate_ – Validates the database schema against the mappings defined in the Hibernate configuration.
+This will check that the database schema is in sync with the mappings, but it will not make any changes to the schema.
+- _update_ – Updates the database schema to reflect any changes made to the mappings defined in the Hibernate
+configuration. This will add new tables or columns, but it will not drop any existing tables or columns.
+
+Choose the right option by environment :
+
+- Production: `none` or `validate` for stability.
+- Development: `update` is the go-to for flexibility.
+- Testing: `create` or `create-drop` gives you fresh data every test.
+
+== Other Settings
+
+[cols="1,8,1"]
+|===
+| Key Name | Description | Default
+| `application.name` | application name | My App
+| `application.description` | application description |
+| `application.version` | application version |
+| `application.author` | application author |
+| `application.copyright` | application copyright |
+| `application.logo` | header logo. Should be 40px in height with transparent background | img/axelor.png
+| `application.logo-dark` | (optional) dark header logo. Should be 40px in height with transparent background | `application.logo` or img/axelor-dark.png
+| `application.icon` | website icon. Must be a multiple of 48px square for favicon compatibility | ico/favicon.ico
+| `application.icon-dark` | (optional) dark website icon. Must be a multiple of 48px square for favicon compatibility | `application.icon` or ico/favicon.ico
+| `application.home` | home website. Link to be used as home page link in user dropdown menu |
+| `application.help` | online help. Link to be used in About page |
+| `application.mode` | application deployment mode. Can be `prod` or `dev` | dev
+| `application.theme` | CSS theme | default theme
+| `application.locale` | default locale | system default
+| `application.base-url` | base url of the application |
+| `application.polling-interval` | how often client polls in seconds (ie, menu tags fetch), < 1 means disabled | 10
+| `application.multi-tenancy` | enable multi-tenancy | false
+| `application.config-provider` | `if-feature` custom class |
+| `application.domain-blocklist-pattern` | pattern to validate domain expressions |
+| `application.script.cache.size` | groovy scripts cache size | 500
+| `application.script.cache.expire-time` | groovy scripts cache entry expire time (in minutes) | 10
+| `application.permission.disable-action` | whether to not check action permissions | false
+| `application.permission.disable-relational-field` | whether to not check relational fields permissions | false
+| `view.single-tab` | whether to use single tab layout | false
+| `view.max-tabs` | define the maximum opened tabs allowed |
+| `view.grid.selection` | set grid widget selection: `checkbox` or `none` | `checkbox`
+| `view.allow-customization` | whether to disable views customization | true
+| `view.adv-search.share` | whether to disable advance search sharing | true
+| `view.adv-search.export-full` | whether to disable export full option in advance search | true
+| `view.form.check-version` | whether to check version value for concurrent updates when switching tabs | false
+| `view.collaboration.enabled` | whether to enable view collaboration (🏷️ EE only) | true
+| `user.password.pattern` | pattern to validate user password | .{4,}
+| `user.password.pattern-title` | title displayed for the password pattern | "Please use at least 4 characters."
+| `api.pagination.max-per-page` | define the maximum number of items per page, -1 means unlimited | 500
+| `api.pagination.default-per-page` | define the default number of items per page | 40
+| `application.openapi.enabled` | enable OpenAPI resource endpoint | true
+| `application.openapi.scan.exclude.packages` | list of packages and any subpackages to exclude from OpenApi scans |
+| `application.openapi.scan.exclude.classes` | list of classes to exclude from OpenApi scans |
+| `application.openapi.scan.packages` | list of packages and any subpackages  to include in OpenAPI scans.|
+| `application.openapi.scan.classes` | list of classes  to include in OpenAPI scans|
+| `application.swagger-ui.enabled` | enable both OpenAPI resource endpoint and Swagger UI | true
+| `application.swagger-ui.allow-try-it-out` | allow "Try it out" in Swagger UI | false
+| `session.timeout` | session timeout (in minutes) | 60
+| `session.cookie.secure` | define session cookie as secure |
+| `encryption.password` | encryption password |
+| `encryption.algorithm` | encryption algorithm (CBC or GCM) |
+| `encryption.old-password` | old encryption password |
+| `encryption.old-algorithm` | old encryption algorithm (CBC or GCM) |
+| `reports.design-dir` | external directory for birt report designs | \{user.home}/.axelor/reports
+| `reports.fonts-config` | custom fonts config path for birt report designs |
+| `data.upload.dir` | storage path for upload files | \{user.home}/.axelor/attachments
+| `data.upload.max-size` | maximum upload size (in MB) | 5
+| `data.upload.filename-pattern` | upload filename pattern |
+| `data.upload.allowlist.pattern` | allowlist file name pattern, only matching files will be allowed |
+| `data.upload.blocklist.pattern` | blocklist file name pattern, matching files will be rejected |
+| `data.upload.allowlist.types` | allowlist content type can be used to allow file upload with matching content |
+| `data.upload.blocklist.types` | blocklist content type can be used to block file upload with matching content |
+| `data.export.encoding` | data export encoding | UTF-8
+| `data.export.dir` | storage path for export action | \{user.home}/.axelor/data-export
+| `data.export.max-size` | maximum number of records to export, -1 means unlimited | -1
+| `data.export.fetch-size` | export fetch size | 500
+| `data.export.separator` | default export separator | ';'
+| `data.export.collections.enabled` | whether to export collections fields | false
+| `data.export.collections.separator` | export separator for collections fields | ` \| `
+| `data.export.locale` | define a fixed locale for all exports |
+| `data.import.demo-data` | whether to import demo data for the application | true
+| `template.search-dir` | template storage path for groovy template | \{user.home}/.axelor/templates
+| `cors.allow-origin` | comma-separated list of origins to allow | '*'
+| `cors.allow-credentials` | whether credentials are supported | true
+| `cors.allow-methods` | comma-separated list of methods to allow | GET,PUT,POST,DELETE,HEAD,OPTIONS
+| `cors.allow-headers` | comma-separated list of headers to allow in a request | Origin,Accept,Authorization,X-Requested-With,X-CSRF-Token,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers
+| `cors.expose-headers` | comma-separated list of headers to include in a response |
+| `cors.max-age` | how long the response from a pre-flight request can be cached by clients (in seconds) | 1728000
+| `cors.expose-headers` | comma-separated list of headers to include in a response |
+| `quartz.enable` | whether to enable quartz scheduler | false
+| `quartz.thread-count` | total number of threads in quartz thread pool | 3
+| `mail.smtp.host` | smtp server host |
+| `mail.smtp.port` | smtp server port |
+| `mail.smtp.user` | smtp login username |
+| `mail.smtp.password` | smtp password |
+| `mail.smtp.channel` | smtp encryption channel (starttls or ssl) |
+| `mail.smtp.timeout` | smtp socket read timeout | 60000
+| `mail.smtp.connection-timeout` | smtp socket connection timeout | 60000
+| `mail.smtp.from` | default from attribute |
+| `mail.smtp.properties.<java-mail-property>` | additional java mail properties |
+| `mail.imap.host` | imap server host |
+| `mail.imap.port` | imap server port |
+| `mail.imap.user` | imap login username |
+| `mail.imap.password` | imap password |
+| `mail.imap.channel` | imap encryption channel (starttls or ssl) |
+| `mail.imap.timeout` | imap socket read timeout | 60000
+| `mail.imap.connection-timeout` | imap socket connection timeout | 60000
+| `mail.imap.properties.<java-mail-property>` | additional java mail properties |
+|===
+
+All specified path can use special variables:
+
+* `{user.home}`: reference to the home directory, `System.getProperty("user.home")`
+* `{java.io.tmpdir}`: reference to the tmp directory, `System.getProperty("java.io.tmpdir")`
+* `\{year}`: current year, `YYYY` format
+* `\{month}`: current month, from `1` to `12`
+* `\{day}`: current day, from `1` to `31`
+
+The differences between `prod` and `dev` mode are:
+
+* use minify js/css file.
+* use browser cache.
+* don't display technical popup.
+
+== Example configuration
+
+Here is a complete configuration file with default values
+
+[source,properties]
+----
+include::{examplesdir}/axelor-config.properties[]
+----
+
+== JPA/Hibernate Configuration
+
+The `persistence.xml` located under `src/main/resources/META-INF` provides
+JPA/Hibernate configuration.
+
+A minimal persistence xml file is required to confirm JPA requirements:
+
+.persistence.xml
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<persistence version="2.1"
+  xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="persistenceUnit" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+  </persistence-unit>
+</persistence>
+----
+
+Some JPA/Hibernate configurations can also be set in `axelor-config.properties` file :
+
+[cols="1,8,1"]
+|===
+| `hibernate.hikari.minimumIdle` | minimum number of idle connections to maintain in the pool | 5
+| `hibernate.hikari.maximumPoolSize` | maximum size that the pool is allowed to reach | 20
+| `hibernate.hikari.idleTimeout` | maximum amount of time that a connection is allowed to sit idle in the pool | 300000
+| `hibernate.jdbc.batch_size` | maximum number of statements batch together before asking the driver to execute the batch | 20
+| `hibernate.jdbc.fetch_size` | JDBC fetch size | 20
+|===
+
+All others `hibernate.*` properties are also passed to Hibernate.
+
+== Cache Configuration
+
+Property `javax.persistence.sharedCache.mode` can be used to enable or disable second level caching.
+
+Following keys can be used :
+
+* `ALL` : Entities are always cached even if marked as non-cacheable.
+* `ENABLE_SELECTIVE` : Entities are not cached unless explicitly marked as cacheable
+(with the `@Cacheable` annotation). This is the recommended configuration.
+* `DISABLE_SELECTIVE` : Entities are cached unless explicitly marked as non-cacheable.
+* `NONE` (or anything else) : Completely disable second-level cache.
+
+`jcache` is used as second-level cache provider (default value for `hibernate.cache.region.factory_class`).
+
+By default `Caffeine` implementation is used with pre-configured settings. If you need more control on caching,
+add and edit `application.conf`. See `Caffeine` configs and settings.
+
+There is also populars caching libraries such as {url-ehcache}[Ehcache],
+{url-hazelcast}[Hazelcast], {url-redis}[Redis] or {url-infinispan}[Infinispan] that can be used instead of
+`Caffeine` by specifying properties `hibernate.cache.region.factory_class` and `hibernate.javax.cache.provider` :
+
+*Infinispan :*
+[source,gradle]
+----
+implementation "org.infinispan:infinispan-hibernate-cache-v53:${infinispan_version}"
+implementation "org.infinispan:infinispan-core:${infinispan_version}"
+implementation "org.infinispan:infinispan-jcache:${infinispan_version}"
+----
+[source,properties]
+----
+hibernate.cache.region.factory_class = infinispan
+hibernate.cache.infinispan.cfg = org/infinispan/hibernate/cache/commons/builder/infinispan-configs-local.xml
+----
+
+*Redis :*
+[source,gradle]
+----
+implementation "org.redisson:redisson-hibernate-53:${redisson_version}"
+----
+[source,properties]
+----
+hibernate.cache.region.factory_class = org.redisson.hibernate.RedissonRegionFactory
+# Make sure to add Redisson YAML config in classpath
+----
+
+*Hazelcast :*
+[source,gradle]
+----
+implementation "com.hazelcast:hazelcast:${hazelcast_version}"
+----
+[source,properties]
+----
+hibernate.javax.cache.provider = com.hazelcast.cache.impl.HazelcastServerCachingProvider
+# You may need to add `-Dhazelcast.ignoreXxeProtectionFailures=true` system property
+----
+
+*Ehcache :*
+[source,gradle]
+----
+implementation "org.ehcache:ehcache:${ehcache_version}"
+----
+[source,properties]
+----
+hibernate.javax.cache.provider = org.ehcache.jsr107.EhcacheCachingProvider
+----
+
+Makes sure to add required dependencies if you want to use another caching library. Refer to providers docs for
+extensive configuration : all properties prefix by `hibernate.` will be used.
+
+== Global Context Configuration
+
+Besides the static configuration values, we can also provide configuration for
+the dynamic global context with `context.` prefix. It's used by actions and script
+handlers when evaluating expressions and domain filters. The values can be
+referenced from expressions with special variable `\\__config__`.
+
+[source,properties]
+----
+# Custom context
+# ~~~~~
+
+# instance
+context.hello = com.axelor.script.TestContext
+
+# instance method
+context.world = com.axelor.script.TestContext:hello
+
+# static method
+context.some = com.axelor.script.TestContext:staticMethod
+
+# static field
+context.thing = com.axelor.script.TestContext:STATIC_FIELD
+
+# static values
+context.flag = true
+context.string = some static text value
+context.number = 100
+----
+
+Now, we can use them in expressions like this:
+
+[source,xml]
+----
+<field ... value="#{__config__.hello.message}" /> <1>
+<field ... value="#{__config__.world}" /> <2>
+<field ... value="#{__config__.some}" /> <3>
+<field ... value="#{__config__.thing}" /> <4>
+<field ... value="#{__config__.flag}" /> <5>
+----
+<1> calls getter on the instance
+<2> calls an instance method
+<3> calls a static method
+<4> public static final field value
+<5> any constant value
+
+== Custom Logo/Icon
+
+Special context settings `context.appLogo` and `context.appIcon` can be used to dynamically change
+header logo and website icon per user. For example:
+
+[source,properties]
+----
+context.appLogo = com.axelor.custom.AppService:getLogo
+context.appIcon = com.axelor.custom.AppService:getIcon
+----
+
+The `appLogo`/`appIcon` methods can optionally accept a `String mode` parameter : either `light` or `dark` or if null,
+assuming default `light` is used. Methods should return either:
+
+* a string, link to logo/icon file (eg. `img/my-logo.png`, `ico/my-icon.ico`)
+* an instance of `MetaFile` pointing to the logo/icon file
+
+Here is an example in case it returns a `MetaFile`:
+
+[source,java]
+----
+public class AppService {
+
+  public MetaFile getLogo(String mode) {
+    return Optional.ofNullable(AuthUtils.getUser())
+            .map(User::getActiveCompany)
+            .map(company -> "dark".equals(mode) ? company.getDarkLogo() : company.getLogo())
+            .orElse(null); // Returning null will show default application logo.
+  }
+}
+----
+
+If return value is null, it will show default logo/icon specified
+with `application.logo`/`application.logo-dark` and `application.icon`/`application.icon-dark` in configuration file.
+
+[#custom-login-page]
+== Custom Login Page
+
+You can customize the login page via the properties `application.sign-in.*`.
+
+- **logo**: Set a custom logo for the login page if you require a different one from `application.logo`.
+- **logo-dark**: Set a custom dark logo for the login page if you require a different one from `application.logo-dark`.
+- **title**: Add a translatable HTML title that appears after the logo.
+- **footer**: Add a translatable HTML footer that appears after the form login panel.
+- **username field**: Configure the username field's title, title visibility, placeholder and icon.
+- **password field**: Configure the password field's title, title visibility, placeholder and icon.
+- **tenant field**: Configure the tenant field's title and title visibility.
+- **custom buttons**: Add extra buttons inside the form login panel with customizable titles, types, variants, icons and links.
+- **submit button**: Customize the login submit button's title, type, variant, and icon.
+
+[source,properties]
+----
+# Absolute or relative URL to have a login logo different from `application.logo`/`application.logo-dark`.
+application.sign-in.logo = url
+application.sign-in.logo-dark = url
+# Translatable sanitized HTML, shown after the logo in the form login panel.
+application.sign-in.title = html
+# Translatable sanitized HTML, shown after the form login panel.
+application.sign-in.footer = html
+
+# Show or hide the username field title.
+application.sign-in.fields.username.show-title = true (default) | false
+# Title for the username field, default is `Username`.
+application.sign-in.fields.username.title = translatable text
+# Placeholder text for the username field, default is empty.
+application.sign-in.fields.username.placeholder = translatable text
+# Bootstrap or Material icon name or `none` to disable, shown as start adornment.
+application.sign-in.fields.username.icon = none (default)
+
+# Show or hide the password field title.
+application.sign-in.fields.password.show-title = true (default) | false
+# Title for the password field, default is `Password`.
+application.sign-in.fields.password.title = translatable text
+# Placeholder text for the password field, default is empty.
+application.sign-in.fields.password.placeholder = translatable text
+# Bootstrap or Material icon name or `none` to disable, shown as start adornment.
+application.sign-in.fields.password.icon = none (default)
+
+# Show or hide the tenant field title.
+application.sign-in.fields.tenant.show-title = true (default) | false
+# Title for the tenant field, default is `Tenant`.
+application.sign-in.fields.tenant.title = translatable text
+
+##
+# Extra buttons inside the form login panel using custom button names.
+##
+# Title for the custom button.
+application.sign-in.buttons.<button-name>.title = text
+# Use Button or Link component.
+application.sign-in.buttons.<button-name>.type = button (default) | link
+# Variant for button styling.
+application.sign-in.buttons.<button-name>.variant = primary|secondary|success|danger|info|warning|light|dark
+# Bootstrap or Material icon name, shown before the title.
+application.sign-in.buttons.<button-name>.icon = icon_name
+# Absolute or relative URL with `:username` support.
+application.sign-in.buttons.<button-name>.link = url
+# Number relative to the Login button (< 0 for before, >= 0 for after).
+application.sign-in.buttons.<button-name>.order = order
+
+##
+# Use `submit` button name to customize the Login submit button.
+##
+# Title for the submit button.
+application.sign-in.buttons.submit.title = Sign in
+# Type of the submit button.
+application.sign-in.buttons.submit.type = button
+# Variant for the submit button styling.
+application.sign-in.buttons.submit.variant = primary
+# Icon for the submit button, default is none.
+application.sign-in.buttons.submit.icon = none
+----
+
+Note that the properties file is not a source for extracting translations. So, for your translatable texts, you can add your translations to `custom_<language>.csv` files.
+
+For links, you may use `:username` in the URL to have the username as a parameter (eg. `public/forgot-password.html?username=:username`).
+
+== Password Reset
+
+There is built-in support for password reset functionality. This allows users to request a password reset link if they have forgotten their password. This feature can be configured using the following properties:
+
+[cols="4,8,1"]
+|===
+| Property                             | Description                                                      | Default
+| `application.reset-password.enabled` | Whether to enable the password reset feature from the login page | true
+| `application.reset-password.max-age` | Maximum validity period of password reset tokens in hours        | 24
+|===
+
+=== User Experience
+
+When enabled, a "Forgot password?" link appears on the login page. Users can click this link to enter their email address and request a password reset link. The link remains valid for the duration specified by `application.reset-password.max-age`.
+
+=== Security Considerations
+
+In production mode, to prevent host injection attacks, the password reset feature requires a configured application host. It will not use the request host to determine the application's base URL when creating password reset links. This means:
+
+- The `application.base-url` configuration is required in most cases.
+- Exception: When multi-tenancy is enabled, the system uses the first host in the `hosts` configuration for each tenant instead.

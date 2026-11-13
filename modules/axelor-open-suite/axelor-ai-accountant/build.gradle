@@ -1,0 +1,60 @@
+plugins {
+	id 'com.axelor.app'
+}
+
+apply from: "../libs.gradle"
+apply from: "../version.gradle"
+
+apply {
+	version = openSuiteVersion
+}
+
+axelor {
+	title "Axelor AI Accountant"
+	description "Global AI assistant: Foundry agent chat + validated Java tool handlers"
+}
+
+dependencies {
+	// Base only. The assistant is ERP-wide and must not couple to OCR/accounting internals;
+	// feature modules contribute tools by implementing AiTool (discovered via MetaScanner).
+	api project(":modules:axelor-base")
+
+	// compileOnly, not implementation: logback is already the runtime SLF4J binding (axelor-common's
+	// own LoggerConfiguration programs it directly), so this must not add a second copy to the WAR.
+	// Used by AiMetricsFileLog to attach one rolling file appender to the metrics logger; that class
+	// degrades to stdout-only if the binding is ever something else.
+	compileOnly libs.logback
+
+	testImplementation libs.mockito
+
+	// The durable chat transcript is the one thing in this module whose correctness is a property of
+	// the DATABASE — a unique constraint on (user, company, seq), another on the idempotency key, and
+	// a single transaction that must delete four tables or none. Repository fakes can express none of
+	// those, so AiChatTranscriptJpaTest runs against a real Hibernate schema on in-memory HSQLDB,
+	// using the platform's own test harness (see axelor-core's JpaTestModule, which this mirrors).
+	// Test scope only: neither reaches the WAR.
+	testImplementation "com.axelor:axelor-test"
+	testImplementation "org.hsqldb:hsqldb:2.7.4"
+}
+
+// The DB-backed tests get their own JVM.
+//
+// Starting a real Hibernate unit sets process-wide static state — JPA's entity manager factory and
+// Beans' injector — and the module's other 289 tests are deliberately pure: no Guice, no database.
+// Sharing one JVM leaves them running after that state has been torn down, which fails them for
+// reasons that have nothing to do with what they assert. Two tasks is the honest separation, and
+// `check` runs both.
+test {
+	exclude "**/*JpaTest.class"
+}
+
+tasks.register("jpaTest", Test) {
+	description "Runs the DB-backed tests against an in-memory HSQLDB schema."
+	group "verification"
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	include "**/*JpaTest.class"
+	useJUnitPlatform()
+}
+
+tasks.named("check") { dependsOn "jpaTest" }

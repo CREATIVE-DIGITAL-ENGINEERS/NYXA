@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Adds the VAT credit type onto the invoice line grid (purchase posting). Benign for sales. -->
+  <grid name="invoice-line-grid" title="Invoice Lines" id="bg-localization-invoice-line-grid"
+    model="com.axelor.apps.account.db.InvoiceLine" extension="true">
+    <extend target="/">
+      <insert position="inside">
+        <field name="bgVatCreditType"/>
+        <!-- ⚠️ И В РЕШЕТКАТА, не само във формата: една фактура от физическо лице може да носи и
+          наем, и услуга, тоест кодовете се сверяват РЕД ПО РЕД. Скрит зад отваряне на реда,
+          непопълненият код се вижда чак когато прогонът го преброи. -->
+        <field name="bgIncomeType"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <!-- Adds the VAT credit type onto the invoice line form. -->
+  <form name="invoice-line-form" title="Invoice Line" id="bg-localization-invoice-line-form"
+    model="com.axelor.apps.account.db.InvoiceLine" extension="true">
+    <!-- ⚠️ ТУК НЕ ПИШЕ `action-account-invoice-line-onnew-group` И ТОВА НЕ Е ПРОПУСК.
+      `attribute` ЗАМЕСТВА стойността, а върху onNew на тази форма вече стъпва ВТОРИ модул:
+      axelor-budget (views/InvoiceLine.xml:31) я подменя с `action-group-budget-invoice-line-onnew`
+      — група, чиято ПЪРВА стъпка е стоковата, следвана от бюджетните. Тоест заварената стойност,
+      върху която пишем, е БЮДЖЕТНАТА, не стоковата, и преписана със стоковата тук новият ред щеше
+      мълчаливо да загуби наличния бюджет, проверката на бюджетните ключове и бюджетните дати.
+
+      ⚠️ И ПИШЕМ НИЕ, защото сме ПОСЛЕДНИ по ред на модулите: axelor-bg-localization зависи от
+      axelor-ai-ocr, а той — от axelor-budget. Затова и групата винаги съществува: бюджетът е
+      транзитивна зависимост на този модул, не опция.
+
+      Ефективната верига става: стокова група → бюджетни стъпки → нашата единица по подразбиране.
+      Трите звена и редът им се сверяват от BgInvoiceLineUnitViewTest срещу самите axelor-account и
+      axelor-budget; същият тест пази и срещу ТРЕТИ модул, който да стъпи върху onNew. -->
+    <extend target="/">
+      <attribute name="onNew"
+        value="action-group-budget-invoice-line-onnew,action-bg-localization-invoice-line-record-default-unit"/>
+      <insert position="inside">
+        <panel name="bgVatPanel" title="Българска локализация (ДДС)" colSpan="12">
+          <field name="bgVatCreditType"/>
+        </panel>
+        <!-- ⚠️ ОТДЕЛЕН ПАНЕЛ ОТ ДДС-то, защото е друг закон и друг читател. ДДС-то решава в коя
+          колона на дневника влиза редът; това решава дали плащането по фактурата поражда ред в
+          регистъра по ЗДДФЛ и с кой член се облага. Слети в един панел, двете биха се четели като
+          едно настроечно гнездо. -->
+        <panel name="bgIncomeTaxPanel" title="Българска локализация (ЗДДФЛ)" colSpan="12">
+          <field name="bgIncomeType"
+            help="Попълва се САМО когато доставчикът е ФИЗИЧЕСКО ЛИЦЕ: тогава плащането по фактурата е негов доход и влиза в регистъра по ЗДДФЛ, а оттам в справката по чл. 73, ал. 1 и в декларацията по чл. 55. ⚠️ На РЕДА, защото една фактура може да носи и наем (чл. 31), и услуга (чл. 29) — два различни члена и два различни реда на образеца. Ред без вид доход НЕ поражда запис и се брои в границите на прогона."/>
+        </panel>
+      </insert>
+    </extend>
+    <!-- ⚠️ ЗАДЪЛЖИТЕЛНОСТТА НА СТОКОВОТО ПОЛЕ НЕ СЕ ЗАДЕЙСТВА ЗА НОВ РЕД, макар да изглежда точно
+      обратното. Стоковото условие е `typeSelect == 0`, а НОВИЯТ ред идва в редактора БЕЗ typeSelect:
+      генерираният InvoiceLine.java носи `private Integer typeSelect = 0;` (Java инициализатор), но
+      НЯМА `@Widget(defaultValue = ...)` — тоест стойността се появява едва при записа на сървъра и
+      клиентът борави с undefined. Изразът се смята в JavaScript, където `undefined == 0` е FALSE.
+      Резултат: за реда, който потребителят тъкмо е отворил — единствения момент, в който правилото
+      има значение — полето НЕ е задължително и празната единица минава.
+
+      `!typeSelect` хваща и трите прочита на „обикновен ред“ (undefined, null, 0) и оставя заглавния
+      ред (1) и опаковъчните (2, 3) недокоснати — там Axelor основателно не иска единица.
+
+      ⚠️ И ТОВА Е ЦЯЛАТА ЗАБРАНА ЗА ПРАЗНО, нарочно. Потвърдено в кода на редактора
+      (axelor-front, hooks/use-relation/use-editor.tsx): при „ОК“ върху ред от o2m първо се вика
+      `handler.getErrors()` и при грешка диалогът НЕ се затваря — тоест задължителното поле наистина
+      спира записа, — но веднага след това се вика локалният `onSave` на колекцията, а НЕ
+      `handler.onSave({callOnSave: true})`. Тоест `onSave` действията на формата за ред от фактура
+      НЕ СЕ ИЗПЪЛНЯВАТ и action-validate закачен там би бил мъртъв код.
+
+      Проверка на ниво фактура също няма да има: тя би удряла заварените редове и създадените от
+      OCR при всеки повторен запис на стара фактура. Границата е точно тази — редът, който човек
+      отваря и записва. -->
+    <extend target="//field[@name='unit']">
+      <attribute name="requiredIf" value="!typeSelect"/>
+    </extend>
+  </form>
+
+  <!-- Същото за портала (invoice-client-form → invoice-line-client-form): същата стокова onNew
+    група, същото стоково `typeSelect == 0` и същият редактор, значи и същите две поправки. -->
+  <form name="invoice-line-client-form" title="Invoice line"
+    id="bg-localization-invoice-line-client-form" model="com.axelor.apps.account.db.InvoiceLine"
+    extension="true">
+    <extend target="/">
+      <attribute name="onNew"
+        value="action-account-invoice-line-onnew-group,action-bg-localization-invoice-line-record-default-unit"/>
+    </extend>
+    <extend target="//field[@name='unit']">
+      <attribute name="requiredIf" value="!typeSelect"/>
+    </extend>
+  </form>
+
+  <!-- Мерната единица по подразбиране на нов ред идва от настройката на модула
+    (AppBgLocalization.bgDefaultInvoiceLineUnit), тоест по ВРЪЗКА към реда, а не по име.
+
+    ⚠️ ЗАЩО НЕ `__repo__(Unit).findByName('Брой')`, както беше тук. Unit няма нито код, нито
+    уникален ключ (виж домейна на настройката за целия списък полета), а `name` е translatable,
+    required и namecolumn — тоест едновременно етикет на екрана и единствен кандидат за съвпадение.
+    Преименуван от човек с права върху номенклатурата, изразът тихо спира да връща нещо; дублиран
+    ред — тихо избира единия от двата. `importId` от base_unit.csv не е изход: в базата такова поле
+    няма изобщо (нито Model, нито AuditableModel, нито генерираният Unit.java го носят), той е
+    колона в листа и нищо повече.
+
+    ⚠️ БЕЗ РЕЗЕРВЕН ИЗБОР. Ненастроена настройка значи БЕЗ стойност по подразбиране — не „първата
+    намерена единица“ и не „нещо подобно“. Тогава празното поле спира записа на обикновения ред
+    (виж requiredIf по-горе) и администраторът вижда какво липсва, вместо фактурите да тръгнат с
+    мълчаливо сбъркана единица.
+
+    ⚠️ И НЕ ГАЗИ ИЗБОРА ОТ ПРОДУКТ: това е onNew, а `action-group-account-invoice-line-product-onchange`
+    се изпълнява по-късно и презаписва единицата с тази на продукта. Условието `unit == null` пази
+    и вече попълнена на ръка стойност. -->
+  <action-record name="action-bg-localization-invoice-line-record-default-unit"
+    model="com.axelor.apps.account.db.InvoiceLine">
+    <field name="unit"
+      expr="eval:__repo__(AppBgLocalization).all().fetchOne()?.getBgDefaultInvoiceLineUnit()"
+      if="unit == null"/>
+  </action-record>
+
+</object-views>

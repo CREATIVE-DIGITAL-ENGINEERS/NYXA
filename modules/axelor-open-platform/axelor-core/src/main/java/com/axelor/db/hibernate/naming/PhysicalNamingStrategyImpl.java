@@ -1,0 +1,74 @@
+/*
+ * Axelor Business Solutions
+ *
+ * Copyright (C) 2005-2026 Axelor (<http://axelor.com>).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package com.axelor.db.hibernate.naming;
+
+import com.axelor.common.StringUtils;
+import java.util.Locale;
+import org.hibernate.boot.model.naming.Identifier;
+import org.hibernate.boot.model.naming.PhysicalNamingStrategy;
+import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
+
+public class PhysicalNamingStrategyImpl implements PhysicalNamingStrategy {
+
+  public static final PhysicalNamingStrategyImpl INSTANCE = new PhysicalNamingStrategyImpl();
+
+  @Override
+  public Identifier toPhysicalCatalogName(Identifier name, JdbcEnvironment jdbcEnvironment) {
+    return addUnderscores(name);
+  }
+
+  @Override
+  public Identifier toPhysicalSchemaName(Identifier name, JdbcEnvironment jdbcEnvironment) {
+    return addUnderscores(name);
+  }
+
+  @Override
+  public Identifier toPhysicalTableName(Identifier name, JdbcEnvironment jdbcEnvironment) {
+    return addUnderscores(name);
+  }
+
+  @Override
+  public Identifier toPhysicalSequenceName(Identifier name, JdbcEnvironment jdbcEnvironment) {
+    return addUnderscores(name);
+  }
+
+  @Override
+  public Identifier toPhysicalColumnName(Identifier name, JdbcEnvironment jdbcEnvironment) {
+    return addUnderscores(name);
+  }
+
+  static Identifier addUnderscores(Identifier name) {
+    if (name == null || StringUtils.isBlank(name.getText())) {
+      return null;
+    }
+    return Identifier.toIdentifier(addUnderscores(name.getText()));
+  }
+
+  static String addUnderscores(String text) {
+    final StringBuilder buf = new StringBuilder(text.replace('.', '_'));
+    for (int i = 1; i < buf.length() - 1; i++) {
+      if (Character.isLowerCase(buf.charAt(i - 1))
+          && Character.isUpperCase(buf.charAt(i))
+          && Character.isLowerCase(buf.charAt(i + 1))) {
+        buf.insert(i++, '_');
+      }
+    }
+    return buf.toString().toLowerCase(Locale.ROOT);
+  }
+}

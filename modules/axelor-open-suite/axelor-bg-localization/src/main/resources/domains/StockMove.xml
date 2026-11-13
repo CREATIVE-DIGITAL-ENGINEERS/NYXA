@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="stock" package="com.axelor.apps.stock.db"/>
+
+  <entity name="StockMove">
+    <!-- РЪЧЕН КОД ПО „Stock movement“ (SD.MG.10) — когато движението не се класифицира само.
+
+      Предимство: ръчният код > кодът на причината за корекция > автоматичният. Нужен е за ръчни
+      входове и изходи без поръчка (10/30 срещу 150/180) и за вътрешен трансфер, който се познава само
+      по отсъствие. Посоката се проверява при реализиране (BgStockMovementCodes): 60 е само вход,
+      65/150/160/170 — само изход. Кодовете само по стойност (90, 100, 101, 130, 140) не се допускат
+      на движение с количество — те са документ на ИЗП. -->
+    <string name="bgSaftMovementCode" title="Код по „Stock movement“ (ръчно)"
+      selection="bg.saft.stock.movement.select"/>
+
+    <!-- ДАТАТА НА ДОКУМЕНТА, с който е заведено движението — SAF-T SD.MG.6 MovementDate.
+
+      realDate НЕ е тази дата: Axelor я пише „днес“ при реализиране (StockMoveServiceImpl:554) и пак
+      „днес“ при отказ (:1025), а е readonly. Тя остава SD.MG.7 MovementPostingDate (дата на
+      осчетоводяване, опционална). Датирането назад на realDate би разминало WAP при
+      BatchRecomputeStockLocationLines, който единствен подрежда по нея.
+
+      Празна при реализиране → става днешната дата на дружеството. Отказва се в бъдещето и в
+      липсващ или затворен фискален период (BgStockMoveDates). Друг месец от realDate е само
+      предупреждение. Същата дата датира статията за изписване (ИЗП): чл. 79 ал. 4 ЗДДС иска периода
+      на обстоятелството, а не деня на кликването. -->
+    <date name="bgDocumentDate" title="Дата на документа"/>
+
+    <!-- Предупреждението „документът е в друг месец от реализирането“ — само за показване, не се
+      пази. Изчислява се от BgStockMoveDates, за да има едно правило за формата и за SAF-T. -->
+    <string name="bgDocumentDateWarning" title="Дата на документа — предупреждение"
+      transient="true">
+      <![CDATA[
+      return com.axelor.apps.bglocalization.service.stock.BgStockMoveDates.monthWarning(
+          bgDocumentDate, realDate);
+      ]]>
+    </string>
+
+    <!-- ДДС сигналът на движението (S0, т. D) — само предупреждение, не се пази. Чл. 6 ал. 3 т. 1–2 и
+      чл. 79 ал. 1 ЗДДС; правилото е в BgStockVatSignals. -->
+    <string name="bgVatSignalWarning" title="ДДС сигнал" transient="true">
+      <![CDATA[
+      return com.axelor.apps.bglocalization.service.stock.BgStockVatSignals.warningOf(this);
+      ]]>
+    </string>
+  </entity>
+
+</domain-models>

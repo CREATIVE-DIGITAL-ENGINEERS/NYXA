@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="WINDOWS-1251"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="dec731">
+		<xs:annotation>
+			<xs:documentation>Справка за изплатени през годината доходи по чл. 73, ал. 1 от ЗДДФЛ и за удържаните данък и задължителни осигурителни вноски</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="isterm" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Отбележете, ако справката се подава при заличаване/прекратяване на предприятие в срока по чл. 162 от ЗКПО; 1 - при отбелязан чекбокс, иначе 0</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:integer">
+							<xs:minInclusive value="0"/>
+							<xs:maxInclusive value="1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="year" minOccurs="1">
+					<xs:annotation>
+						<xs:documentation>Година, за която се подава справката</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:integer">
+							<xs:minInclusive value="2019"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="part1">
+					<xs:annotation>
+						<xs:documentation>Част І Идентификационни данни за платеца на дохода</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:all>
+							<xs:element name="eik">
+								<xs:annotation>
+									<xs:documentation>1. ЕИК/Служебен № от регистъра на НАП</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="9"/>
+										<xs:maxLength value="10"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="name">
+								<xs:annotation>
+									<xs:documentation>2. Наименование на предприятието /име на самоосигуряващото се лице</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:maxLength value="200"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="phone" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>3.1. Телефон</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:maxLength value="20"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="mail" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>3.2.e-mail</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:maxLength value="200"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="reprname" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Данни за представляващия: 4.1. Собствено име, презиме и фамилно име на представляващия </xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:maxLength value="600"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="reprident" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Данни за представляващия: 4.2. ЕГН/ЛН/ЛНЧ/Служебен № от регистъра на НАП</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:length value="10"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:all>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="part2">
+					<xs:annotation>
+						<xs:documentation>Част ІІ Данни за изплатените доходи </xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="rowsenum" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="correctioncode">
+											<xs:annotation>
+												<xs:documentation>Код корекция; 0 за основни данни; 1 – за коригиращи данни и 8 – за заличаващи данни </xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:integer">
+													<xs:enumeration value="0"/>
+													<xs:enumeration value="1"/>
+													<xs:enumeration value="8"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="foreign" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>ЧФЛ*: 0 - не е ЧФЛ ; 1- ЧФЛ</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:integer">
+													<xs:minInclusive value="0"/>
+													<xs:maxInclusive value="1"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="identtype" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Тип И**: 0 за лице с ЕГН; 1 за лице с ЛН, ЛНЧ или Сл. № от регистъра на НАП; 2 за физ. лице с БУЛСТАТ; 3 за чуждестранно физическо лице без посочените идентификатори</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:integer">
+													<xs:minInclusive value="0"/>
+													<xs:maxInclusive value="3"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="ident" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>ЕГН/ЛН/ЛНЧ/Сл. № от регистъра на НАП/ЕИК/</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="10"/>
+													<xs:minLength value="9"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="birthdate" type="xs:date" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Дата на раждане </xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="firstname" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Собствено име/наименование</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="200"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="secondname" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Презиме</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="200"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="thirdname" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Фамилно име</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="200"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="countrycode" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Код на държава</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="2"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="incomecode" minOccurs="1">
+											<xs:annotation>
+												<xs:documentation>Код на дохода</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="3"/>
+													<xs:maxLength value="5"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="income" type="xs:float" minOccurs="1">
+											<xs:annotation>
+												<xs:documentation>Брутен размер на дохода</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="healthins" type="xs:float" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Удържани ЗОВ***</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="tax" type="xs:float" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Удържан данък по ЗДДФЛ</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="persons" type="xs:integer" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Брой лица</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="eiktransfrom" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>ЕИК на преобразуващото се предприятие</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="9"/>
+													<xs:maxLength value="10"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

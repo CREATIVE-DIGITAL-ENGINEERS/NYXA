@@ -1,0 +1,132 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ═══ ИЗП: ЗАДАЧАТА „ЧАКА ОЦЕНКА“ (OUTBOX) ═══
+
+    В транзакцията на реализирането се прави САМО insert на този ред, без изчисления. При rollback на реализирането той изчезва заедно с него. Изчислението и
+    статията стават след commit, в собствена транзакция (BgStockValuationProcessor, на всяка
+    минута). Грешката не връща назад реализирането: задачата става ERROR и влиза в списъка
+    „Неосчетоводени изписвания“; периодът не се затваря, докато има такива.
+
+    Редът на обработка е редът на задачите (id) — тоест редът на реализиране, като в Axelor.
+    Задача, чийто продукт има по-ранна задача с ГРЕШКА, чака — иначе средната би се
+    сметнала без нея. -->
+  <entity name="BgStockValuationTask">
+
+    <many-to-one name="stockMove" ref="com.axelor.apps.stock.db.StockMove"
+      title="Складово движение" required="true"/>
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"/>
+
+    <!-- bgDocumentDate (SD.MG.6) — датата на статията и периодът, който не се затваря без нея. -->
+    <date name="documentDate" title="Дата на документа"/>
+
+    <integer name="statusSelect" title="Статус" selection="bg.stock.valuation.task.status.select"
+      default="1"/>
+
+    <string name="errorMessage" title="Грешка" large="true"/>
+
+    <integer name="attempts" title="Опити"/>
+
+    <datetime name="processedOn" title="Обработена на"/>
+
+    <many-to-one name="move" ref="com.axelor.apps.account.db.Move" title="Статия"/>
+
+    <extra-code>
+      <![CDATA[
+      public static final int STATUS_PENDING = 1;
+      public static final int STATUS_DONE = 2;
+      public static final int STATUS_ERROR = 3;
+      ]]>
+    </extra-code>
+
+  </entity>
+
+  <!-- ═══ ИЗП: СЛОЯТ НА СЕБЕСТОЙНОСТТА ═══
+
+    „Стойност, не цена“: слоят пази количество и СТОЙНОСТ;
+    изходът взема дял от стойността, а изчерпващият — целия остатък. Средната единична цена е само
+    за показване.
+
+    Средната претеглена има ЕДИН слой на дружество, продукт и обхват (склад по правилото за
+    WarehouseID от S0, или празно — за цялото дружество). FIFO/LIFO и конкретната стойност ще имат
+    много слоеве със същия модел.
+
+    PhysicalStock в SAF-T = остатъците по слоеве. -->
+  <entity name="BgStockCostLayer">
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"
+      required="true"/>
+
+    <many-to-one name="product" ref="com.axelor.apps.base.db.Product" title="Продукт"
+      required="true"/>
+
+    <!-- Складът по правилото за WarehouseID; празно — средната е за цялото дружество. -->
+    <many-to-one name="warehouse" ref="com.axelor.apps.stock.db.StockLocation" title="Склад"/>
+
+    <many-to-one name="trackingNumber" ref="com.axelor.apps.stock.db.TrackingNumber"
+      title="Партида / сериен номер"/>
+
+    <!-- OPENING — начален слой от заварените наличности; IN — постъпление. -->
+    <string name="originSelect" title="Произход" selection="bg.stock.cost.layer.origin.select"/>
+
+    <many-to-one name="stockMoveLine" ref="com.axelor.apps.stock.db.StockMoveLine"
+      title="Постъпление"/>
+
+    <date name="layerDate" title="Дата"/>
+
+    <decimal name="qty" title="Количество" precision="20" scale="10"/>
+
+    <!-- „stockValue“, а не „value“: VALUE е запазена дума в HSQLDB. -->
+    <decimal name="stockValue" title="Стойност" precision="20" scale="2"/>
+
+    <decimal name="unitCost" title="Средна единична цена (за показване)" precision="20"
+      scale="6"/>
+
+  </entity>
+
+  <!-- ═══ ИЗП: ОЦЕНКАТА НА РЕД ОТ ДВИЖЕНИЕТО ═══
+
+    Източникът на BookValue в SAF-T: amount е ВИНАГИ положителна, посоката идва от
+    количеството, а при количество 0 — от кода. Статията за изписване (move) дава TransactionID.
+    Ред се записва само когато цялото движение е оценено. -->
+  <entity name="BgStockMoveLineValuation">
+
+    <many-to-one name="stockMoveLine" ref="com.axelor.apps.stock.db.StockMoveLine"
+      title="Ред на движението" required="true"/>
+
+    <many-to-one name="stockMove" ref="com.axelor.apps.stock.db.StockMove"
+      title="Складово движение"/>
+
+    <many-to-one name="task" ref="com.axelor.apps.bglocalization.db.BgStockValuationTask"
+      title="Задача"/>
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"/>
+
+    <many-to-one name="product" ref="com.axelor.apps.base.db.Product" title="Продукт"/>
+
+    <many-to-one name="warehouse" ref="com.axelor.apps.stock.db.StockLocation" title="Склад"/>
+
+    <string name="movementCode" title="Код по „Stock movement“"
+      selection="bg.saft.stock.movement.select"/>
+
+    <string name="inventoryType" title="Вид на запаса" selection="bg.saft.inventory.type.select"/>
+
+    <!-- IN — постъпление, OUT — изход; трансферът дава по един ред от двете страни. -->
+    <string name="directionSelect" title="Посока" selection="bg.stock.valuation.direction.select"/>
+
+    <string name="costingMethodSelect" title="Метод" selection="bg.stock.costing.method.select"/>
+
+    <decimal name="qty" title="Количество" precision="20" scale="10"/>
+
+    <decimal name="amount" title="Стойност" precision="20" scale="2"/>
+
+    <many-to-one name="move" ref="com.axelor.apps.account.db.Move" title="Статия"/>
+
+  </entity>
+
+</domain-models>

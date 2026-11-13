@@ -1,0 +1,38 @@
+importId,code,sequence,name,category,isPaid,payer,compensationPct,isFixedBenefit,sicknessReasonCode,countsAsLaborService,countsAsInsuranceService,socialContributionsDue,healthContributionRule,bgPaidUnderArt177,reducesWorkNorm,requiresSickNote,d1Code,legalBasis,active
+1,paid_leave_coef,1,Платен отпуск с коефициент,1,true,employer,100,false,,true,true,true,standard,true,true,false,16.1,чл.177 КТ,true
+2,paid_annual,2,Платен годишен отпуск,1,true,employer,100,false,,true,true,true,standard,true,true,false,16.1,чл.155/224 КТ,true
+3,official_creative_161,3,Служебен отпуск,1,true,employer,100,false,,true,true,true,standard,false,true,false,16.1,чл.161 КТ,true
+4,unpaid_prod_le30,4,Неплатен по произв. необходимост (раб-л) — до 30 дни,7,false,none,0,false,,true,true,false,unpaid_employer,false,true,false,16.5,чл.160 КТ,true
+5,unpaid_prod_gt30,5,Неплатен по произв. необходимост (раб-л) — над 30 дни,7,false,none,0,false,,false,false,false,unpaid_employer,false,true,false,,чл.160 КТ,true
+6,student_paid,6,Платен ученически отпуск,1,true,employer,100,false,,true,true,true,standard,false,true,false,16.1,чл.169-171 КТ,true
+7,non_attendance,7,Неприсъствие,5,false,none,0,false,,false,false,false,standard,false,true,false,,,true
+8,home_accident_er,8,Битова злополука Р-л,3,true,employer,70,false,,true,true,false,standard,false,true,true,16.А,чл.40 ал.5 КСО,true
+9,home_accident_doo,9,Битова злополука ДОО,3,true,doo,80,false,,true,true,false,standard,false,true,true,16.2,чл.41 КСО,true
+10,care_sick_child_u18,10,Гледане на болно дете до 18 г (код 26),2,true,doo,80,false,26,true,true,false,standard,false,true,true,16.2,чл.40/41 КСО,true
+11,care_sick_adult_o18,11,Гледане на болен над 18 г (код 27),2,true,doo,80,false,27,true,true,false,standard,false,true,true,16.2,чл.40/41 КСО,true
+12,unpaid_own_le30,12,Неплатен по желание (лице) — с трудов стаж,7,false,none,0,false,,true,true,false,unpaid_employee,false,true,false,16.5,чл.160 ал.1 КТ,true
+13,sick_er,13,Болнични Р-л (общо заболяване),2,true,employer,70,false,,true,true,false,standard,false,true,true,16.А,чл.40 ал.5 КСО,true
+14,work_accident_er,14,Трудова злополука Р-л,3,true,employer,70,false,,true,true,false,standard,false,true,true,16.А,чл.40 ал.5 КСО,true
+15,sick_doo,15,Болнични ДОО (общо заболяване),2,true,doo,80,false,,true,true,false,standard,false,true,true,16.2,чл.41 КСО,true
+16,work_accident_doo,16,Трудова злополука ДОО,3,true,doo,90,false,,true,true,false,standard,false,true,true,16.2,чл.41 КСО,true
+17,unpaid_own_gt30,17,Неплатен по желание (лице) — без трудов стаж,7,false,none,0,false,,false,false,false,unpaid_employee,false,true,false,,чл.160 ал.1 КТ,true
+18,maternity_birth,18,Бременност и раждане 90% ДОО,4,true,doo,90,false,,true,true,false,standard,false,true,true,16.2,чл.49-50 КСО,true
+19,child_care_u2,19,Отпуск гледане на дете до 2 г,4,true,doo,0,true,,true,true,false,standard,false,true,false,16.3,чл.164 КТ / чл.53 КСО,true
+20,child_care_2_8,20,Отпуск при осиновяване на дете до 5 г. (365 дни),4,true,doo,0,true,,true,true,false,standard,false,true,false,16.2,чл.164б ал.1 КТ / чл.53в КСО,true
+21,sicknote_unsubmitted,21,Непредставен болничен,2,false,none,0,false,,false,false,false,standard,false,true,true,,,true
+22,unpaid_child_u8_167a,22,Неплатен за гледане на дете до 8 г (чл.167а),7,false,none,0,false,,true,true,false,unpaid_employer,false,true,false,16.3,чл.167а КТ,true
+23,paid_157,23,Отпуск чл.157 ал.1 т.1-3 — по КТД,1,true,employer,100,false,,true,true,true,standard,false,true,false,16.1,чл.157 ал.3 т.1 КТ,true
+24,union_159,24,Отпуск синдикална дейност чл.159,1,true,employer,100,false,,true,true,true,standard,true,true,false,16.1,чл.159 КТ,true
+25,awol,25,Самоотлъчка,5,false,none,0,false,,false,false,false,standard,false,true,false,,,true
+26,paternity,26,Бащинство,4,true,doo,90,false,,true,true,false,standard,false,true,false,16.2,чл.163 ал.8 КТ,true
+27,sick_no_benefit_er,27,Болничен Р-л без право на обезщетение,2,false,none,0,false,,true,true,false,standard,false,true,true,16.4,чл.40 ал.1 / чл.9 ал.2 т.2 КСО,true
+28,sick_no_benefit_doo,28,Болничен ДОО без право на обезщетение,2,false,none,0,false,,true,true,false,standard,false,true,true,16.4,чл.9 ал.2 т.2 КСО,true
+29,child_placement_164a,29,Отпуск за отглеждане на настанено дете до 2 г.,4,true,doo,0,true,,true,true,true,standard,false,true,false,16.3,чл.164а КТ / чл.26 ЗЗДет,true
+30,child_care_father_164v,30,Отпуск на бащата за дете до 8 г. (два месеца),4,true,doo,0,true,,true,true,true,standard,false,true,false,16.3,чл.164в КТ,true
+31,child_care_father_167,31,Отпуск на бащата при смърт или тежко заболяване на майката,4,true,doo,0,true,,true,true,true,standard,false,true,false,16.3,чл.167 КТ,true
+32,adoption_u5_no_benefit,32,Отпуск при осиновяване до 5 г. БЕЗ право на обезщетение,4,false,none,0,false,,true,true,true,standard,false,true,false,16.3,чл.164б КТ / чл.53в КСО,true
+33,occupational_disease_er,33,Професионална болест Р-л,3,true,employer,70,false,,true,true,false,standard,false,true,true,16.А,чл.40 ал.5 КСО,true
+34,occupational_disease_doo,34,Професионална болест ДОО,3,true,doo,90,false,,true,true,false,standard,false,true,true,16.2,чл.41 КСО,true
+35,nursing_166,35,Отпуск за кърмене и хранене на малко дете,1,true,employer,100,false,,true,true,true,standard,false,true,false,16.1,чл.166 КТ,true
+36,paid_157_art177,36,Отпуск чл.157 ал.1 т.5а/т.6 и ал.2 — в размера по чл.177,1,true,employer,100,false,,true,true,true,standard,true,true,false,16.1,чл.157 ал.3 т.2 КТ,true
+37,paid_157_special,37,Отпуск чл.157 ал.1 т.4/т.5/т.7 — по специален закон,1,false,none,0,false,,true,true,false,standard,false,true,false,16.4,чл.157 ал.3 т.3 КТ,true

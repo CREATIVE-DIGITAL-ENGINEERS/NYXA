@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ═══ FATCA ОТЧЕТЪТ ЗА ЕДНА ГОДИНА ═══
+
+    Подава се от предоставяща информация финансова институция, веднъж годишно, до 30 юни на
+    следващата година, като файл във формата FATCA XML на IRS — през портала на НАП
+    с КЕП. API на НАП за FATCA няма; затова каналът е само ръчен.
+
+    Без сметки отчетът е НУЛЕВ (NilReport): институцията без сметки за докладване заявява това в
+    същия срок.
+
+    ⚠️ ЕДНО ДРУЖЕСТВО, ЕДНА ГОДИНА, ЕДИН ОТЧЕТ. Корекциите и анулирането (FATCA2–FATCA4) не са в
+    обхвата: подаденият отчет е краен. -->
+  <entity name="BgFatcaReport">
+
+    <many-to-one name="company" title="Компания" required="true"
+      ref="com.axelor.apps.base.db.Company"/>
+
+    <!-- ОТЧЕТНАТА година — ReportingPeriod е 31.12 на нея. -->
+    <integer name="reportYear" title="Отчетна година" required="true"/>
+
+    <string name="statusSelect" title="Състояние" selection="bg.fatca.report.status.select"
+      default="DRAFT" required="true" readonly="true"/>
+
+    <!-- Тестов файл: DocTypeIndic FATCA11 вместо FATCA1. Само за тестовата услуга на портала. -->
+    <boolean name="testFile" title="Тестов файл (FATCA11)"/>
+
+    <one-to-many name="accountList" title="Отчетни сметки"
+      ref="com.axelor.apps.bglocalization.db.BgFatcaAccount" mappedBy="report"/>
+
+    <!-- ═══ ЗАМРАЗЕНО ПРИ ГЕНЕРИРАНЕ ═══
+      Генерираният файл трябва да показва данните, С КОИТО Е генериран. Сменен GIIN или
+      преименувано дружество не пренаписват подаденото. -->
+    <string name="fiName" title="Институция (ReportingFI)" readonly="true"/>
+    <string name="fiGiin" title="GIIN във файла" readonly="true"/>
+    <string name="messageRefId" title="MessageRefId" readonly="true"/>
+
+    <!-- ═══ ГЕНЕРИРАНИЯТ ФАЙЛ ═══ -->
+    <many-to-one name="generatedFile" title="Генериран файл" ref="com.axelor.meta.db.MetaFile"
+      readonly="true"/>
+    <many-to-one name="generatedArtifact" title="Артефакт (непроменим)"
+      ref="com.axelor.apps.napsubmissions.db.NapArtifact" readonly="true"/>
+    <datetime name="fileGeneratedOn" title="Файлът е генериран на" readonly="true"/>
+    <string name="fileSha256" title="SHA-256 на файла" readonly="true"/>
+    <integer name="fileAccountCount" title="Брой сметки във файла" readonly="true"/>
+
+    <!-- ═══ РЪЧНОТО ПОДАВАНЕ ПРЕЗ ПОРТАЛА ═══
+      Входящият номер и датата идват от НАП (по имейл след качването) и се вписват ръчно. -->
+    <many-to-one name="napSubmission" title="Подаване към НАП"
+      ref="com.axelor.apps.napsubmissions.db.NapSubmission" readonly="true"/>
+    <string name="napIncomingNumber" title="Входящ № (НАП)"/>
+    <date name="napIncomingDate" title="Дата на входящия №"/>
+
+    <unique-constraint columns="company,reportYear"/>
+
+  </entity>
+
+</domain-models>

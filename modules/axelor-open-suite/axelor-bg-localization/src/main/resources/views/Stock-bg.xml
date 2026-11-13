@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ СКЛАД: БГ ПОЛЕТАТА ВЪРХУ ИЗГЛЕДИТЕ НА AXELOR ═══
+
+    Разширения по образеца на Unit-bg.xml: extension="true" + extend target, чуждите файлове остават
+    непроменени. Полетата са от домейните ProductFamily/Product/AccountManagement/
+    StockCorrectionReason/StockMove в този модул. -->
+
+  <!-- Видът на запаса (SAF-T MF.PS.6) на семейството: до кода, където счетоводителят го настройва. -->
+  <form name="product-family-form" title="Accounting family" id="bg-stock-product-family-form"
+    model="com.axelor.apps.base.db.ProductFamily" extension="true">
+    <extend target="//panel[@name='mainPanel']/field[@name='code']">
+      <insert position="after">
+        <field name="bgSaftInventoryType"
+          help="Празно — семейството не е стоково-материален запас (услуги, ДМА, директно
+            разходвано) и продуктите му не влизат в PhysicalStock на SAF-T."/>
+      </insert>
+    </extend>
+  </form>
+
+  <grid name="product-family-grid" title="Product accounting families"
+    id="bg-stock-product-family-grid" model="com.axelor.apps.base.db.ProductFamily"
+    extension="true">
+    <extend target="//field[@name='code']">
+      <insert position="after">
+        <field name="bgSaftInventoryType"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <!-- Override на вида на ниво продукт: точно под семейството, от което иначе се наследява. -->
+  <form name="product-form" title="Product" id="bg-stock-product-form"
+    model="com.axelor.apps.base.db.Product" extension="true">
+    <extend target="//panel[@name='categorizationPanel']/field[@name='productFamily']">
+      <insert position="after">
+        <field name="bgSaftInventoryType" colSpan="12"
+          help="Попълва се само когато продуктът се различава от семейството си — напр. хранителен
+            продукт за кухнята (СМЗ) в семейство на готовите ястия (не са СМЗ)."/>
+      </insert>
+    </extend>
+  </form>
+
+  <!-- Складовата сметка 30x: до покупната, от която се различава при продукцията (60101 срещу 303). -->
+  <form name="account-management-form" title="Account management"
+    id="bg-stock-account-management-form" model="com.axelor.apps.account.db.AccountManagement"
+    extension="true">
+    <extend target="//panel[@name='purchaseConfig2Panel']/field[@name='purchaseAccount']">
+      <insert position="after">
+        <field name="bgStockAccount" showIf="typeSelect == 1" form-view="account-form"
+          grid-view="account-grid"
+          domain="self.company = :company AND self.code LIKE '30%'"/>
+      </insert>
+    </extend>
+  </form>
+
+  <!-- Кодът по „Stock movement“ и ДДС сигналът на причината за корекция. -->
+  <form name="stock-correction-reason-form" title="Stock Correction Reason"
+    id="bg-stock-correction-reason-form" model="com.axelor.apps.stock.db.StockCorrectionReason"
+    extension="true">
+    <extend target="//panel[@name='mainPanel']/field[@name='name']">
+      <insert position="after">
+        <field name="bgStockMovementCode"
+          help="Посоката се проверява при реализиране: 60 е само вход, 65/150/160/170 — само
+            изход, 80 и 180 — всяка."/>
+        <field name="bgVatSignalSelect"
+          help="Празно — сигналът се определя по кода. „Без сигнал“ — изрично (напр. работно
+            облекло и ЛПС, чл. 6, ал. 4, т. 1 ЗДДС)."/>
+        <field name="bgRequiresPartner"
+          help="Корекцията по тази причина иска виновно лице — стойността е вземане от него
+            (ИЗП: Дт 442 „Вземания по липси и начети“ аналитично по лицето)."/>
+      </insert>
+    </extend>
+  </form>
+
+  <grid name="stock-correction-reason-grid" title="Stock Correction Reasons"
+    id="bg-stock-correction-reason-grid" model="com.axelor.apps.stock.db.StockCorrectionReason"
+    extension="true">
+    <extend target="//field[@name='name']">
+      <insert position="after">
+        <field name="bgStockMovementCode"/>
+        <field name="bgVatSignalSelect"/>
+        <field name="bgRequiresPartner"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <!-- Виновното лице: до причината, която го изисква. Задължително само тогава — реализирането
+    без него се отказва и в BgStockMoveGuard (REST и импортът минават покрай формата). -->
+  <form name="stock-correction-form" title="Stock Correction" id="bg-stock-correction-form"
+    model="com.axelor.apps.stock.db.StockCorrection" extension="true">
+    <extend
+      target="//panel[@name='stockCorrectionReasonPanel']/field[@name='stockCorrectionReason']">
+      <insert position="after">
+        <field name="stockCorrectionReason.bgRequiresPartner" hidden="true"/>
+        <field name="bgResponsiblePartner" colSpan="12" canEdit="false"
+          showIf="stockCorrectionReason.bgRequiresPartner"
+          requiredIf="stockCorrectionReason.bgRequiresPartner"/>
+      </insert>
+    </extend>
+  </form>
+
+  <!-- Ръчният код по „Stock movement“ на движението — в отделен панел до датите. -->
+  <form name="stock-move-form" title="Stock move" id="bg-stock-move-form"
+    model="com.axelor.apps.stock.db.StockMove" extension="true">
+    <extend target="//panel[@name='datesPanel']">
+      <insert position="after">
+        <panel name="bgSaftPanel" title="SAF-T">
+          <field name="bgDocumentDate" colSpan="6" readonlyIf="statusSelect &gt;= 3"
+            help="Датата на документа, с който е заведено движението (SAF-T SD.MG.6). Празна —
+              става датата на реализиране. Не може да е в бъдещето, нито в липсващ или затворен
+              фискален период. Датата на реализиране остава датата на осчетоводяване (SD.MG.7)."/>
+          <field name="bgSaftMovementCode" colSpan="6" readonlyIf="statusSelect &gt;= 3"
+            help="Само когато движението не се класифицира само (ръчен вход или изход без поръчка,
+              вътрешен трансфер). Предимство пред кода на причината за корекция. Посоката се
+              проверява при реализиране."/>
+          <field name="bgDocumentDateWarning" colSpan="12" showTitle="false" readonly="true"
+            showIf="bgDocumentDateWarning" css="label-warning"/>
+          <field name="bgVatSignalWarning" colSpan="12" showTitle="false" readonly="true"
+            showIf="bgVatSignalWarning" css="label-warning"/>
+        </panel>
+      </insert>
+    </extend>
+  </form>
+
+  <!-- Складът за SAF-T: до родителската локация, от която правилото „най-горният вътрешен родител“
+    иначе го извежда. -->
+  <form name="stock-location-form" title="Stock location" id="bg-stock-location-form"
+    model="com.axelor.apps.stock.db.StockLocation" extension="true">
+    <extend target="//panel[@name='centralPanel']/field[@name='parentStockLocation']">
+      <insert position="after">
+        <field name="bgSaftWarehouse" colSpan="4"
+          help="Вдигнат — локацията е склад за SAF-T (WarehouseID) за себе си и всичко под нея.
+            Без флаг складът е най-горният вътрешен родител. Важи и за виртуална локация (напр.
+            подизпълнител)."/>
+      </insert>
+    </extend>
+  </form>
+
+  <!-- ═══ ДДС СИГНАЛИ: движенията, за които може да се дължи протокол ═══
+    Списъкът се строи от BgStockVatSignals — същото правило като предупреждението на формата. -->
+  <action-method name="action-bg-stock-move-method-vat-signal-list">
+    <call class="com.axelor.apps.bglocalization.web.BgStockMoveController"
+      method="openVatSignalList"/>
+  </action-method>
+
+  <!-- ═══ ПЕЧАТ НА СКЛАДОВО МЯСТО: ШАБЛОНЪТ ПО ПОДРАЗБИРАНЕ ═══
+    Съветникът на axelor-stock отваря празно „Шаблон за складово място“, а „Печат“ е заключен,
+    докато не се избере. Вторият onNew попълва шаблона от конфигурацията на склада на дружеството
+    (BgStockPrintTemplates); първият е този на axelor-stock, непроменен. -->
+  <form name="stock-location-print-wizard-form" title="Select format to Export"
+    id="bg-stock-location-print-wizard-form" model="com.axelor.utils.db.Wizard" extension="true">
+    <extend target="/">
+      <attribute name="onNew"
+        value="action-stock-location-print-wizard-attrs-set-print-type-and-type-select,action-bg-stock-location-print-method-default-template"/>
+    </extend>
+  </form>
+
+  <action-method name="action-bg-stock-location-print-method-default-template">
+    <call class="com.axelor.apps.bglocalization.web.BgStockLocationPrintController"
+      method="defaultTemplate"/>
+  </action-method>
+
+</object-views>

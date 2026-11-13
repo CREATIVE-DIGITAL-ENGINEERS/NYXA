@@ -1,0 +1,60 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bgLocalization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Вдигане на стойностния праг на същественост — СЪБИТИЕТО по чл. 60 ал. 3 т. 2 ЗКПО.
+
+    Дословно: „(3) Алинея 2 не се прилага при отписване на активи: … 2. в резултат на УВЕЛИЧЕНИЕ В
+    СТОЙНОСТНИЯ ПРАГ НА СЪЩЕСТВЕНОСТ."
+
+    ⚠️ ЗАЩО СОБСТВЕН ОБЕКТ, А НЕ ФЛАГ НА АКТИВА. Тригерът в закона е СЪБИТИЕ, не свойство: прагът се
+    вдига веднъж, за цялото дружество, от определена дата, и от този момент цяла ГРУПА активи излиза
+    от счетоводния план наведнъж. Флаг на всеки актив би записал следствието и би загубил причината —
+    а причината е точно това, което прави отписването „в резултат на увеличение в прага", вместо
+    твърдение на съставителя. Освен това чл. 60 ал. 4 оставя тези активи в ДАП до пълното им ДАНЪЧНО
+    амортизиране, тоест намалението по чл. 66 ал. 2 идва в ДРУГА, по-късна година — и справката за
+    ГДД (WS-A5) трябва да може да каже КОГА и ЗАЩО, не само че е така.
+
+    ⚠️ Двата прага се пазят поотделно, защото законът ги различава: чл. 50 ал. 1 т. 1 говори за прага
+    „за дълготрайния МАТЕРИАЛЕН актив", а чл. 51 ал. 1 т. 1 б. „г" аа) — „за дълготрайния
+    НЕМАТЕРИАЛЕН актив". Дружество може да вдигне само единия. -->
+  <entity name="BgAssetMaterialityIncrease">
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"
+      required="true"/>
+
+    <!-- От коя дата важи новият праг. Активите се маркират по НЕЯ, а не по датата на записа. -->
+    <date name="effectiveDate" title="В сила от" required="true"/>
+
+    <decimal name="previousTangibleThresholdEur" title="Стар праг — ДМА (EUR)" precision="15"
+      scale="2"/>
+
+    <decimal name="newTangibleThresholdEur" title="Нов праг — ДМА (EUR)" precision="15" scale="2"/>
+
+    <decimal name="previousIntangibleThresholdEur" title="Стар праг — ДНА (EUR)" precision="15"
+      scale="2"/>
+
+    <decimal name="newIntangibleThresholdEur" title="Нов праг — ДНА (EUR)" precision="15"
+      scale="2"/>
+
+    <!-- Активите, които СЪБИТИЕТО е засегнало. Пълни се от действието, не на ръка.
+
+      ⚠️ Само активи, които СА БИЛИ в ДАП (FISCAL в depreciationPlanSelect) и падат под НОВИЯ праг.
+      Актив, който винаги е бил под прага, НЕ влиза тук — той никога не е влизал в плана, тъй че за
+      него няма какво да „не се отписва". Смесването на двете групи би приложило чл. 60 ал. 3 т. 2
+      върху активи, за които той няма предмет. -->
+    <one-to-many name="affectedFixedAssetList" ref="com.axelor.apps.account.db.FixedAsset"
+      mappedBy="bgMaterialityIncrease" title="Засегнати активи"/>
+
+    <string name="policyDocumentNumber" title="Документ за промяната в политиката №"/>
+
+    <date name="policyDocumentDate" title="Дата на документа"/>
+
+    <string name="comments" title="Бележки" large="true"/>
+
+  </entity>
+
+</domain-models>

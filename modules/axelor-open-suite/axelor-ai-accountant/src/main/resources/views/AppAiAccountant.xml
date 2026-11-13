@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Marker view for the module's App config in Application Configuration. The assistant's real
+    settings screen is opened from the "AI Accountant" menu (ai-accountant-setting-open), not from
+    here; this stays a minimal, valid marker, the same role AppBgLocalization's view plays. -->
+  <grid name="app-ai-accountant-grid" title="AI Accountant Settings"
+    model="com.axelor.studio.db.AppAiAccountant">
+    <field name="app"/>
+  </grid>
+
+  <form name="app-ai-accountant-form" title="AI Accountant Settings"
+    model="com.axelor.studio.db.AppAiAccountant" width="large">
+    <panel name="mainPanel" colSpan="12">
+      <field name="app" readonly="true"/>
+    </panel>
+  </form>
+
+  <action-view name="action-app-ai-accountant-view" title="AI Accountant Settings"
+    model="com.axelor.studio.db.AppAiAccountant">
+    <view type="grid" name="app-ai-accountant-grid"/>
+    <view type="form" name="app-ai-accountant-form"/>
+  </action-view>
+
+</object-views>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="napsubmissions" package="com.axelor.apps.napsubmissions.db"/>
+
+  <!-- Join between a submission attempt and an immutable artifact, tagged with its role in the attempt
+    (payload sent / signed payload / detached signature / response / processing result / validation report).
+    Lets one artifact be reused across many attempts without copying the file. -->
+  <entity name="NapSubmissionArtifact">
+
+    <many-to-one name="submission" title="Submission" ref="NapSubmission"
+      required="true"/>
+    <many-to-one name="artifact" title="Artifact" ref="NapArtifact" required="true"/>
+    <string name="roleSelect" title="Role" selection="nap.submission.artifact.role.select"
+      required="true" default="payload"/>
+
+    <extra-code><![CDATA[
+      // roleSelect (keep in sync with nap.submission.artifact.role.select)
+      public static final String ROLE_PAYLOAD = "payload";
+      public static final String ROLE_SIGNED_PAYLOAD = "signed_payload";
+      public static final String ROLE_SIGNATURE = "signature";
+      public static final String ROLE_RESPONSE = "response";
+      public static final String ROLE_PROCESSING_RESULT = "processing_result";
+      public static final String ROLE_VALIDATION_REPORT = "validation_report";
+      public static final String ROLE_OTHER = "other";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ ЗАХРАНВАНЕТО НА РЕГИСТЪРА — РЪЧНО ДЕЙСТВИЕ ============
+
+    ⚠️ БУТОН, А НЕ HOOK. Редовете в регистъра се създават, когато оператор избере период и натисне
+    „Генерирай“ — не при потвърждаване на фиш и не при плащане на фактура. Причината е, че датата
+    на придобиване по чл. 11 идва СЛЕД документа (фишът се потвърждава, преди да е платен), а
+    изходните документи се редактират и сторнират. Виж BgIncomePaymentFeedService.
+
+    ⚠️ ПРОБНИЯТ РЕЖИМ Е ВКЛЮЧЕН ПО ПОДРАЗБИРАНЕ. Прогонът пише в регистър, който храни две
+    подавани декларации. -->
+
+  <form name="bg-income-payment-feed-form" title="Захранване на регистъра (ЗДДФЛ)"
+    model="com.axelor.apps.bglocalization.db.BgIncomePaymentFeedWizard" width="large"
+    onNew="action-bg-income-feed-defaults,action-bg-income-feed-prepare">
+
+    <panel name="scopePanel" title="Обхват">
+      <field name="company" colSpan="6"
+        help="Платецът. Фишовете се четат през договора (EmploymentContract.payCompany) — самият фиш няма поле за дружество."/>
+      <field name="taxYear" colSpan="3"/>
+      <field name="quarter" colSpan="3"
+        help="Празно значи ЦЯЛАТА ГОДИНА. Справката по чл. 73 е годишна, декларацията по чл. 55 — тримесечна; обхватът е само филтър на обхода и НЕ участва в идемпотентния ключ, тоест прогон за годината и прогон за тримесечие пипат едни и същи редове."/>
+      <field name="dryRun" colSpan="12"
+        help="Включен: нищо не се записва, а резултатът показва какво БИ станало. Изключването е съзнателно действие."/>
+    </panel>
+
+    <panel name="actionPanel" title="Действие" colSpan="12">
+      <button name="generateBtn" title="Генерирай записи за периода"
+        onClick="action-bg-income-feed-generate" colSpan="4"/>
+    </panel>
+
+    <!-- ⚠️ ЦЕЛИЯТ ТЕКСТ СЕ ПОКАЗВА, а не се свежда до известие. Прогонът брои отказите ПО ПРИЧИНА
+      и всяка причина е попълнимо поле, не дефект; едноредово известие би ги слепило в „N отказани“
+      и човек не би знаел къде да отиде. -->
+    <panel name="resultPanel" title="Резултат и граници" colSpan="12">
+      <field name="resultSummary" showTitle="false" colSpan="12" height="24" readonly="true"/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Actions ============ -->
+
+  <action-record name="action-bg-income-feed-defaults"
+    model="com.axelor.apps.bglocalization.db.BgIncomePaymentFeedWizard">
+    <field name="company" expr="eval:__user__.activeCompany"/>
+  </action-record>
+
+  <action-method name="action-bg-income-feed-prepare">
+    <call class="com.axelor.apps.bglocalization.web.BgIncomePaymentFeedController"
+      method="prepare"/>
+  </action-method>
+
+  <action-method name="action-bg-income-feed-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgIncomePaymentFeedController"
+      method="generate"/>
+  </action-method>
+
+  <!-- ⚠️ Отваря се ПРЯКО във форма, без решетка: няма какво да се изброява — wizard-ът е преходен
+    и всяко отваряне е нов прогон. -->
+  <action-view name="bg.income.payment.feed" title="Захранване на регистъра (ЗДДФЛ)"
+    model="com.axelor.apps.bglocalization.db.BgIncomePaymentFeedWizard">
+    <view type="form" name="bg-income-payment-feed-form"/>
+    <view-param name="popup" value="false"/>
+    <view-param name="show-toolbar" value="false"/>
+  </action-view>
+
+  <!-- ═══ СТОИ ПОД HR › ЗАПЛАТИ, А РЕГИСТЪРЪТ МУ — ПОД „НАП“ ═══
+
+    Разделянето е нарочно и разграничителят е ЕДИН: подава ли се нещо, или се подготвя. Тук не се
+    подава. Този вход е ПРОГОН по документите на работодателя — чете фишове (BgPaySlip) и фактури
+    (Invoice/InvoicePayment) и ПИШЕ редове в регистъра. Няма декларация, няма файл, няма закачане,
+    няма състояние на подаване: моделът е преходен wizard (BgIncomePaymentFeedWizard), а пробният
+    режим е ВКЛЮЧЕН по подразбиране.
+
+    Сравнението е с четирите под „НАП“: всяко от тях носи запис-декларация и двойката
+    `generate` + `attach` — тоест произвежда артефакта, който отива в НАП. Тук такава двойка няма.
+
+    ⚠️ И оттам следва разделянето от собствения му регистър („Изплатени доходи (ЗДДФЛ)“, под
+    НАП): двата екрана се отварят от РАЗЛИЧНИ хора в различни моменти. Прогонът се пуска от онзи,
+    който е приключил ведомостта и знае кой фиш е платен; регистърът се отваря от онзи, който
+    подава. Order 175 пази мястото на входа между
+    фишовете (150) и обезщетенията (200), тоест в края на заплатния поток. -->
+  <menuitem name="nyxa-payroll-income-feed" parent="nyxa-payroll"
+    title="Захранване на регистъра (ЗДДФЛ)" action="bg.income.payment.feed" order="175"/>
+
+</object-views>

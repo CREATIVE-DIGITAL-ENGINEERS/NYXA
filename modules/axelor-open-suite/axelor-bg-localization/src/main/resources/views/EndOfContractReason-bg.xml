@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Разширения на стандардните изгледи на EndOfContractReason (axelor-human-resource), за да е достъпно
+    полето bgTerminationGround. Стандартните са: grid „end-of-contract-reason-grid“ с едно поле reason, и
+    form „end-of-contract-reason-form“ с панел mainPanel, съдържащ reason. PANEL-SCOPED target нарочно —
+    не гол //field[@name='reason']. Точно голите XPath extend-и са причината седем полета в Employee-bg.xml
+    да се виждат в класическия изглед и да липсват в съветника: multi-match XPath покрива само първото срещане.
+    Тук панелът е един, но правилото си е правило. -->
+
+  <grid name="end-of-contract-reason-grid" title="Причини за прекратяване"
+    id="bg-localization-end-of-contract-reason-grid"
+    model="com.axelor.apps.hr.db.EndOfContractReason" extension="true">
+    <extend target="field[@name='reason']">
+      <insert position="after">
+        <field name="bgLegalFamily"/>
+        <field name="bgTerminationGround"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <form name="end-of-contract-reason-form" title="Причина за прекратяване"
+    id="bg-localization-end-of-contract-reason-form"
+    model="com.axelor.apps.hr.db.EndOfContractReason" extension="true">
+    <extend target="panel[@name='mainPanel']/field[@name='reason']">
+      <insert position="after">
+        <field name="bgLegalFamily"/>
+        <field name="bgTerminationGround"/>
+      </insert>
+    </extend>
+  </form>
+
+</object-views>

@@ -1,0 +1,23 @@
+code;name;family;type;unit;salePrice;purchasePrice;saleTax;purchaseTax
+P01;Офис стол „Демо“;GOODS;storable;Брой;180.00;110.00;BG_SRS_20;BG_SRP_20
+P02;Бюро „Демо“ 140 см;GOODS;storable;Брой;260.00;160.00;BG_SRS_20;BG_SRP_20
+P03;Шкаф за документи;GOODS;storable;Брой;150.00;90.00;BG_SRS_20;BG_SRP_20
+P04;Настолна лампа LED;GOODS;storable;Брой;35.00;18.00;BG_SRS_20;BG_SRP_20
+P05;Монитор 27";GOODS;storable;Брой;239.00;160.00;BG_SRS_20;BG_SRP_20
+P06;Клавиатура безжична;GOODS;storable;Брой;39.00;20.00;BG_SRS_20;BG_SRP_20
+P07;Мишка безжична;GOODS;storable;Брой;19.00;9.00;BG_SRS_20;BG_SRP_20
+P08;Принтер лазерен;GOODS;storable;Брой;229.00;140.00;BG_SRS_20;BG_SRP_20
+P09;Тонер касета;GOODS;storable;Брой;59.00;30.00;BG_SRS_20;BG_SRP_20
+P10;Наръчник „Счетоводство за всеки“;BOOK9;storable;Брой;28.00;15.00;BG_LRS_9_BOOK;BG_LRP_9_BOOK
+SVC;Монтаж и доставка;SERV;service;Единица;60.00;0.00;BG_SRS_20;BG_SRP_20
+RENT;Наем на склад;SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+ELEC;Електрическа енергия;SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+TEL;Телефон и интернет;SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+ACC;Счетоводни услуги;SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+REP;Представителни разходи (ресторант);SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+LOG;Международен транспорт;SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+ITS;Софтуерни лицензи и поддръжка;SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+MGT;Управленски услуги (група);SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+CAR;Лек автомобил „Демо“;FIXA;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+LAP;Лаптоп 14";FIXA;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+FAS;Продажба на офис обзавеждане (ДМА);FIXA;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20

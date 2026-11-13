@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nsSAFT:AuditFile xmlns:doc="urn:schemas-OECD:schema-extensions:documentation xml:lang=en" xmlns:nsSAFT="mf:nra:dgti:dxxxx:declaration:v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<nsSAFT:Header>
+		<nsSAFT:AuditFileVersion>007</nsSAFT:AuditFileVersion>
+		<nsSAFT:AuditFileCountry>BG</nsSAFT:AuditFileCountry>
+		<nsSAFT:AuditFileRegion>BG-22</nsSAFT:AuditFileRegion>
+		<nsSAFT:AuditFileDateCreated>2023-08-02</nsSAFT:AuditFileDateCreated>
+		<nsSAFT:SoftwareCompanyName>TestSoftCompany</nsSAFT:SoftwareCompanyName>
+		<nsSAFT:SoftwareID>TestSoftware</nsSAFT:SoftwareID>
+		<nsSAFT:SoftwareVersion>005</nsSAFT:SoftwareVersion>
+		<nsSAFT:Company>
+			<nsSAFT:RegistrationNumber>001220153431</nsSAFT:RegistrationNumber>
+			<nsSAFT:Name>КРОНТЕМП</nsSAFT:Name>
+			<nsSAFT:Address>
+				<nsSAFT:StreetName>ул Тулево </nsSAFT:StreetName>
+				<nsSAFT:Number>12</nsSAFT:Number>
+				<nsSAFT:AdditionalAddressDetail/>
+				<nsSAFT:Building/>
+				<nsSAFT:City>София</nsSAFT:City>
+				<nsSAFT:PostalCode>1000</nsSAFT:PostalCode>
+				<nsSAFT:Region/>
+				<nsSAFT:Country>BG</nsSAFT:Country>
+				<nsSAFT:AddressType>StreetAddress</nsSAFT:AddressType>
+			</nsSAFT:Address>
+			<nsSAFT:Contact>
+				<nsSAFT:ContactPerson>
+					<nsSAFT:Title>Title1</nsSAFT:Title>
+					<nsSAFT:FirstName>FirstName1</nsSAFT:FirstName>
+					<nsSAFT:Initials>Initials1</nsSAFT:Initials>
+					<nsSAFT:LastNamePrefix>LastNamePrefix1</nsSAFT:LastNamePrefix>
+					<nsSAFT:LastName>LastName1</nsSAFT:LastName>
+					<nsSAFT:BirthName>BirthName1</nsSAFT:BirthName>
+					<nsSAFT:Salutation>Salutation1</nsSAFT:Salutation>
+					<nsSAFT:OtherTitles>OtherTitles1</nsSAFT:OtherTitles>
+					<nsSAFT:OtherTitles>OtherTitles2</nsSAFT:OtherTitles>
+					<nsSAFT:OtherTitles>OtherTitles3</nsSAFT:OtherTitles>
+				</nsSAFT:ContactPerson>
+				<nsSAFT:Telephone>9881111</nsSAFT:Telephone>
+				<nsSAFT:Fax/>
+				<nsSAFT:Email>crontemp@crontemp.au</nsSAFT:Email>
+				<nsSAFT:Website>http://crontemp.no.domain</nsSAFT:Website>
+			</nsSAFT:Contact>
+			<nsSAFT:TaxRegistration>
+				<nsSAFT:TaxRegistrationNumber>001220153431</nsSAFT:TaxRegistrationNumber>
+				<nsSAFT:TaxType>100010</nsSAFT:TaxType>
+				<nsSAFT:TaxNumber>BG1220153431</nsSAFT:TaxNumber>
+				<nsSAFT:TaxAuthority>NRA</nsSAFT:TaxAuthority>
+				<nsSAFT:TaxVerificationDate>2023-08-02</nsSAFT:TaxVerificationDate>
+			</nsSAFT:TaxRegistration>
+			<nsSAFT:BankAccount>
+				<nsSAFT:IBANNumber>IBAN - SAMPLE</nsSAFT:IBANNumber>
+			</nsSAFT:BankAccount>
+		</nsSAFT:Company>
+		<nsSAFT:Ownership>
+			<nsSAFT:IsPartOfGroup>1</nsSAFT:IsPartOfGroup>
+			<nsSAFT:BeneficialOwnerNameCyrillicBG>Иван Иванов</nsSAFT:BeneficialOwnerNameCyrillicBG>
+			<nsSAFT:BeneficialOwnerEGN>0101010101</nsSAFT:BeneficialOwnerEGN>
+			<nsSAFT:BeneficialOwnerNameLatinForeign>Ivan Ivanov</nsSAFT:BeneficialOwnerNameLatinForeign>
+			<nsSAFT:BeneficialCountryForeign>ES</nsSAFT:BeneficialCountryForeign>
+			<nsSAFT:BeneficialCountryForeignCode>IT</nsSAFT:BeneficialCountryForeignCode>
+			<nsSAFT:UltimateOwnerNameCyrillicBG>Вивус 2000</nsSAFT:UltimateOwnerNameCyrillicBG>
+			<nsSAFT:UltimateOwnerUICBG>175493220</nsSAFT:UltimateOwnerUICBG>
+			<nsSAFT:UltimateOwnerNameCyrillicForeign>Мейбълин</nsSAFT:UltimateOwnerNameCyrillicForeign>
+			<nsSAFT:UltimateOwnerNameLatinForeign>Maybelline</nsSAFT:UltimateOwnerNameLatinForeign>
+			<nsSAFT:CountryForeign>IT</nsSAFT:CountryForeign>
+		</nsSAFT:Ownership>
+		<nsSAFT:DefaultCurrencyCode>EUR</nsSAFT:DefaultCurrencyCode>
+		<nsSAFT:SelectionCriteria>
+			<nsSAFT:TaxReportingJurisdiction>NRA</nsSAFT:TaxReportingJurisdiction>
+			<nsSAFT:CompanyEntity/>
+			<nsSAFT:SelectionStartDate>2022-01-01</nsSAFT:SelectionStartDate>
+			<nsSAFT:SelectionEndDate>2022-01-31</nsSAFT:SelectionEndDate>
+			<nsSAFT:DocumentType/>
+			<nsSAFT:OtherCriteria>Няма</nsSAFT:OtherCriteria>
+		</nsSAFT:SelectionCriteria>
+		<nsSAFT:HeaderComment>D</nsSAFT:HeaderComment>
+	<!-- <nsSAFT:SegmentIndex/>
+		<nsSAFT:TotalSegmentsInsequence/>  -->
+		<nsSAFT:TaxAccountingBasis>A</nsSAFT:TaxAccountingBasis>
+		<nsSAFT:TaxEntity>Company</nsSAFT:TaxEntity>
+	</nsSAFT:Header>
+	<nsSAFT:MasterFilesOnDemand>
+		<nsSAFT:MovementTypeTable>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>10</nsSAFT:MovementType>
+				<nsSAFT:Description>Покупка</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>20</nsSAFT:MovementType>
+				<nsSAFT:Description>Материални запаси от производство /продукция/</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>30</nsSAFT:MovementType>
+				<nsSAFT:Description>Продажба </nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>40</nsSAFT:MovementType>
+				<nsSAFT:Description>Връщане на продадени продукти</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>50</nsSAFT:MovementType>
+				<nsSAFT:Description>Връщане на закупени продукти</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>60</nsSAFT:MovementType>
+				<nsSAFT:Description>Получени отстъпки в натура</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>65</nsSAFT:MovementType>
+				<nsSAFT:Description>Предоставени отстъпки в натура</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>70</nsSAFT:MovementType>
+				<nsSAFT:Description>Материални запаси за производство</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>80</nsSAFT:MovementType>
+				<nsSAFT:Description>Вътрешен трансфер</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>90</nsSAFT:MovementType>
+				<nsSAFT:Description>Последващи разходи, капитализирани в стойността на стоките</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>100</nsSAFT:MovementType>
+				<nsSAFT:Description>Положителна ценова разлика</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>101</nsSAFT:MovementType>
+				<nsSAFT:Description>Отрицателна ценова разлика</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>110</nsSAFT:MovementType>
+				<nsSAFT:Description>Положителна корекция от инвентаризацията</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>120</nsSAFT:MovementType>
+				<nsSAFT:Description>Отрицателна корекция от инвентаризацията</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>130</nsSAFT:MovementType>
+				<nsSAFT:Description>Увеличение от преоценка на материалните запаси</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>140</nsSAFT:MovementType>
+				<nsSAFT:Description>Намаление от преоценка на материалните запаси</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>150</nsSAFT:MovementType>
+				<nsSAFT:Description>Безвъзмездно предоставени материални запаси </nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>160</nsSAFT:MovementType>
+				<nsSAFT:Description>Брак на материални запаси</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>170</nsSAFT:MovementType>
+				<nsSAFT:Description>Материални запаси с изтекъл срок на годност</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+			<nsSAFT:MovementTypeTableEntry>
+				<nsSAFT:MovementType>180</nsSAFT:MovementType>
+				<nsSAFT:Description>Други движения на материални запаси</nsSAFT:Description>
+			</nsSAFT:MovementTypeTableEntry>
+		</nsSAFT:MovementTypeTable>
+				<nsSAFT:UOMTable>
+			<nsSAFT:UOMTableEntry>
+				<nsSAFT:UnitOfMeasure>H87</nsSAFT:UnitOfMeasure>
+				<nsSAFT:Description>pcs / брой / бр.</nsSAFT:Description>
+			</nsSAFT:UOMTableEntry>
+			<nsSAFT:UOMTableEntry>
+				<nsSAFT:UnitOfMeasure>XOS</nsSAFT:UnitOfMeasure>
+				<nsSAFT:Description>Единичен палет / oneway pallet</nsSAFT:Description>
+			</nsSAFT:UOMTableEntry>
+			<nsSAFT:UOMTableEntry>
+				<nsSAFT:UnitOfMeasure>XME</nsSAFT:UnitOfMeasure>
+				<nsSAFT:Description>Контейнер, метален / Container metal</nsSAFT:Description>
+			</nsSAFT:UOMTableEntry>
+		</nsSAFT:UOMTable>
+		<nsSAFT:Products>
+			<nsSAFT:Product>
+				<nsSAFT:ProductCode>8908-W</nsSAFT:ProductCode>
+				<nsSAFT:GoodsServicesID>01</nsSAFT:GoodsServicesID>
+				<nsSAFT:ProductGroup>Компютри</nsSAFT:ProductGroup>
+				<nsSAFT:Description>Компютър - модерен пакет</nsSAFT:Description>
+				<nsSAFT:ProductCommodityCode>84713010</nsSAFT:ProductCommodityCode>
+				<nsSAFT:ProductNumberCode> </nsSAFT:ProductNumberCode>
+				<nsSAFT:ValuationMethod>Средна</nsSAFT:ValuationMethod>
+				<nsSAFT:UOMBase>H87</nsSAFT:UOMBase>
+				<nsSAFT:UOMStandard>БРОЙ</nsSAFT:UOMStandard>
+				<nsSAFT:UOMToUOMBaseConversionFactor>1</nsSAFT:UOMToUOMBaseConversionFactor>
+				<nsSAFT:Tax>
+					<nsSAFT:TaxType>100010</nsSAFT:TaxType>
+					<nsSAFT:TaxCode>110010</nsSAFT:TaxCode>
+				</nsSAFT:Tax>
+			</nsSAFT:Product>
+			<nsSAFT:Product>
+				<nsSAFT:ProductCode>8916-W</nsSAFT:ProductCode>
+				<nsSAFT:GoodsServicesID>01</nsSAFT:GoodsServicesID>
+				<nsSAFT:ProductGroup>Компютри</nsSAFT:ProductGroup>
+				<nsSAFT:Description>Компютър - ТУРБО пакет</nsSAFT:Description>
+				<nsSAFT:ProductCommodityCode>84713010</nsSAFT:ProductCommodityCode>
+				<nsSAFT:ProductNumberCode> </nsSAFT:ProductNumberCode>
+				<nsSAFT:ValuationMethod>Средна</nsSAFT:ValuationMethod>
+				<nsSAFT:UOMBase>H87</nsSAFT:UOMBase>
+				<nsSAFT:UOMStandard>БРОЙ</nsSAFT:UOMStandard>
+				<nsSAFT:UOMToUOMBaseConversionFactor>1</nsSAFT:UOMToUOMBaseConversionFactor>
+				<nsSAFT:Tax>
+					<nsSAFT:TaxType>100010</nsSAFT:TaxType>
+					<nsSAFT:TaxCode>110010</nsSAFT:TaxCode>
+				</nsSAFT:Tax>
+			</nsSAFT:Product>
+			<nsSAFT:Product>
+				<nsSAFT:ProductCode>8924-W</nsSAFT:ProductCode>
+				<nsSAFT:GoodsServicesID>01</nsSAFT:GoodsServicesID>
+				<nsSAFT:ProductGroup>Компютри</nsSAFT:ProductGroup>
+				<nsSAFT:Description>Сървър - корпоративен пакет</nsSAFT:Description>
+				<nsSAFT:ProductCommodityCode>84713010</nsSAFT:ProductCommodityCode>
+				<nsSAFT:ProductNumberCode> </nsSAFT:ProductNumberCode>
+				<nsSAFT:ValuationMethod>Средна</nsSAFT:ValuationMethod>
+				<nsSAFT:UOMBase>H87</nsSAFT:UOMBase>
+				<nsSAFT:UOMStandard>БРОЙ</nsSAFT:UOMStandard>
+				<nsSAFT:UOMToUOMBaseConversionFactor>1</nsSAFT:UOMToUOMBaseConversionFactor>
+				<nsSAFT:Tax>
+					<nsSAFT:TaxType>100010</nsSAFT:TaxType>
+					<nsSAFT:TaxCode>110010</nsSAFT:TaxCode>
+				</nsSAFT:Tax>
+			</nsSAFT:Product>
+			<nsSAFT:Product>
+				<nsSAFT:ProductCode>1964-S</nsSAFT:ProductCode>
+				<nsSAFT:GoodsServicesID>01</nsSAFT:GoodsServicesID>
+				<nsSAFT:ProductGroup>Мебели</nsSAFT:ProductGroup>
+				<nsSAFT:Description>TOKYO стол</nsSAFT:Description>
+				<nsSAFT:ProductCommodityCode>94018000</nsSAFT:ProductCommodityCode>
+				<nsSAFT:ProductNumberCode> </nsSAFT:ProductNumberCode>
+				<nsSAFT:ValuationMethod>Средна</nsSAFT:ValuationMethod>
+				<nsSAFT:UOMBase>H87</nsSAFT:UOMBase>
+				<nsSAFT:UOMStandard>БРОЙ</nsSAFT:UOMStandard>
+				<nsSAFT:UOMToUOMBaseConversionFactor>1</nsSAFT:UOMToUOMBaseConversionFactor>
+				<nsSAFT:Tax>
+					<nsSAFT:TaxType>100010</nsSAFT:TaxType>
+					<nsSAFT:TaxCode>110010</nsSAFT:TaxCode>
+				</nsSAFT:Tax>
+			</nsSAFT:Product>
+			<nsSAFT:Product>
+				<nsSAFT:ProductCode>1964-W</nsSAFT:ProductCode>
+				<nsSAFT:GoodsServicesID>01</nsSAFT:GoodsServicesID>
+				<nsSAFT:ProductGroup>Мебели</nsSAFT:ProductGroup>
+				<nsSAFT:Description>INNSBRUCK шкаф</nsSAFT:Description>
+				<nsSAFT:ProductCommodityCode>94036090</nsSAFT:ProductCommodityCode>
+				<nsSAFT:ProductNumberCode> </nsSAFT:ProductNumberCode>
+				<nsSAFT:ValuationMethod>Средна</nsSAFT:ValuationMethod>
+				<nsSAFT:UOMBase>H87</nsSAFT:UOMBase>
+				<nsSAFT:UOMStandard>БРОЙ</nsSAFT:UOMStandard>
+				<nsSAFT:UOMToUOMBaseConversionFactor>1</nsSAFT:UOMToUOMBaseConversionFactor>
+				<nsSAFT:Tax>
+					<nsSAFT:TaxType>100010</nsSAFT:TaxType>
+					<nsSAFT:TaxCode>110010</nsSAFT:TaxCode>
+				</nsSAFT:Tax>
+			</nsSAFT:Product>
+			<nsSAFT:Product>
+				<nsSAFT:ProductCode>1952-W</nsSAFT:ProductCode>
+				<nsSAFT:GoodsServicesID>01</nsSAFT:GoodsServicesID>
+				<nsSAFT:ProductGroup>Мебели</nsSAFT:ProductGroup>
+				<nsSAFT:Description>OSLO шкаф</nsSAFT:Description>
+				<nsSAFT:ProductCommodityCode>94036090</nsSAFT:ProductCommodityCode>
+				<nsSAFT:ProductNumberCode> </nsSAFT:ProductNumberCode>
+				<nsSAFT:ValuationMethod>Средна</nsSAFT:ValuationMethod>
+				<nsSAFT:UOMBase>H87</nsSAFT:UOMBase>
+				<nsSAFT:UOMStandard>БРОЙ</nsSAFT:UOMStandard>
+				<nsSAFT:UOMToUOMBaseConversionFactor>1</nsSAFT:UOMToUOMBaseConversionFactor>
+				<nsSAFT:Tax>
+					<nsSAFT:TaxType>100010</nsSAFT:TaxType>
+					<nsSAFT:TaxCode>110010</nsSAFT:TaxCode>
+				</nsSAFT:Tax>
+			</nsSAFT:Product>
+		</nsSAFT:Products>
+		<nsSAFT:PhysicalStock>
+			<nsSAFT:PhysicalStockEntry>
+				<nsSAFT:WarehouseID>СИН</nsSAFT:WarehouseID>
+				<nsSAFT:LocationID> </nsSAFT:LocationID>
+				<nsSAFT:ProductCode>1952-W</nsSAFT:ProductCode>
+				<nsSAFT:StockAccountNo> </nsSAFT:StockAccountNo>
+				<nsSAFT:ProductType>02042300</nsSAFT:ProductType>
+				<nsSAFT:ProductStatus>Активна</nsSAFT:ProductStatus>
+				<nsSAFT:StockAccountCommodityCode>94036090</nsSAFT:StockAccountCommodityCode>
+				<nsSAFT:OwnerID/>
+				<nsSAFT:UOMPhysicalStock>H87</nsSAFT:UOMPhysicalStock>
+				<nsSAFT:UOMToUOMBaseConversionFactor>1</nsSAFT:UOMToUOMBaseConversionFactor>
+				<nsSAFT:UnitPriceBegin>501.00</nsSAFT:UnitPriceBegin>
+				<nsSAFT:UnitPriceEnd>501.00</nsSAFT:UnitPriceEnd>
+				<nsSAFT:OpeningStockQuantity>2</nsSAFT:OpeningStockQuantity>
+				<nsSAFT:OpeningStockValue>562.40</nsSAFT:OpeningStockValue>
+				<nsSAFT:ClosingStockQuantity>8</nsSAFT:ClosingStockQuantity>
+				<nsSAFT:ClosingStockValue>2072.00</nsSAFT:ClosingStockValue>
+				<nsSAFT:StockCharacteristics>
+					<nsSAFT:StockCharacteristic>StockCharacterist4</nsSAFT:StockCharacteristic>
+					<nsSAFT:StockCharacteristicValue/>
+				</nsSAFT:StockCharacteristics>
+			</nsSAFT:PhysicalStockEntry>
+			<nsSAFT:PhysicalStockEntry>
+				<nsSAFT:WarehouseID>ЧЕРВЕН</nsSAFT:WarehouseID>
+				<nsSAFT:LocationID> </nsSAFT:LocationID>
+				<nsSAFT:ProductCode>1952-W</nsSAFT:ProductCode>
+				<nsSAFT:StockAccountNo> </nsSAFT:StockAccountNo>
+				<nsSAFT:ProductType>02042300</nsSAFT:ProductType>
+				<nsSAFT:ProductStatus>Активна</nsSAFT:ProductStatus>
+				<nsSAFT:StockAccountCommodityCode>94036090</nsSAFT:StockAccountCommodityCode>
+				<nsSAFT:OwnerID/>
+				<nsSAFT:UOMPhysicalStock>H87</nsSAFT:UOMPhysicalStock>
+				<nsSAFT:UOMToUOMBaseConversionFactor>1</nsSAFT:UOMToUOMBaseConversionFactor>
+				<nsSAFT:UnitPriceBegin>501.00</nsSAFT:UnitPriceBegin>
+				<nsSAFT:UnitPriceEnd>501.00</nsSAFT:UnitPriceEnd>
+				<nsSAFT:OpeningStockQuantity>2</nsSAFT:OpeningStockQuantity>
+				<nsSAFT:OpeningStockValue>562.40</nsSAFT:OpeningStockValue>
+				<nsSAFT:ClosingStockQuantity>7</nsSAFT:ClosingStockQuantity>
+				<nsSAFT:ClosingStockValue>1776.00</nsSAFT:ClosingStockValue>
+				<nsSAFT:StockCharacteristics>
+					<nsSAFT:StockCharacteristic>StockCharacterist7</nsSAFT:StockCharacteristic>
+					<nsSAFT:StockCharacteristicValue/>
+				</nsSAFT:StockCharacteristics>
+			</nsSAFT:PhysicalStockEntry>
+		</nsSAFT:PhysicalStock>
+	</nsSAFT:MasterFilesOnDemand>
+	<nsSAFT:SourceDocumentsOnDemand>
+		<nsSAFT:MovementOfGoods>
+			<nsSAFT:NumberOfMovementLines>3</nsSAFT:NumberOfMovementLines>
+			<nsSAFT:TotalQuantityReceived>20</nsSAFT:TotalQuantityReceived>
+			<nsSAFT:TotalQuantityIssued>3</nsSAFT:TotalQuantityIssued>
+			<nsSAFT:StockMovement>
+				<nsSAFT:MovementReference>102032</nsSAFT:MovementReference>
+				<nsSAFT:MovementDate>2022-01-14</nsSAFT:MovementDate>
+				<nsSAFT:MovementPostingDate>2022-01-14</nsSAFT:MovementPostingDate>
+				<nsSAFT:MovementPostingTime>01:01:01.001</nsSAFT:MovementPostingTime>
+				<nsSAFT:TaxPointDate>2022-01-14</nsSAFT:TaxPointDate>
+				<nsSAFT:MovementType>30</nsSAFT:MovementType>
+				<nsSAFT:SourceID>TestSoftware</nsSAFT:SourceID>
+				<nsSAFT:SystemID>102032</nsSAFT:SystemID>
+				<nsSAFT:DocumentReference>
+					<nsSAFT:DocumentType>01</nsSAFT:DocumentType>
+					<nsSAFT:DocumentNumber>103021</nsSAFT:DocumentNumber>
+					<nsSAFT:DocumentLine/>
+				</nsSAFT:DocumentReference>
+				<nsSAFT:StockMovementLine>
+					<nsSAFT:LineNumber>1</nsSAFT:LineNumber>
+					<nsSAFT:AccountID>304</nsSAFT:AccountID>
+					<nsSAFT:TransactionID>315</nsSAFT:TransactionID>
+					<nsSAFT:CustomerID>00533435789</nsSAFT:CustomerID>
+					<nsSAFT:SupplierID/>
+					<nsSAFT:ShipTo> </nsSAFT:ShipTo>
+					<nsSAFT:ShipFrom> </nsSAFT:ShipFrom>
+					<nsSAFT:ProductCode>8908-W</nsSAFT:ProductCode>
+					<nsSAFT:StockAccountNo/>
+					<nsSAFT:Quantity>3</nsSAFT:Quantity>
+					<nsSAFT:UnitOfMeasure>H87</nsSAFT:UnitOfMeasure>
+					<nsSAFT:UOMToUOMPhysicalStockConversionFactor>1</nsSAFT:UOMToUOMPhysicalStockConversionFactor>
+					<nsSAFT:BookValue>720.00</nsSAFT:BookValue>
+					<nsSAFT:MovementSubType>Продажба</nsSAFT:MovementSubType>
+					<nsSAFT:MovementComments/>
+					<nsSAFT:TaxInformation>
+						<nsSAFT:TaxType/>
+						<nsSAFT:TaxCode/>
+						<nsSAFT:TaxAmount>
+							<nsSAFT:Amount>0.00</nsSAFT:Amount>
+							<nsSAFT:CurrencyCode>BGN</nsSAFT:CurrencyCode>
+							<nsSAFT:CurrencyAmount>0.00</nsSAFT:CurrencyAmount>
+						</nsSAFT:TaxAmount>
+					</nsSAFT:TaxInformation>
+				</nsSAFT:StockMovementLine>
+				<nsSAFT:StockMovementLine>
+					<nsSAFT:LineNumber>2</nsSAFT:LineNumber>
+					<nsSAFT:AccountID>304</nsSAFT:AccountID>
+					<nsSAFT:TransactionID>316</nsSAFT:TransactionID>
+					<nsSAFT:CustomerID>00533435789</nsSAFT:CustomerID>
+					<nsSAFT:SupplierID/>
+					<nsSAFT:ShipTo> </nsSAFT:ShipTo>
+					<nsSAFT:ShipFrom> </nsSAFT:ShipFrom>
+					<nsSAFT:ProductCode>8924-W</nsSAFT:ProductCode>
+					<nsSAFT:StockAccountNo/>
+					<nsSAFT:Quantity>1</nsSAFT:Quantity>
+					<nsSAFT:UnitOfMeasure>H87</nsSAFT:UnitOfMeasure>
+					<nsSAFT:UOMToUOMPhysicalStockConversionFactor>1</nsSAFT:UOMToUOMPhysicalStockConversionFactor>
+					<nsSAFT:BookValue>250.00</nsSAFT:BookValue>
+					<nsSAFT:MovementSubType>Продажба</nsSAFT:MovementSubType>
+					<nsSAFT:MovementComments/>
+					<nsSAFT:TaxInformation>
+						<nsSAFT:TaxType/>
+						<nsSAFT:TaxCode/>
+						<nsSAFT:TaxAmount>
+							<nsSAFT:Amount>0.00</nsSAFT:Amount>
+							<nsSAFT:CurrencyCode>BGN</nsSAFT:CurrencyCode>
+							<nsSAFT:CurrencyAmount>0.00</nsSAFT:CurrencyAmount>
+						</nsSAFT:TaxAmount>
+					</nsSAFT:TaxInformation>
+				</nsSAFT:StockMovementLine>
+			</nsSAFT:StockMovement>
+			<nsSAFT:StockMovement>
+				<nsSAFT:MovementReference>107030</nsSAFT:MovementReference>
+				<nsSAFT:MovementDate>2022-01-03</nsSAFT:MovementDate>
+				<nsSAFT:MovementPostingDate>2022-01-03</nsSAFT:MovementPostingDate>
+				<nsSAFT:MovementPostingTime>01:01:01.001</nsSAFT:MovementPostingTime>
+				<nsSAFT:TaxPointDate>2022-01-03</nsSAFT:TaxPointDate>
+				<nsSAFT:MovementType>10</nsSAFT:MovementType>
+				<nsSAFT:SourceID>TestSoftware</nsSAFT:SourceID>
+				<nsSAFT:SystemID>107030</nsSAFT:SystemID>
+				<nsSAFT:DocumentReference>
+					<nsSAFT:DocumentType>01</nsSAFT:DocumentType>
+					<nsSAFT:DocumentNumber>108029</nsSAFT:DocumentNumber>
+					<nsSAFT:DocumentLine/>
+				</nsSAFT:DocumentReference>
+				<nsSAFT:StockMovementLine>
+					<nsSAFT:LineNumber>1</nsSAFT:LineNumber>
+					<nsSAFT:AccountID>304</nsSAFT:AccountID>
+					<nsSAFT:TransactionID>318</nsSAFT:TransactionID>
+					<nsSAFT:CustomerID/>
+					<nsSAFT:SupplierID>00295267495</nsSAFT:SupplierID>
+					<nsSAFT:ShipTo> </nsSAFT:ShipTo>
+					<nsSAFT:ShipFrom> </nsSAFT:ShipFrom>
+					<nsSAFT:ProductCode>8916-W</nsSAFT:ProductCode>
+					<nsSAFT:StockAccountNo/>
+					<nsSAFT:Quantity>10</nsSAFT:Quantity>
+					<nsSAFT:UnitOfMeasure>H87</nsSAFT:UnitOfMeasure>
+					<nsSAFT:UOMToUOMPhysicalStockConversionFactor>1</nsSAFT:UOMToUOMPhysicalStockConversionFactor>
+					<nsSAFT:BookValue>2200.00</nsSAFT:BookValue>
+					<nsSAFT:MovementSubType>Покупка</nsSAFT:MovementSubType>
+					<nsSAFT:MovementComments/>
+					<nsSAFT:TaxInformation>
+						<nsSAFT:TaxType>0</nsSAFT:TaxType>
+						<nsSAFT:TaxCode/>
+						<nsSAFT:TaxAmount>
+							<nsSAFT:Amount>0.00</nsSAFT:Amount>
+							<nsSAFT:CurrencyCode>BGN</nsSAFT:CurrencyCode>
+							<nsSAFT:CurrencyAmount>0.00</nsSAFT:CurrencyAmount>
+						</nsSAFT:TaxAmount>
+					</nsSAFT:TaxInformation>
+				</nsSAFT:StockMovementLine>
+			</nsSAFT:StockMovement>
+			<nsSAFT:StockMovement>
+				<nsSAFT:MovementReference>107031</nsSAFT:MovementReference>
+				<nsSAFT:MovementDate>2022-01-08</nsSAFT:MovementDate>
+				<nsSAFT:MovementPostingDate>2022-01-08</nsSAFT:MovementPostingDate>
+				<nsSAFT:MovementPostingTime>01:01:01.001</nsSAFT:MovementPostingTime>
+				<nsSAFT:TaxPointDate>2022-01-08</nsSAFT:TaxPointDate>
+				<nsSAFT:MovementType>10</nsSAFT:MovementType>
+				<nsSAFT:SourceID>TestSoftware</nsSAFT:SourceID>
+				<nsSAFT:SystemID>107031</nsSAFT:SystemID>
+				<nsSAFT:DocumentReference>
+					<nsSAFT:DocumentType>01</nsSAFT:DocumentType>
+					<nsSAFT:DocumentNumber>108030</nsSAFT:DocumentNumber>
+					<nsSAFT:DocumentLine/>
+				</nsSAFT:DocumentReference>
+				<nsSAFT:StockMovementLine>
+					<nsSAFT:LineNumber>1</nsSAFT:LineNumber>
+					<nsSAFT:AccountID>304</nsSAFT:AccountID>
+					<nsSAFT:TransactionID>319</nsSAFT:TransactionID>
+					<nsSAFT:CustomerID/>
+					<nsSAFT:SupplierID>00295267495</nsSAFT:SupplierID>
+					<nsSAFT:ShipTo> </nsSAFT:ShipTo>
+					<nsSAFT:ShipFrom> </nsSAFT:ShipFrom>
+					<nsSAFT:ProductCode>8924-W</nsSAFT:ProductCode>
+					<nsSAFT:StockAccountNo/>
+					<nsSAFT:Quantity>10</nsSAFT:Quantity>
+					<nsSAFT:UnitOfMeasure>H87</nsSAFT:UnitOfMeasure>
+					<nsSAFT:UOMToUOMPhysicalStockConversionFactor>1</nsSAFT:UOMToUOMPhysicalStockConversionFactor>
+					<nsSAFT:BookValue>2500.00</nsSAFT:BookValue>
+					<nsSAFT:MovementSubType>Покупка</nsSAFT:MovementSubType>
+					<nsSAFT:MovementComments/>
+					<nsSAFT:TaxInformation>
+						<nsSAFT:TaxType>0</nsSAFT:TaxType>
+						<nsSAFT:TaxCode/>
+						<nsSAFT:TaxAmount>
+							<nsSAFT:Amount>0.00</nsSAFT:Amount>
+							<nsSAFT:CurrencyCode>BGN</nsSAFT:CurrencyCode>
+							<nsSAFT:CurrencyAmount>0.00</nsSAFT:CurrencyAmount>
+						</nsSAFT:TaxAmount>
+					</nsSAFT:TaxInformation>
+				</nsSAFT:StockMovementLine>
+			</nsSAFT:StockMovement>
+		</nsSAFT:MovementOfGoods>
+	</nsSAFT:SourceDocumentsOnDemand>
+</nsSAFT:AuditFile>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Daybook mode is read-only for everyone except the technical administrator (nyxa.admin).
+    Posting is as in standard Axelor: validating gives Accounted, and daybook mode is off for every
+    company (DaybookOffMigration). This keeps it from being switched on by mistake.
+
+    The web client's readonlyIf can't see the user, so the field is chosen on the server with
+    `if`: the editable field (with the stock onChange) for the technical administrator, a read-only
+    copy for everyone else. The test is the same as UserSelfEditPolicy.isAdmin (user "admin" or
+    group "admins") plus the nyxa.admin role, directly or through the group.
+
+    An EXTENSION: it changes only this field, so the other modules' extensions of the form stay. -->
+  <form name="account-config-form" title="Account configuration"
+    id="nyxa-security-account-config-form" model="com.axelor.apps.account.db.AccountConfig"
+    extension="true">
+    <extend target="//field[@name='accountingDaybook']">
+      <replace>
+        <field name="accountingDaybook" colSpan="3"
+          if="__user__?.code == 'admin' || __user__?.group?.code == 'admins' || __user__?.roles?.any { it.name == 'nyxa.admin' } || __user__?.group?.roles?.any { it.name == 'nyxa.admin' }"
+          onChange="action-account-config-attrs-accounting-daybook-onchange"/>
+        <field name="accountingDaybook" colSpan="3" readonly="true"
+          if="!(__user__?.code == 'admin' || __user__?.group?.code == 'admins' || __user__?.roles?.any { it.name == 'nyxa.admin' } || __user__?.group?.roles?.any { it.name == 'nyxa.admin' })"/>
+      </replace>
+    </extend>
+  </form>
+
+</object-views>

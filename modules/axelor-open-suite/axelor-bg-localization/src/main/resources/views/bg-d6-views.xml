@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="bg-d6-declaration-grid" title="Декларации обр. 6"
+    model="com.axelor.apps.bglocalization.db.BgD6Declaration">
+    <field name="company"/>
+    <field name="bgPeriod"/>
+    <field name="statusSelect"/>
+    <field name="t10Doo"/>
+    <field name="t14Health"/>
+    <field name="t16Tax"/>
+    <field name="napEntryNumber"/>
+  </grid>
+
+  <form name="bg-d6-declaration-form" title="Декларация обр. 6"
+    model="com.axelor.apps.bglocalization.db.BgD6Declaration" width="large">
+
+    <panel name="headerPanel" title="Задължено лице и период" colSpan="12">
+      <!-- ⚠️ СКРИТО, НО ЗАДЪЛЖИТЕЛНО ВЪВ ФОРМАТА: showIf на „Печат (PDF)“ и „Закачи файловете“ чете
+        statusSelect, а клиентът вижда САМО полетата, които формата носи. Без него условието е
+        винаги лъжа и двата бутона липсват при „Генерирана“ декларация.
+        Свидетел: BgFormConditionFieldsTest. -->
+      <field name="statusSelect" hidden="true"/>
+      <field name="company" colSpan="6"/>
+      <field name="bgPeriod" colSpan="6"/>
+      <field name="t1ObligedPersonCode" colSpan="4"
+        help="ЕИК по БУЛСТАТ/ЗТРРЮЛНЦ. ⚠️ НЕ е номерът по ЗДДС."/>
+      <field name="t2Name" colSpan="8"/>
+      <field name="t3InsuranceFundMember" colSpan="4"/>
+      <field name="t4Email" colSpan="4"/>
+      <field name="t5Phone" colSpan="2"/>
+      <field name="t6Gsm" colSpan="2"/>
+    </panel>
+
+    <!-- ⚠️ КОРЕКЦИЯТА НА Д6 РАБОТИ ОБРАТНО НА ИНТУИЦИЯТА и затова помощта го казва на екрана:
+      корекция САМО при НАМАЛЯВАНЕ (чл. 9 ал. 7); при увеличаване се подава НОВА декларация само с
+      положителната разлика. Обратното дава декларация, която НАП приема и която удвоява задължението. -->
+    <panel name="modePanel" title="Код корекция и вид плащане" colSpan="12">
+      <field name="t71CorrectionCode" colSpan="6"/>
+      <field name="t81PaymentKind" colSpan="6"/>
+      <field name="t18PaymentDate" colSpan="6"/>
+      <field name="bgDeclarant" colSpan="6"/>
+    </panel>
+
+    <panel name="duePanel" title="Дължими вноски в левове (т. 10 – т. 15)" colSpan="12">
+      <field name="t10Doo" colSpan="6"
+        help="ВСИЧКИ фондове на ДОО, ВКЛЮЧИТЕЛНО ТЗПБ. ⚠️ Д1 т. 22 е БЕЗ ТЗПБ — тук е с нея."/>
+      <field name="t14Health" colSpan="6"
+        help="СБОРЪТ на трите здравни точки на Д1 — т. 22.1 + т. 18 + т. 28."/>
+      <field name="t12Upf" colSpan="4" help="УПФ. ⚠️ В Д1 УПФ е т. 26, тук е т. 12."/>
+      <field name="t13Ppf" colSpan="4" help="ППФ. ⚠️ В Д1 ППФ е т. 25 — тоест номерата са разменени."/>
+      <field name="t11TeacherPf" colSpan="4"/>
+      <field name="t15Gvrs" colSpan="6"/>
+    </panel>
+
+    <panel name="taxPanel" title="Данък (т. 16 – т. 17)" colSpan="12">
+      <field name="t16Tax" colSpan="6" help="⚠️ БЕЗ данъка по т. 17 — указанието ги разделя изрично."/>
+      <field name="t17AdvanceTax" colSpan="6"
+        help="Само при САМО ЧАСТИЧНИ плащания през месеца (чл. 42 ал. 6 ЗДДФЛ). Няма носител в модела — попълва се на ръка."/>
+    </panel>
+
+    <!-- ⚠️ БУТОНИТЕ СА ТРИ И ТЕ СА В РЕДА НА РАБОТАТА: генерирай → печатай → закачи. Без тях
+      BgD6Emitter е НЕДОСТИЖИМ от интерфейса и декларацията се пълни само от тест. -->
+    <panel name="actionsPanel" colSpan="12">
+      <button name="generateBtn" title="Генерирай" icon="fa-cogs" css="btn-primary"
+        showIf="!statusSelect || statusSelect == 'draft' || statusSelect == 'generated'"
+        onClick="save,action-bg-d6-method-generate,save"/>
+      <button name="printBtn" title="Печат (PDF)" icon="fa-file-pdf-o"
+        showIf="statusSelect &amp;&amp; statusSelect != 'draft'"
+        onClick="save,action-bg-d6-method-print"/>
+      <!-- ⚠️ „ЗАКАЧИ ФАЙЛОВЕТЕ“, А НЕ „ПОДАЙ“, и разликата е по устройство, не по предпазливост:
+        подаването иска детачен PKCS#7 подпис на точните байтове и публичния сертификат на подаващия,
+        а частният ключ на КЕП никога не влиза в ERP-а. Бутон „Подай“ би обещавал стъпка, която този
+        слой не може да направи. -->
+      <button name="attachBtn" title="Закачи файловете към НАП (чернова)" icon="fa-paperclip"
+        showIf="statusSelect &amp;&amp; statusSelect != 'draft'"
+        onClick="save,action-bg-d6-method-attach"/>
+    </panel>
+
+    <panel name="reportPanel" title="Откази и проверки" colSpan="12">
+      <field name="bgRefusalReport" colSpan="12" showTitle="true"/>
+      <field name="bgValidationReport" colSpan="12" showTitle="true"/>
+    </panel>
+
+    <!-- ОБЯВЕНАТА ГРАНИЦА, на самия екран — човекът, който подписва, трябва да знае докъде стига
+      машината. -->
+    <panel name="boundaryPanel" title="Докъде стига машината" colSpan="12" collapsible="true">
+      <static name="boundaryNote"><![CDATA[
+        <p><b>Произвежда се:</b> т. 1, 2 (от дружеството), т. 10 – т. 15 (от перата на фишовете, по
+        ФОНД, не по точка от Д1) и т. 16 (удържаният данък от група 7xx).</p>
+        <p><b>Попълва се НА РЪКА, и всяко по своя причина:</b></p>
+        <ul>
+          <li><b>т. 3</b> член на осигурителна каса, <b>т. 4 – т. 6</b> e-mail и телефони — реквизити
+          на задълженото лице, които моделът не носи;</li>
+          <li><b>т. 7.1</b> код корекция — той е ТВЪРДЕНИЕ на човек, че задължение се НАМАЛЯВА
+          (чл. 9 ал. 7), а не следствие от число;</li>
+          <li><b>т. 8.1</b> вид плащане — указанието дава седем кода според това КАК е платено;</li>
+          <li><b>т. 17</b> авансов данък по чл. 42 ал. 6 ЗДДФЛ — признакът „през месеца са направени
+          САМО ЧАСТИЧНИ плащания“ няма носител: фишът носи начисляване и една дата на изплащане, а
+          чл. 42 ал. 8 изключва хипотезата, ако пълният размер е изплатен до 25-о число на следващия
+          месец — тоест факт от БЪДЕЩЕТО спрямо фиша;</li>
+          <li><b>т. 18</b> дата на изплащане/начисляване — указанието дава ШЕСТ различни правила
+          според случая, тоест избор в кода би бил верен за обичайния и невярен за петте други.</li>
+        </ul>
+        <p><b>Закачането НЕ подава.</b> То прави подаване-чернова с двата файла
+        (<code>EMPL2021.TXT</code> като <code>DEC_1</code> и файла на обр. 6 като <code>DEC_6</code>,
+        под <code>serviceDocumentType = DEC_1_6</code>) и спира там. Подписването с КЕП, подаването и
+        тестовата среда на НАП са ЧОВЕШКИ стъпки.</p>
+      ]]></static>
+    </panel>
+
+  </form>
+
+  <action-view name="bg.d6.declaration.all" title="Декларации обр. 6"
+    model="com.axelor.apps.bglocalization.db.BgD6Declaration">
+    <view type="grid" name="bg-d6-declaration-grid"/>
+    <view type="form" name="bg-d6-declaration-form"/>
+  </action-view>
+
+  <action-method name="action-bg-d6-method-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgD6DeclarationController" method="generate"/>
+  </action-method>
+
+  <action-method name="action-bg-d6-method-print">
+    <call class="com.axelor.apps.bglocalization.web.BgD6DeclarationController" method="print"/>
+  </action-method>
+
+  <action-method name="action-bg-d6-method-attach">
+    <call class="com.axelor.apps.bglocalization.web.BgD6DeclarationController"
+      method="attachToSubmission"/>
+  </action-method>
+
+</object-views>

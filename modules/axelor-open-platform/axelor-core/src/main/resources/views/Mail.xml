@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views https://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- selection -->
+  <selection name="message.type.selection">
+    <option value="email">Email</option>
+    <option value="comment">Comment</option>
+    <option value="notification">System notification</option>
+  </selection>
+
+  <!-- views -->
+
+  <form name="mail-thread-inbox" title="Inbox" model="com.axelor.mail.db.MailMessage" width="100%"
+        css="mail-thread-view">
+    <panel showIf="__empty" hidden="true" x-item-span="12" showFrame="false">
+      <label name="__empty" title="Inbox is empty!" css="label-bold label-large"/>
+      <label title="Come back later. There are no messages in this folder..." css="label-italic label-big" />
+    </panel>
+    <panel-mail>
+      <mail-messages limit="10"/>
+    </panel-mail>
+  </form>
+
+  <form name="mail-thread-important" title="Important" model="com.axelor.mail.db.MailMessage" width="100%"
+        css="mail-thread-view">
+    <panel showIf="__empty" hidden="true" x-item-span="12" showFrame="false">
+      <label name="__empty" title="No important messages!" css="label-bold label-large"/>
+      <label title="Come back later. There are no messages in this folder..." css="label-italic label-big" />
+    </panel>
+    <panel-mail>
+      <mail-messages limit="10"/>
+    </panel-mail>
+  </form>
+
+  <form name="mail-thread-archive" title="Archived" model="com.axelor.mail.db.MailMessage" width="100%"
+        css="mail-thread-view">
+    <panel showIf="__empty" hidden="true" x-item-span="12" showFrame="false">
+      <label name="__empty" title="No archived messages!" css="label-bold label-large"/>
+      <label title="Come back later. There are no messages in this folder..." css="label-italic label-big" />
+    </panel>
+    <panel-mail>
+      <mail-messages limit="10"/>
+    </panel-mail>
+  </form>
+
+  <!-- actions -->
+  <action-view name="mail.inbox" model="com.axelor.mail.db.MailMessage" title="Inbox">
+    <view name="mail-thread-inbox" type="form" />
+    <view-param name="show-toolbar" value="false"/>
+  </action-view>
+
+  <action-view name="mail.unread" model="com.axelor.mail.db.MailMessage" title="Unread">
+    <view name="mail-thread-inbox" type="form" />
+    <view-param name="show-toolbar" value="false"/>
+    <view-param name="forceTitle" value="true"/>
+  </action-view>
+
+  <action-view name="mail.important" model="com.axelor.mail.db.MailMessage" title="Important">
+    <view name="mail-thread-important" type="form" />
+    <view-param name="show-toolbar" value="false"/>
+  </action-view>
+
+  <action-view name="mail.archive" model="com.axelor.mail.db.MailMessage" title="Archived">
+    <view name="mail-thread-archive" type="form" />
+    <view-param name="show-toolbar" value="false"/>
+  </action-view>
+
+  <!-- menu -->
+  <menuitem name="menu-mail" order="-110"
+    title="Mail" icon="envelope-fill" parent="menu-team"/>
+
+  <menuitem name="menu-mail-inbox" title="Inbox" parent="menu-mail"
+    action="mail.inbox" order="-90" tag-get="com.axelor.mail.web.MailController:inboxMenuTag()" tag-style="warning"/>
+   <menuitem name="menu-mail-important" title="Important" parent="menu-mail"
+    action="mail.important" order="-85"/>
+  <menuitem name="menu-mail-archive" title="Archived" parent="menu-mail"
+    action="mail.archive" order="-80"/>
+
+</object-views>

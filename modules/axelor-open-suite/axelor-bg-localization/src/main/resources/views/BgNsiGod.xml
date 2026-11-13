@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ ГОД КЪМ НСИ — БАЛАНС И ОПР ВЪВ ВИДА НА ФОРМУЛЯРА ═══
+
+    Справка за ПРЕНАСЯНЕ: ИСБС на НСИ приема отчета само чрез ръчно въвеждане в уеб форми. Нищо тук
+    не подава към НСИ. Износът в CSV е стандартният износ на мрежата „Редове за пренасяне“. -->
+
+  <grid name="bg-nsi-god-report-grid" title="ГОД към НСИ — баланс и ОПР"
+    model="com.axelor.apps.bglocalization.db.BgNsiGodReport" orderBy="-reportYear">
+    <field name="reportYear"/>
+    <field name="company"/>
+    <field name="unitSelect"/>
+    <field name="statusSelect"/>
+    <field name="errorCount"/>
+    <field name="warningCount"/>
+    <field name="computedOn"/>
+    <field name="isbsNumber"/>
+  </grid>
+
+  <form name="bg-nsi-god-report-form" title="ГОД към НСИ — баланс и ОПР"
+    model="com.axelor.apps.bglocalization.db.BgNsiGodReport" width="large"
+    onNew="action-group-bg-nsi-god-new">
+
+    <panel name="mainPanel" title="Справка" colSpan="12">
+      <static name="purposeText" colSpan="12"><![CDATA[<p>Числата на таблица 4 „Счетоводен баланс“ и таблица 5 „Отчет за приходите и разходите“ от годишния отчет за дейността, по кодовете на редовете на формуляра на НСИ. <b>Справката не подава нищо към НСИ</b>: ИСБС приема отчета само чрез ръчно въвеждане — пренесете числата от колоните „Текуща година“ и „Предходна година“.</p>]]></static>
+      <field name="company" readonlyIf="computedOn"/>
+      <field name="reportYear" readonlyIf="computedOn" onChange="action-method-bg-nsi-god-year"/>
+      <field name="unitSelect" readonlyIf="statusSelect == 2"/>
+      <field name="standardSelect" readonlyIf="statusSelect == 2"/>
+      <field name="statusSelect"/>
+      <field name="formVersion"/>
+      <field name="computedOn"/>
+      <field name="computedBy"/>
+      <field name="previousSource" colSpan="12"/>
+    </panel>
+
+    <panel name="actionsPanel" colSpan="12">
+      <button name="computeBtn" title="Изчисли" showIf="statusSelect != 2"
+        help="Изчислява редовете от счетоводството на дружеството. Въведените корекции и бележки се запазват."
+        onClick="save,action-method-bg-nsi-god-compute"/>
+      <button name="lockBtn" title="Заключи" showIf="statusSelect != 2 &amp;&amp; computedOn"
+        help="Заключва справката след пренасянето в ИСБС. Справка с грешки не се заключва."
+        onClick="save,action-method-bg-nsi-god-lock"/>
+      <button name="unlockBtn" title="Отключи" showIf="statusSelect == 2"
+        onClick="action-method-bg-nsi-god-unlock"/>
+      <button name="exportBtn" title="Редове за пренасяне (CSV)" showIf="computedOn"
+        help="Отваря редовете в отделна таблица; износът в CSV е от менюто на таблицата."
+        onClick="action-view-bg-nsi-god-lines-export"/>
+    </panel>
+
+    <panel name="messagesPanel" title="Контроли" colSpan="12" showIf="computedOn">
+      <field name="errorCount"/>
+      <field name="warningCount"/>
+      <field name="messages" colSpan="12" showTitle="false" widget="text"/>
+    </panel>
+
+    <panel-related name="linePanel" field="lineList" colSpan="12"
+      grid-view="bg-nsi-god-line-grid" readonlyIf="statusSelect == 2" canNew="false"
+      canRemove="false" editable="true"/>
+
+    <panel name="isbsPanel" title="Пренасяне в ИСБС" colSpan="12">
+      <static name="isbsText" colSpan="12"><![CDATA[<p>Попълва се ръчно, след като числата са въведени в ИСБС и отчетът е приет там.</p>]]></static>
+      <field name="isbsNumber" readonlyIf="statusSelect == 2"/>
+      <field name="isbsDate" readonlyIf="statusSelect == 2"/>
+    </panel>
+  </form>
+
+  <grid name="bg-nsi-god-line-grid" title="Редове"
+    model="com.axelor.apps.bglocalization.db.BgNsiGodLine" orderBy="sequence" editable="true">
+    <hilite if="kindSelect == 'TITLE' || kindSelect == 'SUM'" strong="true"/>
+    <hilite if="markerSelect == 'MANUAL'" color="warning"/>
+    <hilite if="markerSelect == 'SERVICE'" color="danger"/>
+    <hilite if="markerSelect == 'CHECK'" color="info"/>
+    <field name="tableSelect" readonly="true" width="90"/>
+    <field name="code" readonly="true" width="90"/>
+    <field name="label" readonly="true"/>
+    <field name="markerSelect" readonly="true" width="130"/>
+    <field name="valueCurrent" readonly="true" width="110"/>
+    <field name="valuePrevious" readonly="true" width="110"/>
+    <field name="correctionCurrent" width="110"
+      readonlyIf="kindSelect == 'SUM' || kindSelect == 'TITLE'"/>
+    <field name="correctionPrevious" width="110"
+      readonlyIf="kindSelect == 'SUM' || kindSelect == 'TITLE'"/>
+    <field name="autoCurrent" readonly="true" width="130"/>
+    <field name="autoPrevious" readonly="true" width="130"/>
+    <field name="sourceAccounts" readonly="true"/>
+    <field name="note"/>
+    <field name="kindSelect" hidden="true"/>
+  </grid>
+
+  <!-- Само колоните за пренасяне — износът в CSV от тази таблица е готовият лист. -->
+  <grid name="bg-nsi-god-line-export-grid" title="Редове за пренасяне в ИСБС"
+    model="com.axelor.apps.bglocalization.db.BgNsiGodLine" orderBy="sequence" canNew="false"
+    canEdit="false" canDelete="false">
+    <field name="tableSelect"/>
+    <field name="code"/>
+    <field name="label"/>
+    <field name="valueCurrent"/>
+    <field name="valuePrevious"/>
+    <field name="markerSelect"/>
+  </grid>
+
+  <action-group name="action-group-bg-nsi-god-new">
+    <action name="action-record-bg-nsi-god-company"/>
+    <action name="action-method-bg-nsi-god-defaults"/>
+  </action-group>
+
+  <action-record name="action-record-bg-nsi-god-company"
+    model="com.axelor.apps.bglocalization.db.BgNsiGodReport">
+    <field name="company" expr="eval: __user__.activeCompany"/>
+  </action-record>
+
+  <action-method name="action-method-bg-nsi-god-defaults">
+    <call class="com.axelor.apps.bglocalization.web.BgNsiGodController" method="defaults"/>
+  </action-method>
+
+  <action-method name="action-method-bg-nsi-god-year">
+    <call class="com.axelor.apps.bglocalization.web.BgNsiGodController" method="yearChanged"/>
+  </action-method>
+
+  <action-method name="action-method-bg-nsi-god-compute">
+    <call class="com.axelor.apps.bglocalization.web.BgNsiGodController" method="compute"/>
+  </action-method>
+
+  <action-method name="action-method-bg-nsi-god-lock">
+    <call class="com.axelor.apps.bglocalization.web.BgNsiGodController" method="lock"/>
+  </action-method>
+
+  <action-method name="action-method-bg-nsi-god-unlock">
+    <call class="com.axelor.apps.bglocalization.web.BgNsiGodController" method="unlock"/>
+  </action-method>
+
+  <action-view name="action-view-bg-nsi-god-lines-export" title="Редове за пренасяне в ИСБС"
+    model="com.axelor.apps.bglocalization.db.BgNsiGodLine">
+    <view type="grid" name="bg-nsi-god-line-export-grid"/>
+    <domain>self.report.id = :_reportId AND self.code IS NOT NULL AND self.code != ''</domain>
+    <context name="_reportId" expr="eval: id"/>
+  </action-view>
+
+  <action-view name="action-bg-nsi-god-report-view" title="ГОД към НСИ — баланс и ОПР"
+    model="com.axelor.apps.bglocalization.db.BgNsiGodReport">
+    <view type="grid" name="bg-nsi-god-report-grid"/>
+    <view type="form" name="bg-nsi-god-report-form"/>
+  </action-view>
+
+</object-views>

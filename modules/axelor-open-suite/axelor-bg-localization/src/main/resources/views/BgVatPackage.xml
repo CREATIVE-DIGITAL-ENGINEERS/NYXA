@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ================= BgVatPackage: prepared package (read-only preview) ================= -->
+
+  <grid name="bg-vat-package-grid" title="Подготвени пакети"
+    model="com.axelor.apps.bglocalization.db.BgVatPackage" canNew="false" canDelete="false"
+    edit-icon="true">
+    <field name="generatedOn"/>
+    <field name="company"/>
+    <field name="period"/>
+    <field name="statusSelect"/>
+    <field name="readinessSelect"/>
+    <field name="zeroDeclaration"/>
+    <field name="stale"/>
+    <field name="documentsFound"/>
+  </grid>
+
+  <form name="bg-vat-package-form" title="Преглед на пакета"
+    model="com.axelor.apps.bglocalization.db.BgVatPackage" width="large" canNew="false"
+    canEdit="false" canDelete="false" canSave="false">
+
+    <panel name="headerPanel" title="Пакет" colSpan="12">
+      <field name="company" colSpan="4" readonly="true"/>
+      <field name="period" colSpan="4" readonly="true"/>
+      <field name="generatedOn" colSpan="4" readonly="true"/>
+      <field name="statusSelect" colSpan="4" readonly="true"/>
+      <field name="readinessSelect" colSpan="4" readonly="true"/>
+      <field name="zeroDeclaration" colSpan="2" readonly="true"/>
+      <field name="stale" colSpan="2" readonly="true"/>
+    </panel>
+
+    <panel name="summaryPanel" title="Обобщение" colSpan="12">
+      <field name="documentsFound" colSpan="3" readonly="true"/>
+      <field name="errorCount" colSpan="3" readonly="true"/>
+      <field name="warningCount" colSpan="3" readonly="true"/>
+      <spacer colSpan="3"/>
+      <field name="totalBase" colSpan="4" readonly="true"/>
+      <field name="totalVat" colSpan="4" readonly="true"/>
+      <field name="totalGross" colSpan="4" readonly="true"/>
+      <field name="k50" colSpan="4" readonly="true"/>
+      <field name="k60" colSpan="4" readonly="true"/>
+      <spacer colSpan="4"/>
+      <field name="summary" colSpan="12" readonly="true"/>
+    </panel>
+
+    <panel name="filesPanel" title="Файлове" colSpan="12">
+      <field name="packageFileList" colSpan="12" readonly="true"
+        grid-view="bg-vat-package-file-grid" form-view="bg-vat-package-file-form"/>
+    </panel>
+
+  </form>
+
+  <!-- ================= BgVatPackageFile: one immutable file ================= -->
+
+  <grid name="bg-vat-package-file-grid" title="Файлове"
+    model="com.axelor.apps.bglocalization.db.BgVatPackageFile" canNew="false" canDelete="false"
+    edit-icon="true">
+    <field name="fileName"/>
+    <field name="byteSize"/>
+    <field name="recordCount"/>
+    <field name="fileStatusSelect"/>
+    <field name="sha256" width="220"/>
+    <button name="downloadBtn" title="Изтегли" icon="fa-download"
+      onClick="action-bg-vat-package-file-method-download"/>
+  </grid>
+
+  <form name="bg-vat-package-file-form" title="Файл" width="large"
+    model="com.axelor.apps.bglocalization.db.BgVatPackageFile" canNew="false" canEdit="false"
+    canDelete="false" canSave="false">
+    <panel name="metaPanel" title="Метаданни" colSpan="12">
+      <field name="fileName" colSpan="4" readonly="true"/>
+      <field name="scope" colSpan="4" readonly="true"/>
+      <field name="fileStatusSelect" colSpan="4" readonly="true"/>
+      <field name="byteSize" colSpan="4" readonly="true"/>
+      <field name="recordCount" colSpan="4" readonly="true"/>
+      <button name="downloadBtn" title="Изтегли" icon="fa-download" colSpan="4"
+        onClick="action-bg-vat-package-file-method-download"/>
+      <field name="sha256" colSpan="12" readonly="true"/>
+      <field name="metaFile" colSpan="6" readonly="true"/>
+      <field name="finalized" colSpan="6" readonly="true"/>
+      <field name="validationMessages" colSpan="12" readonly="true"/>
+    </panel>
+    <panel name="previewPanel" title="Преглед (текст)" colSpan="12">
+      <field name="textPreview" colSpan="12" readonly="true" showTitle="false"
+        widget="CodeEditor" height="300"/>
+    </panel>
+  </form>
+
+  <action-method name="action-bg-vat-package-file-method-download">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="downloadPackageFile"/>
+  </action-method>
+
+  <!-- ================= BgVatPackageEvent: append-only log ================= -->
+
+  <grid name="bg-vat-package-event-grid" title="Логове"
+    model="com.axelor.apps.bglocalization.db.BgVatPackageEvent" canNew="false" canDelete="false"
+    canEdit="false">
+    <field name="createdOn" title="Дата/час"/>
+    <field name="createdBy" title="Потребител"/>
+    <field name="eventTypeSelect"/>
+    <field name="details"/>
+  </grid>
+
+  <form name="bg-vat-package-event-form" title="Лог събитие"
+    model="com.axelor.apps.bglocalization.db.BgVatPackageEvent" canNew="false" canEdit="false"
+    canDelete="false" canSave="false">
+    <panel colSpan="12">
+      <field name="createdOn" title="Дата/час" colSpan="6" readonly="true"/>
+      <field name="createdBy" title="Потребител" colSpan="6" readonly="true"/>
+      <field name="eventTypeSelect" colSpan="6" readonly="true"/>
+      <field name="bgVatPackage" colSpan="6" readonly="true"/>
+      <field name="details" colSpan="12" readonly="true"/>
+    </panel>
+  </form>
+
+</object-views>

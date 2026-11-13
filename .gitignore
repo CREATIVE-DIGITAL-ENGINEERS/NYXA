@@ -1,0 +1,73 @@
+# Gradle
+build
+.gradle
+
+# Eclispe
+bin
+.project
+.classpath
+.settings
+.metadata
+
+# Intellij
+out
+.idea
+*.iml
+*.ipr
+*.iws
+atlassian-ide-plugin.xml
+
+# NetBeans
+.nbattrs
+
+# VS Code
+.vscode
+
+# virtual machine crash logs
+hs_err_pid*
+
+# Backup files
+*.sw[nop]
+*~
+.#*
+[#]*#
+
+# dotenv or direnv
+.env
+.env.*
+.envrc
+
+# Miscellaneous
+*.log
+# AI Accountant metrics directory. Rolled files are .log.1 etc, which *.log above does not cover.
+/logs/
+.clover
+.DS_Store
+.claude
+CLAUDE.md
+
+# Profiler and heap dumps
+*.jps
+*.hprof
+/.nb-gradle/
+
+# Python bytecode (tools/*.py)
+__pycache__/
+*.pyc
+
+# JavaScript
+node_modules
+
+# Local business data and samples — never commit
+/test-data/
+/accountingMicroinvestJSON/
+
+# Dump files
+*.dump
+
+# Keystores and other runtime secrets — never commit
+secrets/
+*.p12
+*.pfx
+*.pem
+*.key

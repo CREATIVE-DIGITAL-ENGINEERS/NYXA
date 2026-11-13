@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml-inputs xmlns="http://axelor.com/xml/ns/data-import"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/data-import https://axelor.com/xml/ns/data-import/data-import_7.4.xsd">
+
+  <!-- ВИДОВЕТЕ ОТПУСК НА КЛИЕНТА, съпоставени към речника BgAbsenceType. ═══ ⚠️ ЗАЩО ОТДЕЛЕН ФАЙЛ, А
+    НЕ ОЩЕ ЕДИН <input> В bg-localization-config.xml ═══ Защото съседът е `<csv-inputs`, а този внос е XML.
+    AppServiceImpl#runImport чете конфига РЕД ПО РЕД и избира вносителя по ПЪРВИЯ съвпаднал корен, при това
+    CSV е пръв: `if (patCsv.matcher(line).find()) new CSVImporter(...) else if (patXml…)`. Тоест втори корен
+    в същия файл не добавя вход — той изключва другия вносител МЪЛЧАЛИВО. Два корена не се смесват; два ФАЙЛА
+    се четат и двата. ═══ ⚠️ РЕДЪТ МЕЖДУ ДВАТА КОНФИГА Е АЗБУЧЕН, И ТОЙ Е САМИЯТ ДОГОВОР ═══ AppServiceImpl#importPerConfig
+    взима всеки файл, който отговаря на `bg-localization(-+.*)?-config.xml`, прави `Arrays.sort(files)` и
+    ги пуска в този ред. Пътищата се различават само по името, а след общото „bg-localization-“ идва `c`
+    (config) срещу `l` (leave-reason): 0x63 < 0x6C, тоест КАТАЛОГЪТ ВИНАГИ Е ПЪРВИ и bg_absence_type вече
+    съществува, когато търсенето по-долу тръгне. В кореновия data-init това не би било вярно: там вносът
+    тече на боот, минути ПРЕДИ App Install да създаде речника, и всичките 28 реда биха останали с bg_absence_type
+    = NULL. Азбуката е крехък договор, затова подредбата не се оставя на четящия: BgClientLeaveReasonImportTest
+    я пресмята по същия начин, по който я пресмята AppServiceImpl, и пада, ако някое преименуване я обърне.
+    ═══ ИДЕМПОТЕНТНОСТ ═══ Търсенето е по importId, тоест повторно пускане ОБНОВЯВА същите 28 реда, вместо
+    да ги удвои. Отделно от това рамката пази вноса да не тръгне втори път изобщо: installApp излиза веднага
+    при `active = true` и вика importDataInit само при `initDataLoaded != true`. Тоест upsert-ът е предпазната
+    мрежа за uninstall → install, а не всекидневният път. -->
+  <input file="leave_reason.xml" root="leave-reasons">
+
+    <!-- ⚠️ Търси се по importId, НЕ по name. Името е това, което клиентът мени (два от редовете вече
+      са преименувани спрямо подадения списък); вързан за него, вносителят щеше да създаде ВТОРИ ред при всяко
+      преименуване, вместо да обнови съществуващия. -->
+    <bind node="leave-reason" type="com.axelor.apps.hr.db.LeaveReason" update="true"
+      search="self.importId = :importId">
+      <bind node="@importId" to="importId"/>
+      <bind node="@name" to="name"/>
+
+      <!-- ЕДИНИЦАТА — ДНИ ПО ПОДРАЗБИРАНЕ, ЧАСОВЕ ПРИ ИЗРИЧЕН АТРИБУТ. ⚠️ Единицата не е фиксирана на
+        дни (`eval="1"` без възел), защото КТ чл. 166 (кърмене) дава отпуска ДОСЛОВНО „по 1 час два пъти дневно“,
+        тоест вид, чиято законна единица е ЧАС. Внесен в дни, той кара оператора да въвежда 0,125 вместо 1 —
+        а точността в часове (часове ÷ bgHoursPerDay) остава неизползвана. ⚠️ ПОДРАЗБИРАНЕТО Е 1, А НЕ ПРАЗНО:
+        празна единица минава през BgPayrollInputBuilder като „не е ден“ и праща заявката по часовия път БЕЗ
+        делител — тоест отказ (`leaveHoursWithoutContractedDay`) върху вид, който е в дни. Затова липсващият
+        атрибут дава дни и редовете без атрибут остават в дни. ⚠️ И затова има alias: XMLBinder#toMap ключи контекста
+        по alias-а, а `eval` се смята върху него — виж bind-а към речника по-долу за същия капан, само че при
+        търсене. -->
+      <bind node="@unitSelect" to="unitSelect" alias="leaveUnit"
+        eval="leaveUnit ? leaveUnit as Integer : 1"/>
+
+      <!-- ⚠️ update="false": речникът е МОДУЛЕН seed и този внос само СОЧИ към него. Без това вносителят
+        би се опитал да пише в BgAbsenceType и клиентски внос би преправял общ речник. ⚠️ alias="absenceType"
+        НЕ Е УКРАСА — БЕЗ НЕГО ТЪРСЕНЕТО ТИХО ВРЪЩА NULL. XMLBinder#toMap ключи контекста по alias-а, а когато
+        го няма — по ПОЛЕТО (`to`), НЕ по името на възела (`node`). Тоест без alias стойността стои под ключ
+        „bgAbsenceType“, `:absenceType` не се разрешава, заявката става `self.code = null`, fetchOne() връща
+        null — и редът се записва НЕСЪПОСТАВЕН, без нито едно съобщение. Образецът в axelor-core (`node="@group"
+        to="group" search="self.code = :group"`) не се спъва в това САМО защото там името на възела съвпада с
+        името на полето. Тук не съвпадат, затова alias-ът е задължителен. ⚠️ И ТОЗИ ТИХ ОТКАЗ НЕ Е СЪЩИЯТ КАТО
+        ПОДРЕДБАТА: и с alias търсенето връща null, ако речникът още не е внесен. Двата отказа изглеждат еднакво
+        в базата (NULL връзка, празен лог) и се поправят на различни места — единият в този ред, другият в името
+        на файла. -->
+      <bind node="@absenceType" to="bgAbsenceType" alias="absenceType"
+        search="self.code = :absenceType" update="false"/>
+
+      <!-- ПОТВЪРДЕНО ОТ ЧОВЕК, не подразбрано — виж бележката в leave_reason.xml. -->
+      <bind to="bgAbsenceTypeDefaulted" eval="false"/>
+    </bind>
+
+  </input>
+
+</xml-inputs>

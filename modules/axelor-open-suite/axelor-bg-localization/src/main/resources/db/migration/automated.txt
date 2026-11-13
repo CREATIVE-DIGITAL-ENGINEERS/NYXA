@@ -1,0 +1,26 @@
+# Migrations the deployment runs by itself.
+#
+# The image carries exactly the files listed here at /opt/nyxa/db/migration/ (root build.gradle,
+# stageDbMigrations). For each client database, the deployment runs every
+# *.sql file there in file-name order, each as one transaction with ON_ERROR_STOP, and records it
+# with its SHA-256 (nx_applied_sql). Brand-new databases get the run after their first healthy start;
+# an existing database without the tracking table runs every listed file once.
+#
+# A file may be listed only when it is:
+#   - safe to run again: a second run changes nothing and doesn't fail (the whole list runs on the
+#     first adoption of every existing database);
+#   - safe for the PREVIOUS app version: it runs while the old revision is still serving;
+#   - one transaction: no BEGIN/COMMIT of its own, or exactly one BEGIN; ... COMMIT; block;
+#   - self-checking: it ends with a check that raises an exception when the result is wrong.
+# A file's content must never change once a database has run it: a different SHA fails the
+# deployment. Fix forward with a new file.
+#
+# Everything else in this folder (README, -verify, -existing-base, older one-off backfills) is run
+# by hand, if at all.
+
+2026-10-20-partner-seq-per-company.sql
+2026-10-21-saft-report-annual-ondemand.sql
+2026-10-21-trz-numbering-per-company.sql
+2026-10-23-fixed-asset-inventory-number.sql
+2026-11-12-asset-journal-company.sql
+2026-11-12-bg-coa-report-cogs-advances.sql

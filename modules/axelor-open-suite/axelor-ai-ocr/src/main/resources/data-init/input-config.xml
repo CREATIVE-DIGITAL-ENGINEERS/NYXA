@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<csv-inputs xmlns="http://axelor.com/xml/ns/data-import"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/data-import
+    http://axelor.com/xml/ns/data-import/data-import_7.4.xsd">
+
+  <!-- AI-OCR install data. Order matters: roles → permissions (assigned to roles) → groups (link roles)
+    → scheduler. The "Admin" role is provided by axelor-base's data-init (imported earlier as a transitive
+    dependency), so it exists here. NOTE: verify this RBAC import on a fresh DB. -->
+
+  <!-- COMPANY ISOLATION: the conditions in auth_permission.csv are the primary control for it, because
+    com.axelor.rpc.Resource applies them to grids, to opening a record by id AND to /ws/rest alike. Read
+    before editing those rows: admins bypass conditions entirely, permissions are additive so a condition
+    cannot subtract access granted elsewhere, and an existing database needs two documented one-off steps
+    because data-init only runs on install. -->
+
+
+  <input file="auth_role.csv" separator=";" type="com.axelor.auth.db.Role"
+    search="self.name = :name"/>
+
+  <input file="auth_permission.csv" separator=";" type="com.axelor.auth.db.Permission"
+    search="self.name = :name" call="com.axelor.csv.script.ImportPermission:importPermissionToRole">
+    <bind to="canRead" eval="can_read == 'x' ? 'true' : 'false'"/>
+    <bind to="canWrite" eval="can_write == 'x' ? 'true' : 'false'"/>
+    <bind to="canCreate" eval="can_create == 'x' ? 'true' : 'false'"/>
+    <bind to="canRemove" eval="can_remove == 'x' ? 'true' : 'false'"/>
+    <bind to="canExport" eval="can_export == 'x' ? 'true' : 'false'"/>
+  </input>
+
+  <input file="auth_group.csv" separator=";" type="com.axelor.auth.db.Group"
+    search="self.code = :code">
+    <bind to="roles" search="self.name = :roleName" if="roleName"/>
+  </input>
+
+  <input file="meta_schedule.csv" separator=";" type="com.axelor.meta.db.MetaSchedule"
+    search="self.name = :name"/>
+
+  <!-- VAT ROUNDING: Bulgarian suppliers round VAT per line and print a grand total that is the sum of
+    the per-line gross amounts; Axelor rounds once per rate. When per-line rounding accumulates a cent the
+    debits no longer equal the payable credit and the invoice cannot be posted. OcrVatRoundingReconciler
+    closes that cent by putting the supplier's figure on the summary row's taxTotal, which only survives
+    InvoiceGenerator's regeneration when the tax is flagged manageByAmount. Purchase rates only — sales invoices
+    are computed by Nyxa itself and never have this problem. These rows UPDATE the taxes the BG l10n import
+    already created (search by code); they never create a tax. NOTE: data-init runs on install only, so an
+    existing database needs the equivalent one-off update. -->
+  <input file="account_tax.csv" separator=";" type="com.axelor.apps.account.db.Tax"
+    search="self.code = :code"/>
+
+</csv-inputs>

@@ -1,0 +1,20 @@
+# Измислени партньори: ЕИК 0000000NN и ЕГН с валидна контролна цифра, IBAN с код DEMO
+code;type;name;firstName;customer;supplier;country;eik;vat;egn;fiscalPosition;currency;iban;bic;bank;city;zip;street;paymentDays;customerAccount;supplierAccount;region
+C01;C;Клиент Алфа ЕООД;;true;false;BG;000000121;BG000000121;;BG_DOM;EUR;BG88DEMO96611000000012;DEMOBGSF;Демо Банк АД;Пловдив;4000;бул. „Демо“ 10;30;;;
+C02;C;Клиент Бета ООД;;true;false;BG;000000139;BG000000139;;BG_DOM;EUR;BG61DEMO96611000000013;DEMOBGSF;Демо Банк АД;Русе;7000;ул. „Примерна“ 3;30;;;
+C03;C;Клиент Гама АД;;true;false;BG;000000146;BG000000146;;BG_DOM;EUR;BG34DEMO96611000000014;DEMOBGSF;Демо Банк АД;София;1404;бул. „Измислен“ 101;30;;;
+C04;C;Клиент Делта ЕООД;;true;false;BG;000000153;BG000000153;;BG_DOM;EUR;BG07DEMO96611000000015;DEMOBGSF;Демо Банк АД;Бургас;8000;ул. „Морска демо“ 7;30;;;
+C05;C;Клиент Епсилон ООД;;true;false;BG;000000160;BG000000160;;BG_DOM;EUR;BG77DEMO96611000000016;DEMOBGSF;Демо Банк АД;Стара Загора;6000;ул. „Липова демо“ 12;14;;;
+S01;C;Доставчик Мебели ЕООД;;false;true;BG;000000178;BG000000178;;BG_DOM;EUR;BG50DEMO96611000000017;DEMOBGSF;Демо Банк АД;Велико Търново;5000;ул. „Индустриална демо“ 4;30;;;
+S02;C;Енерго Демо АД;;false;true;BG;000000185;BG000000185;;BG_DOM;EUR;BG23DEMO96611000000018;DEMOBGSF;Демо Банк АД;София;1000;ул. „Тока“ 1;15;;;
+S03;C;Телеком Демо ЕАД;;false;true;BG;000000192;BG000000192;;BG_DOM;EUR;BG93DEMO96611000000019;DEMOBGSF;Демо Банк АД;София;1000;бул. „Връзка“ 2;15;;;
+S04;C;Счетоводна кантора Демо ООД;;false;true;BG;000000203;BG000000203;;BG_DOM;EUR;BG66DEMO96611000000020;DEMOBGSF;Демо Банк АД;София;1000;ул. „Баланс“ 5;10;;;
+S05;C;Ресторант Демо ЕООД;;false;true;BG;000000210;BG000000210;;BG_DOM;EUR;BG39DEMO96611000000021;DEMOBGSF;Демо Банк АД;София;1000;ул. „Вкусна“ 8;0;;;
+S06;C;Техника Демо ООД;;false;true;BG;000000228;BG000000228;;BG_DOM;EUR;BG12DEMO96611000000022;DEMOBGSF;Демо Банк АД;София;1000;бул. „Електроника демо“ 30;30;;;
+S07;C;Авто Демо ЕАД;;false;true;BG;000000235;BG000000235;;BG_DOM;EUR;BG82DEMO96611000000023;DEMOBGSF;Демо Банк АД;София;1000;бул. „Колела“ 50;30;;;
+E01;C;Demo Kunde GmbH;;true;false;DE;;DE999999995;;EU_SUP;EUR;DE93999999990000000001;DEMODEFF;Demo Bank AG;Berlin;10115;Demostraße 1;30;;;
+E02;C;Furnizor Demo SRL;;false;true;RO;;RO99999909;;EU_ACQ;EUR;RO34DEMO0000000000000001;DEMOROBU;Banca Demo SA;București;010011;Strada Demo 2;30;;;
+E03;C;Demo Metafores EPE;;false;true;GR;;EL999999993;;EU_SERV_ACQ;EUR;GR6909999990000000000000001;DEMOGRAA;Demo Trapeza AE;Αθήνα;10431;Odos Demo 3;30;;;
+U01;C;Demo Software Inc.;;false;true;US;;;;RCM;USD;;;;Wilmington;19801;1 Demo Street;60;;;DE
+G01;C;Demo Group AG;;true;true;CH;;;;RCM;CHF;CH7309999000000000001;DEMOCHZZ;Demo Bank AG;Zürich;8001;Demostrasse 9;60;415;405;
+L01;I;Наемодателев;Иван;false;true;BG;;;6006066006;BG_EXEMPT;EUR;BG67DEMO96611000000099;DEMOBGSF;Демо Банк АД;София;1000;ул. „Складова демо“ 15;5;;;

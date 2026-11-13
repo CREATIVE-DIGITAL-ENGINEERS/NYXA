@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- One PREPARED VAT/НАП package for a company + period: an immutable snapshot of the four generated
+    files (PRODAGBI/POKUPKI/DEKLAR/VIES) with their integrity metadata, readiness, the zero-declaration flag
+    and a source fingerprint. Every generate() run creates a NEW package; the previous one is marked superseded
+    but its files are NEVER modified (immutability). Preview and any later submission read the exact bytes
+    captured here. NOTE: importId is inherited from com.axelor.db.Model — do NOT declare it. -->
+  <entity name="BgVatPackage">
+
+    <many-to-one name="bgVatReturn" ref="com.axelor.apps.bglocalization.db.BgVatReturn"
+      title="ДДС декларация" required="true"/>
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"/>
+    <string name="period" title="Период (ГГГГММ)"/>
+
+    <datetime name="generatedOn" title="Генериран на"/>
+    <string name="statusSelect" title="Статус" selection="bg.vat.package.status.select"
+      default="prepared" readonly="true"/>
+    <string name="readinessSelect" title="Готовност"
+      selection="bg.vat.package.readiness.select" readonly="true"/>
+    <boolean name="zeroDeclaration" title="Нулева декларация" readonly="true"/>
+    <boolean name="stale" title="Остарял (данните са променени)" readonly="true"/>
+
+    <!-- SHA-256 of the SOURCE inputs (collected documents + manual cells + declarant/scope). Re-computed
+      on demand to detect whether the underlying VAT data changed since generation (stale). -->
+    <string name="sourceFingerprint" title="Отпечатък на източника" readonly="true"/>
+
+    <integer name="documentsFound" title="Намерени документи" readonly="true"/>
+    <integer name="errorCount" title="Грешки" readonly="true"/>
+    <integer name="warningCount" title="Предупреждения" readonly="true"/>
+    <decimal name="totalBase" title="Общо основа" scale="2" precision="18" readonly="true"/>
+    <decimal name="totalVat" title="Общо ДДС" scale="2" precision="18" readonly="true"/>
+    <decimal name="totalGross" title="Общо стойност" scale="2" precision="18"
+      readonly="true"/>
+    <decimal name="k50" title="кл.50 (за внасяне)" scale="2" precision="18" readonly="true"/>
+    <decimal name="k60" title="кл.60 (за възстановяване)" scale="2" precision="18"
+      readonly="true"/>
+
+    <string name="summary" title="Обобщение" large="true" readonly="true"/>
+
+    <one-to-many name="packageFileList"
+      ref="com.axelor.apps.bglocalization.db.BgVatPackageFile" mappedBy="bgVatPackage"
+      title="Файлове" orphanRemoval="true"/>
+
+    <extra-code><![CDATA[
+      // statusSelect (keep in sync with bg.vat.package.status.select)
+      public static final String STATUS_PREPARED = "prepared";
+      public static final String STATUS_SUPERSEDED = "superseded";
+
+      // readinessSelect (keep in sync with bg.vat.package.readiness.select)
+      public static final String READINESS_READY = "ready";
+      public static final String READINESS_WARNINGS = "warnings";
+      public static final String READINESS_ERRORS = "errors";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

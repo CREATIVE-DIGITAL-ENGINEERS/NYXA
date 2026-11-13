@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Adds a per-company AI-OCR configuration panel to the standard Company form. -->
+  <form name="company-form" title="Company" id="ai-ocr-company-form"
+    model="com.axelor.apps.base.db.Company" extension="true">
+    <extend target="//panel[@name='detailsPanel']">
+      <insert position="after">
+        <panel name="aiOcrConfigPanel" title="AI OCR" colSpan="12">
+          <field name="aiOcrGenericPurchaseProduct" colSpan="6"
+            help="Fallback purchase product for OCR invoice lines with no resolvable product. Its AccountManagement (for this company) resolves the expense account. Configured per company; optional."/>
+        </panel>
+      </insert>
+    </extend>
+  </form>
+
+</object-views>

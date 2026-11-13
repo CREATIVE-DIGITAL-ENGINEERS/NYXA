@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgMinInsuranceIncome (ред от Приложение №1) ============ -->
+
+  <grid name="bg-min-insurance-income-grid" title="МОД по Приложение №1"
+    model="com.axelor.apps.bglocalization.db.BgMinInsuranceIncome" orderBy="bgRow,-validFrom">
+    <field name="bgRow"/>
+    <field name="bgName"/>
+    <field name="bgActivityCount"/>
+    <field name="validFrom"/>
+    <field name="validTo"/>
+  </grid>
+
+  <form name="bg-min-insurance-income-form" title="МОД ред (Приложение №1)"
+    model="com.axelor.apps.bglocalization.db.BgMinInsuranceIncome">
+    <panel name="mainPanel" title="Основни">
+      <field name="bgRow"/>
+      <field name="bgName"/>
+      <field name="bgActivityCount"/>
+      <field name="validFrom"/>
+      <field name="validTo"/>
+    </panel>
+    <panel-related name="bgAmountListPanel" field="bgAmountList"
+      title="Суми по квалификационни групи" colSpan="12" editable="true"
+      grid-view="bg-min-insurance-income-amount-grid"
+      form-view="bg-min-insurance-income-amount-form">
+      <field name="bgQualificationGroup"/>
+      <field name="amount"/>
+    </panel-related>
+  </form>
+
+  <!-- ============ BgMinInsuranceIncomeAmount (без самостоятелно меню) ============ -->
+
+  <grid name="bg-min-insurance-income-amount-grid" title="Суми по квалификационни групи"
+    model="com.axelor.apps.bglocalization.db.BgMinInsuranceIncomeAmount"
+    orderBy="bgQualificationGroup">
+    <field name="bgQualificationGroup"/>
+    <field name="amount"/>
+  </grid>
+
+  <form name="bg-min-insurance-income-amount-form" title="Сума по квалификационна група"
+    model="com.axelor.apps.bglocalization.db.BgMinInsuranceIncomeAmount">
+    <panel name="mainPanel">
+      <field name="bgQualificationGroup"/>
+      <field name="amount"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-min-insurance-income" title="МОД по Приложение №1"
+    model="com.axelor.apps.bglocalization.db.BgMinInsuranceIncome">
+    <view type="grid" name="bg-min-insurance-income-grid"/>
+    <view type="form" name="bg-min-insurance-income-form"/>
+  </action-view>
+
+  <menuitem name="nyxa-payroll-min-income" parent="nyxa-payroll-parameters"
+    title="МОД по Приложение №1" action="action-bg-min-insurance-income" order="400"/>
+
+</object-views>

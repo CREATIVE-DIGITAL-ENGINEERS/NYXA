@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Company assignments: an accounting manager adds or removes client companies on
+    a staff user. Everything here is presentation; who may do what is checked server-side in
+    CompanyAssignmentService / CompanyAssignmentRule, and the write goes through the user self-edit
+    guard's assignment scope, which lets only the user's companies change.
+    Field names deliberately have no "$" prefix: the web client drops every "$" key from request
+    bodies (axelor-front client.ts), so the controller never received the user or companies. -->
+
+  <form name="nx-company-assignment-form" title="Company assignments"
+    model="com.axelor.utils.db.Wizard" width="large">
+    <panel name="mainPanel" itemSpan="12">
+      <field name="assignUser" type="many-to-one" target="com.axelor.auth.db.User" title="User"
+        domain="self.group.code = 'staff'" canNew="false" canEdit="false" canView="false"
+        onChange="action-nx-company-assignment-refresh"/>
+      <field name="assignedCompanies" type="many-to-many" target="com.axelor.apps.base.db.Company"
+        title="Assigned companies" widget="TagSelect" readonly="true" canNew="false"
+        canView="false" x-dirty="false"/>
+      <field name="companiesToChange" type="many-to-many" target="com.axelor.apps.base.db.Company"
+        title="Companies to assign or remove" widget="TagSelect" canNew="false" canEdit="false"
+        canView="false"/>
+      <button name="assignBtn" title="Assign" colSpan="6"
+        onClick="action-nx-company-assignment-assign"/>
+      <button name="removeBtn" title="Remove" colSpan="6"
+        onClick="action-nx-company-assignment-remove"/>
+    </panel>
+  </form>
+
+  <action-view name="action-nx-company-assignment" title="Company assignments"
+    model="com.axelor.utils.db.Wizard">
+    <view type="form" name="nx-company-assignment-form"/>
+    <view-param name="show-toolbar" value="false"/>
+    <view-param name="forceEdit" value="true"/>
+  </action-view>
+
+  <action-method name="action-nx-company-assignment-refresh">
+    <call class="com.axelor.apps.nyxasecurity.web.CompanyAssignmentController" method="refresh"/>
+  </action-method>
+
+  <action-method name="action-nx-company-assignment-assign">
+    <call class="com.axelor.apps.nyxasecurity.web.CompanyAssignmentController" method="assign"/>
+  </action-method>
+
+  <action-method name="action-nx-company-assignment-remove">
+    <call class="com.axelor.apps.nyxasecurity.web.CompanyAssignmentController" method="remove"/>
+  </action-method>
+
+  <menuitem name="nx-company-assignment" parent="account-conf" title="Company assignments"
+    action="action-nx-company-assignment" order="5"/>
+
+</object-views>

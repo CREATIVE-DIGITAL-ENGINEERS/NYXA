@@ -1,0 +1,16 @@
+#version 1
+[Playbook: REVIEW a customer invoice]
+GOAL: answer what the user asked about the invoice or the set, and change nothing.
+
+ALLOWED WITHOUT ASKING: search_customer_invoices; get_customer_invoice; find_customer; find_product; check_partner_accounts. Reading is how you answer — never ask permission to look.
+
+PROCEDURE
+- With an invoiceId, get_customer_invoice ONCE. It already returns the header, the lines, the tax summary, the totals, the status and the blockers — do not follow it with a search for what you were just handed.
+- Without one, search_customer_invoices by what the user named (customer, status, date range, amount, number) and use the invoiceId it returns. Results are one page: when totalMatches is larger than what came back, say so or fetch the rest with offset — never present the first page as the whole set.
+- 'Why will this not validate / post?' is answered from the blockers get_customer_invoice returns, not from your own reading of the lines. Each one names the field or the configuration that is missing.
+- Say the status in the user's terms and what it means for what they can do next: DRAFT is editable, VALIDATED is committed but not yet in the books, VENTILATED is in the books and is corrected by a credit note.
+- Answer, then offer the fix in ONE sentence naming what you would change, and stop there.
+
+HARD BLOCKERS: none. This task writes nothing.
+
+DONE WHEN: the question is answered from the invoice's real state, and nothing was written.

@@ -1,0 +1,21 @@
+#version 2
+[Playbook: POST a customer invoice]
+GOAL: the invoice ends VENTILATED — in the books, numbered, with its Move created. Not "ventilate_customer_invoice was called".
+
+ALLOWED WITHOUT ASKING: get_customer_invoice; edit_customer_invoice to repair what the user's own instructions support; find_product; find_customer; check_partner_accounts; fix_partner_account when a blocker names the flag; refresh_customer_invoice_terms; validate_customer_invoice; ventilate_customer_invoice. Posting runs through repair and validation, so the whole route is authorised by the instruction to post.
+
+PROCEDURE
+- Read the record if you do not already know its state, and take it the whole way: repair what the instruction supports, validate, then ventilate. A DRAFT that was asked to be posted is not finished at VALIDATED — keep going in the same turn.
+- Batch what you can into ONE response: validate and ventilate can be called together when the arguments are already known and nothing between them needs a decision.
+- Ventilation is what assigns the real invoice number from the company's customer sequence and creates the accounting Move. Before that the number is a draft placeholder — never present the placeholder as the invoice number, and never claim a number the reply did not give you.
+- It CANNOT be undone from the chat. An invoice that is already VENTILATED is not posted again — say it is already in the books, and that a correction now means a credit note.
+- If a call refuses, report the reason it gave. Fix the cause when a tool can; do not retry the identical call against an unchanged record.
+- Report the status actually reached and, when the reply gives it, the number and the Move. Never say 'осчетоводена' about an invoice that only reached VALIDATED.
+- If the customer's own record was edited earlier in the job, the domain rules above apply before you post: re-read the invoice, and if its address, bank details, payment mode or terms are now stale, fix them (or refresh the terms) rather than posting against what was true before the edit.
+
+HARD BLOCKERS (stop and ask, briefly):
+- a missing customer sales or credit-note journal, a missing sequence, or a missing receivable account — configuration decisions for a person;
+- a closed period, or a date the sequence will not accept;
+- anything the validation playbook lists as a hard blocker, since posting runs through validation.
+
+DONE WHEN: statusSelect is VENTILATED and the reply says so, or a hard blocker above has been named.

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="aiaccountant" package="com.axelor.apps.aiaccountant.db"/>
+
+  <!-- The server's own copy of the visible conversation in one chat panel: every user message and
+    assistant reply exchanged so far, in order, plus which record the page had open at each reply.
+
+    WHY IT EXISTS. Two things read this row and need different amounts of it. A bare affirmation —
+    «да», «направи го», «продължи», "same but the date +1 day" — means nothing on its own; it means
+    something only next to whatever the assistant just proposed, which is why the LAST exchange is
+    kept at all: AiRouteSelector requires the record on screen to canonically match that exchange's
+    recordRef before a continuation is accepted, and every write still runs the full
+    AiWriteAuthorisation chain exactly as an explicit instruction would. The Router Agent additionally
+    reads the WHOLE list — see AiRouterContract — because resolving what "it", "the same one" or an
+    unfamiliar word refers to routinely depends on more than one turn back.
+
+    NOT A TRANSCRIPT SUBSTITUTE FOR THE MODEL. This is what the Router reads to route; it is not what
+    the main agent reasons from — that is still Azure's own retained conversation behind
+    previous_response_id. Nothing here is ever a proposal queue or an approval record.
+
+    SCOPE. One row per (user, company, conversation), the same key AiWorkflowState and AiChatSession use
+    and for the same reason: one person, one set of books, one chat panel. Appended to every turn and
+    kept in full — never windowed to a fixed count and never aged out — because the user, not a
+    timer, decides when a conversation is over: see the "Clear context" action, which starts a new
+    conversationId and leaves this row behind unread.
+
+    NOT AN AUTHORISATION. This row decides nothing by itself. It only lets a later turn's affirmation be
+    RECOGNISED as continuing a specific proposal; whether that continuation is accepted is decided in
+    Java, from the record on screen, and whether the resulting write is allowed is decided by
+    AiWriteAuthorisation, unchanged. -->
+  <entity name="AiTurnMemory">
+
+    <!-- `column` is explicit because `user` is an SQL keyword and the generator refuses to derive a
+      column of that name. Same as AiWorkflowState and AiChatSession. -->
+    <many-to-one name="user" ref="com.axelor.auth.db.User" title="User" required="true"
+      index="true" column="user_id"/>
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Company"
+      required="true" index="true"/>
+
+    <!-- Which chat panel. Minted by the client, opaque here, only ever compared. -->
+    <string name="conversationId" title="Conversation" index="true"/>
+
+    <!-- The full exchange list, oldest first: [{userMessage, assistantReply, recordRef, at}, …].
+      Each message is capped the same way the single exchange used to be (see AiTurnMemoryStore), but
+      the array itself is never truncated here — only the amount of it any one caller is shown is
+      bounded, and explicitly so; see AiRouterContract's history budget. Kept as one JSON document
+      for the same reason AiWorkflowState keeps its target list as one: it is read and appended by
+      one owner, once per turn, and splitting it into rows would buy a query nobody has asked for. -->
+    <string name="historyJson" title="History" large="true"/>
+
+    <!-- When the last exchange was appended. Read by AiRouteSelector's continuation check, which
+      treats an exchange as eligible to be continued only while it is recent — see MAX_AGE in
+      AiTurnMemoryStore — and unrelated to how long the row itself, or the history in it, is kept. -->
+    <datetime name="lastTurnDateTime" title="Last turn"/>
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Дете на служител (за данъчни облекчения по чл.22в/22г ЗДДФЛ и отпуски за гледане на дете). importId
+    се наследява от com.axelor.db.Model — НЕ се декларира тук. -->
+  <entity name="BgEmployeeChild">
+
+    <many-to-one name="employee" title="Служител" required="true"
+      ref="com.axelor.apps.hr.db.Employee"/>
+    <string name="fullName" title="Трите имена на детето" required="true" namecolumn="true"/>
+    <string name="bgEgn" title="ЕГН"/>
+    <date name="birthDate" title="Дата на раждане"/>
+    <boolean name="isDisabled" title="Дете с увреждане (чл.22г)"/>
+    <date name="disabilityValidTo" title="ТЕЛК валидно до"/>
+
+  </entity>
+
+</domain-models>

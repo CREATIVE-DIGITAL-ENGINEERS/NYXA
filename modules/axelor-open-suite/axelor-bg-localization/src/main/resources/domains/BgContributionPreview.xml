@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Диагностична форма само за преглед: изпълнява веригата МОД → осигурителен калкулатор срещу реалните
+    данни и показва резултата. Реален entity, ползван transiently (записът никога не се пази — контролерът
+    само чете и връща текст), по конвенцията на BgIncomePaymentFeedWizard. 7.4 XSD няма истински transient флаг,
+    затова СЪЗДАВА таблица (bglocalization_bg_contribution_preview) — това не е без схема. Видът осигурен
+    е РЪЧЕН вход (формата не го извежда — няма поле, от което да го вземе, а той се мени по периоди; решението
+    къде живее остава за BgPayrollRun). Ръчният избор отключва формата веднага и позволява нарочно да се
+    пробват код 27 или ART4C, за да се видят предпазителите. -->
+  <entity name="BgContributionPreview">
+    <many-to-one name="employee" ref="com.axelor.apps.hr.db.Employee" title="Служител"/>
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"/>
+    <date name="previewDate" title="Дата"/>
+    <string name="insuredTypeCode" title="Вид осигурен (код НАП)"/>
+    <string name="laborCategory" title="Категория труд" selection="bg.labor.category.select"/>
+    <string name="solScope" title="Обхват (СОЛ)" selection="bg.insurance.sol.scope.select"/>
+    <!-- Ръчен вход за диагностика: кодът на вида обезщетение (напр. comp_kt_222_1) или STANDARD. В реален
+      фиш идва от реда, не от екрана. -->
+    <string name="compensationTypeCode" title="Вид обезщетение (код)" default="STANDARD"/>
+    <decimal name="grossSalary" title="Брутно възнаграждение" precision="20" scale="2"/>
+    <string name="resultText" title="Резултат" large="true"/>
+  </entity>
+
+</domain-models>

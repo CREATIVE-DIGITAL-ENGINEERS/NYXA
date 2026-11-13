@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Two panels that are deliberately not derived from one another.
+
+    The LOCAL charts count what this application sent, and are the only source for who asked, which
+    agent answered and how it went. The AZURE charts are the resource's own counters and are the
+    authority on totals — they include anything that reached the resource without going through here.
+    When the two disagree, that difference is itself the finding, which is why neither is computed
+    from the other. -->
+  <dashboard name="ai-accountant-stats-dashboard" title="AI Accountant statistics" width="large">
+
+    <!-- First, because an empty chart below is meaningless until you know whether Azure could be
+      read at all. Says when it was last collected, or why it could not be. -->
+    <dashlet action="ai-accountant-azure-status-dashlet" colSpan="12" height="180"/>
+
+    <dashlet action="dashlet.ai.accountant.local.tokens.by.day" colSpan="6" height="330"/>
+    <dashlet action="dashlet.ai.accountant.local.requests.by.day" colSpan="6" height="330"/>
+    <dashlet action="dashlet.ai.accountant.local.tokens.by.caller" colSpan="6" height="330"/>
+    <dashlet action="dashlet.ai.accountant.local.outcomes" colSpan="6" height="330"/>
+    <dashlet action="dashlet.ai.accountant.local.tokens.by.company" colSpan="12" height="330"/>
+
+    <dashlet action="dashlet.ai.accountant.azure.tokens.last24h" colSpan="12" height="330"/>
+    <dashlet action="dashlet.ai.accountant.azure.tokens.7d" colSpan="6" height="330"/>
+    <dashlet action="dashlet.ai.accountant.azure.tokens.30d" colSpan="6" height="330"/>
+    <dashlet action="dashlet.ai.accountant.azure.tokens.by.deployment" colSpan="12" height="330"/>
+
+    <dashlet action="ai-usage-stat-view" colSpan="12" height="350" canSearch="true"/>
+
+  </dashboard>
+
+  <action-view title="Tokens per day, by agent (local)"
+    name="dashlet.ai.accountant.local.tokens.by.day">
+    <view type="chart" name="chart.ai.accountant.local.tokens.by.day"/>
+  </action-view>
+
+  <action-view title="Requests per day, by agent (local)"
+    name="dashlet.ai.accountant.local.requests.by.day">
+    <view type="chart" name="chart.ai.accountant.local.requests.by.day"/>
+  </action-view>
+
+  <action-view title="Tokens by caller (local, 30d)"
+    name="dashlet.ai.accountant.local.tokens.by.caller">
+    <view type="chart" name="chart.ai.accountant.local.tokens.by.caller"/>
+  </action-view>
+
+  <action-view title="Request outcomes (local, 30d)" name="dashlet.ai.accountant.local.outcomes">
+    <view type="chart" name="chart.ai.accountant.local.outcomes"/>
+  </action-view>
+
+  <action-view title="Tokens by company (local, 30d)"
+    name="dashlet.ai.accountant.local.tokens.by.company">
+    <view type="chart" name="chart.ai.accountant.local.tokens.by.company"/>
+  </action-view>
+
+  <action-view title="Azure metrics, last 24 hours"
+    name="dashlet.ai.accountant.azure.tokens.last24h">
+    <view type="chart" name="chart.ai.accountant.azure.tokens.last24h"/>
+  </action-view>
+
+  <action-view title="Azure metrics, last 7 days" name="dashlet.ai.accountant.azure.tokens.7d">
+    <view type="chart" name="chart.ai.accountant.azure.tokens.7d"/>
+  </action-view>
+
+  <action-view title="Azure metrics, last 30 days" name="dashlet.ai.accountant.azure.tokens.30d">
+    <view type="chart" name="chart.ai.accountant.azure.tokens.30d"/>
+  </action-view>
+
+  <action-view title="Azure tokens by deployment (30d)"
+    name="dashlet.ai.accountant.azure.tokens.by.deployment">
+    <view type="chart" name="chart.ai.accountant.azure.tokens.by.deployment"/>
+  </action-view>
+
+  <!-- The freshness/unavailability banner.
+
+    Its own thing rather than a chart because it has to be able to say why a chart is empty. "No
+    data" and "the role was never granted" look identical on an axis, and the difference is the
+    difference between waiting and acting. -->
+  <custom name="ai-accountant-azure-status-custom" title="Azure metrics"
+    css="dashlet-no-dropdown">
+    <dataset type="rpc">
+      com.axelor.apps.aiaccountant.web.AiAccountantStatsController:azureStatus
+    </dataset>
+    <template>
+      <![CDATA[
+        <>
+          <Box ms={3} mt={2}>
+            <h5><Icon icon={first.icon}/> {first.headline}</h5>
+            <Box as="p" mb={1}>{first.detail}</Box>
+            <Box as="p" fontSize={6}>{first.freshness}</Box>
+          </Box>
+        </>
+      ]]>
+    </template>
+  </custom>
+
+  <action-view title="Azure metrics" name="ai-accountant-azure-status-dashlet">
+    <view type="custom" name="ai-accountant-azure-status-custom"/>
+  </action-view>
+
+  <action-view title="AI Accountant statistics" name="ai-accountant-stats-view">
+    <view type="dashboard" name="ai-accountant-stats-dashboard"/>
+  </action-view>
+
+</object-views>

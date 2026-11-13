@@ -1,0 +1,217 @@
+= Release Notes
+:toc:
+:toclevels: 1
+:toc-title:
+
+:github-repo-url: https://github.com/axelor/axelor-open-platform
+
+== 7.4
+
+This version is a transition to our new enterprise edition. It is focused on bringing new features such as studio
+and advance import/export. Few changes have been made in order to support this transition, but it should be compatible
+with previous 7.3 as it is mostly internal changes.
+
+It also comes with:
+
+- improvement of audit tracking messages and followers processing to optimize performance on large operations
+- feature to put application in maintenance mode
+
+Please check the {github-repo-url}/blob/7.4/CHANGELOG.md[change log] for detailed list of changes and
+the xref:ROOT:migrations/migration-7.4.adoc[7.4 migration guide].
+
+== 7.3
+
+The main highlights are :
+
+- Add theme customisation support
+- Add editable support in grid dashlet
+- Add QRCode widget
+- Add BarCode widget
+- Add `x-step` support to Integer and Decimal fields
+- Improve mail message form
+- Introduce help widget `variant` attribute
+- Add support to hide view popup header and footer
+
+Please check the {github-repo-url}/blob/7.3/CHANGELOG.md[change log] for detailed list of changes and
+the xref:ROOT:migrations/migration-7.3.adoc[7.3 migration guide].
+
+== 7.2
+
+The main highlights are :
+
+- Region support added on translations : `fr-FR`, `fr-CA`, ...
+- Implement password reset flow
+- Add support to track custom fields/models
+- String pattern validation set to be case-sensitive
+- Customize the login page via the properties `application.sign-in.*`
+- Add color picker widget
+- Add Stepper widget
+- Add SwitchSelect widget
+- Enhance relative time widget display
+- Add image field support on relational fields
+- Allow to configure client polling interval
+- Add more events to views (`onDelete`, `onCopy`, ...)
+- Add support to reset dummy field value on save
+- Enhance TreeGrid widget
+
+Please check the {github-repo-url}/blob/7.2/CHANGELOG.md[change log] for detailed list of changes and
+the xref:ROOT:migrations/migration-7.2.adoc[7.2 migration guide].
+
+== 7.1
+
+The main highlights are :
+
+- Introduce Axelor Enterprise Edition containing SSO authentications and view collaboration features
+- Implement Drawing widget (ie Signature Pad)
+- Add support to expandable and tree-grid for collection fields or grid views
+- Allow to export collection fields when exporting lists
+- Add area/scatter/radar charts support
+- Add OpenAPI v3 specifications and embedded Swagger UI
+- Add support to search on collection fields in grid views
+- Add support to calendar event popover template
+- Add flags support on phone widgets (ie internationalization)
+- Improve phone/url/password/email widgets with quick actions icons
+- Add support to collapsed Kanban columns
+- Add support to hilite elements on calendar views
+
+Please check the {github-repo-url}/blob/7.1/CHANGELOG.md[change log] for detailed list of changes and
+the xref:ROOT:migrations/migration-7.1.adoc[7.1 migration guide].
+
+== 7.0
+
+The main highlights are :
+
+- Migrate to new front-end built on top of React
+
+Please check the {github-repo-url}/blob/7.0/CHANGELOG.md[change log] for detailed list of changes and
+the xref:ROOT:migrations/migration-7.0.adoc[7.0 migration guide].
+
+== 6.1
+
+The main highlights are:
+
+* Code generator now merge entity fields attributes instead of replacing them
+* Implement views collaboration, allowing to see users that are seeing/editing/updating
+* Client-side sorting of o2m/m2m grids
+* Customizations of grid pagination
+
+Please check the {github-repo-url}/blob/6.1/CHANGELOG.md[change log] for detailed list of changes and
+the xref:ROOT:migrations/migration-6.1.adoc[6.1 migration guide].
+
+== 6.0
+
+This release adds a significant number of upgrades and new features.
+
+The main highlights are :
+
+* Upgrade to JDK-11
+* Upgrade to Apache Tomcat® 9.x
+* Upgrade to Gradle 7.4.2
+* Upgrade to Groovy 3.0
+* Migrate to GraalVM JavaScript engine (drop nashorn engine)
+* Add WebSocket support for tag polling
+* Add `QuickMenu` to allow running actions from default page
+* Re-implement entity code generator in JAVA. Dropped old code generator written
+in Groovy in favor of a new code generator written in Java.
+* Re-implement authentication support
+* Application configuration is now `axelor-config.properties`. Properties can
+be defined via file, system props or environment vars.
+* Many dependencies upgrades: Hibernate, Guice, JDBC, ...
+* Some deprecated features and usage have been removed
+
+Please check the {github-repo-url}/blob/6.0/CHANGELOG.md[change log] for detailed list of changes and
+the xref:ROOT:migrations/migration-6.0.adoc[6.0 migration guide].
+
+== 5.4
+
+This release comes with some important new features.
+
+=== New Features
+
+* Implement grid view customization
+* Add support for defining view attrs externally
+* Numeric/Decimal/Date/DateTime format support based on browser language
+* Add support to show workflow status on top of the form
+
+=== Fixes & Enhancements
+
+Please check the {github-repo-url}/blob/5.4/CHANGELOG.md[change log] for detailed list of changes.
+
+== 5.3
+
+This release comes with some important new features.
+
+=== New Features
+
+* Refactor grid widget to improve inline edit experience
+* Gradle has been upgraded to 5.6.4
+* Parallelize loading of meta data
+* Add support for Basic Auth
+* Add CSRF protection
+
+=== Fixes & Enhancements
+
+Please check the {github-repo-url}/blob/5.3/CHANGELOG.md[change log] for detailed list of changes.
+
+== 5.2
+
+This release comes with some important new features.
+
+=== New Features
+
+* Add support for SAML2
+* Add support for OpenID Connect
+* Add support for more CAS client types
+* Add support for OAuth
+* Allow to add anonymous rest endpoints
+
+=== Fixes & Enhancements
+
+Please check the {github-repo-url}/blob/5.2/CHANGELOG.md[change log] for detailed list of changes.
+
+
+== 5.1
+
+This release comes with some important new features.
+
+=== New Features
+
+* Migrate to OpenJDK 8
+* New event system similar to CDI 2.0 event api
+* Support for JPA event listeners
+* Complete re-write of view extensions
+
+=== Fixes & Enhancements
+
+Please check the {github-repo-url}/blob/5.1/CHANGELOG.md[change log] for detailed list of changes.
+
+== 5.0
+
+This release comes with tons of new features, new refreshed look and feel and
+much more.
+
+=== New Features
+
+* Migrate to Java 8
+* Migrate to Hibernate 5
+* Migrate to java.time api (dropped joda.time)
+* Tomcat 8.5
+* Superfast HikariCP connection pool
+* Oracle support (min version 12c)
+* MySQL support (min version 5.7)
+* Multi-Tenancy support
+* Custom fields support
+* Custom models support
+* Encrypted fields support
+* JavaScript scripting support
+* JCache integration for hibernate L2-cache
+* IntelliJ IDEA support
+* Eclipse support with buildship
+* Experimental hotswap support
+
+and a lot more...
+
+=== Fixes & Enhancements
+
+Please check the {github-repo-url}/blob/5.0/CHANGELOG.md[change log] for detailed list of changes.
+

@@ -1,0 +1,22 @@
+#version 3
+[Playbook: CREATE a draft supplier invoice from an OCR record]
+GOAL: the selected upload ends with a DRAFT supplier invoice attached to the right supplier.
+
+ALLOWED WITHOUT ASKING: choosing the eligible record when the user delegated selection; get_ocr_record; get_ocr_evidence; find_supplier by the printed ЕИК; manage_supplier update or create from what the document prints; edit_supplier_invoice with createIfMissing. All of it is part of "make a draft" — none of it needs its own permission.
+
+PROCEDURE
+- Resolve the target first. An id in the message wins; then a named set (needsReview, all, the remaining ones, the next two); then delegated selection; then the open record. 'Всички' means the whole eligible set, not the ids previewed in the context block.
+- get_ocr_record for each target. Batch the reads for several records in one response.
+- SUPPLIER. When the record says a supplier with an ЕИК was not found: (a) find_supplier with that eik; (b) if a partner comes back that is NOT marked as a supplier, manage_supplier operation=update on it; (c) otherwise read the document with get_ocr_evidence and create it with only what is printed there. Never ask whether to link an existing partner or create one — the domain rules above already settle that, and deciding it is the job.
+- ADDRESS. Through manage_supplier: address.raw exactly as printed ('1000 София, ул. Раковски 12'), or address.city / street / number / zip separately. The Bulgarian settlement is matched against the cities already in Nyxa and its postcode filled in for you; cities are never created. An existing address is reused and marked as the invoicing address. If a refusal says the settlement was not recognised, quote the value you sent and ask only how that settlement is officially named — do not ask for the rest of the address again, do not invent one and do not send the user to add it by hand.
+- BANK ACCOUNT. The IBAN is all you need: bankAccount.iban. Supply bic ONLY if printed — an invented BIC looks exactly like a real one. If only a name is printed, bankAccount.bankName. To point the invoice at one of the supplier's accounts use header.bankIban; do not re-assign the supplier hoping the account follows.
+- THE DRAFT. edit_supplier_invoice with createIfMissing=true and the supplier, in ONE call per record. If its lines need a correction while creating it, apply only what the document or get_ocr_evidence supports — never add a line, a rounding correction or a tax adjustment whose only purpose is to make the total or the VAT reconcile.
+- Report what was created and what is still wrong with it in one or two lines. Do not offer to fix it unless asked; creating was the instruction.
+
+HARD BLOCKERS (stop and ask, briefly):
+- several partners match the document ambiguously;
+- the ЕИК is not printed and cannot be read from the document;
+- the settlement is not in Nyxa;
+- the eligible set is empty — say so, never substitute another record.
+
+DONE WHEN: every target upload has a DRAFT invoice with a supplier, or a hard blocker above is reported for the ones that do not.

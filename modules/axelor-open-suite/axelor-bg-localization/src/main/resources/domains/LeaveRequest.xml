@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="human-resource" package="com.axelor.apps.hr.db"/>
+
+  <!-- ═══ МИГРАЦИЯ (Microinvest Фаза 1) ═══ Огледално на BgPaySlip/BgD1Declaration/
+    BgD6Declaration.bgIsHistoricalImport. Записите, внесени от историческите Events на Microinvest
+    (платен/неплатен годишен отпуск), се пишат директно със statusSelect=VALIDATED, БЕЗ да минат
+    през LeaveRequestSendService/ValidateService — затова balance-ът (LeaveLine) остава недокоснат
+    от самия внос. Този флаг е ВТОРАТА линия на защита: пази реда от последващо ръчно
+    Отказ/Анулиране, което би могло да „върне" дни, никога неотнети от баланса. ПЪРВАТА и решаващата
+    линия е изключването на исторически редове от четирите живи заявки по LeaveRequest в
+    BgPayrollInputBuilder/BgD1DaySource/BgUnpaidLeaveHealthService/BgApp9DeclarationService (виж
+    BgHistoricalLeaveFilter) — тя важи независимо от този флаг на UI ниво. -->
+  <entity name="LeaveRequest" cacheable="true">
+
+    <boolean name="bgIsHistoricalImport" title="Исторически внесена (миграция)" default="false"/>
+
+  </entity>
+
+</domain-models>

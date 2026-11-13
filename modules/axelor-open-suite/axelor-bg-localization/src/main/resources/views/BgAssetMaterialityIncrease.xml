@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Вдигането на прага на същественост — събитието по чл. 60 ал. 3 т. 2 ЗКПО. -->
+
+  <grid name="bg-asset-materiality-increase-grid" title="Вдигане на прага на същественост"
+    model="com.axelor.apps.bglocalization.db.BgAssetMaterialityIncrease">
+    <field name="effectiveDate"/>
+    <field name="company"/>
+    <field name="previousTangibleThresholdEur"/>
+    <field name="newTangibleThresholdEur"/>
+    <field name="previousIntangibleThresholdEur"/>
+    <field name="newIntangibleThresholdEur"/>
+    <field name="policyDocumentNumber"/>
+  </grid>
+
+  <form name="bg-asset-materiality-increase-form" title="Вдигане на прага на същественост"
+    model="com.axelor.apps.bglocalization.db.BgAssetMaterialityIncrease" width="large">
+
+    <panel name="mainPanel" title="Събитието" colSpan="12">
+      <field name="company"/>
+      <field name="effectiveDate"
+        help="Датата, от която важи новият праг. Активите се маркират по НЕЯ, а не по датата на записа."/>
+      <field name="policyDocumentNumber"
+        help="Документът, с който е променена счетоводната политика — решение, заповед или самата обновена политика."/>
+      <field name="policyDocumentDate"/>
+    </panel>
+
+    <panel name="thresholdPanel" title="Прагове" colSpan="12">
+      <field name="previousTangibleThresholdEur" min="0"/>
+      <field name="newTangibleThresholdEur" min="0"
+        help="Новият праг за дълготрайни МАТЕРИАЛНИ активи (чл. 50 ал. 1 т. 1 ЗКПО)."/>
+      <field name="previousIntangibleThresholdEur" min="0"/>
+      <field name="newIntangibleThresholdEur" min="0"
+        help="Новият праг за дълготрайни НЕМАТЕРИАЛНИ активи (чл. 51 ал. 1 т. 1 б. „г“ аа). Законът различава двата прага и дружество може да вдигне само единия."/>
+    </panel>
+
+    <panel name="actionPanel" colSpan="12">
+      <button name="applyBtn" title="Приложи вдигането"
+        onClick="save,action-method-bg-asset-materiality-increase-apply,save"
+        help="Маркира активите, засегнати от вдигането: тези, които СА БИЛИ в данъчния амортизационен план и падат под новия праг. Маркираните остават в плана по чл. 60 ал. 3 т. 2 и излизат по реда на ал. 1, при пълно данъчно амортизиране (ал. 4) — тоест данъчната им амортизация продължава. Активите, които винаги са били под прага, НЕ се маркират: те никога не са влизали в плана."/>
+    </panel>
+
+    <panel-related name="affectedPanel" field="affectedFixedAssetList" colSpan="12"
+      readonly="true" grid-view="fixed-asset-grid" form-view="fixed-asset-form"/>
+
+    <panel name="commentsPanel" colSpan="12">
+      <field name="comments" colSpan="12"/>
+    </panel>
+  </form>
+
+  <!-- Бутонът е отделен от записа нарочно: маркирането пипа ЧУЖДИ записи (активите), а такова
+    действие не бива да е страничен ефект от записване на конфигурационен ред. Освен това броят на
+    засегнатите е първата проверка дали праговете са въведени вярно. -->
+  <action-method name="action-method-bg-asset-materiality-increase-apply">
+    <call class="com.axelor.apps.bglocalization.web.BgAssetMaterialityIncreaseController"
+      method="apply"/>
+  </action-method>
+
+  <action-view name="action-bg-asset-materiality-increase-view"
+    title="Вдигане на прага на същественост"
+    model="com.axelor.apps.bglocalization.db.BgAssetMaterialityIncrease">
+    <view type="grid" name="bg-asset-materiality-increase-grid"/>
+    <view type="form" name="bg-asset-materiality-increase-form"/>
+  </action-view>
+
+</object-views>

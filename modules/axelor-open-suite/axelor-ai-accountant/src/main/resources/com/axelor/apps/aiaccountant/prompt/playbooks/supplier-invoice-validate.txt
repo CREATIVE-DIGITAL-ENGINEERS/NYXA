@@ -1,0 +1,20 @@
+#version 2
+[Playbook: VALIDATE a supplier invoice]
+GOAL: the invoice ends VALIDATED. Not "validate_supplier_invoice was called" — VALIDATED.
+
+ALLOWED WITHOUT ASKING: get_ocr_record; get_ocr_evidence; edit_supplier_invoice to repair what the document supports; correct_ocr_document_total when the evidence shows the extracted grand total is the wrong figure; fix_partner_account when readiness names the flag; find_product; validate_supplier_invoice. Everything the route needs is authorised by the instruction to validate.
+
+PROCEDURE
+- Read the record if you do not already know its state, repair what the evidence supports under the domain rules above — the document's own lines, one edit call, header totals untouched — then validate, in ONE response where the arguments are known.
+- If validation refuses and names a blocker you can clear, clear it and validate again in the next response. A newly discovered fixable blocker does not send you back for permission: clearing it is part of validating.
+- The tool refuses and changes nothing when the record is not usable, a blocker remains, or amountsReconcile.verdict is MISMATCH. Report the reason it gives, fix the cause if a tool can, and do not retry the identical call against an unchanged record.
+- Validation recomputes the VAT summary and header totals from the lines, creates the invoice terms and due dates, resolves the payable account and assigns the journal. It does NOT post anything — say 'валидирана', never 'осчетоводена'.
+- Never tell the user to press the Validate button, and never offer validation on an invoice that is already VALIDATED — the context block tells you its status.
+
+HARD BLOCKERS (stop and ask, briefly):
+- another invoice has the same supplier invoice number for that supplier and year. Show the user that fact and ask; only if they say to validate anyway, call again with acknowledgeDuplicate=true. NEVER set that flag on your own;
+- a PFP acknowledgement;
+- MISMATCH that the document's own evidence cannot resolve. A MISMATCH caused by OCR storing the wrong grand total is NOT one of these: confirm the printed total and clear it with correct_ocr_document_total, then validate — that is part of validating, not a new question;
+- a missing value that is on no document and in no record.
+
+DONE WHEN: statusSelect is VALIDATED, or a hard blocker above has been named. If posting was also asked for, do not stop here — continue with the posting route in the same turn.

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Microinvest Delta Pro -> Nyxa accounting import. Deliberately a SEPARATE copy of
+    microinvest-import-views.xml (payroll); do not merge them.
+
+    One annual JSON per run. Every year is written to the standard ledger and carries the book
+    currency declared by the file. -->
+
+  <form name="microinvest-accounting-import-form" title="Microinvest счетоводен импорт"
+    model="com.axelor.apps.bglocalization.db.MicroinvestAccountingImportWizard" width="large"
+    onNew="action-microinvest-accounting-import-show-active-company"
+    onLoad="action-microinvest-accounting-import-show-active-company">
+
+    <!-- ⚠️ Кажи КЪДЕ отива всичко, преди да е качен файл. Импортът пише САМО в активната компания,
+      никога не създава нова, и спира преди първия запис при разминаване на ЕИК. -->
+    <panel name="targetPanel" title="Целева компания" colSpan="12">
+      <field name="activeCompanyInfo" showTitle="false" colSpan="12" readonly="true" height="2"/>
+    </panel>
+
+    <panel name="sourcePanel" title="Източник">
+      <!-- widget="binary-link" е задължителен: без него MetaFile m2o полето пада на image picker
+        (приема само .png/.jpg). x-accept ограничава диалога на браузъра; контролерът пак проверява
+        името на файла от страна на сървъра. Същият шаблон като ImportConfiguration.dataMetaFile. -->
+      <field name="sourceFile" colSpan="8" widget="binary-link" x-accept=".json" canNew="true"
+        form-view="meta-files-form" grid-view="meta-files-grid"
+        onChange="action-microinvest-accounting-import-clear-confirm"
+        help="Един файл на финансова година, произведен от инструмента за износ от Microinvest. Файлът определя счетоводната валута на стандартните Moves."/>
+      <!-- Границата на импорта. Задължителна и без подразбиране: Preflight блокира, докато не е
+        въведен валиден период. Смяната ѝ обезсилва потвърждението, както и смяната на файла. -->
+      <field name="lastFiledVatPeriod" colSpan="4" placeholder="202608"
+        onChange="action-microinvest-accounting-import-clear-confirm"
+        help="ГГГГММ, напр. 202608. Проводките ДО последния ден на този период включително се внасят като история и остават извън ДДС дневниците на Nyxa, защото вече са декларирани пред НАП от Microinvest. Документите СЛЕД него НЕ се внасят изобщо — въведете ги в Nyxa като обикновени фактури, за да влязат нормално в дневниците и в справка-декларацията."/>
+      <field name="sourceInfo" showTitle="false" colSpan="12" readonly="true" height="3"/>
+    </panel>
+
+    <panel name="actionPanel" title="Действие" colSpan="12">
+      <button name="preflightBtn" title="1. Preflight (само четене, без промени)"
+        onClick="action-microinvest-accounting-import-preflight" colSpan="6"/>
+      <button name="importBtn" title="2. Импорт"
+        onClick="action-microinvest-accounting-import-confirm,action-microinvest-accounting-import-run"
+        colSpan="6"/>
+      <!-- Текстът идва от Preflight, не се изчислява тук. -->
+      <field name="importConfirmText" showTitle="false" colSpan="12" readonly="true" height="2"
+        showIf="importConfirmText"/>
+      <!-- ⚠️ САМО равненията на ВЕЧЕ внесена година. Не отваря годишната транзакция изобщо: не
+        създава и не променя Moves, MoveLines, партньори, начално салдо и активи. Идемпотентно —
+        равнение, което вече има Reconcile със своя source ключ, се прескача. -->
+      <button name="retrySettlementsBtn" title="3. Повторно равнение (само равненията)"
+        onClick="action-microinvest-accounting-retry-settlements-confirm,action-microinvest-accounting-retry-settlements"
+        colSpan="12"/>
+    </panel>
+
+    <panel name="countsPanel" title="Броячи" colSpan="12">
+      <field name="entriesFoundCount" colSpan="3" readonly="true"/>
+      <field name="sourceRecordCount" colSpan="3" readonly="true"
+        help="Записи в изходния файл от видовете, които този импорт обработва."/>
+      <field name="createdCount" colSpan="3" readonly="true"/>
+      <field name="updatedCount" colSpan="3" readonly="true"/>
+      <field name="reconciledCount" colSpan="3" readonly="true"
+        help="Равнения плащане/фактура, създадени през стандартната Reconcile услуга на Axelor."/>
+      <field name="unresolvedCount" colSpan="3" readonly="true"
+        help="Равнения, за които точните source връзки не водят до една валидна двойка стандартни MoveLine записи."/>
+      <field name="skippedCount" colSpan="3" readonly="true"
+        help="Нарочни изключения."/>
+      <field name="skippedAfterCutoffCount" colSpan="3" readonly="true"
+        help="Документи след последния подаден от Microinvest период. НЕ са внесени — въведете ги в Nyxa като обикновени фактури."/>
+      <field name="blockedCount" colSpan="3" readonly="true"
+        help="Спрени от липсваща предпоставка — изисква действие от оператора. При блокер импортът не записва нищо."/>
+      <field name="failedCount" colSpan="3" readonly="true"/>
+    </panel>
+
+    <panel name="reportPanel" title="Доклад" colSpan="12">
+      <field name="reportText" showTitle="false" colSpan="12" height="24" readonly="true"/>
+    </panel>
+
+  </form>
+
+  <action-method name="action-microinvest-accounting-import-show-active-company">
+    <call class="com.axelor.apps.bglocalization.web.MicroinvestAccountingImportController"
+      method="showActiveCompany"/>
+  </action-method>
+
+  <action-method name="action-microinvest-accounting-import-preflight">
+    <call class="com.axelor.apps.bglocalization.web.MicroinvestAccountingImportController"
+      method="preflight"/>
+  </action-method>
+
+  <action-method name="action-microinvest-accounting-import-run">
+    <call class="com.axelor.apps.bglocalization.web.MicroinvestAccountingImportController"
+      method="runImport"/>
+  </action-method>
+
+  <action-method name="action-microinvest-accounting-retry-settlements">
+    <call class="com.axelor.apps.bglocalization.web.MicroinvestAccountingImportController"
+      method="retrySettlements"/>
+  </action-method>
+
+  <!-- Същите предпоставки като при Импорт (файл, компания, период, нула блокери) плюс изричното
+    описание какво ТОЧНО прави повторното равнение. Проверява се и от страна на сървъра. -->
+  <action-validate name="action-microinvest-accounting-retry-settlements-confirm">
+    <error if="blockedCount &gt; 0"
+      message="Preflight намери ${blockedCount} блокера. Отстранете ги и пуснете Preflight наново."/>
+    <error if="!importConfirmText"
+      message="Пуснете Preflight за този файл, преди повторното равнение."/>
+    <alert
+      message="ПОВТОРНО РАВНЯВАНЕ само на равненията за тази година.&lt;br/&gt;&lt;br/&gt;НЕ се създават и НЕ се променят счетоводни статии, редове, партньори, начално салдо и активи. Пише се само в равненията (Reconcile/буквено маркиране) и в одита на равненията.&lt;br/&gt;&lt;br/&gt;Вече равнените source равнения се прескачат.&lt;br/&gt;&lt;br/&gt;Продължавате ли?"/>
+  </action-validate>
+
+  <!-- Смяна на файла обезсилва предишното потвърждение и доклада: иначе операторът би потвърдил
+    текст, описващ ДРУГА година. -->
+  <action-record name="action-microinvest-accounting-import-clear-confirm"
+    model="com.axelor.apps.bglocalization.db.MicroinvestAccountingImportWizard">
+    <field name="importConfirmText" expr="eval: null"/>
+    <field name="preflightFileId" expr="eval: null"/>
+    <field name="preflightCompanyId" expr="eval: null"/>
+    <field name="preflightVatPeriod" expr="eval: null"/>
+    <field name="reportText" expr="eval: null"/>
+    <field name="blockedCount" expr="eval: null"/>
+  </action-record>
+
+  <!-- Потвърждението се изгражда от провереното съдържание, а НЕ от име на файл. Текстът се изгражда в
+    MicroinvestAccountingPreflightService.importConfirmation и се пази в importConfirmText.
+    Без Preflight за текущия файл годината/валутата не са проверени и импортът не се допуска — същото се
+    проверява и от страна на сървъра в MicroinvestAccountingImportController. -->
+  <action-validate name="action-microinvest-accounting-import-confirm">
+    <!-- Блокерите се проверяват ПЪРВИ: при блокер няма потвърждение и не се пита „Продължавате ли?“.
+      Докладът от Preflight остава на екрана, за да се прочетат подробностите. -->
+    <error if="blockedCount &gt; 0"
+      message="Preflight намери ${blockedCount} блокера. Отстранете ги и пуснете Preflight наново — импортът не записва нищо, докато има блокер. Подробностите са в доклада от Preflight."/>
+    <error if="!importConfirmText"
+      message="Пуснете Preflight за този файл, преди да импортирате. Без Preflight годината и счетоводната ѝ валута не са проверени."/>
+    <alert message="${importConfirmText}"/>
+  </action-validate>
+
+  <action-view name="microinvest.accounting.import.wizard" title="Microinvest счетоводен импорт"
+    model="com.axelor.apps.bglocalization.db.MicroinvestAccountingImportWizard">
+    <view type="form" name="microinvest-accounting-import-form"/>
+    <view-param name="popup" value="false"/>
+    <view-param name="show-toolbar" value="false"/>
+  </action-view>
+
+  <!-- ⚠️ groups="admins" е ИЗРИЧЕН: parent-ът account-root не е admin-only, а menuitem с родител
+    се вижда от всеки, който вижда родителя. Директно под Accounting (не под Операции), за да не
+    се бърка с текущите счетоводни статии. -->
+  <menuitem name="bg-microinvest-accounting-import" parent="account-root"
+    title="Microinvest счетоводен импорт" action="microinvest.accounting.import.wizard"
+    order="1400" groups="admins"/>
+
+  <!-- ═══ ОДИТ НА РАВНЕНИЯТА ═══════════════════════════════════════════════════════════════════
+    Трайният резултат на всяко source равнение. Визардът е transient и докладът му живее само в
+    отворената сесия — тук остава кое равнение е минало, по кое правило, с кои MoveLine двойки, а при
+    отказ — точната причина, която трябва да реши счетоводителят. ЧЕТЕ СЕ, не се редактира. -->
+
+  <selection name="bglocalization.microinvest.settlement.audit.status.select">
+    <option value="1">Равнено</option>
+    <option value="2">Вече равнено</option>
+    <option value="3">За решение от счетоводител</option>
+  </selection>
+
+  <grid name="microinvest-settlement-audit-grid" title="Одит на равненията"
+    model="com.axelor.apps.bglocalization.db.MicroinvestSettlementAudit" canNew="false"
+    canEdit="false" canDelete="false" orderBy="-financialYear,sourceId">
+    <field name="company"/>
+    <field name="financialYear"/>
+    <field name="sourceId"/>
+    <field name="accountNumber"/>
+    <field name="amount"/>
+    <field name="statusSelect"/>
+    <field name="rule"/>
+    <field name="paymentEntryId"/>
+    <field name="settledEntryId"/>
+    <field name="attemptedAt"/>
+  </grid>
+
+  <form name="microinvest-settlement-audit-form" title="Одит на равнение"
+    model="com.axelor.apps.bglocalization.db.MicroinvestSettlementAudit" width="large"
+    canNew="false" canEdit="false" canDelete="false">
+    <panel name="keyPanel" title="Source координата" colSpan="12">
+      <field name="company" readonly="true"/>
+      <field name="sourceDatabase" readonly="true"/>
+      <field name="financialYear" readonly="true"/>
+      <field name="sourceId" readonly="true"/>
+      <field name="paymentEntryId" readonly="true"/>
+      <field name="settledEntryId" readonly="true"/>
+      <field name="documentId" readonly="true"/>
+      <field name="accountNumber" readonly="true"/>
+      <field name="amount" readonly="true"/>
+    </panel>
+    <panel name="outcomePanel" title="Резултат" colSpan="12">
+      <field name="statusSelect" readonly="true"/>
+      <field name="rule" readonly="true"/>
+      <field name="attemptedAt" readonly="true"/>
+      <field name="moveLinePairs" colSpan="12" readonly="true" height="5"/>
+      <field name="reason" colSpan="12" readonly="true" height="5"/>
+    </panel>
+  </form>
+
+  <action-view name="microinvest.settlement.audit.all" title="Microinvest одит на равненията"
+    model="com.axelor.apps.bglocalization.db.MicroinvestSettlementAudit">
+    <view type="grid" name="microinvest-settlement-audit-grid"/>
+    <view type="form" name="microinvest-settlement-audit-form"/>
+  </action-view>
+
+  <menuitem name="bg-microinvest-settlement-audit" parent="account-root"
+    title="Microinvest одит на равненията" action="microinvest.settlement.audit.all"
+    order="1410" groups="admins"/>
+
+</object-views>

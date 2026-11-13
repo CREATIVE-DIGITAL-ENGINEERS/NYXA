@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgSocialExpenseCap (капачките — РЕФЕРЕНТНИ ДАННИ, само за четене) ============ -->
+
+  <grid name="bg-social-expense-cap-grid" title="Капачки на социалните разходи"
+    model="com.axelor.apps.bglocalization.db.BgSocialExpenseCap" orderBy="code,validFrom"
+    canNew="false" canDelete="false">
+    <field name="code" width="180"/>
+    <field name="name" width="380"/>
+    <field name="bgPersonalCapAmount" width="140"/>
+    <field name="bgCompanyTaxApplies" width="120"/>
+    <field name="bgCompanyCapAmount" width="140"/>
+    <field name="bgPeriodicity" width="180"/>
+    <field name="validFrom" width="110"/>
+    <field name="validTo" width="110"/>
+  </grid>
+
+  <form name="bg-social-expense-cap-form" title="Капачка на социален разход"
+    model="com.axelor.apps.bglocalization.db.BgSocialExpenseCap" width="large">
+    <panel name="mainPanel" title="Капачка">
+      <field name="code"/>
+      <field name="name" colSpan="8"/>
+      <field name="bgPeriodicity"/>
+      <field name="validFrom"/>
+      <field name="validTo"/>
+    </panel>
+    <panel name="personalPanel" title="Ос ЛИЦЕ (ЗДДФЛ)">
+      <field name="bgPersonalCapAmount"/>
+      <field name="bgPersonalLegalBasis" colSpan="12"/>
+    </panel>
+    <panel name="companyPanel" title="Ос ПРЕДПРИЯТИЕ (ЗКПО — данък върху разходите)">
+      <field name="bgCompanyTaxApplies"/>
+      <field name="bgCompanyCapAmount"/>
+      <field name="bgCompanyLegalBasis" colSpan="12"/>
+    </panel>
+    <panel name="conditionsPanel" title="Условия">
+      <field name="bgWholeAmountOnConditionFail"/>
+      <field name="bgRequiresNoPublicDebts"/>
+      <field name="bgRequiresSalaryNotBelowAverage"/>
+      <field name="bgRequiresLicensedOperator"/>
+    </panel>
+    <panel name="notePanel" title="Бележка">
+      <field name="note" colSpan="12" showTitle="false"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-social-expense-cap" title="Капачки на социалните разходи"
+    model="com.axelor.apps.bglocalization.db.BgSocialExpenseCap">
+    <view type="grid" name="bg-social-expense-cap-grid"/>
+    <view type="form" name="bg-social-expense-cap-form"/>
+  </action-view>
+
+  <menuitem name="nyxa-payroll-social-expense-cap" parent="nyxa-payroll-parameters"
+    title="Капачки на социалните разходи" action="action-bg-social-expense-cap" order="460"/>
+
+  <!-- ============ BgSocialExpenseException (ЛОШИТЕ месеци — ВЪВЕЖДА СЕ ОТ ТРЗ) ============
+
+    ⚠️ ТУК СЕ ПИШЕ САМО КОГАТО НЕЩО НЕ Е НАРЕД. Липсващ ред за (фирма, година, месец) значи
+    „условията са изпълнени“ — тоест списъкът е нарочно КЪС и празният екран е нормалното състояние,
+    а не незавършена настройка. Заглавието го казва, за да не се напълни с по 12 реда на фирма. -->
+
+  <grid name="bg-social-expense-exception-grid"
+    title="Месеци с паднало условие (списъкът е нарочно къс)"
+    model="com.axelor.apps.bglocalization.db.BgSocialExpenseException"
+    orderBy="-bgYear,-bgMonth,company">
+    <field name="company" width="220"/>
+    <field name="bgYear" width="90"/>
+    <field name="bgMonth" width="90"/>
+    <field name="bgPublicDebts" width="200"/>
+    <field name="bgOperatorUnlicensed" width="200"/>
+    <field name="flaggedBy" width="160"/>
+    <field name="flaggedAt" width="150"/>
+  </grid>
+
+  <form name="bg-social-expense-exception-form" title="Месец с паднало условие"
+    model="com.axelor.apps.bglocalization.db.BgSocialExpenseException" width="large">
+    <panel name="keyPanel" title="Кой месец">
+      <field name="company"/>
+      <field name="bgYear"/>
+      <field name="bgMonth"/>
+    </panel>
+    <panel name="flagsPanel" title="Какво не е наред">
+      <field name="bgPublicDebts" colSpan="12"/>
+      <field name="bgOperatorUnlicensed" colSpan="12"/>
+    </panel>
+    <panel name="whoPanel" title="Кой отметна">
+      <field name="flaggedBy"/>
+      <field name="flaggedAt"/>
+    </panel>
+    <panel name="notePanel" title="Основание на отметката">
+      <field name="note" colSpan="12" showTitle="false"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-social-expense-exception" title="Месеци с паднало условие"
+    model="com.axelor.apps.bglocalization.db.BgSocialExpenseException">
+    <view type="grid" name="bg-social-expense-exception-grid"/>
+    <view type="form" name="bg-social-expense-exception-form"/>
+  </action-view>
+
+  <menuitem name="nyxa-payroll-social-expense-exception" parent="nyxa-payroll-parameters"
+    title="Месеци с паднало условие (соц. разходи)"
+    action="action-bg-social-expense-exception" order="470"/>
+
+</object-views>

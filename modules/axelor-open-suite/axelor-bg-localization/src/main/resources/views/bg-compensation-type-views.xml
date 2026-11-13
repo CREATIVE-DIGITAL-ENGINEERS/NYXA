@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgCompensationType (речник) ============ -->
+
+  <grid name="bg-compensation-type-grid" title="Видове обезщетения при прекратяване"
+    model="com.axelor.apps.bglocalization.db.BgCompensationType" orderBy="sequence">
+    <field name="code"/>
+    <field name="name"/>
+    <field name="legalBasis"/>
+    <field name="socialContributionsDue"/>
+    <field name="d1Code"/>
+    <field name="active"/>
+  </grid>
+
+  <form name="bg-compensation-type-form" title="Вид обезщетение"
+    model="com.axelor.apps.bglocalization.db.BgCompensationType">
+    <panel name="mainPanel" title="Основни">
+      <field name="code"/>
+      <field name="sequence"/>
+      <field name="name" colSpan="12"/>
+      <field name="legalBasis"/>
+      <field name="legalFamily"/>
+      <field name="active"/>
+    </panel>
+    <panel name="basePanel" title="База за изчисление">
+      <field name="baseKind"/>
+      <field name="baseMonths" showIf="baseKind == 'BTV_MONTHS'"/>
+    </panel>
+    <panel name="treatmentPanel" title="Осигурително и данъчно третиране">
+      <field name="socialContributionsDue"/>
+      <field name="d1Code" showIf="socialContributionsDue"/>
+      <field name="healthContributionRule"/>
+      <field name="isTaxable"/>
+      <field name="countsAsInsuranceService"/>
+    </panel>
+    <panel name="triggerPanel" title="Автоматично предлагане при прекратяване">
+      <field name="appliesToAnyGround"/>
+      <field name="triggerGrounds" colSpan="12" hideIf="appliesToAnyGround"
+        widget="multi-select"/>
+      <field name="requiresProof"/>
+      <field name="canBeWaived"/>
+      <field name="isAmountAdjustable"/>
+      <field name="arisesOnTermination"/>
+    </panel>
+    <panel name="notePanel" title="Бележка">
+      <field name="note" colSpan="12" showTitle="false"/>
+    </panel>
+  </form>
+
+  <action-view name="bg.compensation.type.all" title="Видове обезщетения"
+    model="com.axelor.apps.bglocalization.db.BgCompensationType">
+    <view type="grid" name="bg-compensation-type-grid"/>
+    <view type="form" name="bg-compensation-type-form"/>
+  </action-view>
+
+  <!-- ⚠️ „ВИДОВЕ ОБЕЗЩЕТЕНИЯ“, А НЕ „ОБЕЗЩЕТЕНИЯ ПРИ ПРЕКРАТЯВАНЕ“. Второто заглавие носи
+    менюто на ДОКУМЕНТИТЕ (nyxa-payroll-termination-compensation, по-долу в този файл), а два
+    еднакво наречени входа биха водили към различни модели: каталогът BgCompensationType срещу
+    записите BgTerminationCompensation. Заглавието е това на СОБСТВЕНОТО действие на менюто
+    (bg.compensation.type.all, „Видове обезщетения“) и е в семейството на съседите си: „Видове
+    доходи (ЗДДФЛ)“, „Видове осигурени“, „Видове отсъствия“.
+
+    ⚠️ И НЕ „Видове обезщетения ПРИ ПРЕКРАТЯВАНЕ“: каталогът не е само за прекратяване — чл. 217 КТ
+    е обезщетение при ТРУДОУСТРОЯВАНЕ и стои в същата таблица.
+
+    ⚠️ 400, А НЕ 300: на 300 стоят и „Видове доходи (ЗДДФЛ)“. -->
+  <menuitem name="nyxa-payroll-compensation-type" parent="nyxa-payroll-nomenclatures"
+    title="Видове обезщетения" action="bg.compensation.type.all" order="400"/>
+
+  <!-- ============ BgTerminationCompensation (конкретно обезщетение) ============ -->
+
+  <grid name="bg-termination-compensation-grid" title="Обезщетения при прекратяване"
+    model="com.axelor.apps.bglocalization.db.BgTerminationCompensation" orderBy="-terminationDate">
+    <field name="employmentContract"/>
+    <field name="bgCompensationType"/>
+    <field name="terminationDate"/>
+    <field name="status"/>
+    <field name="amount"/>
+  </grid>
+
+  <form name="bg-termination-compensation-form" title="Обезщетение при прекратяване"
+    model="com.axelor.apps.bglocalization.db.BgTerminationCompensation">
+    <panel name="mainPanel" title="Основни">
+      <field name="employmentContract"/>
+      <field name="bgCompensationType"/>
+      <!-- Форсирано зареждане на булевите под-полета на вида: requiresProof и isAmountAdjustable се
+        ползват в showIf/readonlyIf по-долу, но не са namecolumn и иначе не се зареждат с m2o-то — тогава изразите
+        се смятат срещу null и полетата тихо не се показват/остават редактируеми. -->
+      <field name="bgCompensationType.requiresProof" hidden="true"/>
+      <field name="bgCompensationType.isAmountAdjustable" hidden="true"/>
+      <field name="bgCompensationType.canBeWaived" hidden="true"/>
+      <field name="terminationDate"/>
+      <!-- canBeWaived се зарежда, за да се провери: без проверката запис с изключено „може да отпадне"
+        би се приел със статус „Изключено" без възражение. Двата такива вида са чл. 224 ал. 1 — право по закон,
+        което не се губи по споразумение — и чл. 331, при който изплащането е самата същност на договорката.
+        Проверката е върху ИЗХОДА, не върху контрола: заключване на самото поле би спряло и прехода „предложено
+        → потвърдено", който е законен и за двата вида. -->
+      <field name="status" validIf="status != 'EXCLUDED' || bgCompensationType.canBeWaived"/>
+    </panel>
+    <panel name="amountPanel" title="Суми">
+      <field name="baseQuantity"/>
+      <field name="baseAmount"/>
+      <field name="computedAmount" readonly="true"/>
+      <!-- Редактируема само когато видът го позволява; иначе остава равна на изчислената. -->
+      <field name="amount" readonlyIf="!bgCompensationType.isAmountAdjustable"/>
+      <!-- Иска се само когато сумата действително се разминава с изчислената. Условието сравнява ЧИСЛА,
+        не истинност и не низове. Простото „computedAmount && amount && amount != computedAmount" е сгрешено
+        и в двата възможни прочита: по жицата Axelor връща десетичните като низове, тоест "1000.00" != "1000.0"
+        е истина при равни суми; а ако клиентът ги преобразува в числа, 0 е falsy и полето не се показва никога.
+        Изваждането налага числово преобразуване и в двата случая. ⚠️ Полето още не може да си свърши работата:
+        computedAmount няма източник, докато изчислението на чл. 224 ал. 1 няма откъде да чете ползваните
+        дни отпуск. Докато стои 0,00, условието се свежда до „amount != 0". Записано е тук, а не замазано с
+        допълнителен пазач, защото пазачът би скрил липсващия източник. -->
+      <field name="adjustmentReason" colSpan="12"
+        showIf="computedAmount != null &amp;&amp; amount != null &amp;&amp; (amount - computedAmount) != 0"
+        requiredIf="computedAmount != null &amp;&amp; amount != null &amp;&amp; (amount - computedAmount) != 0"/>
+    </panel>
+    <!-- Плащанията са дъщерен запис, защото регистърът по ПМС 267/2024 брои 7-дневния срок от всяко
+      плащане поотделно. Сборът им НЕ се сверява със сумата на обезщетението — виж домейна. -->
+    <panel-related name="bgCompensationPaymentPanel" field="bgCompensationPaymentList"
+      title="Плащания" colSpan="12" form-view="bg-compensation-payment-form"
+      grid-view="bg-compensation-payment-grid"/>
+
+    <panel name="decisionPanel" title="Решение">
+      <!-- Доказването е приложимо само когато видът го изисква (чл. 222 ал. 1), и е ЗАДЪЛЖИТЕЛНО за
+        потвърждаване: правото се дължи единствено ако лицето е останало без работа, а това не е
+        знайно към датата на прекратяването.
+
+        ⚠️ requiredIf ТУК Е УЧТИВОСТ, НЕ ПРАВИЛОТО. Правилото живее в
+        BgTerminationCompensationManagementRepository#isMissingProof, защото REST, импорт и партида
+        минават покрай изгледа — точно както при exclusionReason. Повторено е тук, за да не се
+        научава операторът от изключение. -->
+      <field name="proofDate" showIf="bgCompensationType.requiresProof"
+        requiredIf="bgCompensationType.requiresProof &amp;&amp; status == 'CONFIRMED'"/>
+      <!-- Причината е задължителна при изключване — иначе след шест месеца никой не помни защо. -->
+      <field name="exclusionReason" colSpan="12" showIf="status == 'EXCLUDED'" required="true"/>
+    </panel>
+
+    <!-- ПРАВО ПРЕДИ ПАРИ: документът за изплащане се прави ОТТУК — само от потвърдено право. Действието
+      записва връзката документ → право, без която „Потвърди“ на документа отказва. -->
+    <panel name="documentActionsPanel" showTitle="false" sidebar="true">
+      <button name="createDocumentBtn" title="Създай документ"
+        onClick="save,action-bg-termination-compensation-create-document"
+        showIf="id &amp;&amp; status == 'CONFIRMED'" colSpan="12"/>
+    </panel>
+  </form>
+
+  <action-method name="action-bg-termination-compensation-create-document">
+    <call class="com.axelor.apps.bglocalization.web.BgTerminationCompensationController"
+      method="createDocument"/>
+  </action-method>
+
+  <!-- ============ BgCompensationPayment (плащане по обезщетение) ============ -->
+
+  <grid name="bg-compensation-payment-grid" title="Плащания по обезщетението"
+    model="com.axelor.apps.bglocalization.db.BgCompensationPayment" orderBy="paymentDate">
+    <field name="paymentDate"/>
+    <field name="amount"/>
+    <field name="note"/>
+  </grid>
+
+  <form name="bg-compensation-payment-form" title="Плащане по обезщетение"
+    model="com.axelor.apps.bglocalization.db.BgCompensationPayment">
+    <panel name="mainPanel" title="Плащане">
+      <field name="paymentDate"/>
+      <field name="amount"/>
+      <field name="note" colSpan="12"/>
+    </panel>
+  </form>
+
+  <!-- Панелът на трудовия договор е основният път до тези записи — обезщетението се чете в контекста
+    на прекратяването. Този списък отговаря на другия въпрос, който е на ниво фирма, не на договор: кои обезщетения
+    чакат доказване. Чл. 222 ал. 1 се потвърждава след прекратяването, с трудовата книжка, а Д1 се подава
+    до 25-о число — тоест някой трябва да може да види всички чакащи наведнъж, без да обикаля договорите.
+    Затова подредбата е по дата на прекратяване, най-новите отгоре. -->
+  <action-view name="bg.termination.compensation.all"
+    title="Обезщетения при прекратяване"
+    model="com.axelor.apps.bglocalization.db.BgTerminationCompensation">
+    <view type="grid" name="bg-termination-compensation-grid"/>
+    <view type="form" name="bg-termination-compensation-form"/>
+  </action-view>
+
+  <!-- ⚠️ ТОВА ЗАГЛАВИЕ Е САМО ЗА ЗАПИСИТЕ. Менюто на КАТАЛОГА (nyxa-payroll-compensation-type,
+    по-горе в този файл) не носи същия текст, иначе „Обезщетения при прекратяване“ би водило на
+    две места към два различни модела. Името остава за записите, защото те са това, което
+    операторът търси под него: конкретните обезщетения по конкретни договори. Каталогът е
+    „Видове обезщетения“, под „Номенклатури“. -->
+  <menuitem name="nyxa-payroll-termination-compensation" parent="nyxa-payroll"
+    title="Обезщетения при прекратяване" action="bg.termination.compensation.all" order="400"/>
+
+</object-views>

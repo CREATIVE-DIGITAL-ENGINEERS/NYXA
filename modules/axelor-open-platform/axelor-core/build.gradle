@@ -1,0 +1,90 @@
+description = 'Axelor\'s core functionalities'
+
+apply plugin: com.axelor.gradle.AxelorPlugin
+
+axelor {
+  title = "Axelor Core"
+  description = project.description
+}
+
+apply from: "${rootDir}/gradle/tomcat-el.gradle"
+
+dependencies {
+  implementation libs.asm
+
+  testImplementation project(":axelor-test")
+
+  api project(":axelor-common")
+
+  api libs.slf4j_api
+
+  api libs.groovy
+
+  api libs.guava
+  api libs.guice
+  api libs.guice_servlet
+  api libs.guice_persist
+
+  implementation libs.byte_buddy
+
+  testImplementation libs.jdbc_hsqldb
+  implementation libs.jdbc_postgres
+  implementation libs.jdbc_mysql
+
+  api libs.hibernate
+
+  implementation libs.caffeine
+  implementation libs.flywaydb
+
+  api libs.resteasy
+  api libs.resteasy_guice
+  api libs.jackson_libs
+
+  api libs.ST4
+  api libs.apache_shiro
+  api libs.xstream
+  api libs.commons_csv
+
+  api libs.javax_servlet
+  api libs.javax_mail
+  api libs.javax_jaxb
+  api libs.graal_js
+
+  implementation libs.jsoup
+
+  api libs.quartz
+
+  implementation libs.eclipselink_moxy
+
+  // pac4j
+  implementation libs.pac4j
+
+  // BIRT
+  api libs.birt_runtime
+
+  implementation libs.commons_jxpath
+
+  implementation libs.jasypt
+
+  testImplementation libs.greenmail
+  testImplementation libs.unboundid_ldapsdk
+
+  testImplementation libs.hazelcast
+  testImplementation libs.infinispan
+  testImplementation libs.ehcache
+  testImplementation libs.redisson
+  // Embedded Redis server for Redis test
+  testImplementation("it.ozimov:embedded-redis:0.7.3") {
+    exclude group: 'org.slf4j', module: 'slf4j-simple'
+  }
+}
+
+test {
+  // Avoid Warnings for Reflective Access in `AppSettingsTest`
+  jvmArgs = ["--add-opens", "java.base/java.util=ALL-UNNAMED", "--add-opens", "java.base/java.lang=ALL-UNNAMED"]
+}
+
+license {
+  include "**/*.xsd"
+  excludePatterns.removeAll(['**/resources/**'] as Object[])
+}

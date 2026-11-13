@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="account" package="com.axelor.apps.account.db"/>
+
+  <!-- AI-OCR metadata added to the standard Supplier Invoice. Merged into com.axelor.apps.account.db.Invoice
+    by the code generator. The entity opening tag replicates the original Invoice attributes exactly (sequential
+    + implements) so the merge keeps them. These fields are non-accounting metadata only: they let the OCR
+    Inbox filter drafts and let the review form show confidence/validation + a link to the original file.
+    The blob URL and the raw uploaded file live on AiOcrUpload, linked via AiOcrUpload.invoice. -->
+  <entity sequential="true" name="Invoice"
+    implements="com.axelor.apps.base.interfaces.PricedOrder,com.axelor.apps.base.interfaces.Currenciable,com.axelor.apps.base.interfaces.GlobalDiscounter">
+
+    <boolean name="aiGenerated" title="AI-generated (OCR)"/>
+    <decimal name="aiConfidence" title="AI confidence %" precision="5" scale="2"/>
+    <string name="aiReviewStatus" title="AI review status"
+      selection="ai.ocr.review.status.select"/>
+    <!-- OCR completeness flag, independent of the stock statusSelect (which stays Draft). "toReview"
+      = a key field is missing (Validate disabled); "complete" = ready. Recomputed on onLoad/onSave. -->
+    <string name="ocrReviewStatus" title="OCR review"
+      selection="ai.ocr.invoice.review.status.select"/>
+    <!-- Human-readable list of the key fields OCR could NOT fill (partner, address, bank details, currency,
+      total). Recomputed with ocrReviewStatus on onLoad/onSave. -->
+    <string name="ocrMissingFields" title="Fields not imported (fill these)"/>
+    <string name="aiValidationNotes" title="Extraction warnings / errors" large="true"
+      multiline="true"/>
+
+    <!-- THE AUTHORITATIVE DOCUMENT TOTAL — the gross the supplier PRINTED, kept durably.
+      Why a column and not Invoice.inTaxTotal: on a freshly built OCR draft the three header totals
+      ARE the printed ones (see OcrInvoiceTaxSummaryService: the intake deliberately does not run
+      compute), but the first InvoiceService.compute — on Validate, or on any line edit in the form
+      — overwrites them with the line-derived figures. From that moment the document's own total is
+      gone and nothing can tell a rounding difference from a correct invoice any more.
+      Written ONLY by the OCR intake, from Azure's structured InvoiceTotal. A manually created
+      invoice has no document behind it, so it has no trusted total and is never reconciled or
+      blocked against one — unset (0.00 through the generated getter, see BgDefaultedGetterTest)
+      means "no trusted total", never "total is zero". -->
+    <decimal name="ocrDocumentTotal" title="Document total (as printed)" scale="3" precision="20"
+      readonly="true"/>
+
+    <!-- THE DOCUMENT'S OWN BREAKDOWN, not just its bottom line. Invoice #14 is why: lines summing
+      to 146.56 with the VAT row pushed to 29.32 reach the printed gross of 175.88 exactly, so a
+      gross-only comparison saw nothing wrong — while the document says 146.57 + 29.31. The total
+      was right and both halves were a stotinka out, in opposite directions.
+      Written ONLY by the OCR intake, and only when the structured extraction supplies a coherent
+      net/VAT/gross. -->
+    <decimal name="ocrDocumentNetTotal" title="Document net (as printed)" scale="3" precision="20"
+      readonly="true"/>
+    <decimal name="ocrDocumentVatTotal" title="Document VAT (as printed)" scale="3" precision="20"
+      readonly="true"/>
+
+    <!-- ⚠️ THE MARKER EXISTS BECAUSE THE DECIMALS CANNOT SPEAK FOR THEMSELVES. A generated getter
+      for a decimal returns ZERO for a NULL column (BgDefaultedGetterTest), so "this invoice
+      predates the breakdown" and "this document declares a net/VAT of zero" read as the same value.
+      A boolean has no such default beyond FALSE, which is exactly the safe answer for every
+      historical row: no marker, no component check, gross-only behaviour as before. -->
+    <boolean name="ocrDocumentBreakdownAvailable" title="Document breakdown captured"
+      readonly="true"/>
+
+    <!-- THE ACCOUNTANT'S CORRECTION OF A MISTAKEN EXTRACTED TOTAL, read from the original document.
+      Azure occasionally returns a subtotal (upload 70: the fuel subtotal 80.75) or a stray amount as
+      InvoiceTotal, so the authoritative ocrDocumentTotal above is wrong and validation rightly blocks.
+      The extracted values above are PRESERVED untouched as evidence; this pair OVERRIDES them for the
+      validation gate and the VAT reconciler (OcrRoundingLineService.trustedTotal/trustedNet/trustedVat
+      prefer it). Written ONLY by OcrDocumentTotalCorrectionService, behind OcrDraftInvoiceGuard
+      (company scope + CAN_WRITE on the invoice + draft-only). Unset (0.00 through the generated getter)
+      means "no correction", never "corrected to zero". The net/VAT pair is optional: supply both for a
+      full breakdown (lets the reconciler align the printed VAT) or neither (gross-only adjustment). -->
+    <decimal name="ocrDocumentTotalCorrected" title="Document total (corrected)" scale="3"
+      precision="20" readonly="true"/>
+    <decimal name="ocrDocumentNetCorrected" title="Document net (corrected)" scale="3" precision="20"
+      readonly="true"/>
+    <decimal name="ocrDocumentVatCorrected" title="Document VAT (corrected)" scale="3" precision="20"
+      readonly="true"/>
+
+    <!-- Audit of the correction: who read the figure off the document, when, and why. Set together
+      with the corrected amounts and never on their own, so a corrected total always carries its
+      provenance. -->
+    <many-to-one name="ocrDocumentTotalCorrectedBy" ref="com.axelor.auth.db.User"
+      title="Total corrected by" readonly="true"/>
+    <datetime name="ocrDocumentTotalCorrectedOn" title="Total corrected on" readonly="true"/>
+    <string name="ocrDocumentTotalCorrectionReason" title="Correction note" readonly="true"/>
+
+    <!-- The upload id(s) this invoice was built from, comma-separated. Derived at query time, never
+      stored: AiOcrUpload.invoice already points here, and a re-scan or a duplicate re-import can leave
+      SEVERAL uploads on one invoice, so there is no single reverse FK that could hold this. It exists
+      because the upload id and the invoice id come from different sequences (upload 973 becomes invoice
+      651), and without it neither the accountant reading a list nor the assistant quoting an id can tell
+      that the two are the same document.
+      Company-scoped: an upload belonging to another company must never surface an id here, on the grid
+      or through the AI tools. Bare `id` and `company` are the OWNING invoice's columns — Hibernate
+      rewrites unqualified names in a @Formula to the entity's own alias, while `self.*` stays the
+      upload. Both sides of the comparison are indexed. -->
+    <string name="ocrUploadIds" title="Upload ID(s)" formula="true" readonly="true">
+      <![CDATA[
+        SELECT array_to_string(array_agg(self.id ORDER BY self.id), ', ')
+        FROM aiocr_ai_ocr_upload AS self WHERE self.invoice = id AND self.company = company
+      ]]>
+    </string>
+
+  </entity>
+
+</domain-models>

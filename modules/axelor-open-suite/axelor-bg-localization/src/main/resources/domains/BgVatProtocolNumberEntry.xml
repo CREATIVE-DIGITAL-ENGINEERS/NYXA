@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- РЪЧНО ВЪВЕДЕН НОМЕР НА РЕАЛНО ИЗДАДЕН ДДС ПРОТОКОЛ — кой, кога, какъв номер и защо.
+
+    За заварените осчетоводени протоколи без Move.bgVatProtocolNumber: номерът е реквизит на издадения
+    протокол (ЗДДС чл. 117 ал. 2 т. 1, срокът за издаване — ал. 3), тоест не се дава автоматично назад, а
+    се пренася от самия документ. Пише го BgVatProtocolNumberEntryService; той пипа САМО номера на
+    статията и само докато номер няма.
+
+    ⚠️ САМО ДОБАВЯНЕ. Редът не се редактира и не се трие: той е следата, по която проверяващ разбира
+    откъде е номерът в дневника. -->
+  <entity name="BgVatProtocolNumberEntry">
+    <many-to-one name="move" title="Статия" required="true"
+      ref="com.axelor.apps.account.db.Move"/>
+    <string name="protocolNumber" title="Номер на издадения протокол" required="true"
+      max="20"/>
+    <many-to-one name="enteredBy" title="Кой" ref="com.axelor.auth.db.User" readonly="true"/>
+    <datetime name="enteredOn" title="Кога" readonly="true"/>
+    <!-- Откъде е номерът — напр. „по хартиения протокол от 10.06.2026, папка ДДС 2026“. -->
+    <string name="note" title="Основание" large="true" multiline="true"/>
+  </entity>
+
+</domain-models>

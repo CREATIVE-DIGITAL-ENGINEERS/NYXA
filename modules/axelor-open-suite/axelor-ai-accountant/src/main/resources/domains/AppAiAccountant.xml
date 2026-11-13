@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="studio" package="com.axelor.studio.db"/>
+
+  <!-- Config app marker for the AI Accountant module, registering it under Application
+    Configuration. Deliberately empty of business fields: the assistant's own operational toggles
+    already live in com.axelor.apps.aiaccountant.db.AiAccountantSetting with its own dedicated
+    Settings screen (see AiAccountantSettingController) — this entity exists only so the studio App
+    has somewhere to point its one-to-one, exactly as AppBudget/AppGdpr do for their modules. -->
+  <entity name="AppAiAccountant" cacheable="true">
+
+    <one-to-one ref="com.axelor.studio.db.App" name="app" unique="true"/>
+
+  </entity>
+
+</domain-models>

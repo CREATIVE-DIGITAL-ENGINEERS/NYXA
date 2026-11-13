@@ -1,0 +1,52 @@
+description = 'Gradle plugin for integrating Axelor'
+
+apply plugin: 'java-gradle-plugin'
+
+configurations {
+  tomcat
+  tomcat.transitive false
+  provided
+  provided.transitive false
+  database
+  database.transitive false
+}
+
+dependencies {
+  implementation project(':axelor-common')
+  implementation project(':axelor-tools')
+
+  implementation libs.guava
+  implementation libs.commons_csv
+  implementation libs.plugin_license
+
+  tomcat project(":axelor-tomcat")
+
+  provided libs.javax_servlet
+}
+
+gradlePlugin {
+  plugins {
+    axelorPlugin {
+      id = "com.axelor.app"
+      implementationClass = "com.axelor.gradle.AxelorPlugin"
+      displayName = "Axelor Gradle plugin"
+      description = "Gradle plugin for integrating Axelor"
+    }
+  }
+}
+
+def generateLibsList(config) {
+  def outDir = project.layout.buildDirectory.dir("resources/main/com/axelor/gradle").get().asFile
+  def outFile = new File(outDir, "${config}-libs.txt")
+  outDir.mkdirs()
+  outFile.text = ""
+  configurations.getByName(config).dependencies.each {
+    outFile << "${it.group}:${it.name}:${it.version}\n"
+  }
+}
+
+classes.doLast {
+  generateLibsList "tomcat"
+  generateLibsList "database"
+  generateLibsList "provided"
+}

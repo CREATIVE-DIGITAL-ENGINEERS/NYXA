@@ -1,0 +1,46 @@
+importId;code;name;bgAppliesMod;bgAppliesModConditional;bgFillsT31;bgZeroWorkTime;bgNoHours;bgNoNetPay;bgIsSeafarer;bgEntitledToLengthOfServiceBonus;bgFloorType;validFrom;validTo
+IT-01-2024;01;Работници или служители по чл.4, ал.1, т.1 КСО при един работодател, вкл. членове на кооперации по трудово правоотношение, без обхванатите от следващите кодове;true;false;true;false;false;false;false;true;NONE;2024-01-01;
+IT-02-2024;02;Работещи при условията на първа категория труд;true;false;true;false;false;false;false;true;NONE;2024-01-01;
+IT-03-2024;03;Работещи при условията на втора категория труд;true;false;true;false;false;false;false;true;NONE;2024-01-01;
+IT-04-2024;04;Работещи по допълнителен трудов договор;true;false;true;false;false;false;false;true;NONE;2024-01-01;
+IT-05-2024;05;Държавни служители по Закона за държавния служител;false;false;true;false;false;false;false;false;MIN_WAGE;2024-01-01;
+IT-06-2024;06;Военнослужещи по ЗОВС, резервисти на активна служба, офицери и сержанти по ЗНСО, държавни служители по ЗМВР, ЗСРС и ЗИНЗС;false;false;true;false;false;false;false;false;MIN_WAGE;2024-01-01;
+IT-08-2024;08;Лица с учителски осигурителен стаж;true;false;true;false;false;false;false;true;NONE;2024-01-01;
+IT-09-2024;09;Членове на кооперации, получаващи възнаграждение за работа без трудово правоотношение в кооперацията;false;false;true;true;true;false;false;false;NONE;2024-01-01;
+IT-10-2024;10;"Управители и прокуристи на ТД, на ЕТ, на клонове и на клонове на чужд. ЮЛ; членове на СД, УС и НС; контрольори; синдици и ликвидатори; ДУК на неперсонифицирани дружества; управление/контрол на държавни и общински предприятия";true;false;true;true;true;false;false;false;NONE;2024-01-01;
+IT-12-2024;12;Самоосигуряващи се, без обхванатите от кодове 13 и 22;false;false;true;true;true;true;false;false;MIN_INCOME_SOL;2024-01-01;
+IT-13-2024;13;Регистрирани земеделски стопани и тютюнопроизводители;false;false;false;true;true;true;false;false;NONE;2024-01-01;2025-12-31
+IT-13-2026;13;Регистрирани земеделски стопани и тютюнопроизводители;false;false;false;true;true;true;false;false;MIN_INCOME_SOL;2026-01-01;2026-12-31
+IT-14-2024;14;Работещи без трудови правоотношения;false;false;true;true;true;true;false;false;NONE;2024-01-01;
+IT-15-2024;15;Лица, получаващи парично обезщетение за безработица от ДОО;false;false;false;true;true;true;false;false;NONE;2024-01-01;
+IT-16-2024;16;Лица, работещи при сумирано изчисляване на работното време за повече от един месец;true;false;true;false;false;false;false;true;NONE;2024-01-01;
+IT-17-2024;17;Служители на Държавна агенция „Разузнаване“ и Служба „Военно разузнаване“ на МО;false;false;true;false;false;false;false;false;MIN_WAGE;2024-01-01;
+IT-18-2024;18;Лица по чл.4, ал.1, т.1-4 и чл.4а КСО — незаконно недопускане, отстраняване или уволнение, признато за незаконно;true;false;true;false;true;true;false;false;NONE;2024-01-01;
+IT-19-2024;19;Лица, на които за осигурителен стаж се зачита времето по чл.9, ал.3, т.3 КСО;true;false;false;false;true;true;false;false;NONE;2024-01-01;
+IT-20-2024;20;Трудоустроени лица, на които не е предоставена подходяща работа от работодателя;true;false;true;false;true;true;false;false;NONE;2024-01-01;
+IT-22-2024;22;Самоосигуряващи се за инвалидност поради общо заболяване, за старост и смърт, избрали да подават еднократно декларация;false;false;false;true;true;true;false;false;MIN_INCOME_SOL;2024-01-01;
+IT-24-2024;24;Членове на ВСС и инспектори към Инспектората на ВСС, съдии, прокурори, СЛЕДОВАТЕЛИ, кандидати за младши съдии/прокурори/следователи, ДСИ, съдии по вписвания и съдебни служители, без военните съдии и прокурори;false;false;true;false;false;false;false;false;MIN_WAGE;2024-01-01;
+IT-25-2024;25;Лица, включени в програми за насърчаване на заетостта, които не се осигуряват за безработица;true;false;true;false;false;false;false;true;NONE;2024-01-01;
+IT-26-2024;26;Инвалиди, работници и служители в специализирани предприятия, кооперации и цехове съгласно Закона за хората с увреждания;true;false;true;false;false;false;false;true;NONE;2024-01-01;
+IT-27-2024;27;Лица, получаващи обезщетение за времето, през което са останали без работа, по КТ, ЗДСл и ЗВО;false;false;true;false;true;true;false;false;NONE;2024-01-01;
+IT-28-2024;28;Лица, които внасят само здравноосигурителни вноски, вкл. по чл.40, ал.1, т.7 ЗЗО;false;false;false;false;true;true;false;false;NONE;2024-01-01;
+IT-29-2024;29;Други (попълва се само по изрично указание на НАП);false;false;false;false;false;false;false;false;NONE;2024-01-01;
+IT-41-2024;41;Лица по чл.4а1 КСО — събиране на диворастящи гъби и плодове, алтернативен данък по чл.41а ЗДДФЛ;false;false;false;true;true;true;false;false;NONE;2024-01-01;2025-12-31
+IT-41-2026;41;Лица по чл.4а1 КСО — събиране на диворастящи гъби и плодове, алтернативен данък по чл.41а ЗДДФЛ;false;false;false;true;true;true;false;false;HALF_MIN_WAGE;2026-01-01;2026-12-31
+IT-42-2024;42;Ученици, включени в обучение чрез работа (дуална система на обучение);true;false;true;false;false;false;false;true;NONE;2024-01-01;
+IT-71-2024;71;Членове на избирателни комисии по Изборния кодекс;false;false;true;true;true;false;false;false;NONE;2024-01-01;
+IT-72-2024;72;Лица, включени в програми за подкрепа на майчинството, които не се осигуряват за безработица;true;false;true;false;false;false;false;true;NONE;2024-01-01;
+IT-82-2024;82;"Лица по чл.4, ал.1, т.8 КСО — изборни длъжности; служители с духовно звание на БПЦ и други регистрирани вероизповедания";true;false;true;true;true;false;false;false;NONE;2024-01-01;
+IT-83-2024;83;Военнослужещи от Служба „Военно разузнаване“ на МО и държавни служители на Държавна агенция „Разузнаване“;false;false;true;false;false;false;false;false;MIN_WAGE;2024-01-01;
+IT-86-2024;86;Лица, работещи в международни органи и организации, избрали да се осигуряват за своя сметка за фонд „Пенсии“;false;false;false;true;true;true;false;false;MIN_INCOME_SOL;2024-01-01;
+IT-87-2024;87;Лица, изпратени на работа в чужбина от български посредник;false;false;false;true;true;true;false;false;MIN_INCOME_SOL;2024-01-01;
+IT-88-2024;88;Лица, получаващи обезщетение по чл.230, ал.1 ЗОВС;false;false;false;true;true;true;false;false;NONE;2024-01-01;
+IT-89-2024;89;Съпрузи на военнослужещи в международни операции и мисии — обезщетение по чл.231, ал.1 ЗОВС;false;false;false;true;true;true;false;false;NONE;2024-01-01;
+IT-90-2024;90;"Лица с доходи по §1, т.26, б.„и“ ЗДДФЛ — само данък по чл.42; попълват се само т.31 и 31а";false;false;true;false;true;true;false;false;NONE;2024-01-01;
+IT-91-2024;91;Съпруги/съпрузи на дългосрочно командировани служители в дипломатическа служба;false;false;false;true;true;true;false;false;MIN_INCOME_SOL;2024-01-01;
+IT-92-2024;92;Морски лица;false;false;true;true;true;true;true;true;MIN_INCOME_SOL;2024-01-01;
+IT-94-2024;94;Лица, подчинени на законодателството на друга държава по международно споразумение (и обратната хипотеза);false;true;true;false;false;false;false;false;NONE;2024-01-01;
+IT-95-2024;95;Лица на длъжност балерина, балетист или танцьор в културни организации;true;false;true;false;false;false;false;true;NONE;2024-01-01;
+IT-96-2024;96;Лица по чл.4, ал.9 КСО;false;false;false;true;true;true;false;false;MIN_INCOME_SOL;2024-01-01;
+IT-97-2024;97;Лица по чл.4, ал.10 КСО — еднодневни трудови договори по чл.114а КТ;true;false;true;false;false;true;false;false;NONE;2024-01-01;
+IT-99-2024;99;Лица, командировани или изпратени по чл.121а, ал.1 т.1 и ал.2 т.1 КТ и по чл.12 §1 Регламент (ЕО) 883/2004;true;false;true;false;false;false;false;true;NONE;2024-01-01;

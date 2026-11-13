@@ -1,0 +1,58 @@
+.header {
+  display: flex;
+  align-items: center;
+
+  .title {
+    flex: 1;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  span {
+    opacity: 0.5;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.collection {
+  display: flex;
+  flex-direction: column;
+  > .items {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    align-items: start;
+    gap: 1rem;
+    > .item {
+      grid-column: span 12;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      & > *:first-child {
+        flex: 1;
+      }
+    }
+    > .item:last-child {
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+@for $i from 1 through 12 {
+  .collection[data-editor-span="#{$i}"] > .items > .item {
+    grid-column: span $i;
+  }
+}
+
+.noErrors:not(:focus-within) {
+  --ax-theme-input-invalid-border: var(
+    --ax-theme-input-border,
+    1px solid var(--bs-border-color)
+  );
+}

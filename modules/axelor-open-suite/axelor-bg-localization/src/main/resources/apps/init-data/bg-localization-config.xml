@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<csv-inputs xmlns="http://axelor.com/xml/ns/data-import"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/data-import http://axelor.com/xml/ns/data-import/data-import_7.4.xsd">
+
+  <!-- App board record (marker). call: празната „Мерна единица по подразбиране на ред от фактура“ става
+    „Брой“ (base_unit importId 2); зададена стойност не се пипа. НЕ като колона тук — upsert-ът щеше да връща
+    „Брой“ върху избора на администратора при всеки старт. Виж BgDefaultInvoiceLineUnitSeed. -->
+  <input file="studio_appBgLocalization.csv" separator=";"
+    type="com.axelor.studio.db.AppBgLocalization" search="self.app.code = :code"
+    call="com.axelor.apps.bglocalization.service.invoice.BgDefaultInvoiceLineUnitSeed:fillIfEmpty">
+    <bind to="app" column="code" search="self.code = :code"/>
+  </input>
+
+  <!-- Продуктът „Аванс“ и семейството му „Аванси“. Авансова фактура от поръчка иска AccountConfig.advancePaymentProduct
+    — без него AOS гърми SO_INVOICE_MISSING_ADVANCE_PAYMENT_PRODUCT; BG_COA го сочи по importId BG-ADVANCE,
+    а сметките 412/402 дава на семейството BG-ADV (account_accountManagement.csv). Ставката идва от реда
+    на поръчката. Записите са ГЛОБАЛНИ, затова са тук, а не в BG_COA — той се внася по дружество и чак след
+    първия старт. Семейството — първо. -->
+  <input file="base_productFamily_advance.csv" separator=";"
+    type="com.axelor.apps.base.db.ProductFamily" search="self.importId = :importId"/>
+
+  <input file="base_product_advance.csv" separator=";" type="com.axelor.apps.base.db.Product"
+    search="self.importId = :importId">
+    <bind to="productFamily" search="self.importId = :productFamily_importId"/>
+    <bind to="unit" search="self.importId = :unit_importId" if="unit_importId"/>
+  </input>
+
+  <!-- Шаблонът на сметкоплана BG_COA: зипът в базата (AccountingConfigTemplate.metaFile) се прави наново,
+    ако CSV-тата в кода са се сменили. Ново дружество получава сметкоплана от ЗИПА, а data-init на axelor-account
+    го прави само при първата инсталация — деплой не го опреснява. Входът само намира заварения шаблон (search
+    по code); без шаблон редът се пропуска. Виж BgCoaTemplateRefresh. -->
+  <input file="account_accountingConfigTemplate.csv" separator=";"
+    type="com.axelor.apps.account.db.AccountingConfigTemplate" search="self.code = :code"
+    call="com.axelor.apps.bglocalization.service.setup.BgCoaTemplateRefresh:refresh"/>
+
+  <!-- Осигурителни фондове (речник). РОДИТЕЛ — зарежда се ПРЕДИ bg_insurance_contribution.csv, защото
+    всеки ред със ставка сочи насам по код. Празни validFrom/validTo → null: тези фондове не са създадени
+    и не са закрити в обхвата на данните ни, а датата на създаването им е от закони отпреди двайсет години
+    и не е сверявана. Полетата за Д1 се внасят празни нарочно. -->
+  <input file="bg_contribution_fund.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgContributionFund" search="self.importId = :importId">
+    <bind to="validFrom" column="validFrom" eval="validFrom ? validFrom : null"/>
+    <bind to="validTo" column="validTo" eval="validTo ? validTo : null"/>
+  </input>
+
+  <!-- Осигурителни вноски по нова схема (вид осигурен НАП × фонд × категория × режим УПФ × период).
+    Всички колони се авто-мапват 1:1 по име (bgUpfRegime/bgSolScope са string selection-и). ISO дати чрез
+    default LocalDate adapter; празно validTo → null. -->
+  <input file="bg_insurance_contribution.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgInsuranceContribution"
+    search="self.importId = :importId">
+    <bind to="validTo" column="validTo" eval="validTo ? validTo : null"/>
+    <!-- FK-ът се извежда от СЪЩАТА колона, която пълни низа fundCode. Оттам следва, че двете не могат
+      да се разминат при импорт — а BgContributionFundConsistencyTest го твърди и за редовете, които не идват
+      от seed-а. Отделна колона в CSV-то би била втори източник на истина. ⚠️ ДВАТА BIND-А СА ЗАДЪЛЖИТЕЛНИ,
+      НЕ Е ЕДИНИЯТ ИЗЛИШЕН. Изричен bind върху колона ИЗКЛЮЧВА същата колона от авто-мапването: CSVBinder#autoBind
+      прескача всяко име, което getBoundCols е събрал от атрибутите column (CSVBinder.java: `if (boundCols.contains(field))
+      continue;`). Тоест само с bind-а към FK-а низът fundCode не се пълни от нищо — а той е required. Заварените
+      редове минават, защото upsert-ът само ги обновява и техният fund_code вече е записан; пада единствено
+      INSERT на нов ред, с „fundCode: must not be null“. Пази се от BgImportBindingTest: всяко required поле,
+      което е и колона в CSV-то, трябва да има binding след автоматичното свързване. -->
+    <bind to="fundCode" column="fundCode"/>
+    <bind to="bgContributionFund" column="fundCode" search="self.code = :fundCode"/>
+  </input>
+
+  <!-- Видове осигурени (НАП, Наредба Н-13 Прил.1). Седемте булеви флага чрез Boolean adapter; останалите
+    (importId, code, name, validFrom) се авто-мапват. Празно validTo → null. ⚠️ bgIsSeafarer НЕ е флаг за
+    Д1 като другите шест — той избира данъчната ставка по чл. 42 ал. 4 ЗДДФЛ (1 на сто вместо 10) и се чете
+    от BgPaySlipService#incomeTaxRate. Тук е в същия списък по една причина: адаптерът е същият, а без него
+    низът „true“ не става булево. ⚠️ Същото важи и за bgEntitledToLengthOfServiceBonus — той не е за Д1,
+    а за начисленията: НСОРЗ чл. 12 ал. 1 дава класа прослужено време само на работниците и служителите по
+    индивидуален трудов договор, и BgEarningsService го пита, преди да напише перото. -->
+  <input file="bg_insured_type.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgInsuredType" search="self.importId = :importId">
+    <bind to="bgAppliesMod" column="bgAppliesMod" adapter="Boolean"/>
+    <bind to="bgAppliesModConditional" column="bgAppliesModConditional" adapter="Boolean"/>
+    <bind to="bgFillsT31" column="bgFillsT31" adapter="Boolean"/>
+    <bind to="bgZeroWorkTime" column="bgZeroWorkTime" adapter="Boolean"/>
+    <bind to="bgNoHours" column="bgNoHours" adapter="Boolean"/>
+    <bind to="bgNoNetPay" column="bgNoNetPay" adapter="Boolean"/>
+    <bind to="bgIsSeafarer" column="bgIsSeafarer" adapter="Boolean"/>
+    <bind to="bgEntitledToLengthOfServiceBonus" column="bgEntitledToLengthOfServiceBonus"
+      adapter="Boolean"/>
+    <bind to="validTo" column="validTo" eval="validTo ? validTo : null"/>
+  </input>
+
+  <!-- Номенклатурата на вида доход по ЗДДФЛ — 90 кода: 79 от образеца на справката по чл. 73 ал. 1 (Части
+    І–ІV) и 11 от образеца по чл. 73 ал. 6. Булевите през Boolean adapter; празно validTo → null. ⚠️ ЕДИНСТВЕНИЯТ
+    SEED В МОДУЛА С КАВИЧКИ В СТОЙНОСТ — и това не е стилово решение. Описанията са ДОСЛОВНИ от образеца,
+    а описанието на код 101 изброява единайсетте букви на § 1 т. 26 ДР, разделени с ТОЧКА И ЗАПЕТАЯ, тоест
+    със същия знак, който дели колоните. Вносителят чете през org.apache.commons.csv с CSVFormat.DEFAULT
+    и кавичките са RFC4180; тестовете четат през BgSeed.quotedRows, който съществува точно за това. ⚠️ BgSeed.rows
+    (голото цепене) НЕ ставa за този файл: код 101 му дава над 60 колони вместо 13 и BgSeed.col връща съседна
+    стойност МЪЛЧЕШКОМ. -->
+  <input file="bg_income_type.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgIncomeType" search="self.importId = :importId">
+    <bind to="withheldByPayer" column="withheldByPayer" adapter="Boolean"/>
+    <bind to="isAggregate" column="isAggregate" adapter="Boolean"/>
+    <bind to="validTo" column="validTo" eval="validTo ? validTo : null"/>
+  </input>
+
+  <!-- Скаларни параметри за заплати -->
+  <input file="bg_payroll_parameter.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgPayrollParameter" search="self.importId = :importId">
+    <bind to="validTo" column="validTo" eval="validTo ? validTo : null"/>
+  </input>
+
+  <!-- Вноски ТЗПБ по 2-цифрен раздел КИД-2025. ИНВАРИАНТ: rate е процент-число (0.9 = 0.9%, НЕ 0.009);
+    изчислението е base × rate / 100. -->
+  <input file="bg_tzpb_rate.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgTzpbRate" search="self.importId = :importId">
+    <bind to="validTo" column="validTo" eval="validTo ? validTo : null"/>
+  </input>
+
+  <!-- Скалата на несеквестируемия доход по ГПК чл. 446 — три прага × две редакции (без деца / с деца).
+    Границите са КРАТНИ на МРЗ, не суми: сумата се чете от BgPayrollParameter MIN_WAGE за периода. ⚠️ Празните
+    клетки НОСЯТ ЗНАЧЕНИЕ: празно bgToMultiple значи „без горна граница“ (само праг 3), а празни bgNumerator/bgDenominator
+    значат „този праг не работи с дял, а с остатък“ (пак праг 3). Затова минават през eval, а не се оставят
+    на голото авто-мапване. ⚠️ И ВЪПРЕКИ eval-а СТИГАТ ДО БАЗАТА КАТО НУЛА, НЕ КАТО NULL — след App Install
+    bg_to_multiple = 0.00 за праг 3, bg_keep_multiple = 0.00 за прагове 1 и 2. Генерираните полета за decimal
+    и integer се раждат със ZERO / 0, тоест „празно“ и „нула“ съвпадат и NULL няма. Това НЕ е дефект: BgGarnishmentResolver
+    чете точно `signum() > 0` и `== 0`, никога null, и затова двата случая са неразличими и за него. Eval-ът
+    остава, защото прави НАМЕРЕНИЕТО видимо в конфига — и защото ако някой ден полетата получат друго подразбиране,
+    той вече ще е на място. -->
+  <input file="bg_garnishment_scale.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgGarnishmentScale" search="self.importId = :importId">
+    <bind to="bgWithChildren" column="bgWithChildren" adapter="Boolean"/>
+    <bind to="bgToMultiple" column="bgToMultiple" eval="bgToMultiple ? bgToMultiple : null"/>
+    <bind to="bgNumerator" column="bgNumerator" eval="bgNumerator ? bgNumerator : null"/>
+    <bind to="bgDenominator" column="bgDenominator" eval="bgDenominator ? bgDenominator : null"/>
+    <bind to="bgKeepMultiple" column="bgKeepMultiple"
+      eval="bgKeepMultiple ? bgKeepMultiple : null"/>
+    <bind to="validTo" column="validTo" eval="validTo ? validTo : null"/>
+  </input>
+
+  <!-- МОД редове от Приложение №1 (нова схема: bgRow × период; сумите по квалиф. групи са в отделния
+    вход по-долу). Колони importId;bgRow;bgName;bgActivityCount;validFrom;validTo — всички 1:1 по име. Празно
+    validTo → null. РОДИТЕЛ — трябва да се зареди ПРЕДИ bg_min_insurance_income_amount. -->
+  <input file="bg_min_insurance_income.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgMinInsuranceIncome" search="self.importId = :importId">
+    <bind to="validTo" column="validTo" eval="validTo ? validTo : null"/>
+  </input>
+
+  <!-- Суми на МОД по квалификационна група (дете на BgMinInsuranceIncome). Колони importId;parentImportId;bgQualificationGroup;amount.
+    parentImportId НЕ е поле на този модел — само ключ за търсене на родителя по неговия importId (низ-към-низ,
+    без date coercion в JPQL). bgQualificationGroup и amount се авто-мапват. Единственият m2o в цялата операция. -->
+  <input file="bg_min_insurance_income_amount.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgMinInsuranceIncomeAmount"
+    search="self.importId = :importId">
+    <bind to="bgMinInsuranceIncome" search="self.importId = :parentImportId"/>
+  </input>
+
+  <!-- Видове отсъствия (запетая-разделен CSV; booleans чрез Boolean adapter; d1Code може да е празно).
+    Останалите колони (importId, code, sequence, name, category, payer, compensationPct, sicknessReasonCode,
+    healthContributionRule, d1Code, legalBasis) се авто-мапват по име. -->
+  <input file="bg_absence_type.csv" separator=","
+    type="com.axelor.apps.bglocalization.db.BgAbsenceType" search="self.importId = :importId">
+    <bind to="isPaid" column="isPaid" adapter="Boolean"/>
+    <bind to="isFixedBenefit" column="isFixedBenefit" adapter="Boolean"/>
+    <bind to="countsAsLaborService" column="countsAsLaborService" adapter="Boolean"/>
+    <bind to="countsAsInsuranceService" column="countsAsInsuranceService" adapter="Boolean"/>
+    <bind to="socialContributionsDue" column="socialContributionsDue" adapter="Boolean"/>
+    <bind to="reducesWorkNorm" column="reducesWorkNorm" adapter="Boolean"/>
+    <!-- ⚠️ ИЗРИЧЕН bind, а не autoBind: колоната е булева и без adapter="Boolean" низът „false“ би стигнал
+      до полето като ИСТИНА (непразен низ). Тоест всичките 34 вида отпуск щяха да станат „по чл. 177“ мълчаливо
+      — точно обратното на подразбирането, което домейнът пази. -->
+    <bind to="bgPaidUnderArt177" column="bgPaidUnderArt177" adapter="Boolean"/>
+    <bind to="requiresSickNote" column="requiresSickNote" adapter="Boolean"/>
+    <bind to="active" column="active" adapter="Boolean"/>
+  </input>
+
+  <!-- Видове обезщетения при прекратяване. ТОЧКА-И-ЗАПЕТАЯ разделител (за разлика от bg_absence_type.csv),
+    защото triggerGrounds е multi-select и стойността му е списък, разделен със ЗАПЕТАЯ. ВНИМАНИЕ ЗА ПРЕГЛЕДАЩИЯ:
+    socialContributionsDue и d1Code са попълнени по ХИПОТЕЗА, изведена от типовете в OmegaTIM (чл. 222 ал.
+    1 → собствен тип 71, чл. 224 → собствен тип 78, останалите → общия тип 18 заедно с ДМС и Награда). Потвърдени
+    са само CT-01 и CT-08. Виж колоната note на всеки ред. ЛИПСВА редът за аналога по ЗВО — наименованието
+    на вид осигурен 27 изброява „КТ, ЗДСл и ЗВО“, а legalBasis е required, тоест редът не може да се въведе
+    без точния член. -->
+  <input file="bg_compensation_type.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgCompensationType" search="self.importId = :importId">
+    <bind to="socialContributionsDue" column="socialContributionsDue" adapter="Boolean"/>
+    <bind to="isTaxable" column="isTaxable" adapter="Boolean"/>
+    <bind to="countsAsInsuranceService" column="countsAsInsuranceService" adapter="Boolean"/>
+    <bind to="appliesToAnyGround" column="appliesToAnyGround" adapter="Boolean"/>
+    <bind to="requiresProof" column="requiresProof" adapter="Boolean"/>
+    <bind to="canBeWaived" column="canBeWaived" adapter="Boolean"/>
+    <bind to="isAmountAdjustable" column="isAmountAdjustable" adapter="Boolean"/>
+    <bind to="arisesOnTermination" column="arisesOnTermination" adapter="Boolean"/>
+    <bind to="active" column="active" adapter="Boolean"/>
+  </input>
+
+  <!-- Редиците bgPaySlip и bgCompensation НЕ се внасят оттук (base_sequence.csv) като ред БЕЗ дружество
+    (importId SEQ-BG-PAYSLIP-2026, SEQ-BG-COMP-2026), тоест един общ брояч за всички фирми. ТРЗ редиците
+    са по дружество (BgTrzSequences) — новото дружество ги получава при създаване (BgTrzCompanySequenceListener,
+    по всеки път), заварените при старта (BgTrzSequenceBackfill). Внасян тук, общият ред би идвал при всеки
+    старт (ModuleResourceSyncRegistry), а кодът не го чете. Заварени общи редове в базата не се ползват от
+    нищо. -->
+
+  <!-- КАПАЧКИТЕ НА СОЦИАЛНИТЕ РАЗХОДИ — праговете по ЗДДФЛ чл. 24 ал. 2 и ЗКПО чл. 208/209а като ТЕМПОРАЛЕН
+    seed, не като число в Java. Зарежда се ПРЕДИ bg_pay_slip_line_type_social.csv, защото четиринайсетте
+    реда от 2xx сочат насам по код. ⚠️ ЧЕТИРИТЕ eval-а са за ПРАЗНА КЛЕТКА, и точно тук тя има значение,
+    различно от нула. bgCompanyCapAmount е празна за ONE_OFF_AID, защото фирмена ос НЯМА — помощта е в пари,
+    тоест по § 1 т. 34 ДР ЗКПО не е социален разход в натура и не е обект по чл. 204 ал. 1 т. 2. Тя обаче
+    е ИЗМЕРЕНО неразличима от 0,00 в базата (генерираните getter-и за decimal връщат ZERO), затова „няма
+    фирмена ос“ се носи от ОТДЕЛНИЯ признак bgCompanyTaxApplies, а не от празната сума. Eval-ите остават,
+    за да е видимо намерението — и защото ако полетата някога получат друго подразбиране, те вече ще са на
+    място. Същият довод като при bg_garnishment_scale.csv. ⚠️ Петте булеви колони минават през adapter="Boolean"
+    ПО ПРЕЦЕДЕНТ, а не защото без него не работят: същият adapter стои на bgWithChildren в bg_garnishment_scale.csv
+    и на bgAmbiguous в bg_nkid_mod_mapping.csv. Че не е задължителен, се вижда от съседния вход — bg_pay_slip_line_type.csv
+    няма НИТО ЕДИН bind и четирите му булеви колони (bgIsTaxable, bgIsInsuranceIncome, bgIsPermanentCharacter,
+    active) се пълнят вярно от авто-мапването. Оставен е изричен, защото тези пет флага решават дали облекчението
+    важи, а изричният bind е и мястото, където се вижда, че колоната е булева, а не низ с думата „false“. -->
+  <input file="bg_social_expense_cap.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgSocialExpenseCap" search="self.importId = :importId">
+    <bind to="bgCompanyTaxApplies" column="bgCompanyTaxApplies" adapter="Boolean"/>
+    <bind to="bgWholeAmountOnConditionFail" column="bgWholeAmountOnConditionFail"
+      adapter="Boolean"/>
+    <bind to="bgRequiresNoPublicDebts" column="bgRequiresNoPublicDebts" adapter="Boolean"/>
+    <bind to="bgRequiresSalaryNotBelowAverage" column="bgRequiresSalaryNotBelowAverage"
+      adapter="Boolean"/>
+    <bind to="bgRequiresLicensedOperator" column="bgRequiresLicensedOperator" adapter="Boolean"/>
+    <bind to="bgPersonalCapAmount" column="bgPersonalCapAmount"
+      eval="bgPersonalCapAmount ? bgPersonalCapAmount : null"/>
+    <bind to="bgCompanyCapAmount" column="bgCompanyCapAmount"
+      eval="bgCompanyCapAmount ? bgCompanyCapAmount : null"/>
+    <bind to="validTo" column="validTo" eval="validTo ? validTo : null"/>
+  </input>
+
+  <!-- Речник на редовете на фиша, групи 1xx, 2xx (само БЕЗ капачка), 6xx, 7xx и 8xx — писани на ръка.
+    Без FK колони: трите препратки (към фонд, към вид обезщетение и към капачка на социален разход) се срещат
+    само в другите три входа, където винаги са попълнени. Празна клетка за m2o щеше да иска отделен eval,
+    а отсъствието на колоната казва същото по-ясно. ⚠️ ЕДИНАЙСЕТТЕ БУЛЕВИ РЕДА ОТ 2xx СА ТУК, А ЧЕТИРИНАЙСЕТТЕ
+    ПОД КАПАЧКА — В ОТДЕЛЕН ФАЙЛ, и разделението е точно по наличието на препратка, както при 5xx и 9xx.
+    Облеклото, безплатната храна по КТ чл. 285, задължителните застраховки, помощта за лечение, транспортът
+    и двойката „в натура“ носят ПРИЗНАК, не праг — за тях BgSocialExpenseCap няма какво да каже и колоната
+    би стояла празна на всеки ред. -->
+  <input file="bg_pay_slip_line_type.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgPaySlipLineType" search="self.importId = :importId"/>
+
+  <!-- Група 5xx — ГЕНЕРИРАНА от речника на фондовете (фонд × платец). Зарежда се СЛЕД bg_contribution_fund.csv,
+    защото сочи към него по код. -->
+  <input file="bg_pay_slip_line_type_contribution.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgPaySlipLineType" search="self.importId = :importId">
+    <bind to="bgContributionFund" column="bgContributionFund"
+      search="self.code = :bgContributionFund"/>
+  </input>
+
+  <!-- Група 9xx — ГЕНЕРИРАНА от каталога на обезщетенията, по един ред за всеки вид. Зарежда се СЛЕД
+    bg_compensation_type.csv. Името и правното основание са копия оттам — разминаването се хваща от BgPaySlipLineTypeCatalogueTest,
+    а не се поправя тихо при следващ импорт. -->
+  <input file="bg_pay_slip_line_type_compensation.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgPaySlipLineType" search="self.importId = :importId">
+    <bind to="bgCompensationType" column="bgCompensationType"
+      search="self.code = :bgCompensationType"/>
+  </input>
+
+
+  <!-- Група 2xx, ЧАСТТА ПОД КАПАЧКА — по ДВЕ пера на позиция („в рамките на капачката“ и „превишение“),
+    сочещи към общата си BgSocialExpenseCap. Зарежда се СЛЕД bg_social_expense_cap.csv, защото сочи към него
+    по код. ⚠️ ЕДНА КАПАЧКА, ШЕСТ РЕДА — и това е самото правило, не подредба на файла. ЗКПО чл. 213 ал.
+    2 дава ЕДНА данъчна основа за трите разхода на буква „а“ („превишението на ТЕЗИ разходи над 60 лв.“),
+    а ЗДДФЛ чл. 24 ал. 2 т. 11 — една за трите събития („ОБЩО до 2400 лв.“). Затова препратката е m2o към
+    групата, а не сума на реда: сума на реда би дала на всяка позиция цялата капачка. -->
+  <input file="bg_pay_slip_line_type_social.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgPaySlipLineType" search="self.importId = :importId">
+    <bind to="bgSocialExpenseCap" column="bgSocialExpenseCap"
+      search="self.code = :bgSocialExpenseCap"/>
+  </input>
+
+  <!-- НКПД номенклатура (qualificationGroup = първата цифра на кода). -->
+
+  <!-- ПРИЧИНИТЕ ЗА ИЗВЕЖДАНЕ НА АКТИВ, с българските им признаци. ⚠️ ENTITY-ТО НЕ Е НАШЕ и вече има
+    seed в axelor-account (apps/init-data/{en,fr}/account_assetDisposalReason.csv, importId 1–6: Breakage,
+    Damage, Transfer, Obsolescence, C_EXT, C_INT). Търсенето там е `self.importId = :importId` БЕЗ префикс
+    по компания, тоест номерата са ОБЩО пространство — затова тукашните започват от 101 и не могат да преименуват
+    заварен ред. ⚠️ И затова файлът е В ТОЗИ МОДУЛ, а не добавен към чуждия: български причини в axelor-account
+    биха се появили във ВСЯКА локализация. -->
+  <input file="bg_asset_disposal_reason.csv" separator=";"
+    type="com.axelor.apps.account.db.AssetDisposalReason" search="self.importId = :importId"/>
+
+  <!-- ПРИЧИНИТЕ ЗА СКЛАДОВА КОРЕКЦИЯ с кода им по „Stock movement“ (SAF-T, SD.MG.10) и ДДС сигнала.
+    ⚠️ ENTITY-ТО НЕ Е НАШЕ и е глобално: демото на axelor-stock (apps/demo-data/{en,fr}/ stock_stockCorrectionReason.csv)
+    заема importId 1 („Stock error“) със същото търсене без префикс. Затова тукашните започват от 101 — заетият
+    номер би ПРЕИМЕНУВАЛ заварена причина. -->
+  <input file="bg_stock_correction_reason.csv" separator=";"
+    type="com.axelor.apps.stock.db.StockCorrectionReason" search="self.importId = :importId"/>
+
+  <input file="bg_nkpd.csv" separator=";" type="com.axelor.apps.bglocalization.db.BgNkpd"
+    search="self.importId = :importId">
+    <bind to="qualificationGroup" eval="code ? (code.trim().substring(0, 1) as Integer) : null"/>
+  </input>
+
+  <!-- НКИД номенклатура (divisionCode = първите 2 цифри на кода; връзка към ТЗПБ раздела). -->
+  <input file="bg_nkid.csv" separator=";" type="com.axelor.apps.bglocalization.db.BgNkid"
+    search="self.importId = :importId">
+    <bind to="divisionCode" eval="code ? code.trim().substring(0, 2) : null"/>
+  </input>
+
+  <!-- МОД мапинг на НКИД — ОБНОВЯВАНЕ на съществуващите 649 реда (НЕ създаване). Търсенето по self.importId
+    = :importId (importId-тата съвпадат с NKID-*-2026) → upsert, не дубликат. Колони importId;code;bgMinIncomeRowCode;bgAmbiguous;bgMinIncomeNote.
+    Трябва да се зареди СЛЕД bg_nkid.csv. -->
+  <input file="bg_nkid_mod_mapping.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgNkid" search="self.importId = :importId">
+    <bind to="bgAmbiguous" column="bgAmbiguous" adapter="Boolean"/>
+  </input>
+
+  <!-- Официални празници (България) — контейнер; namespaced importId, за да не се засича с base EventsPlanning
+    (importId=1). -->
+  <input file="bg_eventsPlanning.csv" separator=";"
+    type="com.axelor.apps.base.db.EventsPlanning" search="self.importId = :importId"/>
+
+  <!-- Празнични дни 2026 (изместените дати по чл.154 ал.2 КТ; ISO дати). -->
+  <input file="bg_eventsPlanningLine.csv" separator=";"
+    type="com.axelor.apps.base.db.EventsPlanningLine" search="self.importId = :importId"/>
+
+  <!-- ШАБЛОНЪТ ЗА РЕГИСТРАЦИОНЕН НОМЕР НА БЪЛГАРИЯ — един ред, който решава наведнъж ВИДИМОСТТА на siren/nic
+    и ЕТИКЕТА на registrationCode. Без шаблон за БГ това не е липса на настройка, а видим дефект: PartnerRegistrationCodeViewServiceImpl#isSirenHidden
+    връща `isIndividual` при липсващ шаблон (ред 51-53), тоест false за ФИРМА — а в partner-form двете полета
+    стоят статично hidden="true" и се ОТСКРИВАТ от onLoad-а. Затова екранен extend с hidden не помага: той
+    мени базовата стойност, която контролерът презаписва след зареждането на изгледа. useSiren=false и useNic=false
+    обръщат същия израз на true и полетата остават скрити. ⚠️ useTaxNbr=true НЕ Е „включи ДДС номера“, а
+    ЕДИНСТВЕНАТА неутрална стойност. isTaxNbrHidden смята `!useTaxNbr || (!isCustomer && !isSupplier)`: при
+    true клаузата за клиент/доставчик остава такава, каквато е днес; при false (или при празна колона — генерираните
+    Boolean getter-и връщат FALSE, не null) taxNbr изчезва за БГ ЗАВИНАГИ. Тоест пропуснатата колона тук
+    е регрес, а не подразбиране. ⚠️ validationMethodSelect е ПРАЗЕН НАРОЧНО, и това е решение, а не недовършена
+    работа. Три измерени причини: (1) requiredSize е ЕДНО число, а проверката е точно равенство (RegistrationNumberValidator:84),
+    докато ЕИК по ЗРБУЛСТАТ чл. 6 е 9-значен за юридическите лица и 13-значен за клоновете по чл. 3 ал. 1
+    т. 8 — каквото и число да сложим, половината законни кодове стават „невалидни“; (2) setRegistrationCodeValidationValues
+    ЗАПИСВА, не само проверява — ред 110 презаписва taxNbr от getTaxNbrFromRegistrationCode при всяка промяна
+    на кода, а за България ДДС регистрацията е правен статут, а НЕ производна на ЕИК, тоест валидатор, който
+    върне null, би ИЗТРИВАЛ ръчно въведени ДДС номера; (3) OCR приемът на доставчици също минава през същата
+    фабрика (SupplierMaintenanceService:1100) и би започнал да предупреждава върху всеки чуждестранен код.
+    Празен → фабриката връща null → цялата валидация е изключена, а видимостта и етикетът минават по ДРУГ
+    сервиз (PartnerRegistrationCodeViewService) и работят без валидатор. Собствен BGR валидатор с двете дължини
+    е отделна задача. ⚠️ importId-ът е ИМЕНУВАН (RNT-BG), не число — по прецедента на редиците SEQ-BG-… (виж
+    бележката по-горе). Номерата в това пространство ги раздава axelor-base (Франция държи „1“) и всяко число
+    оттам насетне е чужда територия. ⚠️ requiredSize, sirenPos И nicPos СА ЗАДЪЛЖИТЕЛНИ КОЛОНИ, ВЪПРЕКИ ЧЕ
+    СА ИНЕРТНИ — НЕ ГИ МАХАЙ. В домейна на axelor-base и трите са `<integer … min="1"/>`, а генераторът прави
+    ДВЕ неща наведнъж: слага `@Min(1)` И инициализира полето на `0` (RegistrationNumberTemplate:59-92). Тоест
+    пропусната колона НЕ оставя null (който Bean Validation щеше да прескочи), а оставя НУЛА — и записът
+    пада с „Constraint violation: must be greater than or equal to 1“ по трите полета наведнъж. Синкът тръгва,
+    файлът се намира, редът се парсва правилно, и точно тук пада — а `CSVImporter.run()` лови ПО ФАЙЛ, тоест
+    съседните 24 входа минават и липсва един ред, мълчаливо, завинаги. Еталонът France минава само защото
+    подава 14/1/10. Стойността „1“ е НЕУТРАЛНИЯТ МИНИМУМ, а не твърдение: „9“ би излъгало, че ЕИК е деветзначен,
+    при положение че точка (1) по-горе обяснява защо requiredSize не може да изрази 9-или-13. Инертна е доказано
+    и на ДВАТА четеца: RegistrationNumberValidator:84 не се стига, защото фабриката връща null при празен
+    validationMethodSelect, а checkSirenLegality/checkNicLegality (RegistrationNumberTemplateServiceImpl:29-38)
+    са гейтнати от useSiren/useNic — и двете false. -->
+  <input file="base_registrationNumberTemplate.csv" separator=";"
+    type="com.axelor.apps.base.db.RegistrationNumberTemplate" search="self.importId = :importId">
+    <bind to="isRequiredForCompanies" column="isRequiredForCompanies" adapter="Boolean"/>
+    <bind to="useSiren" column="useSiren" adapter="Boolean"/>
+    <bind to="useNic" column="useNic" adapter="Boolean"/>
+    <bind to="useTaxNbr" column="useTaxNbr" adapter="Boolean"/>
+  </input>
+
+  <!-- ЗАКАЧАНЕТО НА ШАБЛОНА КЪМ ДЪРЖАВАТА. Шаблонът се намира САМО през partner.mainAddress.country.registrationNumberTemplate
+    (Country.xml:21-22) — друг път няма. Редът за БЪЛГАРИЯ вече съществува (създаден от axelor-base data-init),
+    а колоната му registration_number_template е NULL; тук се пълни само тя. ⚠️ ТЪРСЕНЕТО Е ПО alpha2Code,
+    НИКОГА ПО importId. axelor-base data-init дава на България importId „99“, но в пълния списък държави
+    на AOS (apps/demo-data) 99 е ЛАОС, а България е 30. Внесат ли се демо данните, редът с importId 99 става
+    LAO, появява се нова България с importId 30 — и търсене по importId би закачало RNT-BG за Лаос при всеки
+    boot (DataInitSync). importId е локален ключ на вноса, alpha2Code е ISO кодът на държавата и не зависи
+    от това кой списък е минал. Проверката при старт (BgCountrySeedCheck) пази същото на живата база. ⚠️
+    ВХОДЪТ Е СЛЕД ШАБЛОНА, И РЕДЪТ ИМА ЗНАЧЕНИЕ. CSVImporter#run изпълнява входовете в реда на документа
+    (CSVImporter:192-199), тоест шаблонът трябва вече да е в базата, когато търсенето по registrationNumberTemplate.importId
+    тръгне. Разменени, връзката щеше да се запише NULL — тихо, защото ненамереният FK не е грешка. ⚠️ update="true"
+    НЕ Е УКРАСА — БЕЗ НЕГО СЕ СЪЗДАВА ВТОРА БЪЛГАРИЯ. CSVBinder#find прави `newInstance()`, когато търсенето
+    не намери ред (CSVBinder:212-217); с update="true" пътят е `if (update || bean != null) return bean;`
+    (ред 206-209) и връща null, а CSVImporter:409 просто прескача реда. Разликата се мери в данни: новосъздадената
+    държава щеше да е без addressTemplate, който е required, и щеше да дублира БЪЛГАРИЯ в номенклатурата.
+    ⚠️ ДВЕ КОЛОНИ, И ТОВА Е ПРИЧИНАТА ОСТАНАЛИТЕ ПОЛЕТА ДА ОЦЕЛЕЯТ. CSVBinder#autoBind свързва само имена,
+    които ги ИМА в заглавния ред (CSVBinder:135-167). Името, importId, economicArea и addressTemplate ги
+    няма тук, тоест вносителят не ги докосва — нито ги чете, нито ги нулира. alpha2Code се записва обратно
+    в същия ред със същата стойност („BG“), защото по нея е намерен. Пълен ред на държавата би презаписал
+    addressTemplate с това, което пише в НАШИЯ файл. -->
+  <input file="base_country.csv" separator=";" type="com.axelor.apps.base.db.Country"
+    search="upper(self.alpha2Code) = :alpha2Code" update="true"/>
+
+  <!-- ПЪЛНИЯТ СПИСЪК ДЪРЖАВИ (ISO 3166-1, 249) С БЪЛГАРСКИТЕ ИМЕНА. На чиста база axelor-base data-init
+    носи само 5 държави (CA, US, FR, GB, BG) — пълният списък на AOS е в демо данните, които в production
+    не се внасят. Без него не може да се въведе партньор от ЕС, тоест няма ВОД, VIES и SAF-T за него. ⚠️
+    ТЪРСИ ПО alpha2Code, НИКОГА ПО importId — същият довод като входа горе (99 е ЛАОС в списъка на AOS).
+    Няма update="true": липсващата държава се СЪЗДАВА, намерената се обновява. ⚠️ ВИНАГИ се пишат само name
+    (българското) и bgNameEn (английското, както е в AOS — за печат на чужд език по-късно и за да съвпада
+    с вече записаните адреси). Всичко останало е с if-empty="true": при заварен ред не се пипа (CSVBinder:322
+    — „field is not empty“ → continue), при нов се попълва. • importId — този от пълния списък на AOS (BG
+    30, DE 5…), НЕ наш: демо вносът търси по importId и така обновява същия ред, вместо да създаде втора
+    Германия. AI, AW, BM, NF ги няма в списъка на AOS — те са без importId. XK (Косово) не е код по ISO и
+    не е тук. • addressTemplate — по ИМЕ, не по importId: CA, US и GB към своите шаблони (data-init ги носи),
+    всички останали към DEFAULT. Полето е required — без шаблон редът не се записва. • phonePrefix — по ITU;
+    AOS греши в около 50 (US 372, CZ 235, KR 242…) — поправката важи само за нови редове. numericCode на
+    KR е 410 (в AOS 140, това е на ЦАР). • economicArea — както в AOS (EEA за 27-те от ЕС и GB); на чиста
+    база зона EEA няма и полето остава празно. Членството в ЕС кодът го взима от BgVatNumberValidator, не
+    от зоната. -->
+  <input file="bg_country.csv" separator=";" type="com.axelor.apps.base.db.Country"
+    search="upper(self.alpha2Code) = :alpha2Code">
+    <bind to="alpha2Code" column="alpha2Code"/>
+    <bind to="name" column="name"/>
+    <bind to="bgNameEn" column="bgNameEn"/>
+    <bind to="alpha3Code" column="alpha3Code" if-empty="true"/>
+    <bind to="numericCode" column="numericCode" if-empty="true"/>
+    <bind to="phonePrefix" column="phonePrefix" if-empty="true"/>
+    <bind to="importId" column="importId" if-empty="true"/>
+    <bind to="economicArea" column="economicArea" search="self.code = :economicArea"
+      if-empty="true"/>
+    <bind to="addressTemplate" column="addressTemplate" search="self.name = :addressTemplate"
+      if-empty="true"/>
+  </input>
+
+  <!-- „Шаблон за адрес по подразбиране“ в AppBase — по ИМЕ DEFAULT. На чиста база е празен (попълва
+    го само studio_appBase.csv от демо данните), а CountryServiceImpl#createAndSaveCountry го слага на нова
+    държава — без него създаването през REST-а за адреси гърми на required addressTemplate. Зададена стойност
+    не се пипа (if-empty). update="true": AppBase не се създава оттук. -->
+  <input file="bg_appBase_addressTemplate.csv" separator=";"
+    type="com.axelor.studio.db.AppBase" search="self.app.code = :code" update="true">
+    <bind to="defaultAddressTemplate" column="defaultAddressTemplate"
+      search="self.name = :defaultAddressTemplate" if-empty="true"/>
+  </input>
+
+  <!-- ═══ ЧЕТИРИТЕ РЕФЕРЕНТНИ ТАБЛИЦИ НА SAF-T ═══ Кодовете на НАП се закачат за сметките, данъците
+    и плащанията ОТТУК, а не от поле върху Account, Tax и PaymentMode. Доводът е в domains/BgSafMapping.xml;
+    накратко: Account е по КОМПАНИЯ, тоест поле върху него значи един и същи код, преписан на всяка инсталация.
+    ⚠️ ЧЕТИРИТЕ ВХОДА СА НЕЗАВИСИМИ ЕДИН ОТ ДРУГ И ОТ ВСИЧКО НАД ТЯХ. Нито един няма `search=` към чуждо
+    entity, тоест редът спрямо останалите входове не носи нищо и не го пазим с коментар, който утре ще лъже.
+    Вътрешната им връзка е по КОД и се сверява от пазачите, не от вносителя: bg_saf_account_mapping.accountCode
+    срещу BG_COA, bg_saf_tax_mapping.taxCode срещу account_tax.csv, bg_saf_payment_mapping.paymentModeCode
+    срещу account_paymentMode.csv — и трите чужди файла живеят в axelor-account, тоест вносителят на ТОЗИ
+    модул изобщо не може да ги види. ⚠️ И ЧЕТИРИТЕ СА upsert ПО importId, КАКТО bg_nkid_mod_mapping.csv.
+    Бизнес-кодът е unique на entity-то и пази от дубликат; importId носи идентичността на вноса, за да може
+    следващ кръг да ДОПИШЕ колона по същия ключ, вместо да създаде втори ред. Номерата са производни от бизнес-кода
+    (SAFTACC-411, SAFTTAX-BG_VOD…), а не броячи — преномериране при пренареждане на файла няма. -->
+  <input file="bg_saf_account_mapping.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgSafAccountMapping" search="self.importId = :importId">
+    <bind to="isExcluded" column="isExcluded" adapter="Boolean"/>
+  </input>
+
+  <input file="bg_saf_tax_mapping.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgSafTaxMapping" search="self.importId = :importId">
+    <bind to="isDynamic" column="isDynamic" adapter="Boolean"/>
+  </input>
+
+  <input file="bg_saf_payment_mapping.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgSafPaymentMapping" search="self.importId = :importId">
+    <bind to="isExcluded" column="isExcluded" adapter="Boolean"/>
+  </input>
+
+  <input file="bg_saf_vat_cell_code.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgSafVatCellCode" search="self.importId = :importId"/>
+
+  <!-- G3b: вид доход → код за данък при източника (TAX-IMP вид 700). Връзката към bg_income_type.csv
+    е по КОД и се сверява от BgSafWithholdingMappingSeedTest, не от вносителя — същият модел като горните. -->
+  <input file="bg_saf_withholding_mapping.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgSafWithholdingMapping"
+    search="self.importId = :importId"/>
+
+  <!-- ═══ НОМЕНКЛАТУРАТА НА НАП ЗА МЕРНИ ЕДИНИЦИ — 2071 кода, справочно ═══ ПРЕПИС на номенклатурата
+    за мерни единици в nomenclatures/nra/, за да са 2071-те кода търсими от интерфейса и да има откъде да
+    се избира стойност за Unit.bgUomCode. ⚠️ ТОВА НЕ СА ОПЕРАТИВНИ ЕДИНИЦИ — единиците, с които се работи,
+    са Unit (data-init/input/base_unit.csv, 36 реда), всяка със свой код. Доводът защо 2071-те не стават
+    Unit е в domains/BgNraUnitOfMeasure.xml; накратко: UOMTable в SAF-T е таблица НА ФАЙЛА (образецът на
+    НАП има ТРИ реда), а схемата носи UOMBase ЗАЕДНО с UOMStandard. ⚠️ ИЗТОЧНИКЪТ ОСТАВА ФАЙЛЪТ В nomenclatures/
+    и остава ИНЕРТЕН — BgUnitSeedTest сверява преписа срещу него ред по ред, тоест обновяване от НАП се прави
+    ТАМ и преписът се прегенерира, никога обратното. ⚠️ И ЗАТОВА ИМЕТО НА ФАЙЛА НЕ СЕ ПИШЕ ТУК: BgNraNomenclatureIntegrityTest
+    пази инертността с ТЕКСТОВО търсене на имената на петте номенклатури във всеки *config*.xml — приближение,
+    нарочно по-широко от „<input file=...>“. Споменаване дори в коментар е основателно червено; източникът
+    се сочи по ПАПКА. ⚠️ И ЗАТОВА ФАЙЛЪТ СЕ КАЗВА bg_nra_uom.csv — съкратено, а НЕ „bg_nra_“ плюс пълното
+    име на номенклатурата: търсенето е ПОДНИЗОВО, тоест по-дългото име би СЪДЪРЖАЛО името на номенклатурата
+    и пазачът би паднал върху САМИЯ вход. Не е козметика — преименуване „за четимост“ връща червеното. Входът
+    е независим от всичко над него: няма search= към чуждо entity, а importId е производен от кода (SAFTUOM-KGM),
+    тоест преномериране при пренареждане на файла няма. -->
+  <input file="bg_nra_uom.csv" separator=";"
+    type="com.axelor.apps.bglocalization.db.BgNraUnitOfMeasure" search="self.importId = :importId"/>
+
+</csv-inputs>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ДЕКЛАРИРАНИТЕ ЧАСОВЕ ЗА ПЕРИОДА: нощен труд и време на разположение. ═══ ЗАЩО ОТДЕЛЕН ЗАПИС, А
+    НЕ ВИД ДОПЪЛНИТЕЛНИ ЧАСОВЕ ═══ Нощният труд по НСОРЗ чл. 8 и времето на разположение по НСОРЗ чл. 10
+    НЕ СА извънреден труд. Нощна смяна по график е РЕДОВЕН труд с добавка, а не работа над установеното време
+    — тоест тя изобщо не поражда ExtraHours ред. Времето на разположение също: то не е работа, а задължение
+    да си достъпен. И за двете в модела няма нито поле, нито вид отсъствие; ExtraHoursType носи само name
+    и increase, а TimesheetLine няма нощен признак. Тоест източник за тях НЕ СЪЩЕСТВУВА и не може да бъде
+    изведен от нищо налично. Затова тук се въвежда ДЕКЛАРИРАН вход: човек казва колко са били за периода.
+    ═══ ⚠️ САМИЯТ РЕД Е ДЕКЛАРАЦИЯТА ═══ Генерираният getter за decimal връща BigDecimal.ZERO за непопълнена
+    колона, тоест „нула нощни часа“ и „никой не е попълвал“ са неразличими В СТОЙНОСТТА (виж BgDefaultedGetterTest).
+    Затова разликата се носи от СЪЩЕСТВУВАНЕТО НА РЕДА, а не от отделен флаг на всяко поле: · няма ред за
+    периода → сглобителят подава null („не знам“) и за двете; · има ред → и двете числа са ДЕКЛАРИРАНИ, тоест
+    нулата е ОТГОВОР. Създаването на ред е твърдение за ЦЕЛИЯ период и за ДВЕТЕ числа наведнъж. Който декларира
+    само разположение, декларира и че нощен труд НЯМА — и точно това трябва да значи празната клетка, инак
+    добавката по чл. 8 би отпаднала мълчаливо. ⚠️ Периодът е ДВЕ ДАТИ, а не препратка: BgPayrollPeriod в
+    модула не съществува — същият записан дълг като при BgCompensation.bgPayoutPeriod. -->
+  <entity name="BgDeclaredWorkHours">
+
+    <!-- Договорът, не лицето: добавките се дължат от страната по конкретния трудов договор, а лице с
+      два договора може да е било на нощна смяна само по единия. -->
+    <many-to-one name="employmentContract" title="Трудов договор" required="true"
+      ref="com.axelor.apps.hr.db.EmploymentContract"/>
+
+    <date name="periodFrom" title="Период от" required="true"/>
+    <date name="periodTo" title="Период до" required="true"/>
+
+    <!-- Единица: ЧАСОВЕ. Скалата е 2, за да носи и половин час. -->
+    <decimal name="bgNightHours" title="Нощен труд (часове)" precision="10" scale="2"
+      min="0"/>
+    <decimal name="bgOnCallHours" title="Време на разположение (часове)" precision="10"
+      scale="2" min="0"/>
+
+    <string name="note" title="Забележка" large="true"/>
+
+    <!-- Един договор, един период, една декларация. ⚠️ Без това ограничение две декларации за един период
+      се СУМИРАТ безшумно и удвояват добавката. -->
+    <unique-constraint columns="employmentContract,periodFrom,periodTo"/>
+
+  </entity>
+
+</domain-models>

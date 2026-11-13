@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="base" package="com.axelor.apps.base.db"/>
+
+  <!-- ВИДЪТ НА ЗАПАСА ЗА SAF-T, слят в com.axelor.apps.base.db.ProductFamily.
+
+    MF.PS.6 ProductType се подава „съгласно номенклатурата за МЗ - Nom_Inventory_Types“ (книгата
+    1.0.2, лист 2, ред 97; QA с. 41: петте вида по СС 2). Празно значи „не е стоково-материален
+    запас“: услугите, ДМА и директно разходваното не са СМЗ (QA с. 76, Прил. № 3 т. IV.6) и не влизат
+    в PhysicalStock.
+
+    ⚠️ ОТВАРЯЩИЯТ ТАГ ПОВТАРЯ cacheable="true" ОТ ЯДРОТО — виж Unit.xml защо.
+    ⚠️ СЕМЕЙСТВОТО Е ГЛОБАЛНО (без дружество), затова тук стои само видът. Складовата сметка 30x е
+    по дружество и живее на AccountManagement (bgStockAccount). -->
+  <entity name="ProductFamily" cacheable="true">
+    <string name="bgSaftInventoryType" title="SAF-T: вид на запаса (Nom_Inventory_Types)"
+      selection="bg.saft.inventory.type.select"/>
+  </entity>
+
+</domain-models>

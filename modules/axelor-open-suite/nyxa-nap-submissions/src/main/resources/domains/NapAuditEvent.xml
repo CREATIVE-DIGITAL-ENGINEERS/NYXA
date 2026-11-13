@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="napsubmissions" package="com.axelor.apps.napsubmissions.db"/>
+
+  <!-- Append-only audit event for every meaningful transition (config change, validation, approval,
+    download, signing, manual/API submission, retry, status change, rejection, acceptance, correction). This
+    is the compliance trail — do NOT rely on updatedAt or editable status history. Records are written only
+    by NapAuditService and never edited from the UI. -->
+  <entity name="NapAuditEvent">
+
+    <many-to-one name="saftReport" title="SAF-T report" ref="SaftReport"/>
+    <many-to-one name="submission" title="Submission" ref="NapSubmission"/>
+
+    <string name="eventTypeSelect" title="Event" selection="nap.audit.event.type.select"
+      required="true"/>
+    <string name="previousStatus" title="Previous status"/>
+    <string name="newStatus" title="New status"/>
+
+    <!-- Who acted: a human, the system, or a background job (jobs never approve/sign/submit). -->
+    <string name="actorTypeSelect" title="Actor type" selection="nap.audit.actor.type.select"
+      required="true" default="human"/>
+    <many-to-one name="actorUser" title="Actor" ref="com.axelor.auth.db.User"/>
+
+    <!-- Optional pointer to a related record for navigation. -->
+    <string name="targetModel" title="Target model"/>
+    <long name="targetRecordId" title="Target record ID"/>
+
+    <string name="details" title="Details" large="true" multiline="true"/>
+
+    <extra-code><![CDATA[
+      // actorTypeSelect (keep in sync with nap.audit.actor.type.select)
+      public static final String ACTOR_HUMAN = "human";
+      public static final String ACTOR_SYSTEM = "system";
+      public static final String ACTOR_JOB = "job";
+
+      // eventTypeSelect (keep in sync with nap.audit.event.type.select)
+      public static final String EVENT_CONFIG_CHANGE = "config_change";
+      public static final String EVENT_VALIDATION = "validation";
+      public static final String EVENT_APPROVAL = "approval";
+      public static final String EVENT_ARTIFACT_ATTACHED = "artifact_attached";
+      public static final String EVENT_DOWNLOAD = "download";
+      public static final String EVENT_SIGNING = "signing";
+      public static final String EVENT_MANUAL_SUBMISSION = "manual_submission";
+      public static final String EVENT_API_SUBMISSION = "api_submission";
+      public static final String EVENT_RETRY = "retry";
+      public static final String EVENT_STATUS_CHANGE = "status_change";
+      public static final String EVENT_REJECTION = "rejection";
+      public static final String EVENT_ACCEPTANCE = "acceptance";
+      public static final String EVENT_CORRECTION = "correction";
+      public static final String EVENT_PROCESSING_RESULT = "processing_result";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

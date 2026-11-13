@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Разширения на стандартните изгледи на ExtraHoursType, за да е достъпна класификацията към
+    четирите вида извънреден труд. PANEL-SCOPED target, по правилото от EndOfContractReason-bg.xml.
+
+    ⚠️ КЛАСИФИКАЦИЯТА Е В ГРИДА до increase — нарочно ДО НЕГО. Точно там се вижда, че процентът и
+    видът са РАЗЛИЧНИ неща: процентът е уговорка (чл. 262 ал. 1 КТ дава минимуми, КТД може повече),
+    а видът избира кофата. Показани един до друг, изкушението „изведи вида от процента“ се вижда
+    като грешка, вместо да изглежда като спестено поле. -->
+
+  <grid name="extra-hours-type-grid" title="Видове допълнителни часове"
+    id="bg-localization-extra-hours-type-grid"
+    model="com.axelor.apps.hr.db.ExtraHoursType" extension="true">
+    <extend target="field[@name='increase']">
+      <insert position="after">
+        <field name="bgExtraHoursKind"/>
+        <field name="bgExtraHoursKindDefaulted"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <form name="extra-hours-type-form" title="Вид допълнителни часове"
+    id="bg-localization-extra-hours-type-form"
+    model="com.axelor.apps.hr.db.ExtraHoursType" extension="true">
+    <extend target="panel[@name='mainPanel']">
+      <insert position="after">
+        <panel name="bgKindPanel" title="Българска локализация" colSpan="12">
+          <field name="bgExtraHoursKind" colSpan="6"
+            help="Определя в коя кофа влизат часовете по този вид: извънреден труд в работен ден, в почивен ден, на официален празник или при СИРВ. Без класификация сглобителят на ведомостта ОТКАЗВА и четирите — вместо да преброи часовете в грешната."/>
+          <field name="bgExtraHoursKindDefaulted" colSpan="6" showIf="bgExtraHoursKind"
+            help="Вдигнат означава, че класификацията е сложена по подразбиране и НЕ е потвърдена от човек. Свалете го, след като сверите вида."/>
+          <!-- ⚠️ Помощта казва защо процентът НЕ решава: това е точно догадката, която полето
+            съществува да замени. -->
+          <static name="bgKindHelp" colSpan="12"><![CDATA[
+            ⚠️ Видът НЕ се извежда от „Increase %“: процентите по чл. 262 ал. 1 КТ са минимуми и
+            колективният трудов договор може да уговори повече. Уговорени 100% за работен ден биха
+            се прочели като официален празник.
+          ]]></static>
+        </panel>
+      </insert>
+    </extend>
+  </form>
+
+</object-views>

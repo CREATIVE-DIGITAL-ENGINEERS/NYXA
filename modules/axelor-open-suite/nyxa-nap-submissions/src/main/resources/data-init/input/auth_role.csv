@@ -1,0 +1,7 @@
+"name";"description"
+"NapConfig";"НАП submissions — configuration/settings"
+"NapPrepare";"НАП submissions — prepare SAF-T reports, validation, attach files"
+"NapReview";"НАП submissions — read-only review of reports and submissions"
+"NapApprove";"НАП submissions — approve prepared reports"
+"NapSign";"НАП submissions — record signatures"
+"NapSubmit";"НАП submissions — submit and record submission outcomes"

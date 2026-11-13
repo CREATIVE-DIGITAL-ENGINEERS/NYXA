@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Shows the company a statement belongs to, and lets it be chosen while the statement is
+    still RECEIVED. The field sits inside bankStatementPanel, which the stock form already marks
+    readonlyIf="statusSelect == 2", so it becomes read-only the moment the statement is imported
+    — by then the imported lines have settled the question and changing it by hand would only
+    disagree with them. -->
+  <form name="bank-statement-form" title="Bank Statement" id="ai-banking-bank-statement-form"
+    model="com.axelor.apps.bankpayment.db.BankStatement" extension="true">
+    <extend target="/">
+      <attribute name="onNew" value="ai-banking-action-bank-statement-default-company"/>
+    </extend>
+    <extend target="//panel[@name='mainPanel']/field[@name='name']">
+      <insert position="before">
+        <field name="company"
+          help="The company this statement belongs to. Set before importing; it is what makes the statement visible to company-scoped screens and to the AI Accountant while it is still RECEIVED."/>
+      </insert>
+    </extend>
+  </form>
+
+  <grid name="bank-statement-grid" title="Bank Statements" id="ai-banking-bank-statement-grid"
+    model="com.axelor.apps.bankpayment.db.BankStatement" extension="true">
+    <extend target="//field[@name='name']">
+      <insert position="before">
+        <field name="company"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <!-- The active company, the same expression the stock BankReconciliation form uses. The
+    single-company fallback is not a first-record fallback: it applies only when exactly one
+    company exists, so there is nothing to choose between. -->
+  <action-record name="ai-banking-action-bank-statement-default-company"
+    model="com.axelor.apps.bankpayment.db.BankStatement">
+    <field name="company" expr="eval:__user__.activeCompany"
+      if="__user__.activeCompany != null"/>
+    <field name="company" expr="eval:__repo__(Company).all().fetchOne()"
+      if="__user__.activeCompany == null &amp;&amp; __repo__(Company).all().count() == 1"/>
+  </action-record>
+
+</object-views>

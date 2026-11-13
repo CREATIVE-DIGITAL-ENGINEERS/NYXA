@@ -1,0 +1,14 @@
+
+.actions {
+  display: flex;
+  align-items: center;
+  --ax-theme-input-padding: 0.25rem 0.5rem;
+}
+
+.itemAction {
+  cursor: default;
+}
+
+.itemActionEnabled {
+  cursor: pointer !important;
+}

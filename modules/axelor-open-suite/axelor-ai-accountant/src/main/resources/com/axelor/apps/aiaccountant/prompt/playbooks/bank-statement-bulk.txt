@@ -1,0 +1,21 @@
+#version 1
+[Playbook: BULK — the same job across a SET of bank statements]
+Added to the playbook above when the instruction covers a set rather than one statement: statements selected in the grid, or a filter the user named ('всички RECEIVED', 'the remaining ones').
+
+GOAL: every statement in the authorised set reaches the playbook's goal, or is reported with the reason it did not.
+
+ALLOWED WITHOUT ASKING: everything the playbook above allows, on every statement in the set.
+
+PROCEDURE
+- RESOLVE THE WHOLE SET FIRST. search_bank_statements returns one page: read totalMatches and use offset for the rest rather than treating the first page as the job.
+- Batch the get_bank_statement reads for the whole set in one response, then act.
+- EVERY STATEMENT NEEDS ITS OWN BANK ACCOUNT. bankDetailsId is per statement and is never carried over from the one before, however likely it looks: statements for two accounts sitting in one selection is the ordinary case, and an import into the wrong account cannot be undone from here. If the account for any statement in the set is not determinable, import the ones that are and ask about that one — do not guess it from its neighbours.
+- Import order matters when several statements are for the SAME account: Axelor checks that each opening balance follows the previous statement's closing one, so import them oldest first. Out of order, the later ones are refused for a reason that is about sequence, not about the file.
+- A refusal stops that statement only — a non-CFONB120 file, a missing file, an already IMPORTED statement, a duplicate, or balances that do not follow. Carry on with the rest and report the refused ones at the end. Never retry a refusal.
+- Formats other than CFONB120 in the set are reported together, once, as statements to import from the Bank statement form — not as a per-file failure and not as something to work around.
+
+REPORTING: one short summary. Which statements were IMPORTED and with how many lines, which were REFUSED and why, and which were NOT EXECUTED and are therefore untouched. Nothing in a bulk import is accounting: say so once if the user's wording suggests they expect it to be.
+
+HARD BLOCKERS: the playbook's own, per statement.
+
+DONE WHEN: every statement in the set is imported or reported as blocked, and the counts add up to the size of the set the user named.

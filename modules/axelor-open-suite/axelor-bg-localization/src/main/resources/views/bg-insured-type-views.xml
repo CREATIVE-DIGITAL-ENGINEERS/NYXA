@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgInsuredType (вид осигурен по НАП) ============ -->
+
+  <grid name="bg-insured-type-grid" title="Видове осигурени"
+    model="com.axelor.apps.bglocalization.db.BgInsuredType" orderBy="code,-validFrom">
+    <field name="code"/>
+    <field name="name"/>
+    <field name="bgAppliesMod"/>
+    <field name="validFrom"/>
+  </grid>
+
+  <form name="bg-insured-type-form" title="Вид осигурен"
+    model="com.axelor.apps.bglocalization.db.BgInsuredType">
+    <panel name="mainPanel" title="Основни">
+      <field name="code"/>
+      <field name="name"/>
+      <field name="validFrom"/>
+      <field name="validTo"/>
+    </panel>
+    <panel name="flagsPanel" title="Поведение при попълване на Д1">
+      <field name="bgAppliesMod"/>
+      <field name="bgAppliesModConditional"/>
+      <field name="bgFillsT31"/>
+      <field name="bgZeroWorkTime"/>
+      <field name="bgNoHours"/>
+      <field name="bgNoNetPay"/>
+    </panel>
+    <!-- ⚠️ ОТДЕЛЕН ПАНЕЛ, А НЕ СЕДМИ ФЛАГ ГОРЕ: този признак НЕ пълни точка на Д1 — той решава дали
+      начисленията изобщо ще напишат перо за клас прослужено време (НСОРЗ чл. 12 ал. 1). Сложен при
+      флаговете за Д1, той щеше да се чете като седма точка на декларацията. -->
+    <panel name="earningsPanel" title="Поведение при начисленията">
+      <field name="bgEntitledToLengthOfServiceBonus" readonly="true"
+        help="Начислява ли се клас прослужено време на този вид осигурен. НСОРЗ чл.12 ал.1 дава допълнителното възнаграждение за трудов стаж и професионален опит само на работниците и служителите по индивидуален трудов договор (чл.2 ал.2). Кодове 25 и 72 (субсидирана заетост) СА по трудов договор по КТ и класът им се дължи — наредбата няма изключение за програми за заетост, а „не се осигуряват за безработица“ е осигурителен обхват, не основание за класа. Кодове 05/06/17/24/83 (държавна служба/специални закони, Н-13 т.12, НЗСДА чл.19) и 87 (трудово правоотношение с ЧУЖД работодател) са извън НСОРЗ — клас не се дължи. Признакът идва от началните данни (bg_insured_type.csv) и се сменя ТАМ — вдигнат тук на ръка, той начислява клас, който не се дължи."/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-insured-type" title="Видове осигурени"
+    model="com.axelor.apps.bglocalization.db.BgInsuredType">
+    <view type="grid" name="bg-insured-type-grid"/>
+    <view type="form" name="bg-insured-type-form"/>
+  </action-view>
+
+  <menuitem name="nyxa-payroll-insured-type" parent="nyxa-payroll-parameters"
+    title="Видове осигурени" action="action-bg-insured-type" order="150"/>
+
+</object-views>

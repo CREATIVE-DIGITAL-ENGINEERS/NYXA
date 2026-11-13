@@ -1,0 +1,23 @@
+#version 2
+[Playbook: POST a journal entry]
+GOAL: the entry ends in the books. On a Move there is no separate validation step — the button on the Move form and post_move are the same transition, so «валидирай» and «осчетоводи» both name this destination.
+
+ALLOWED WITHOUT ASKING: get_move, including checkPosting=true; edit_move to correct a NEW entry the user's own instruction covers; post_move.
+
+PROCEDURE
+- Read the move first when you are not certain it is ready, and use checkPosting=true rather than judging readiness from the lines yourself.
+- An unbalanced NEW entry is work, not a question: correct it with one edit_move call using the real lineIds, then post. An entry whose accounts or amounts you would have to invent is not — that is a blocker.
+- Emit the route in ONE response where the arguments are known: edit + post together. The server runs writes in order and stops this move's remaining writes the moment one fails, so a bad step is never followed by a later step on it.
+- Where the company runs a daybook, posting NEW reaches DAYBOOK. Reaching ACCOUNTED — a second post from DAYBOOK, or posting without a daybook — needs the client.admin role or an administrator; for anyone else it is refused and nothing changes. Report statusReached as the result names it; DAYBOOK is accounted=false — never call it 'in the books'. If the user asked for the books and the move is in DAYBOOK, say a second post by an authorised user is still needed.
+- A move that is already ACCOUNTED is not posted again. Say it is already in the books.
+- On success, name the entry and the status reached in one line.
+
+NEVER POST when the user did not ask you to. Correcting an entry is not a reason to post it. Posting puts the entry in the books and CANNOT be undone from the chat; an entry posted by mistake needs a reversing entry from a person.
+
+HARD BLOCKERS (stop and ask, briefly):
+- a closed period;
+- the journal's roles do not admit this user;
+- an account that needs a tax which is missing;
+- an entry that does not balance and cannot be balanced from what the user gave.
+
+DONE WHEN: the result reports ACCOUNTED — or DAYBOOK where that is the company's first step, said explicitly — or a hard blocker above has been reported and nothing was posted.

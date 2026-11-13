@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="stock" package="com.axelor.apps.stock.db"/>
+
+  <!-- ПРИЧИНАТА ЗА СКЛАДОВА КОРЕКЦИЯ с кода си по номенклатурата „Stock movement“ (SD.MG.10).
+
+    Без причина корекцията е само „вход“ или „изход“ спрямо инвентаризационната локация, а
+    номенклатурата различава брак (160), изтекъл срок (170), безвъзмездно предоставени (150),
+    отстъпки в натура (60/65) и други (180). Причината стига до самото движение
+    (StockMove.stockCorrectionReason), откъдето SAF-T взема кода.
+
+    ⚠️ ENTITY-ТО Е ГЛОБАЛНО и демото на axelor-stock заема importId 1 („Stock error“). БГ seed-ът
+    започва от 101. -->
+  <entity name="StockCorrectionReason">
+    <string name="bgStockMovementCode" title="Код по „Stock movement“ (SAF-T)"
+      selection="bg.saft.stock.movement.select"/>
+    <!-- Кой ДДС сигнал показва движението по тази причина. Празно — по кода (BgStockVatSignals).
+      NONE — изрично без сигнал (работно облекло, ЛПС: чл. 6 ал. 4 т. 1 ЗДДС). -->
+    <string name="bgVatSignalSelect" title="ДДС сигнал" selection="bg.stock.vat.signal.select"/>
+    <!-- Корекцията по тази причина иска лице (StockCorrection.bgResponsiblePartner) — „Липса с
+      виновно лице“. Стойността не напуска дружеството, а става вземане от лицето: ИЗП
+      осчетоводява Дт 442 аналитично по него. Без лице реализирането се отказва (BgStockMoveGuard). -->
+    <boolean name="bgRequiresPartner" title="Изисква виновно лице"/>
+  </entity>
+
+</domain-models>

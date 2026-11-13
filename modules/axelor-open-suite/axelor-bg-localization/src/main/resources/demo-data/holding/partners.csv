@@ -1,0 +1,6 @@
+# Измислени партньори на холдинга (свои, не се споделят)
+code;type;name;firstName;customer;supplier;country;eik;vat;egn;fiscalPosition;currency;iban;bic;bank;city;zip;street;paymentDays;customerAccount;supplierAccount
+H01;C;Дъщерно Демо ЕООД;;true;false;BG;000000305;BG000000305;;BG_DOM;EUR;BG06DEMO96611000000130;DEMOBGSF;Демо Банк АД;София;1000;ул. „Дъщерна демо“ 1;30;;
+H02;C;Наемател Офиси Демо ООД;;true;false;BG;000000317;BG000000317;;BG_DOM;EUR;BG76DEMO96611000000131;DEMOBGSF;Демо Банк АД;София;1000;ул. „Офисна демо“ 4;30;;
+H03;C;Одит и Консулт Демо ООД;;false;true;BG;000000324;BG000000324;;BG_DOM;EUR;BG49DEMO96611000000132;DEMOBGSF;Демо Банк АД;София;1000;ул. „Проверка демо“ 6;30;;
+H04;C;Сграден мениджмънт Демо ЕООД;;false;true;BG;000000331;BG000000331;;BG_DOM;EUR;BG22DEMO96611000000133;DEMOBGSF;Демо Банк АД;София;1000;ул. „Поддръжка демо“ 9;30;;

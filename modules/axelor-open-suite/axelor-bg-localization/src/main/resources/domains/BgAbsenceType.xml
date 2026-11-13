@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Речник на видовете отсъствия (отпуски, болнични, злополуки, майчинство и др.). Само речник + атрибути;
+    изчислителната логика е другаде. importId се наследява от com.axelor.db.Model — НЕ се декларира тук. -->
+  <entity name="BgAbsenceType">
+
+    <!-- Основни -->
+    <string name="code" title="Код" required="true" unique="true"/>
+    <integer name="sequence" title="Пореден №"/>
+    <string name="name" title="Наименование" required="true" namecolumn="true"/>
+    <integer name="category" title="Категория" selection="bg.absence.category.select"/>
+    <string name="legalBasis" title="Правно основание"/>
+
+    <!-- Осигуряване / плащане -->
+    <boolean name="isPaid" title="Платено"/>
+    <string name="payer" title="Платец" selection="bg.absence.payer.select"/>
+    <decimal name="compensationPct" title="Обезщетение (%)" precision="5" scale="2"/>
+    <boolean name="isFixedBenefit" title="Фиксирано обезщетение"/>
+    <boolean name="socialContributionsDue" title="Дължими ДОО вноски"/>
+    <string name="healthContributionRule" title="Правило ЗОВ"
+      selection="bg.health.contribution.rule.select"/>
+
+    <!-- ═══ ЗАПЛАЩА ЛИ СЕ ТОЗИ ОТПУСК В РАЗМЕРА ПО КТ ЧЛ. 177 ═══
+
+      ⚠️ НЕ СЕ ИЗВЕЖДА ОТ isPaid, И ТОВА Е СЪЩЕСТВЕНОТО. „Платен отпуск“ и „платен ПО ЧЛ. 177“ са
+      различни множества: платените отпуски в категория 1 се заплащат по ТРИ различни режима и само
+      част от тях стигат до чл. 177.
+
+      • КТ чл. 177 ал. 1 — платеният ГОДИШЕН отпуск (чл. 155 / чл. 176). ДА.
+      • КТ чл. 159 ал. 2 — синдикалният: „Отпускът по предходната алинея СЕ ЗАПЛАЩА СЪГЛАСНО ЧЛ. 177“.
+        ДА, и то дословно.
+      • КТ чл. 161 ал. 1 — служебният и творческият: „при условия и по ред, установени в КОЛЕКТИВЕН
+        ТРУДОВ ДОГОВОР или в споразумение“. НЕ по силата на закона — може по силата на КТД, затова
+        флагът е ДАННИ и инсталацията го отмята сама.
+      • КТ чл. 169–171 — ученическият: кодексът НЕ казва как се заплаща. НЕ.
+      • КТ чл. 157 — ТРИ режима и ТРИ РЕДА, защото видът не носи ТОЧКАТА по ал. 1
+        и разграничителят не може да е нищо друго освен самият ред: paid_157 (ал. 3 т. 1 — т. 1–3,
+        по КТД, флагът е false и КТД го отмята), paid_157_art177 (ал. 3 т. 2 — т. 5а и 6, плюс
+        ал. 2 за прегледите при бременност и ин-витро, „в размера по чл. 177“, флагът е TRUE) и
+        paid_157_special (ал. 3 т. 3 — т. 4, 5 и 7, „според предвиденото в специалните закони“,
+        тоест работодателят НЕ дължи размера: isPaid = false, кофа 16.4). Един ред за трите режима
+        би значел един режим за трите.
+
+      ⚠️ БЕЗ default НА ИСТИНА, по същия довод като bgFormsGrossWage: необявен вид НЕ е чл. 177.
+      Подразбирането „да“ би вкарало всеки бъдещ платен отпуск в среднодневното мълчаливо, а
+      грешката се вижда само като пари. -->
+    <boolean name="bgPaidUnderArt177" title="Заплаща се по КТ чл. 177" default="false"
+      help="Заплаща ли се този отпуск в размера по чл. 177 КТ — среднодневно БТВ от предходния месец. ⚠️ НЕ е същото като „Платено“: чл. 161 и чл. 169–171 са платени и НЕ са по чл. 177."/>
+
+    <!-- Стаж -->
+    <boolean name="countsAsLaborService" title="Зачита се за трудов стаж"/>
+    <boolean name="countsAsInsuranceService" title="Зачита се за осигурителен стаж"/>
+    <boolean name="reducesWorkNorm" title="Намалява работната норма" default="true"/>
+
+    <!-- Административни -->
+    <string name="sicknessReasonCode" title="Код „причина“ (болничен лист)"/>
+    <boolean name="requiresSickNote" title="Изисква болничен лист"/>
+    <string name="d1Code" title="Код за Декларация 1"/>
+    <boolean name="active" title="Активен"/>
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,5 @@
+code;name;family;type;unit;salePrice;purchasePrice;saleTax;purchaseTax
+MGF;Управленска такса;SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+RNT;Наем на офис;SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+AUD;Одит и консултации;SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20
+FAC;Поддръжка на сграда;SERV;service;Единица;0.00;0.00;BG_SRS_20;BG_SRP_20

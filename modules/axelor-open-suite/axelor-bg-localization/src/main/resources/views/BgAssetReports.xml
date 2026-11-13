@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ СПРАВКА ЗА ДАНЪЧНИ ВРЕМЕННИ РАЗЛИКИ ═══ -->
+
+  <grid name="bg-tax-difference-report-grid" title="Данъчни временни разлики (ГДД)"
+    model="com.axelor.apps.bglocalization.db.BgTaxDifferenceReport">
+    <field name="taxYear"/>
+    <field name="company"/>
+    <field name="totalIncrease"/>
+    <field name="totalDecrease"/>
+    <field name="pendingCount"/>
+    <field name="computedOn"/>
+  </grid>
+
+  <form name="bg-tax-difference-report-form" title="Данъчни временни разлики (ГДД)"
+    model="com.axelor.apps.bglocalization.db.BgTaxDifferenceReport" width="large">
+
+    <panel name="mainPanel" title="Период" colSpan="12">
+      <field name="company"/>
+      <field name="taxYear"
+        help="Данъчната година, за която се определя данъчният финансов резултат. ⚠️ Редовете влизат по СВОЯТА година: обръщането по чл. 59 ал. 2 е закачено за годината, през която е изтекъл дванадесетмесечният срок, а не за годината на потвърждаване."/>
+      <field name="computedOn" readonly="true"/>
+      <button name="computeBtn" title="Изчисли"
+        onClick="save,action-method-bg-tax-difference-compute,save"/>
+    </panel>
+
+    <panel name="totalsPanel" title="Сборове" colSpan="12">
+      <field name="totalIncrease" readonly="true"
+        help="Увеличенията на счетоводния финансов резултат: счетоводните амортизации по чл. 54 ал. 2 и счетоводната балансова стойност при отписване по чл. 66 ал. 1."/>
+      <field name="totalDecrease" readonly="true"
+        help="Намаленията: признатите годишни данъчни амортизации по чл. 54 ал. 1, данъчната стойност при отписване от ДАП по чл. 66 ал. 2 и обръщането по чл. 59 ал. 2."/>
+      <field name="pendingCount" readonly="true"
+        help="⚠️ Колко обръщания по чл. 59 ал. 2 чакат потвърждение. Те НЕ влизат в сборовете, но намалението е задължително — непотвърдено, то занижава данъчния резултат. Числото стои тук, за да не се налага да се разгъва списъкът."/>
+    </panel>
+
+    <panel-related name="linePanel" field="lineList" colSpan="12" readonly="true"
+      grid-view="bg-tax-difference-line-grid" form-view="bg-tax-difference-line-form"/>
+
+    <panel name="commentsPanel" colSpan="12">
+      <field name="comments" colSpan="12"/>
+    </panel>
+  </form>
+
+  <grid name="bg-tax-difference-line-grid" title="Редове"
+    model="com.axelor.apps.bglocalization.db.BgTaxDifferenceLine">
+    <field name="kindSelect"/>
+    <field name="fixedAsset"/>
+    <field name="taxYear"/>
+    <field name="amount"/>
+    <field name="isPendingConfirmation"/>
+    <field name="requiresAmendedReturn"/>
+  </grid>
+
+  <form name="bg-tax-difference-line-form" title="Ред"
+    model="com.axelor.apps.bglocalization.db.BgTaxDifferenceLine" width="large">
+    <panel name="mainPanel" colSpan="12">
+      <field name="kindSelect" readonly="true"/>
+      <field name="fixedAsset" readonly="true"/>
+      <field name="taxYear" readonly="true"
+        help="Годината, за която важи основанието. За чл. 59 ал. 2 тя е закована от закона — „годината, през която е изтекъл дванадесетмесечният срок“ — и може да е ПРЕДИ годината на потвърждаване."/>
+      <field name="amount" readonly="true"/>
+      <field name="isPendingConfirmation" readonly="true"/>
+      <field name="requiresAmendedReturn" readonly="true"
+        help="Потвърждението е дошло след годината на основанието, тъй че корекцията минава през КОРИГИРАЩА годишна данъчна декларация за онази година, не като ред в текущата."/>
+      <field name="legalGround" colSpan="12" readonly="true"/>
+    </panel>
+  </form>
+
+  <!-- ═══ АМОРТИЗАЦИОНЕН ПЛАН — ДАНЪЧЕН И СЧЕТОВОДЕН ═══ -->
+
+  <grid name="bg-asset-plan-report-grid" title="Амортизационен план"
+    model="com.axelor.apps.bglocalization.db.BgAssetPlanReport">
+    <field name="taxYear"/>
+    <field name="planSelect"/>
+    <field name="company"/>
+    <field name="totalValueAtStart"/>
+    <field name="totalCharge"/>
+    <field name="totalValueAtEnd"/>
+    <field name="computedOn"/>
+  </grid>
+
+  <form name="bg-asset-plan-report-form" title="Амортизационен план"
+    model="com.axelor.apps.bglocalization.db.BgAssetPlanReport" width="large">
+
+    <panel name="mainPanel" title="Период" colSpan="12">
+      <field name="company"/>
+      <field name="taxYear"/>
+      <field name="planSelect"
+        help="Данъчният план се групира по категория I–VII по чл. 55 ал. 1 и носи годишната норма; счетоводният не познава нито едното. ⚠️ И двете справки са ВЪТРЕШНИ: чл. 92 ал. 3 ЗКПО иска към годишната декларация само годишния отчет за дейността, а копие от данъчния амортизационен план се подава единствено при преобразуване на дружества (чл. 141 ал. 6)."/>
+      <field name="computedOn" readonly="true"/>
+      <button name="computeBtn" title="Изчисли"
+        onClick="save,action-method-bg-asset-plan-compute,save"/>
+    </panel>
+
+    <panel name="totalsPanel" title="Сборове" colSpan="12">
+      <field name="totalValueAtStart" readonly="true"/>
+      <field name="totalCharge" readonly="true"/>
+      <field name="totalValueAtEnd" readonly="true"/>
+    </panel>
+
+    <panel-related name="linePanel" field="lineList" colSpan="12" readonly="true"
+      grid-view="bg-asset-plan-line-grid"/>
+
+    <panel name="commentsPanel" colSpan="12">
+      <field name="comments" colSpan="12"/>
+    </panel>
+  </form>
+
+  <grid name="bg-asset-plan-line-grid" title="Редове"
+    model="com.axelor.apps.bglocalization.db.BgAssetPlanLine">
+    <field name="bgTaxCategorySelect"/>
+    <field name="fixedAsset"/>
+    <field name="depreciationRate"/>
+    <field name="amortizableValueAtStart"/>
+    <field name="chargeForYear"/>
+    <field name="accumulated"/>
+    <field name="amortizableValueAtEnd"/>
+    <field name="carryingValueAtEnd"/>
+    <field name="isRetainedByArt60Al3"/>
+    <field name="isSuspendedByArt59"/>
+  </grid>
+
+  <action-method name="action-method-bg-tax-difference-compute">
+    <call class="com.axelor.apps.bglocalization.web.BgAssetReportController"
+      method="computeTaxDifferences"/>
+  </action-method>
+
+  <action-method name="action-method-bg-asset-plan-compute">
+    <call class="com.axelor.apps.bglocalization.web.BgAssetReportController"
+      method="computeAssetPlan"/>
+  </action-method>
+
+  <action-view name="action-bg-tax-difference-report-view"
+    title="Данъчни временни разлики (ГДД)"
+    model="com.axelor.apps.bglocalization.db.BgTaxDifferenceReport">
+    <view type="grid" name="bg-tax-difference-report-grid"/>
+    <view type="form" name="bg-tax-difference-report-form"/>
+  </action-view>
+
+  <action-view name="action-bg-asset-plan-report-view" title="Амортизационен план"
+    model="com.axelor.apps.bglocalization.db.BgAssetPlanReport">
+    <view type="grid" name="bg-asset-plan-report-grid"/>
+    <view type="form" name="bg-asset-plan-report-form"/>
+  </action-view>
+
+</object-views>

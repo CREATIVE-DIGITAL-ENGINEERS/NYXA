@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title data-i18n>Your access was removed</title>
+    <!--
+      Shown when an administrator revoked this person's access while they were signed in: revoking
+      ends their open sessions (com.weaccount.SingleSessionEnforcer, WeAccountSecurityLogic), and
+      the next request lands here instead of failing with "Unauthorized". Served from /public/**,
+      which is anonymous in the Shiro filter chain.
+
+      Going home starts a sign-in, which the login page refuses with its own "no access" message
+      until access is restored.
+
+      Strings are authored in English and translated from the application's own catalog via
+      /js/messages.js, exactly as the logout page does.
+    -->
+    <link rel="stylesheet" href="notice.css" />
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true"></div>
+      <h1 data-i18n>Your access was removed</h1>
+      <p data-i18n>An administrator removed your access to this application. Ask your administrator if you need it back.</p>
+      <a href="../" data-i18n>Go to home</a>
+    </main>
+
+    <script>
+      (function () {
+        var SUPPORTED = ["bg", "en", "fr"];
+
+        function apply(bundle) {
+          var translated = false;
+
+          document.querySelectorAll("[data-i18n]").forEach(function (el) {
+            var source = el.textContent.trim();
+            var message = bundle[source];
+            if (message && message !== source) {
+              el.textContent = message;
+              translated = true;
+            }
+          });
+
+          if (!translated) return;
+
+          // The bundle carries no locale of its own. It was resolved from Accept-Language, which
+          // is the same preference list exposed here, so take the first supported entry.
+          var match = (navigator.languages || [navigator.language || ""])
+            .map(function (tag) {
+              return String(tag).split("-")[0];
+            })
+            .find(function (tag) {
+              return SUPPORTED.indexOf(tag) >= 0;
+            });
+
+          if (match) document.documentElement.lang = match;
+        }
+
+        fetch("../js/messages.js", { credentials: "omit" })
+          .then(function (res) {
+            return res.ok ? res.json() : null;
+          })
+          .then(function (bundle) {
+            if (bundle) apply(bundle);
+          })
+          .catch(function () {
+            // Keep the English source text.
+          });
+      })();
+    </script>
+  </body>
+</html>

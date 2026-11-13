@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="account" package="com.axelor.apps.account.db"/>
+
+  <!-- Bulgarian localization: NAP document type (вид на документа) for accounting/manual
+    documents WITHOUT an invoice. Merged into com.axelor.apps.account.db.Move. The entity opening tag replicates
+    the original Move attributes exactly (sequential + implements). Collector rule: if Move.invoice exists,
+    the NAP document type is read from the Invoice; otherwise it is read from this Move field. -->
+  <entity sequential="true" name="Move"
+    implements="com.axelor.apps.base.interfaces.Currenciable">
+
+    <!-- КОЙ Е ВАЛИДИРАЛ СТАТИЯТА. В Axelor такова поле няма — само createdBy/updatedBy
+      и pfpValidatorUser (друг процес). Попълва се при всяко валидиране (BgMoveValidatedByGuard):
+      автоматичното на ИЗП → служебният потребител; ръчното → човекът. Заварените статии — празно,
+      без миграция. -->
+    <many-to-one name="bgValidatedByUser" ref="com.axelor.auth.db.User"
+      title="Валидирана от" readonly="true"/>
+
+
+    <string name="napDocumentTypeSelect" title="NAP document type (вид на документа)"
+      selection="bg.nap.document.type.select"/>
+
+    <!-- Вид на доставката (поле 02-27 продажби / 03-45 покупки) — чл.163а/167а и др. -->
+    <string name="bgVatSupplyType" title="Вид на доставката (чл.163а/167а)"
+      selection="bg.vat.supply.type.select"/>
+
+    <!-- Вид ДДС операция за ръчен запис (протоколи, ВОП, услуги, корекции). -->
+    <string name="bgVatMoveVatOperation" title="ДДС операция (ръчен запис)"
+      selection="bg.vat.move.operation.select"/>
+
+    <!-- Ставка за протоколни ръчни записи (напр. 0.20). Използва се за обратно смятане на базата. -->
+    <decimal name="bgVatMoveVatRate" title="ДДС ставка (протокол)"/>
+
+    <!-- Мигриран от Microinvest исторически запис. Задава се САМО от
+      MicroinvestAccountingImportService; ръчно създадените записи го оставят null.
+
+      ⚠️ Периодите, които този флаг покрива, вече са декларирани пред НАП от Microinvest. Единственото
+      място, което го чете, е BgVatDocumentCollector.findPostedMoves — там импортираните записи се
+      изключват, за да не може вече подаден ДДС период да бъде генериран повторно. Обикновените
+      счетоводни справки (оборотна ведомост, главна книга) НЕ филтрират по него, така че данните
+      остават видими там, където трябва.
+
+      readonly + не е сложен на нито една форма: не може да се редактира от UI, включително inline в
+      грид. -->
+    <boolean name="bgMigratedHistorical" title="Мигриран от Microinvest (извън ДДС дневници)"
+      readonly="true" copy="false"/>
+
+    <many-to-one name="bgBookCurrency" ref="com.axelor.apps.base.db.Currency"
+      title="Счетоводна валута (фиксирана при импорт)" readonly="true" copy="false"/>
+    <boolean name="bgCurrencyTransitionOpening" title="Начално салдо при смяна на валута"
+      readonly="true" copy="false"/>
+    <boolean name="bgSourceFxAmbiguous" title="Нееднозначна валута на документа"
+      readonly="true" copy="false"/>
+    <boolean name="bgImportLocked" transient="true" readonly="true" copy="false"/>
+    <!-- Номерът на ДДС протокола (ЗДДС чл. 117 ал. 2 т. 1 „номер и дата“) — собствен, не този на
+      фактурата на доставчика. Дава го BgMoveRepository при ОСЧЕТОВОДЯВАНЕ от поредицата на дружеството с
+      код bgVatProtocol и не се мени: поправки в протокол не се разрешават, а анулираният протокол не
+      освобождава номера си (ЗДДС чл. 117а ал. 1). -->
+    <string name="bgVatProtocolNumber" title="Номер на ДДС протокол" readonly="true"/>
+
+    <!-- Протокол по ЗДДС чл. 117, съставен ОТ ПОКУПНА ФАКТУРА с обратно начисляване. Връзката НЕ е
+      Move.invoice: с нея колекторът би чел протокола като самата фактура (enrichFromInvoice). Обратната
+      посока е Invoice.bgVatProtocolMoveList. Копие на статията не е протокол на същата фактура. -->
+    <many-to-one name="bgVatSourceInvoice" ref="com.axelor.apps.account.db.Invoice"
+      title="Фактура на протокола (чл. 117)" readonly="true" copy="false"/>
+
+    <!-- Изричната данъчна основа на протокола (ЗДДС чл. 117 ал. 2 т. 5), във валутата на дружеството.
+      Колекторът я предпочита пред обратното смятане данък / ставка, което губи центове (1234.57 × 20 % =
+      246.91, а 246.91 / 0.20 = 1234.55). Празно — основата се смята обратно от данъка. -->
+    <decimal name="bgVatProtocolBase" title="Данъчна основа на протокола" scale="2" precision="20"
+      copy="false"/>
+
+    <!-- Датата на издаване на протокола (ЗДДС чл. 117 ал. 2 т. 1), когато е различна от датата на
+      статията — закъснелият протокол: „…не се отразява в дневника за продажбите за периода, през който
+      е издаден. Същият следва да се отрази в дневниците за продажби и покупки за данъчния период,
+      през който данъкът е станал изискуем…“ (ППЗДДС чл. 81 ал. 5). Статията е с датата на
+      изискуемостта (периодът), а дневникът показва тази дата. Празно — датата на статията. -->
+    <date name="bgVatProtocolDate" title="Дата на издаване на протокола" copy="false"/>
+
+    <!-- Основанието за начисляване (ЗДДС чл. 117 ал. 2 т. 7), напр. „чл. 84 ЗДДС“. -->
+    <string name="bgVatProtocolBasis" title="Основание (чл. 117 ал. 2 т. 7)" copy="false"/>
+
+    <!-- The upload id(s) this move came from, comma-separated. Derived at query time, never stored.
+      TWO routes reach the same move and both count: AiOcrUpload.move, set when a non-invoice document is
+      booked directly, and AiOcrUpload.invoice -> Invoice.move, set when an OCR invoice is later posted.
+      Neither is unique, so there is no single reverse FK to add; the ids are read through the links that
+      already exist. Kept in one subquery per level (only qualified column names beside the bare `id`,
+      which Hibernate rewrites to this move's own alias) so nothing here can bind to the wrong table.
+      Company-scoped on BOTH hops — the upload and the invoice it is reached through — so no id from
+      another company's books can surface here, on the grid or through the AI tools. -->
+    <string name="ocrUploadIds" title="Upload ID(s)" formula="true" readonly="true">
+      <![CDATA[
+        SELECT array_to_string(array_agg(self.id ORDER BY self.id), ', ')
+        FROM aiocr_ai_ocr_upload AS self
+        WHERE self.company = company
+        AND (self.move = id
+          OR self.invoice IN (SELECT inv.id FROM account_invoice AS inv
+            WHERE inv.move = id AND inv.company = company))
+      ]]>
+    </string>
+
+    <entity-listener class="com.axelor.apps.bglocalization.service.migration.microinvest.accounting.MicroinvestLedgerListener"/>
+  </entity>
+
+</domain-models>

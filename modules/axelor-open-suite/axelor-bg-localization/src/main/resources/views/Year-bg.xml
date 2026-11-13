@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="year-account-grid" title="Fiscal years" id="bg-book-currency-year-grid"
+    model="com.axelor.apps.base.db.Year" extension="true">
+    <extend target="field[@name='toDate']">
+      <insert position="after">
+        <field name="bgBookCurrency"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <form name="year-account-form" title="Fiscal year" id="bg-book-currency-year-form"
+    model="com.axelor.apps.base.db.Year" extension="true">
+    <extend target="//panel[@name='datesPanel']/field[@name='reportedBalanceDate']">
+      <insert position="after">
+        <field name="bgBookCurrency" required="true"
+          help="BGN за финансови години до 2025 включително; EUR за 2026 и следващите. След първото записване стойността е фиксирана."/>
+      </insert>
+    </extend>
+  </form>
+
+</object-views>

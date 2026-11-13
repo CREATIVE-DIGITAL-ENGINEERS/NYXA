@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Национална класификация на икономическите дейности (НКИД / КИД-2025), 4-цифрени класове. -->
+  <entity name="BgNkid">
+
+    <string name="code" title="Код по НКИД" required="true" unique="true" max="5"/>
+    <string name="name" title="Наименование" required="true"/>
+    <string name="divisionCode" title="Раздел по КИД" max="2"/>
+
+    <!-- Ред от Приложение №1 към ЗБДОО, към който сочи този КИД код (МОД мапинг). Свободна връзка по
+      КОД (не m2o), защото BgMinInsuranceIncome е темпорален (bgRow × validFrom) — периодът се резолвира в
+      lookup-а. Nullable умишлено: неразрешен мапинг ТРЯБВА да е видим (напр. КИД 98.10/98.20 законно нямат
+      МОД ред). -->
+    <string name="bgMinIncomeRowCode" title="Ред по Приложение №1 (МОД)"/>
+
+    <!-- Двусмислен КИД: един код сочи два МОД реда с РАЗЛИЧНИ суми (напр. 35.40 „брокери" → Ред 49 електроенергия
+      гр.1=936 или Ред 50 природен газ гр.1=1270; разграничението е по стока, не по КИД/НКПД). Днес е 1 код
+      от 651. Бъдеща валидация ще изисква Company.bgMinIncomeRowCodeOverride точно когато е true. -->
+    <boolean name="bgAmbiguous" title="Двусмислен МОД (изисква ръчен избор)" default="false"/>
+
+    <!-- Бележка за МОД мапинга (напр. за 11-те двусмислени с идентични суми — само пояснение, без флаг). -->
+    <string name="bgMinIncomeNote" title="Бележка за МОД"/>
+
+    <!-- Computed display name: "code — name" (напр. "62.20 — Консултантска дейност..."). Ползва се като
+      namecolumn и за автокомплийт по код и наименование. -->
+    <string name="fullName" title="Код по НКИД" namecolumn="true" search="code,name"
+      depends="code,name">
+      <![CDATA[
+      return code + " — " + name;
+      ]]>
+    </string>
+
+  </entity>
+
+</domain-models>

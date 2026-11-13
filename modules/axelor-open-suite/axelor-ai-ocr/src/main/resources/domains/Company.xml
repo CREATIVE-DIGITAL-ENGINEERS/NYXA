@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="base" package="com.axelor.apps.base.db"/>
+
+  <!-- Per-company AI-OCR configuration, merged into com.axelor.apps.base.db.Company by the code generator.
+    Optional. The generic purchase product is the per-company fallback used for OCR invoice lines that carry
+    no resolvable product; its standard AccountManagement (for this company) resolves the expense account.
+    Each Company configures its own — there is no global default and no first-record fallback. -->
+  <entity name="Company">
+
+    <many-to-one name="aiOcrGenericPurchaseProduct"
+      ref="com.axelor.apps.base.db.Product" title="AI-OCR generic purchase product"/>
+
+  </entity>
+
+</domain-models>

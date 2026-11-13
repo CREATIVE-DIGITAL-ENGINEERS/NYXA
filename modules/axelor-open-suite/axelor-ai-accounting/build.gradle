@@ -1,0 +1,26 @@
+plugins {
+	id 'com.axelor.app'
+}
+
+apply from: "../libs.gradle"
+apply from: "../version.gradle"
+
+apply {
+	version = openSuiteVersion
+}
+
+axelor {
+	title "Axelor AI Accounting"
+	description "AI Accountant tools over journal entries (accounting moves)"
+}
+
+dependencies {
+	// The domain this module is about: Move, MoveLine, and Axelor's own MoveCreateService,
+	// MoveLineCreateService and MoveValidateService, which every write here goes through.
+	api project(":modules:axelor-account")
+
+	// The assistant's tool and SPI contracts. No cycle: ai-accountant depends only on axelor-base
+	// and knows nothing about this module — its tools, resolvers and identity are found by the
+	// MetaScanner sweep at boot, exactly as the OCR and banking ones are.
+	api project(":modules:axelor-ai-accountant")
+}

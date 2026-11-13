@@ -1,0 +1,61 @@
+version: 1
+
+dn: dc=test,dc=com
+objectclass: top
+objectclass: domain
+dc: test
+
+dn: ou=groups,dc=test,dc=com
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+
+dn: ou=users,dc=test,dc=com
+objectClass: top
+objectClass: organizationalUnit
+ou: users
+
+dn: cn=admins,ou=groups,dc=test,dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: admins
+uniqueMember: uid=jsmith
+description: Administrators
+
+dn: cn=users,ou=groups,dc=test,dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: users
+uniqueMember: uid=teen
+uniqueMember: uid=tin
+
+dn: cn=John Smith,ou=users,dc=test,dc=com
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: John Smith
+sn: Smith
+uid: jsmith
+userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
+
+dn: cn=Tin Tin,ou=users,dc=test,dc=com
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: Tin Tin
+sn: Tin
+uid: tin
+userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
+
+dn: cn=Teen Teen,ou=users,dc=test,dc=com
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: Teen Teen
+sn: Teen
+uid: teen
+userPassword: {SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=
+ 

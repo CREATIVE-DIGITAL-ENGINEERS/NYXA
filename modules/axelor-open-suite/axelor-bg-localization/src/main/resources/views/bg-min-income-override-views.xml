@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgMinIncomeOverride (длъжностно-обвързан МОД ред) ============ -->
+
+  <grid name="bg-min-income-override-grid" title="МОД override по длъжност"
+    model="com.axelor.apps.bglocalization.db.BgMinIncomeOverride" orderBy="bgNkidCode,bgNkpdPrefix">
+    <field name="bgNkidCode"/>
+    <field name="bgNkpdPrefix"/>
+    <field name="bgMinIncomeRowCode"/>
+  </grid>
+
+  <form name="bg-min-income-override-form" title="МОД override по длъжност"
+    model="com.axelor.apps.bglocalization.db.BgMinIncomeOverride">
+    <panel name="mainPanel">
+      <field name="bgNkidCode"/>
+      <field name="bgNkpdPrefix"/>
+      <field name="bgMinIncomeRowCode"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-min-income-override" title="МОД override по длъжност"
+    model="com.axelor.apps.bglocalization.db.BgMinIncomeOverride">
+    <view type="grid" name="bg-min-income-override-grid"/>
+    <view type="form" name="bg-min-income-override-form"/>
+  </action-view>
+
+  <menuitem name="nyxa-payroll-min-income-override" parent="nyxa-payroll-parameters"
+    title="МОД override по длъжност" action="action-bg-min-income-override" order="450"/>
+
+</object-views>

@@ -1,0 +1,4 @@
+"name";"object";"can_read";"can_write";"can_create";"can_remove";"can_export";"condition";"conditionParams";"roleName"
+"perm.aiocr.all";"com.axelor.apps.aiocr.db.*";"x";"x";"x";"x";"x";;;"Admin"
+"perm.aiocr.upload.internal";"com.axelor.apps.aiocr.db.AiOcrUpload";"x";"x";"x";"x";"x";"self.company = ?";"__user__.activeCompany";"AiOcrInternal"
+"perm.aiocr.upload.client";"com.axelor.apps.aiocr.db.AiOcrUpload";"x";"x";"x";;;"self.company = ?";"__user__.activeCompany";"AiOcrClient"

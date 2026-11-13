@@ -1,0 +1,25 @@
+.panel {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  margin-bottom: 1rem;
+  --ax-panel-body-padding: 0;
+
+  & > div:last-child > div > div {
+    overflow: hidden;
+    display: flex;
+  }
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+
+  input {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+  label {
+    margin: 0;
+  }
+}

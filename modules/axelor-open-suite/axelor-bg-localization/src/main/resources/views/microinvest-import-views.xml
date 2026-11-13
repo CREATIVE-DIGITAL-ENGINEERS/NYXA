@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Microinvest -> Nyxa one-time migration, Phase 1 pilot. One company at a time: enter the
+    source database name, run Preflight to see what would be imported and any problems, review the
+    report, then run Import. Transient form, same pattern as bg-payroll-ledger-views.xml: nothing
+    here is ever saved. Remove this view together with the importer once migration is done. -->
+
+  <form name="microinvest-import-form" title="Microinvest import (pilot)"
+    model="com.axelor.apps.bglocalization.db.MicroinvestImportWizard" width="large"
+    onNew="action-microinvest-import-show-active-company"
+    onLoad="action-microinvest-import-show-active-company">
+
+    <!-- ⚠️ Кажи КЪДЕ отива всичко, преди да е качен файл. Импортът пише САМО в активната компания и
+      никога не създава нова (MicroinvestCompanyGuard); БУЛСТАТ от файла се сверява с ЕИК на
+      активната компания и разминаване спира пробега преди първия запис. -->
+    <panel name="targetPanel" title="Целева компания" colSpan="12">
+      <field name="activeCompanyInfo" showTitle="false" colSpan="12" readonly="true"
+        height="2"/>
+    </panel>
+
+    <panel name="sourcePanel" title="Source">
+      <!-- widget="binary-link" is required: without it a MetaFile m2o field defaults to the
+        image-picker widget (accepts .png/.jpg only) instead of a generic file picker. x-accept
+        restricts the browser's file dialog to .json; the controller still validates the actual
+        file name server-side (a renamed non-JSON file would otherwise slip through). Same pattern
+        as ImportConfiguration.dataMetaFile (axelor-base/views/ImportConfiguration.xml). -->
+      <field name="sourceFile" colSpan="8" widget="binary-link" x-accept=".json" canNew="true"
+        form-view="meta-files-form" grid-view="meta-files-grid"
+        help="Upload the JSON export for one client company, produced by the Microinvest export tool run externally against the read-only Microinvest SQL Server. The same file/wizard covers Phase 1 (master data) and Phase 2 (historical payroll/declarations) -- re-run Preflight/Import against a re-exported file once Phase 1 has already onboarded the company."/>
+    </panel>
+
+    <panel name="actionPanel" title="Action" colSpan="12">
+      <button name="preflightBtn" title="1. Preflight (read-only, no changes)"
+        onClick="action-microinvest-import-preflight" colSpan="6"/>
+      <button name="importBtn" title="2. Import"
+        onClick="action-microinvest-import-run" colSpan="6"/>
+    </panel>
+
+    <panel name="countsPanel" title="Counts" colSpan="12">
+      <field name="employeesFoundCount" colSpan="3" readonly="true"/>
+      <field name="sourceRecordCount" colSpan="3" readonly="true"
+        help="Записи в изходния файл от видовете, които този импорт обработва — независимо дали могат да бъдат внесени."/>
+      <field name="createdCount" colSpan="3" readonly="true"/>
+      <field name="updatedCount" colSpan="3" readonly="true"/>
+      <field name="skippedCount" colSpan="3" readonly="true"
+        help="Нарочни изключения: изтрити в Microinvest редове и стойности, които миграцията отказва да отгатва."/>
+      <field name="blockedCount" colSpan="3" readonly="true"
+        help="Спрени от липсваща предпоставка — изисква действие от оператора, не е нормално изключение."/>
+      <field name="failedCount" colSpan="3" readonly="true"/>
+    </panel>
+
+    <panel name="reportPanel" title="Report" colSpan="12">
+      <field name="reportText" showTitle="false" colSpan="12" height="24" readonly="true"/>
+    </panel>
+
+  </form>
+
+  <action-method name="action-microinvest-import-show-active-company">
+    <call class="com.axelor.apps.bglocalization.web.MicroinvestImportController"
+      method="showActiveCompany"/>
+  </action-method>
+
+  <action-method name="action-microinvest-import-preflight">
+    <call class="com.axelor.apps.bglocalization.web.MicroinvestImportController" method="preflight"/>
+  </action-method>
+
+  <action-method name="action-microinvest-import-run">
+    <call class="com.axelor.apps.bglocalization.web.MicroinvestImportController" method="runImport"/>
+  </action-method>
+
+  <action-view name="microinvest.import.wizard" title="Microinvest import (pilot)"
+    model="com.axelor.apps.bglocalization.db.MicroinvestImportWizard">
+    <view type="form" name="microinvest-import-form"/>
+    <view-param name="popup" value="false"/>
+    <view-param name="show-toolbar" value="false"/>
+  </action-view>
+
+  <!-- Admin-only via the parent menu (nyxa-payroll has groups="admins"). Temporary: remove this
+    menuitem once all client companies are migrated. -->
+  <menuitem name="nyxa-payroll-microinvest-import" parent="nyxa-payroll"
+    title="Microinvest import (pilot)" action="microinvest.import.wizard" order="500"/>
+
+</object-views>

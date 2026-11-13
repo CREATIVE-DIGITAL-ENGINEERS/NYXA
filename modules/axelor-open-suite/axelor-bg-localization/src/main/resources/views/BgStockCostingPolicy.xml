@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ ПОЛИТИКАТА ЗА ИЗПИСВАНЕ НА МАТЕРИАЛНИТЕ ЗАПАСИ (ИЗП) ═══
+
+    Един ред на дружество и финансова година. Активираната политика заключва метода, обхвата,
+    осчетоводяването и изключенията по семейства (СС 2 т. 8.5); сметките остават редактируеми.
+    Пазачът е в BgStockCostingPolicyManagementRepository — екранът само показва заключването. -->
+
+  <grid name="bg-stock-costing-policy-grid" title="Политики за изписване на МЗ"
+    model="com.axelor.apps.bglocalization.db.BgStockCostingPolicy">
+    <field name="company"/>
+    <field name="year"/>
+    <field name="costingMethodSelect"/>
+    <field name="averageScopeSelect"/>
+    <field name="postingModeSelect"/>
+    <field name="moveValidationSelect"/>
+    <field name="statusSelect"/>
+  </grid>
+
+  <form name="bg-stock-costing-policy-form" title="Политика за изписване на МЗ"
+    model="com.axelor.apps.bglocalization.db.BgStockCostingPolicy" width="large">
+    <toolbar>
+      <button name="fillDefaultRulesBtn" title="Попълни сметките по подразбиране"
+        onClick="save,action-bg-stock-costing-policy-method-fill-default-rules"/>
+      <button name="activateBtn" title="Активирай" showIf="statusSelect == 1"
+        onClick="save,action-bg-stock-costing-policy-method-activate"
+        prompt="След активирането методът, средната цена, осчетоводяването и изключенията по семейства не се сменят до края на финансовата година. Продължаване?"/>
+    </toolbar>
+    <panel name="mainPanel" colSpan="12">
+      <field name="statusSelect" colSpan="12" widget="NavSelect" readonly="true"/>
+      <field name="company" readonlyIf="statusSelect == 2"/>
+      <field name="year" readonlyIf="statusSelect == 2"
+        domain="self.company = :company AND self.typeSelect = 1"
+        help="Финансовата година. Методът влиза в сила от нейното начало и се прилага системно през цялата година (СС 2 т. 8.5)."/>
+      <field name="company.bgAccountingFramework" readonly="true"
+        help="Приложимата счетоводна база се задава в дружеството. LIFO е допустим само при НСС (СС 2 т. 10); МСС 2 не го допуска."/>
+      <field name="costingMethodSelect" readonlyIf="statusSelect == 2"
+        help="Средна претеглена — след всяко постъпление или периодична (СС 2 т. 9.2 б); FIFO (т. 9.2 а); LIFO — само при НСС (т. 10); конкретно определена стойност — само за продукти с партиди или серийни номера (т. 9.1)."/>
+      <field name="averageScopeSelect" readonlyIf="statusSelect == 2"
+        help="По склад: складът е този за SAF-T (WarehouseID) — най-горната вътрешна локация или най-близката с флаг „Склад за SAF-T“."/>
+      <field name="moveValidationSelect"
+        help="Автоматично (по подразбиране) — статията за изписване се валидира веднага; черновите не влизат в салдата и в SAF-T. Неуспешното валидиране оставя движението в „Неосчетоводени изписвания“ с причината. Не е метод и се сменя по всяко време."/>
+      <field name="postingModeSelect" readonlyIf="statusSelect == 2"
+        help="Текущо — статията се прави почти веднага след реализирането. Обобщено — една статия в края на месеца. Периодичната средна иска обобщено."/>
+    </panel>
+    <panel-related name="familyOverrideListPanel" field="familyOverrideList" colSpan="12"
+      readonlyIf="statusSelect == 2" form-view="bg-stock-costing-family-override-form"
+      grid-view="bg-stock-costing-family-override-grid"/>
+    <panel-related name="accountRuleListPanel" field="accountRuleList" colSpan="12"
+      form-view="bg-stock-costing-account-rule-form" grid-view="bg-stock-costing-account-rule-grid"/>
+  </form>
+
+  <grid name="bg-stock-costing-family-override-grid" title="Различен метод по семейство"
+    model="com.axelor.apps.bglocalization.db.BgStockCostingFamilyOverride" editable="true">
+    <field name="productFamily"/>
+    <field name="costingMethodSelect"/>
+  </grid>
+
+  <form name="bg-stock-costing-family-override-form" title="Различен метод по семейство"
+    model="com.axelor.apps.bglocalization.db.BgStockCostingFamilyOverride">
+    <panel name="mainPanel">
+      <field name="productFamily"/>
+      <field name="costingMethodSelect"/>
+    </panel>
+  </form>
+
+  <grid name="bg-stock-costing-account-rule-grid" title="Сметки по код на движението"
+    model="com.axelor.apps.bglocalization.db.BgStockCostingAccountRule" editable="true"
+    orderBy="movementCode,inventoryType">
+    <field name="movementCode"/>
+    <field name="inventoryType"/>
+    <field name="withResponsiblePartner"/>
+    <field name="account"/>
+  </grid>
+
+  <form name="bg-stock-costing-account-rule-form" title="Сметка по код на движението"
+    model="com.axelor.apps.bglocalization.db.BgStockCostingAccountRule">
+    <panel name="mainPanel">
+      <field name="movementCode"/>
+      <field name="inventoryType"/>
+      <field name="withResponsiblePartner" showIf="movementCode == '120'"/>
+      <field name="account"
+        help="Насрещната сметка на складовата 30x на семейството: при изход — дебит, при вход — кредит. Сметката трябва да е от сметкоплана на дружеството на политиката."/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-stock-costing-policy-view" title="Политики за изписване на МЗ"
+    model="com.axelor.apps.bglocalization.db.BgStockCostingPolicy">
+    <view type="grid" name="bg-stock-costing-policy-grid"/>
+    <view type="form" name="bg-stock-costing-policy-form"/>
+  </action-view>
+
+  <action-method name="action-bg-stock-costing-policy-method-fill-default-rules">
+    <call class="com.axelor.apps.bglocalization.web.BgStockCostingPolicyController"
+      method="fillDefaultRules"/>
+  </action-method>
+
+  <action-method name="action-bg-stock-costing-policy-method-activate">
+    <call class="com.axelor.apps.bglocalization.web.BgStockCostingPolicyController"
+      method="activate"/>
+  </action-method>
+
+</object-views>

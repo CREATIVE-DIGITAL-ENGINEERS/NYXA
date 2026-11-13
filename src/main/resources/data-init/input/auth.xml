@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<auth>
+
+  <group code="staff" name="Staff" technicalStaff="false"/>
+
+</auth>

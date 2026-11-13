@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgInsuranceContribution ============ -->
+
+  <grid name="bg-insurance-contribution-grid" title="Осигурителни вноски"
+    model="com.axelor.apps.bglocalization.db.BgInsuranceContribution"
+    orderBy="-validFrom,bgInsuredTypeCode,fundCode">
+    <field name="bgInsuredTypeCode"/>
+    <field name="bgInsuredTypeName"/>
+    <field name="fundCode"/>
+    <field name="laborCategory"/>
+    <!-- Видът стои ДО ставката, не в края на реда: нулата и обяснението ѝ се четат заедно или
+      изобщо. -->
+    <field name="employerRate"/>
+    <field name="bgEmployerRateKind"/>
+    <field name="employeeRate"/>
+    <field name="bgEmployeeRateKind"/>
+    <field name="bgUpfRegime"/>
+    <field name="bgSolScope"/>
+    <field name="validFrom"/>
+    <field name="validTo"/>
+  </grid>
+
+  <form name="bg-insurance-contribution-form" title="Осигурителна вноска"
+    model="com.axelor.apps.bglocalization.db.BgInsuranceContribution">
+    <panel name="fundPeriodPanel" title="Вид осигурен и фонд">
+      <field name="bgInsuredTypeCode"/>
+      <field name="bgInsuredTypeName"/>
+      <field name="fundCode"/>
+      <field name="laborCategory"/>
+      <field name="bgUpfRegime"/>
+      <field name="bgSolScope"/>
+      <field name="validFrom"/>
+      <field name="validTo"/>
+    </panel>
+    <!-- ⚠️ ДВЕТЕ КОЛОНИ СА required И СТОЯТ ТУК ЗАДЪЛЖИТЕЛНО. Липсват ли във формата, нов ред не
+      може да се запише изобщо: валидацията иска стойност, а екранът не дава къде да се въведе. -->
+    <panel name="ratesPanel" title="Ставки">
+      <field name="employerRate"/>
+      <field name="bgEmployerRateKind"/>
+      <field name="employeeRate"/>
+      <field name="bgEmployeeRateKind"/>
+    </panel>
+    <panel name="notePanel" title="Бележка">
+      <field name="bgNote" showTitle="false" colSpan="12"/>
+    </panel>
+  </form>
+
+  <!-- ============ BgPayrollParameter ============ -->
+
+  <grid name="bg-payroll-parameter-grid" title="Параметри за заплати"
+    model="com.axelor.apps.bglocalization.db.BgPayrollParameter" orderBy="code,-validFrom">
+    <field name="code"/>
+    <field name="paramValue"/>
+    <field name="unit"/>
+    <field name="validFrom"/>
+    <field name="validTo"/>
+  </grid>
+
+  <form name="bg-payroll-parameter-form" title="Параметър за заплати"
+    model="com.axelor.apps.bglocalization.db.BgPayrollParameter">
+    <panel name="mainPanel">
+      <field name="code"/>
+      <field name="paramValue"/>
+      <field name="unit"/>
+      <field name="validFrom"/>
+      <field name="validTo"/>
+      <field name="description"/>
+    </panel>
+  </form>
+
+  <!-- ============ BgTzpbRate ============ -->
+
+  <grid name="bg-tzpb-rate-grid" title="Вноски ТЗПБ"
+    model="com.axelor.apps.bglocalization.db.BgTzpbRate" orderBy="kidCode">
+    <field name="kidCode"/>
+    <field name="rate"/>
+    <field name="validFrom"/>
+    <field name="validTo"/>
+  </grid>
+
+  <form name="bg-tzpb-rate-form" title="Вноска ТЗПБ"
+    model="com.axelor.apps.bglocalization.db.BgTzpbRate">
+    <panel name="mainPanel">
+      <field name="kidCode"/>
+      <field name="rate"/>
+      <field name="validFrom"/>
+      <field name="validTo"/>
+    </panel>
+  </form>
+
+  <!-- ============ BgNkpd ============ -->
+
+  <grid name="bg-nkpd-grid" title="НКПД" model="com.axelor.apps.bglocalization.db.BgNkpd"
+    orderBy="code">
+    <field name="code"/>
+    <field name="name"/>
+    <field name="qualificationGroup"/>
+  </grid>
+
+  <form name="bg-nkpd-form" title="НКПД" model="com.axelor.apps.bglocalization.db.BgNkpd">
+    <panel name="mainPanel">
+      <field name="code" onChange="action-bg-nkpd-record-set-qualification-group"/>
+      <field name="name"/>
+      <field name="qualificationGroup" readonly="true" help="= първата цифра на кода"/>
+    </panel>
+  </form>
+
+  <action-record name="action-bg-nkpd-record-set-qualification-group"
+    model="com.axelor.apps.bglocalization.db.BgNkpd">
+    <field name="qualificationGroup"
+      expr="eval: code ? (code.trim().substring(0, 1) as Integer) : null"/>
+  </action-record>
+
+  <!-- ============ BgNkid ============ -->
+
+  <grid name="bg-nkid-grid" title="НКИД" model="com.axelor.apps.bglocalization.db.BgNkid"
+    orderBy="code">
+    <field name="code"/>
+    <field name="name"/>
+    <field name="divisionCode"/>
+    <field name="bgMinIncomeRowCode"/>
+    <field name="bgAmbiguous"/>
+    <field name="bgMinIncomeNote"/>
+  </grid>
+
+  <form name="bg-nkid-form" title="НКИД" model="com.axelor.apps.bglocalization.db.BgNkid">
+    <panel name="mainPanel">
+      <field name="code"/>
+      <field name="name"/>
+      <field name="divisionCode" readonly="true" help="= първите 2 цифри на кода"/>
+    </panel>
+    <panel name="modMappingPanel" title="МОД мапинг">
+      <field name="bgMinIncomeRowCode"/>
+      <field name="bgAmbiguous"/>
+      <field name="bgMinIncomeNote" colSpan="12"/>
+    </panel>
+  </form>
+
+</object-views>

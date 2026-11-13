@@ -1,0 +1,15 @@
+# Enables the Quartz scheduler so the AI-OCR poller (MetaSchedule `ai-ocr-poller`,
+# cron `0 0/1 * * * ?`) actually fires. Without this the on-demand "Process" button
+# still works, but queued uploads are not picked up automatically.
+#
+# Layer this over the base compose file:
+#   docker compose -f <base-compose-file> -f <this-file> up -d
+#
+# AXELOR_CONFIG_QUARTZ_ENABLE is Axelor's config-override env (dots -> underscores,
+# uppercased); it is applied even when the entrypoint's ENABLE_QUARTZ handling is
+# bypassed (e.g. re-exploded WAR). ENABLE_QUARTZ is kept for the entrypoint path.
+services:
+  app:
+    environment:
+      - ENABLE_QUARTZ=true
+      - AXELOR_CONFIG_QUARTZ_ENABLE=true

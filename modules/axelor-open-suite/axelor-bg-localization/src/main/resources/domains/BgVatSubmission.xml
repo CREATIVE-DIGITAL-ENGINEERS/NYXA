@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- One immutable VAT submission ATTEMPT against the LOCAL MOCK server (there is no real НАП API yet).
+    Each send creates a new attempt referencing the exact immutable BgVatPackage (and therefore its four
+    files) that was transmitted. The attempt's status progresses (submitting → submitted/accepted/…), but
+    the payload/artifacts are never rewritten and a timed-out attempt is never auto re-POSTed. VAT-specific
+    and self-contained — deliberately NOT the nyxa-nap-submissions NapSubmission (no cross-module dependency).
+    NOTE: importId is inherited from com.axelor.db.Model — do NOT declare it. -->
+  <entity name="BgVatSubmission" sequential="true">
+
+    <many-to-one name="bgVatReturn" ref="com.axelor.apps.bglocalization.db.BgVatReturn"
+      title="ДДС декларация" required="true"/>
+    <many-to-one name="bgVatPackage"
+      ref="com.axelor.apps.bglocalization.db.BgVatPackage" title="Пакет (изпратени файлове)"
+      required="true"/>
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"/>
+    <string name="period" title="Период (ГГГГММ)" readonly="true"/>
+
+    <string name="statusSelect" title="Статус" selection="bg.vat.submission.status.select"
+      default="draft" readonly="true"/>
+    <string name="targetSelect" title="Цел" selection="bg.vat.submission.target.select"
+      default="LOCAL_MOCK" readonly="true"/>
+    <integer name="attemptNumber" title="Опит №" readonly="true"/>
+    <string name="mockScenario" title="Mock сценарий" selection="bg.vat.mock.scenario.select"
+      readonly="true"/>
+
+    <string name="packageSha256" title="SHA-256 на пакета" readonly="true"/>
+    <string name="submissionRef" title="Mock идентификатор" readonly="true"/>
+    <string name="entryNumber" title="Входящ № (mock)" readonly="true"/>
+    <string name="externalStatus" title="Външен статус (mock)" readonly="true"/>
+    <integer name="httpStatus" title="HTTP код" readonly="true"/>
+    <string name="correlationId" title="Correlation ID" readonly="true"/>
+    <string name="errorCode" title="Код грешка" readonly="true"/>
+    <string name="errorMessage" title="Съобщение за грешка" readonly="true"/>
+
+    <datetime name="submittedOn" title="Изпратен на" readonly="true"/>
+    <many-to-one name="submittedBy" ref="com.axelor.auth.db.User" title="Изпратил"
+      readonly="true"/>
+    <datetime name="lastStatusCheckOn" title="Последна проверка на статус" readonly="true"/>
+
+    <string name="requestMeta" title="Заявка (метаданни)" large="true" readonly="true"/>
+    <string name="responseMeta" title="Отговор (метаданни)" large="true" readonly="true"/>
+
+    <extra-code><![CDATA[
+      // statusSelect (keep in sync with bg.vat.submission.status.select)
+      public static final String STATUS_DRAFT = "draft";
+      public static final String STATUS_SUBMITTING = "submitting";
+      public static final String STATUS_SUBMITTED = "submitted";
+      public static final String STATUS_PROCESSING = "processing";
+      public static final String STATUS_ACCEPTED = "accepted";
+      public static final String STATUS_REJECTED = "rejected";
+      public static final String STATUS_DUPLICATE = "duplicate";
+      public static final String STATUS_OUTCOME_UNKNOWN = "outcome_unknown";
+      public static final String STATUS_TECHNICAL_ERROR = "technical_error";
+
+      // targetSelect (keep in sync with bg.vat.submission.target.select) — LOCAL MOCK ONLY.
+      public static final String TARGET_LOCAL_MOCK = "LOCAL_MOCK";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

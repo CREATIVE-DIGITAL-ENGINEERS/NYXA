@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ СКРИВАНЕ НА ФРЕНСКИ ЕЛЕМЕНТИ, ВИДИМИ ПО ДОСТАВЧИК ═══
+
+    Нищо тук не се трие и нищо не се преопределя: всеки блок е РАЗШИРЕНИЕ на чужд изглед, което
+    добавя един атрибут. Чуждият модул остава непокътнат — полето, бутонът и действието им
+    продължават да съществуват, скрит е само входът от екрана. Затова и връщането е един ред.
+
+    ⚠️ ЗАЩО hideIf="true", А НЕ hidden="true". И трите цели по-долу, освен бутона в решетката, вече
+    носят СВОЕ условие за видимост (`showIf="isSupplier"` при das2Activity). Статичният `hidden` се
+    презаписва при първото преизчисление на условието и полето изплува обратно. Измерено в
+    axelor-front/src/views/form/builder/form-widget.tsx:481-482 и в
+    view-containers/view-toolbar/view-toolbar.tsx:118-122 — и на двете места редът е един и същ:
+
+        if (hideIf) hidden = handleIf("hidden", hideIf);
+        if (!hidden && showIf) handleIf("hidden", showIf, true);
+
+    тоест `hideIf` се смята ПРЪВ и при истина къси съединението на `showIf`. Така чуждото условие
+    остава на мястото си и се чете — ние само го надписваме, вместо да го пренапишем.
+
+    ⚠️ БУТОНЪТ „Create from Sirene API" В `partner-cards` НЕ Е ТУК И НЕ МОЖЕ ДА БЪДЕ. Изгледите от
+    тип `cards` не приемат разширение: `object-views.xsd` дава `extension` и `<extend>` само на
+    GridView (ред 1586) и FormView (ред 2084), а CardsView (ред 2491) е фиксирана последователност
+    без `extend`. Същото се вижда и в CardsView.java — няма @XmlElement extend. И понеже
+    XMLViews#init вика `unmarshaller.setSchema(schema)`, XSD-невалиден изглед не се зарежда изобщо.
+    Единственият останал път е ПЪЛЕН override на `partner-cards` — 71 реда копие на чуждия изглед,
+    заедно с JSX шаблона и значката „Factor“ — и той е съзнателно НЕ избран.
+  -->
+
+  <!-- DAS2 е френска годишна справка за платени хонорари (déclaration des honoraires). Полето стои
+    на панела „Фактуриране/Плащане“ на партньора и се показва за всеки доставчик. Българският
+    аналог е справката по чл. 73 ал. 1 ЗДДФЛ и тя си има свой регистър в модула. -->
+  <form name="incl-invoice-payment-partner-form" title="Partner"
+    id="bg-localization-incl-invoice-payment-partner-form"
+    model="com.axelor.apps.base.db.Partner" extension="true">
+    <extend target="//field[@name='das2Activity']">
+      <attribute name="hideIf" value="true"/>
+    </extend>
+  </form>
+
+  <!-- SIRENE е регистърът на френските предприятия (INSEE). Бутонът дърпа име, адрес и дейност по
+    SIRET номер. За българско ЕИК няма какво да върне, а и ключът не е конфигуриран: при празен
+    `appBase.sireneUrl` AppBaseServiceImpl#getSireneUrl ХВЪРЛЯ „Please fill API Sirene url in app
+    base“ — тоест неконфигурираната интеграция не гаси входа, а го оставя видим и счупен.
+    ⚠️ Глобален превключвател НЯМА: в AppBase съществуват само низовете sireneUrl/sireneKey
+    (+ secret/token), нито един boolean, и нито един `if=` по страна върху възлите. -->
+  <form name="incl-event-actions-partner-form" title="Partner"
+    id="bg-localization-incl-event-actions-partner-form"
+    model="com.axelor.apps.base.db.Partner" extension="true">
+    <extend target="//menubar/menu[@name='partnerToolsMenu']/item[@name='sirenApiBtn']">
+      <attribute name="hideIf" value="true"/>
+    </extend>
+  </form>
+
+  <!-- Същият вход, втори възел: лентата на решетката „Партньори“. Тук е <button>, а не <item>, и
+    приема статичен `hidden` — бутонът няма свое условие, което да го върне. -->
+  <grid name="partner-grid" title="Partners" id="bg-localization-partner-grid"
+    model="com.axelor.apps.base.db.Partner" extension="true">
+    <extend target="//toolbar/button[@name='sirenApiBtn']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+  </grid>
+
+  <!-- Третият и последен вход към DAS2 в интерфейса: цял панел на реда от статия, който сдвоява
+    „вид услуга“ със справочната дейност на партньора. Извън партньора е — нарочно: полето горе и
+    менюто в номенклатурите биха оставили именно този панел като единствено видимо DAS2. -->
+  <form name="move-line-tabs-form" title="Move line details"
+    id="bg-localization-move-line-tabs-form" model="com.axelor.apps.account.db.MoveLine"
+    extension="true">
+    <extend target="//panel[@name='das2Panel']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+  </form>
+
+</object-views>

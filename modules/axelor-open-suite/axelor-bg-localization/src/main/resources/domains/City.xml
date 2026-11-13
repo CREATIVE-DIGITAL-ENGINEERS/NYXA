@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="base" package="com.axelor.apps.base.db"/>
+
+  <!-- Additive extension of the stock City: a trusted centroid coordinate, used by
+    BgAddressGeocodeService as the safe CITY-tier fallback when a full-address geocode is
+    unavailable or rejected. No authoritative EKATTE-keyed coordinate dataset is available locally
+    (bgplaces.csv has no lat/long columns) — see BgCityCentroidService for how this is resolved:
+    lazily, one City at a time, on first actual need, from City name + Country only (never
+    fuzzy-matched, never invented), and cached here permanently once validated. Left null until then;
+    a null value here means "not yet resolved", not "resolved to nothing". Independent of, and does
+    NOT touch, the axelor-ai-ocr City/BgCityPostcode extension (ekatte, postcode, region, etc.). -->
+  <entity name="City">
+
+    <decimal name="latit" title="Latitude" precision="9" scale="6" nullable="true"/>
+    <decimal name="longit" title="Longitude" precision="9" scale="6" nullable="true"/>
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Client-facing upload surface, now a direct child of the standard Accounting root
+    (account-root, defined in axelor-account's Menu.xml) instead of its own top-level menu, so it
+    reads as "Accounting -> Upload Invoices". Still gated to the client group, so client users see
+    only this under Accounting. The action-view further limits rows to the user's own uploads.
+    name/title/action/icon/groups are unchanged from the previous top-level entry so ViewLoader
+    updates the existing MetaMenu row in place rather than creating a duplicate. -->
+  <menuitem name="ai-ocr-upload-root" title="Upload Invoices" parent="account-root" order="-900"
+    icon="upload" icon-background="#31b4a9" groups="ai_ocr_client,admins"
+    action="action-ai-ocr-upload-view-client"/>
+
+  <!-- Permanent, admin-only read-only audit trail (Task 6). Deliberately minimal: one menuitem,
+    one grid, one form, no toolbar/buttons — see AiOcrUploadAudit.xml. groups="admins" only (no
+    ai_ocr_client/ai_ocr_internal), same as the removed AiOcrStorageReport menu precedent; the
+    module's existing unconditioned perm.aiocr.all wildcard (role Admin) already covers this
+    entity by package match, so no new Permission row is needed. -->
+  <menuitem name="ai-ocr-upload-audit-root" title="Upload Audit" parent="account-root"
+    order="-899" icon="list-check" icon-background="#31b4a9" groups="admins"
+    action="action-ai-ocr-upload-audit-view"/>
+
+  <!-- NB: the temporary "OCR Storage" report menu (ai-ocr-storage-report-root, order -898) and the
+    "Monitored Folders" menu (ai-ocr-monitored-folder-root, order -899, action
+    action-ai-ocr-monitored-folder-view, model AiOcrMonitoredFolder — removed along with the whole
+    feature: entity, views, AiOcrFolderMonitorService) were removed here. Axelor's ViewLoader only
+    creates or updates MetaMenu/MetaView/MetaAction rows from XML; it never deletes rows whose XML
+    has gone, and <menuitem> has no 'hidden' attribute to retire one declaratively. On a database
+    that already imported either, the row would otherwise survive and the menu keep showing.
+    ObsoleteAiOcrMetadataCleanup (service/security) deletes this row, and the other retired
+    MetaMenu/MetaAction/MetaView/Permission rows this module has shed, on every startup — do not
+    re-add any of these menus. -->
+
+</object-views>

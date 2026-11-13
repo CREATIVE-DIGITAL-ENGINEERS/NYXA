@@ -1,0 +1,101 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ═══ ГОДИШЕН АМОРТИЗАЦИОНЕН ПЛАН — ДАНЪЧЕН (ДАП) И СЧЕТОВОДЕН ═══
+
+    ⚠️ ТЕЗИ ДВЕ СПРАВКИ СА ВЪТРЕШНИ/ОДИТНИ И НЕ ДЪЛЖАТ СЪВПАДЕНИЕ С ОБРАЗЕЦ НА НАП. Основанието е
+    дословно: чл. 92 ал. 3 ЗКПО иска към годишната данъчна декларация само „годишният отчет за
+    дейността", а ЕДИНСТВЕНОТО място, където ЗКПО изисква копие от данъчния амортизационен план да
+    се подаде, е при ПРЕОБРАЗУВАНЕ НА ДРУЖЕСТВА — чл. 141 ал. 6 (нова — ДВ, бр. 110 от 2007 г., в
+    сила от 01.01.2008 г.): „Копията от справките по този член и от данъчния амортизационен план по
+    чл. 140, ал. 5 се подават в териториалната дирекция на Националната агенция за приходите по
+    регистрация на получаващите дружества на магнитен или оптичен носител, или по електронен път."
+    Тоест при рутинна ГДД ДАП не се подава и справката е за собствен контрол и за ревизия.
+
+    ⚠️ ЕДИН ОБЕКТ ЗА ДВАТА ПЛАНА, защото формата им е една и съща — стойност в началото, начислена
+    за годината, стойност в края — а разликата е в ИЗТОЧНИКА на редовете (fiscalFixedAssetLineList
+    срещу fixedAssetLineList) и в това кои колони имат смисъл. Два обекта биха дублирали и
+    групирането по категория, и сборовете. planSelect казва кой е.
+
+    ⚠️ И НИЩО НЕ СЕ ПРЕСМЯТА НАНОВО. Редовете идват от вече реализираните линии, построени от
+    BgFixedAssetLineTaxComputationServiceImpl (WS-A2). Втора аритметика тук би дала втори отговор на
+    същия въпрос — и щеше да се разминава точно в месеците, където чл. 58 ал. 1 и чл. 60 ал. 2
+    режат. -->
+  <entity name="BgAssetPlanReport">
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"
+      required="true"/>
+
+    <integer name="taxYear" title="Година" required="true"/>
+
+    <string name="planSelect" title="План" selection="bg.asset.plan.select" required="true"
+      default="TAX"/>
+
+    <date name="computedOn" title="Изчислена на"/>
+
+    <one-to-many name="lineList" ref="com.axelor.apps.bglocalization.db.BgAssetPlanLine"
+      mappedBy="report" title="Редове"/>
+
+    <decimal name="totalValueAtStart" title="Общо в началото (EUR)" precision="20" scale="2"/>
+
+    <decimal name="totalCharge" title="Общо начислено (EUR)" precision="20" scale="2"/>
+
+    <decimal name="totalValueAtEnd" title="Общо в края (EUR)" precision="20" scale="2"/>
+
+    <string name="comments" title="Бележки" large="true"/>
+
+    <unique-constraint columns="company,taxYear,planSelect"/>
+
+  </entity>
+
+  <entity name="BgAssetPlanLine">
+
+    <many-to-one name="report" ref="com.axelor.apps.bglocalization.db.BgAssetPlanReport"
+      title="Справка"/>
+
+    <many-to-one name="fixedAsset" ref="com.axelor.apps.account.db.FixedAsset" title="Актив"/>
+
+    <!-- Групиращата ос за ДАП: категориите I–VII по чл. 55 ал. 1. Празна за счетоводния план —
+      той не се групира по данъчна категория. -->
+    <string name="bgTaxCategorySelect" title="Категория по чл. 55"
+      selection="bg.tax.depreciation.category.select"/>
+
+    <!-- ГДАН по чл. 55 ал. 2, в проценти. Само за данъчния план. -->
+    <decimal name="depreciationRate" title="Норма ГДАН (%)" precision="5" scale="2"/>
+
+    <!-- ⚠️ „В НАЧАЛОТО" И „В КРАЯ" СА ОТДЕЛНИ КОЛОНИ НАРОЧНО, а не една стойност плюс начислено.
+      Данъчната амортизируема стойност НЕ е константа за живота на актива: по чл. 63 тя СЕ
+      УВЕЛИЧАВА с последващите разходи, „от началото на месеца, през който са завършени
+      последващите разходи", а чл. 62 урежда общия ред за промяна в стойностите. Нито един от двата
+      не е моделиран в модула (отделна задача) — но с две колони увеличението ще се вижда като
+      разлика веднага щом дойде, без справката да се пипа. -->
+    <decimal name="amortizableValueAtStart" title="Амортизируема стойност в началото (EUR)"
+      precision="20" scale="2"/>
+
+    <decimal name="amortizableValueAtEnd" title="Амортизируема стойност в края (EUR)"
+      precision="20" scale="2"/>
+
+    <decimal name="chargeForYear" title="Начислено за годината (EUR)" precision="20" scale="2"/>
+
+    <decimal name="accumulated" title="Начислено общо (EUR)" precision="20" scale="2"/>
+
+    <!-- ДБС за данъчния план, балансова стойност за счетоводния. Едно поле, защото е един и същ
+      въпрос — „колко остава" — зададен към различен план. -->
+    <decimal name="carryingValueAtEnd" title="Стойност в края (EUR)" precision="20" scale="2"/>
+
+    <!-- Признак, че активът стои в ДАП, макар да е излязъл от счетоводния план — чл. 60 ал. 3.
+      Без него редът изглежда като грешка: актив без счетоводна стойност, който още се амортизира
+      данъчно. -->
+    <boolean name="isRetainedByArt60Al3" title="Остава в ДАП по чл. 60 ал. 3"/>
+
+    <boolean name="isSuspendedByArt59" title="Спрян по чл. 59"/>
+
+    <string name="note" title="Бележка" large="true"/>
+
+  </entity>
+
+</domain-models>

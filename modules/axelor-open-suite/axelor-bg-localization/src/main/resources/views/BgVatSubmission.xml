@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="bg-vat-submission-grid" title="Подавания (mock)"
+    model="com.axelor.apps.bglocalization.db.BgVatSubmission" canNew="false" canDelete="false"
+    edit-icon="true">
+    <field name="attemptNumber"/>
+    <field name="submittedOn"/>
+    <field name="submittedBy"/>
+    <field name="statusSelect"/>
+    <field name="targetSelect"/>
+    <field name="entryNumber"/>
+    <field name="mockScenario"/>
+    <field name="errorMessage"/>
+  </grid>
+
+  <form name="bg-vat-submission-form" title="Подаване (mock)" width="large"
+    model="com.axelor.apps.bglocalization.db.BgVatSubmission" canNew="false" canEdit="false"
+    canDelete="false" canSave="false">
+
+    <panel name="attemptPanel" title="Опит" colSpan="12">
+      <field name="attemptNumber" colSpan="3" readonly="true"/>
+      <field name="statusSelect" colSpan="3" readonly="true"/>
+      <field name="targetSelect" colSpan="3" readonly="true"/>
+      <field name="mockScenario" colSpan="3" readonly="true"/>
+      <field name="submittedOn" colSpan="4" readonly="true"/>
+      <field name="submittedBy" colSpan="4" readonly="true"/>
+      <field name="lastStatusCheckOn" colSpan="4" readonly="true"/>
+    </panel>
+
+    <panel name="resultPanel" title="Резултат (mock)" colSpan="12">
+      <field name="entryNumber" colSpan="4" readonly="true"/>
+      <field name="submissionRef" colSpan="4" readonly="true"/>
+      <field name="externalStatus" colSpan="4" readonly="true"/>
+      <field name="httpStatus" colSpan="4" readonly="true"/>
+      <field name="correlationId" colSpan="8" readonly="true"/>
+      <field name="errorCode" colSpan="4" readonly="true"/>
+      <field name="errorMessage" colSpan="12" readonly="true"/>
+    </panel>
+
+    <panel name="filesPanel" title="Изпратени файлове (пакет)" colSpan="12">
+      <!-- The exact immutable package (and therefore the four files) transmitted by this attempt. -->
+      <field name="bgVatPackage" colSpan="8" readonly="true" form-view="bg-vat-package-form"
+        grid-view="bg-vat-package-grid"/>
+      <field name="packageSha256" colSpan="12" readonly="true"/>
+    </panel>
+
+    <panel name="metaPanel" title="Метаданни" colSpan="12" collapsible="true">
+      <field name="requestMeta" colSpan="12" readonly="true"/>
+      <field name="responseMeta" colSpan="12" readonly="true"/>
+    </panel>
+
+  </form>
+
+</object-views>

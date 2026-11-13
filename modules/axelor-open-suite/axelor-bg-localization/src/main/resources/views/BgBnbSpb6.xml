@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ БНБ — СПБ-6А/6Б: ТЪРГОВСКИ ВЗЕМАНИЯ И ЗАДЪЛЖЕНИЯ КЪМ ЧУЖДЕСТРАННИ ЛИЦА ═══
+
+    Указания към Наредба № 27 на БНБ, в сила от 01.04.2026, чл. 8: юридическите лица и ЕТ отчитат
+    тримесечно, ако общата сума в началото или в края на тримесечието е ≥ 100 000 €. Годишна форма
+    за тях няма (СПБ-8 е на физическите лица) — „Цялата година“ е само работен лист.
+
+    Преходна форма (Wizard, без запис): активното дружество, година и тримесечие → Excel във вида
+    на образеца. Правилата — BgBnbSpb6; базата — BgBnbSpb6Service. Нищо не се подава към БНБ. -->
+
+  <selection name="bg.bnb.spb6.quarter.select">
+    <option value="1">I тримесечие</option>
+    <option value="2">II тримесечие</option>
+    <option value="3">III тримесечие</option>
+    <option value="4">IV тримесечие</option>
+    <option value="0">Цялата година (работен лист)</option>
+  </selection>
+
+  <form name="bg-bnb-spb6-wizard-form" title="БНБ — СПБ-6А/6Б (вземания и задължения към нерезиденти)"
+    model="com.axelor.utils.db.Wizard" canSave="false" canNew="false" canDelete="false"
+    canCopy="false" onNew="action-method-bg-bnb-spb6-defaults">
+    <panel name="parametersPanel">
+      <field name="$year" title="Година" type="integer" required="true" min="2026"/>
+      <field name="$quarter" title="Период" type="integer" required="true"
+        selection="bg.bnb.spb6.quarter.select"/>
+      <button name="exportBtn" title="Свали Excel" colSpan="4"
+        onClick="action-method-bg-bnb-spb6-export"/>
+      <static name="helpText" colSpan="12"><![CDATA[
+<p>Справката е за <b>активното дружество</b>: търговските вземания (СПБ-6А) и задължения (СПБ-6Б)
+към партньори с държава, различна от BG, в оригиналната валута и в хиляди. Прагът е 100 000 €
+в началото или в края на тримесечието. Срокът е до 20-о число на следващия месец, а за IV
+тримесечие — до 25 януари.</p>
+<p>Жълтите клетки са стойности по подразбиране — тип (D4), сектор (S11/S14) и матуритет (S).
+Проверете ги, преди да пренесете данните в шаблона от Портала на ИСИС.</p>]]></static>
+    </panel>
+  </form>
+
+  <action-method name="action-method-bg-bnb-spb6-defaults">
+    <call class="com.axelor.apps.bglocalization.web.BgBnbSpb6Controller" method="defaults"/>
+  </action-method>
+
+  <action-method name="action-method-bg-bnb-spb6-export">
+    <call class="com.axelor.apps.bglocalization.web.BgBnbSpb6Controller" method="export"/>
+  </action-method>
+
+  <action-view name="action-bg-bnb-spb6-wizard" title="БНБ — СПБ-6А/6Б"
+    model="com.axelor.utils.db.Wizard">
+    <view type="form" name="bg-bnb-spb6-wizard-form"/>
+    <view-param name="popup" value="false"/>
+    <view-param name="show-toolbar" value="false"/>
+  </action-view>
+
+  <!-- Справката е в главното меню „БНБ“ (bnb-root › bnb-spb6, Menu.xml). Старото
+    „Счетоводство › Отчети › БНБ — СПБ-6А/6Б“ е скрито с механизма на Menu-*-hide.xml (id +
+    hidden="true"), за да няма две.
+
+    ⚠️ Менюто е НАШЕ, затова редът е тук, а не в Menu-*-hide.xml (BgHiddenMenuTest иска там чуждо
+    меню от JAR). ViewLoader#importMenu търси по name + module: в заварена база намира стария ред
+    на същия модул и го обновява на място (hidden=true, действието остава), в нова база ражда
+    скрит ред. MenuService не показва скрития възел. ⚠️ Без id редът пак би се приложил (наш е),
+    но id е механизмът за скриване и пазачът BgBnbMenuTest го иска. Ролите — в nx_retired.csv. -->
+  <menuitem id="bg-hide-bg-bnb-spb6" name="bg-bnb-spb6" parent="account-root-report"
+    title="БНБ — СПБ-6А/6Б" order="900" hidden="true"/>
+
+</object-views>

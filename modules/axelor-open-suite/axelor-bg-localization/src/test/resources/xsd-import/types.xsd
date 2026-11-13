@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:test:types">
+  <xsd:simpleType name="Small"><xsd:restriction base="xsd:int"><xsd:maxInclusive value="9"/></xsd:restriction></xsd:simpleType>
+</xsd:schema>

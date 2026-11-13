@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="studio" package="com.axelor.studio.db"/>
+
+  <!-- Config app for the НАП submissions module. Holds ONLY non-secret settings: environment, feature
+    flags, endpoint overrides and a SECRET REFERENCE (a key-vault/identifier that a NapSecretProvider resolves
+    at call time). NEVER store plain-text API keys or private-key material here. Endpoints stay empty/default
+    until a client is implemented from the official contract. -->
+  <entity name="AppNapSubmissions" cacheable="true">
+
+    <one-to-one ref="com.axelor.studio.db.App" name="app" unique="true"/>
+
+    <!-- Which НАП environment API calls target once a real client exists. -->
+    <string name="environmentSelect" title="NAP environment"
+      selection="nap.api.environment.select" default="test"/>
+
+    <!-- Feature flags -->
+    <boolean name="apiSubmissionEnabled" title="Enable API submission" default="false"/>
+
+    <!-- Endpoint overrides are DISABLED by default: the official TEST/PRODUCTION endpoints are always
+      used unless allowEndpointOverride is explicitly enabled AND a non-blank override is provided. -->
+    <boolean name="allowEndpointOverride" title="Allow endpoint override" default="false"/>
+    <string name="submitEndpointOverride" title="Submit endpoint override"/>
+    <string name="resultEndpointOverride" title="Result endpoint override"/>
+
+    <extra-code><![CDATA[
+      public static final String ENVIRONMENT_TEST = "test";
+      public static final String ENVIRONMENT_PROD = "prod";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

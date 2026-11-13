@@ -1,0 +1,7 @@
+"code";"name";"navigation";"technicalStaff";"roleName"
+"nap_config";"НАП Configuration";"visible";"false";"NapConfig"
+"nap_prepare";"НАП Preparation";"visible";"false";"NapPrepare"
+"nap_review";"НАП Review";"visible";"false";"NapReview"
+"nap_approve";"НАП Approval";"visible";"false";"NapApprove"
+"nap_sign";"НАП Signing";"visible";"false";"NapSign"
+"nap_submit";"НАП Submission";"visible";"false";"NapSubmit"

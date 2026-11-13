@@ -1,0 +1,68 @@
+= 7.3 Migration Guide
+:toc:
+:toc-title:
+
+:product-version-changelog: https://github.com/axelor/axelor-open-platform/blob/7.3/CHANGELOG.md
+:gradle-8-0-8-7: https://docs.gradle.org/current/userguide/upgrading_version_8.html
+
+In this document, we will see the major steps to migrate from 7.2 to 7.3.
+
+NOTE: Please check the {product-version-changelog}[change log] for detailed list of fixes, changes and improvements introduced in 7.3
+
+== Dependencies upgrade
+
+Some dependencies have been upgraded to newer versions. Check the {product-version-changelog}[change log] for detailed
+list.
+
+Gradle has also been upgraded to a newer version. Upgrade the Gradle Wrapper to benefit from new features and
+improvements : `./gradlew wrapper --gradle-version 8.11.1`.
+
+[NOTE]
+====
+Note that running the wrapper task once will update `gradle-wrapper.properties` only, but leave the wrapper itself in
+`gradle-wrapper.jar` untouched. This is usually fine as new versions of Gradle can be run even with ancient wrapper
+files. If you nevertheless want all the wrapper files to be completely up-to-date, you’ll need to run the `wrapper`
+task a second time.
+====
+
+Check Gradle migration to update your builds : {gradle-8-0-8-7}[Upgrading your build from Gradle 8.x to the latest]
+
+NOTE: The workaround previously suggested for Gradle issue "javaToolchains incorrectly reports 'does not contain a java executable' on Debian and Ubuntu" (xref:migrations/migration-7.1.adoc#dependencies-upgrade[described in 7.1 migration guide]) is no longer needed since Gradle 8.8. If you had implemented this workaround, you can safely remove it.
+
+== Help widget variant support
+
+The help variant is extracted from the `css` attributes values. Now, help widget has a new attribute `variant` that
+can be used, `css` attribute usage to determinate the variant is deprecated. Accepted values are `info`, `success`,
+`warning` and `error`. Default value is `info`.
+
+[cols="2"]
+|===
+| Old `css` attribute values | `variant` equivalent
+| `alert-info` | `info`
+| `alert-success` | `success`
+| `alert-warning` | `warning`
+| `alert-danger` | `danger`
+|===
+
+== Add/edit/delete support in dashlet and panel-dashlet
+
+This adds support for adding and deleting records on dashboard dashlets and panel-dashlet. It is not enable by default :
+specify `canNew` and `canDelete` to `true` or with an expression evaluated against current context.
+
+It also adds support to editable grids. The linked grid view should have `editable="true"` to allow edit records in
+grids. To disable this behavior, you have to pass `canEdit="false"` to disable editable support without updating the
+linked grid view.
+
+== Label legacy css classes support
+
+Built-in classes `label-warning`, `label-important`, `label-\{variant\}`, ... that automatically applied background
+color have been removed. Now `label-\{variant\}` class only change text color. In order to apply background color, use
+`label-bg-\{variant\}` class like `label-bg-warning`. Such classes are commonly used in custom views or in viewers. Do
+appropriate changes if background color is needed.
+
+As part of these changes, `dms.tag.style.selection` selection values has been updated. You need to run following sql
+query in order to update the database values :
+
+```sql
+UPDATE dms_file_tag SET style = CONCAT ('label-bg-', SPLIT_PART(style, '-', 2))  WHERE style LIKE 'label-%';
+```

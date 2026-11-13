@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ====== BgDeclaredWorkHours — нощен труд и разположение, декларирани за периода ====== -->
+
+  <grid name="bg-declared-work-hours-grid" title="Декларирани часове"
+    model="com.axelor.apps.bglocalization.db.BgDeclaredWorkHours" orderBy="-periodFrom">
+    <field name="employmentContract" title="Служител"/>
+    <field name="periodFrom"/>
+    <field name="periodTo"/>
+    <field name="bgNightHours"/>
+    <field name="bgOnCallHours"/>
+  </grid>
+
+  <form name="bg-declared-work-hours-form" title="Декларирани часове за периода"
+    model="com.axelor.apps.bglocalization.db.BgDeclaredWorkHours">
+
+    <panel name="whoPanel" title="Договор и период">
+      <field name="employmentContract" canEdit="false"/>
+      <field name="periodFrom"/>
+      <field name="periodTo"/>
+    </panel>
+
+    <panel name="hoursPanel" title="Часове">
+      <field name="bgNightHours" colSpan="6"
+        help="Нощен труд по НСОРЗ чл. 8. Нощната смяна по график е РЕДОВЕН труд с добавка — тя не поражда ред „допълнителни часове“ и няма друг източник в модела."/>
+      <field name="bgOnCallHours" colSpan="6"
+        help="Време на разположение по НСОРЗ чл. 10. Не е работа, а задължение да си достъпен — и няма друг източник в модела."/>
+      <!-- ⚠️ Това е ГЛАВНОТО, което операторът трябва да знае за този екран, и затова е на него, а
+        не само в домейна: празната клетка при СЪЩЕСТВУВАЩ ред значи НУЛА, не „не знам“. -->
+      <static name="bgDeclarationHelp" colSpan="12"><![CDATA[
+        ⚠️ Самият ред е декларацията. Създаването му е твърдение за целия период и за ДВЕТЕ числа:
+        празна клетка тук значи „такива часове НЯМА“, а не „не знам“. Докато ред за периода липсва,
+        ведомостта чете и двете като неизвестни.
+      ]]></static>
+    </panel>
+
+    <panel name="notePanel" title="Забележка">
+      <field name="note" colSpan="12" showTitle="false"/>
+    </panel>
+
+  </form>
+
+</object-views>

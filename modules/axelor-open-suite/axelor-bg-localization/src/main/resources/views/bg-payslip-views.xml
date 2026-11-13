@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgPaySlip — фишът ============ -->
+
+  <grid name="bg-payslip-grid" title="Фишове"
+    model="com.axelor.apps.bglocalization.db.BgPaySlip" orderBy="-period,reference">
+    <hilite color="success" if="statusSelect == 'PAID'"/>
+    <hilite color="default" if="statusSelect == 'CANCELLED'"/>
+    <!-- ⚠️ Коригиращият фиш ТРЯБВА да се различава в списъка. Без това два фиша за един и същ месец
+      изглеждат като дубликат — тоест като дефект, — а те са нормалното устройство на корекцията. -->
+    <hilite color="warning" if="bgIsCorrection"/>
+    <!-- ⚠️ Заличаващият фиш се различава от коригиращия и в списъка: първият казва „този запис не
+      бива да съществува“, вторият — „числата му са други“. Един цвят за двете би скрил точно
+      разликата, която решава дали лицето получава остатък, или връща всичко. -->
+    <hilite color="danger" if="bgIsDeletion"/>
+    <field name="reference"/>
+    <!-- ⚠️ ИМЕТО НА СЛУЖИТЕЛЯ, НЕ ИМЕТО НА ДОГОВОРА. Името на договора е
+      AOS EmploymentContract.fullName = „вид-служител-начало-край“: видът (AOS contractType) в BG
+      не се попълва, а без име на лицето от него остава само началната дата. -->
+    <field name="employmentContract.employee.name" title="Служител"/>
+    <field name="bgSelfInsuredRegistration" title="СОЛ"/>
+    <field name="period"/>
+    <field name="bgGrossTotal"/>
+    <field name="bgNetTotal"/>
+    <field name="bgIsCorrection" title="Коригиращ" width="110"/>
+    <field name="bgIsDeletion" title="Заличаващ" width="110"/>
+    <field name="statusSelect"/>
+  </grid>
+
+  <form name="bg-payslip-form" title="Фиш"
+    model="com.axelor.apps.bglocalization.db.BgPaySlip" onNew="action-bg-payslip-prepare">
+
+    <panel name="statusPanel" showTitle="false" colSpan="12">
+      <field name="statusSelect" widget="NavSelect" colSpan="12" readonly="true"/>
+    </panel>
+
+    <panel name="headerPanel" title="Фиш">
+      <field name="reference"/>
+      <!-- ⚠️ ТОЧНО ЕДНО ОТ ДВЕТЕ. Договорът и регистрацията се крият взаимно, а самото правило НЕ
+        живее тук: изгледът е любезност към човека пред екрана, а REST, импортът и партидата минават
+        покрай него. Отказът е BgSelfInsuredRules#refuseCarrier и се вика при смятането на
+        вноските и при потвърждаването. -->
+      <field name="employmentContract" canEdit="false" onChange="action-bg-payslip-prepare"
+        hideIf="bgSelfInsuredRegistration" grid-view="bg-employment-contract-select-grid"
+        domain="self.payCompany.id IN (SELECT u.activeCompany.id FROM User u WHERE u = :__user__)"/>
+      <field name="bgSelfInsuredRegistration" canEdit="false"
+        onChange="action-bg-payslip-prepare" hideIf="employmentContract"
+        help="Самоосигуряващото се лице няма трудов договор — има регистрация (КСО чл. 6 ал. 8: вноските са за сметка на осигурените лица)."/>
+      <field name="period" canEdit="false" onChange="action-bg-payslip-prepare"
+        help="Стандартен период на Axelor. Годината му трябва да е от тип „заплатна“."/>
+      <!-- ⚠️ ЕДИНСТВЕНОТО платежно поле, което ОСТАВА редактируемо извън чернова, и това е нарочно:
+        pay() иска дата на изплащане, а тя се въвежда точно върху ПОТВЪРДЕН фиш (BgPaySlipController
+        я пренася от контекста). Заключена до DRAFT, изплащането би станало невъзможно от екрана. -->
+      <field name="bgPaidDate" readonlyIf="statusSelect == 'CANCELLED'"/>
+    </panel>
+
+    <!-- Замразените входове стоят най-отгоре: те обясняват всяко число надолу. -->
+    <!-- ⚠️ ВСЯКА ПРОМЯНА ТУК ПРЕСМЯТА ФИША НАНОВО. Генераторите четат точно тези полета; без
+      пресмятане перата биха останали от предишните дни и заплата, а потвърждаването би записало
+      новите числа покрай тях. -->
+    <panel name="frozenPanel" title="Замразени входове">
+      <field name="bgWorkingDaysInPeriod" readonlyIf="statusSelect != 'DRAFT'"
+        onChange="action-bg-payslip-calculate"
+        help="От производствения календар. Ръчна промяна значи, че числото е ваше решение."/>
+      <field name="bgWorkedDays" readonlyIf="statusSelect != 'DRAFT'"
+        onChange="action-bg-payslip-calculate"
+        help="Болничните дни се приспадат автоматично. Ръчна промяна значи, че числото е ваше решение — по-ниска въведена стойност се уважава."/>
+      <!-- ⚠️ РЪЧНАТА РЕДАКЦИЯ СВАЛЯ ПРИЗНАКА, И ТОВА Е ЦЕЛИЯТ МЕХАНИЗЪМ. Заплатата се извежда от
+        договора и допълнителните му споразумения ЗА ПЕРИОДА, тоест при смяна на периода трябва да
+        се преизчисли. Копиране само при нулева стойност би оставило веднъж записаната сума
+        непипната и смяната на периода мълчаливо би носила чуждото число. Затова решава
+        признакът: щом човек напише сума, тя е негово решение и преизчисляване няма. -->
+      <field name="bgBaseSalary" readonlyIf="statusSelect != 'DRAFT'"
+        onChange="action-bg-payslip-record-manual-base-salary,action-bg-payslip-calculate"
+        help="Извежда се от договора и от допълнителните му споразумения, в сила за периода на фиша. ⚠️ Напишете ли сума на ръка, отметката „Авто-попълни основната заплата“ пада и повече нищо не я презаписва — включително при смяна на периода."/>
+      <field name="bgAutoFillBaseSalary" readonlyIf="statusSelect != 'DRAFT'"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgNoOtherPayerIncome" readonlyIf="statusSelect != 'DRAFT'"
+        onChange="action-bg-payslip-calculate"
+        help="ИЗЯВЛЕНИЕ ЗА ТОЗИ МЕСЕЦ: лицето няма осигурителен доход при друг платец. Чекнете го, когато второто правоотношение си стои (договорът носи стояща стойност), но за ТОЗИ месец не е осигурявало — отпуск, болничен или напускане при другия платец. Тогава координацията по КСО чл. 6 ал. 11 НЕ се прилага и месецът се смята по нормалния път: МОД под и единичен таван. ⚠️ НЕ занулявайте стойността на ДОГОВОРА — тя важи за всички останали месеци и трябва да си остане. ⚠️ Основание: НЕВДПОВ чл. 4 — задължението за деклариране възниква при ВТОРО основание, а сборът по ал. 11 е МЕСЕЧЕН факт."/>
+      <field name="bgOtherPayerInsurableIncome"
+        readonlyIf="statusSelect != 'DRAFT' || bgNoOtherPayerIncome"
+        onChange="action-bg-payslip-calculate"
+        help="НАДПИСВА ДОГОВОРА ЗА ТОЗИ МЕСЕЦ, в евро: осигурителният доход на лицето при ДРУГ работодател, деклариран от него. Стойност &gt; 0 надписва; ПРАЗНО (и 0,00) ползва стоящата стойност от договора, а НЕ значи „без координация“. Попълнен, таванът се прилага върху СБОРА (КСО чл. 6 ал. 11): осигурява се само остатъкът до максималния осигурителен доход, а МОД подът по този договор НЕ се прилага — прагът вече е покрит от другия платец. ⚠️ За да кажете „този месец няма чужд доход“, чекнете кутийката отгоре — нула ТУК не е изявление и пак ползва договора."/>
+    </panel>
+
+    <!-- ЗАМРАЗЕНИТЕ ЧАСОВЕ — САМО ЗА ЧЕТЕНЕ, и то нарочно.
+
+      ⚠️ ЗАЩО НЕ СЕ РЕДАКТИРАТ, за разлика от дните отгоре. Дните са ЕДНО число, което ТРЗ може да
+      защити пред проверка („лицето е било в неплатен отпуск два дни, календарът не го знае“).
+      Часовете са ОСЕМ числа от ТРИ източника, всяко от които носи и признак „измервано ли е“ —
+      редактирани поотделно, те се разминават с отчета, по който са платени перата, и точно това
+      разминаване колоните съществуват, за да махнат. Поправката е в ИЗТОЧНИКА (отчета за време,
+      декларацията за нощен труд, допълнителните часове) и следващото prepare() я пренася.
+
+      ⚠️ Панелът се крие, когато нищо не е измерено: осем празни реда на всеки фиш учат окото да
+      ги прескача и точно тогава то пропуска единствения път, когато има значение. -->
+    <panel name="frozenHoursPanel" title="Замразени часове"
+      showIf="bgWorkedHoursKnown || bgDeclaredHoursKnown || bgOvertimeHoursKnown || bgHolidayHoursKnown">
+      <field name="bgWorkedHours" readonly="true" showIf="bgWorkedHoursKnown"
+        help="От ВАЛИДИРАНИ отчети за време. Същият прочит, по който се пълни и т. 16.7 на Декларация обр. 1 — оттук нататък декларацията чете ТОВА число, а не отчета наново."/>
+      <field name="bgTimesheetDays" readonly="true" showIf="bgWorkedHoursKnown"
+        help="Броят РАЗЛИЧНИ дни, за които отчетът носи часове. ⚠️ Не са отработените дни: разликата между двете дава дните платен отпуск, чиито часове т. 16.7 иска изрично."/>
+      <field name="bgNightHours" readonly="true" showIf="bgDeclaredHoursKnown"
+        help="От декларацията за периода (Декларирани часове). Плаща се по НСОРЗ чл. 8 — по-високото от 0,15 % от МРЗ и 0,51 EUR на час."/>
+      <field name="bgOnCallHours" readonly="true" showIf="bgDeclaredHoursKnown"
+        help="От същата декларация. Плаща се по НСОРЗ чл. 10 — не по-малко от 0,05 EUR за час или част от него."/>
+      <field name="bgHolidayWorkHours" readonly="true" showIf="bgHolidayHoursKnown"
+        help="ВСИЧКИ часове, отчетени на дати, които производственият календар обявява за официални празници — нормален труд и извънреден заедно (КТ чл. 264 заплаща двойно НЕЗАВИСИМО дали е извънреден)."/>
+      <field name="bgOvertimeWorkdayHours" readonly="true" showIf="bgOvertimeHoursKnown"/>
+      <field name="bgOvertimeRestDayHours" readonly="true" showIf="bgOvertimeHoursKnown"/>
+      <field name="bgOvertimeHolidayHours" readonly="true" showIf="bgOvertimeHoursKnown"
+        help="ПОДМНОЖЕСТВО на празничните часове отгоре. Повече от тях е противоречие между двата източника и енджинът отказва да сметне и двете пера."/>
+      <field name="bgOvertimeSirvHours" readonly="true" showIf="bgOvertimeHoursKnown"/>
+    </panel>
+
+    <!-- ДНИТЕ БОЛНИЧЕН — РАЗДЕЛЕНО, както на фиша. Двата броя мерят различни неща: първите носят
+      осигурителен доход (перото 195), вторите са базата на здравната вноска по ЗЗО чл. 40 ал. 1 т. 5.
+      Панелът се показва само когато има болничен: празен ред „0 дни“ на всеки фиш учи окото да го
+      прескача и точно тогава пропуска единствения път, когато има значение. -->
+    <panel name="sickLeavePanel" title="Болничен"
+      showIf="bgSickDaysEmployer &gt; 0 || bgSickDaysDoo &gt; 0">
+      <!-- ⚠️ И ЗАКЛЮЧЕНИ НА РЕТРО-ФИШ, не само на потвърден. Коригиращото копие вече НОСИ двата
+        броя от оригинала (BgPaySlipService#retroCopyOf) и затова панелът му се показва — но дните
+        там са ФАКТ за онзи месец, а не вход. Редактирани, те биха преместили т. 16.А и т. 16.2 на
+        коригиращата Д1, без перото по чл. 40 ал. 5 КСО да се преизчисли: декларацията тръгва в
+        една посока, парите остават в друга. Пренасметнатият болничен при пристигнал лист е
+        отделен поток и си има своя задача. -->
+      <field name="bgSickDaysEmployer"
+        readonlyIf="statusSelect != 'DRAFT' || bgIsCorrection || bgIsDeletion"
+        help="Първите два работни дни от всеки непрекъснат период, за сметка на осигурителя (чл. 40 ал. 5 КСО). Носят осигурителен доход — перото „Болничен от осигурител“ е за тях. ⚠️ На коригиращ и заличаващ фиш са само за четене: те идват от оригинала и НЕ се преизчисляват."/>
+      <field name="bgSickDaysDoo"
+        readonlyIf="statusSelect != 'DRAFT' || bgIsCorrection || bgIsDeletion"
+        help="Останалите работни дни на неработоспособността. Обезщетението за тях се плаща от НОИ ДИРЕКТНО на лицето и НЕ е перо на този фиш (Приложение 9 — WS-7). Тук те служат за базата на здравната вноска по ЗЗО чл. 40 ал. 1 т. 5."/>
+      <!-- Присъда на пресмятането, не вход: само за четене навсякъде. -->
+      <field name="bgSickDaysNoBenefit" readonly="true" showIf="bgSickDaysNoBenefit &gt; 0"
+        help="От дните за ДОО — тези БЕЗ право на обезщетение: осигурителният стаж е под 6 месеца (чл. 40 ал. 1 КСО). Д1 ги обявява в т. 16.4, не в т. 16.2. Здравната вноска по ЗЗО чл. 40 ал. 1 т. 5 се дължи и за тях, от работодателя. Изчислява се при „Преизчисли“ по стажа на лицето КЪМ ТОГАВА и остава замразено."/>
+      <!-- Отказаният разбив: само за четене, видим само когато го има. „Потвърди“ отказва по него. -->
+      <field name="bgSickDaysRefusal" readonly="true" colSpan="12" showIf="bgSickDaysRefusal"
+        help="Болничните дни НЕ са разделени или перо 195 НЕ е сметнато — причината е тук. Фишът не се потвърждава, докато не се поправи входът (стаж, дата на раждане, вид на листа, потвърденият фиш за месеца на настъпване) и не се натисне „Преизчисли“."/>
+    </panel>
+
+    <!-- ⚠️ ПЕРАТА СЕ РЕДАКТИРАТ САМО В ЧЕРНОВА, и това НЕ е украса на екрана. Потвърденият фиш е
+      замразен по устройство: recompute() е no-op извън DRAFT, а път назад към DRAFT няма
+      (refuseTransition). Тоест ръчно пипнат ред върху потвърден фиш не преизчислява нищо — той
+      просто разминава перата със заглавните суми, тихо и невидимо, защото и двете числа изглеждат
+      пресметнати. А когато Д1/Д6 за месеца вече е подадена, същият ред разминава фиша и с
+      ДЕКЛАРИРАНОТО пред НАП: сервизният пазач (ключ Б) спира потвърждаване, отказ и изтриване, но
+      редакцията на перата не минава през нито един от трите — тя се записва с обикновен Save.
+      ⚠️ Условието е „не е DRAFT“, а НЕ „периодът е заключен“: заключването е по-тясно, а редът
+      върху потвърден фиш в отворен и недеклариран период е също толкова безсмислен.
+      ⚠️ ПРОМЯНАТА НА ПЕРАТА ПРЕСМЯТА ЦЕЛИЯ ФИШ, не само сумите. Само recompute() сумира: перо
+      180 с въведени 200,00 би останало със сума 0,00, вноските и данъкът — от предишното
+      пресмятане, и фишът би се потвърдил без бонуса. -->
+    <panel name="linesPanel" title="Пера" colSpan="12">
+      <field name="bgPaySlipLineList" colSpan="12" showTitle="false"
+        readonlyIf="statusSelect != 'DRAFT'"
+        grid-view="bg-payslip-line-grid" form-view="bg-payslip-line-form"
+        onChange="action-bg-payslip-calculate"/>
+    </panel>
+
+    <!-- ⚠️ СУМИТЕ СА САМО ЗА ЧЕТЕНЕ — И В ЧЕРНОВА. Единственият им източник са перата: пише
+      ги BgPaySlipService#calculate, а потвърждаването ги сверява със свежите сборове и отказва при
+      разлика. Редактирани на ръка, те спорят с перата отдолу и при потвърден фиш, и при чернова. -->
+    <!-- ОТКАЗАНИЯТ ОТПУСК ПО ЧЛ. 177 — свой панел, а не в панела на болничния: онзи се показва само
+      при болничен, а отказът по чл. 177 няма нищо общо с него. Видим само при отказ. -->
+    <panel name="art177RefusalPanel" title="Отпуск по чл. 177" showIf="bgArt177Refusal">
+      <field name="bgArt177Refusal" readonly="true" colSpan="12" showIf="bgArt177Refusal"
+        help="Възнаграждението за платен отпуск по чл. 177 КТ НЕ е сметнато — причината е тук. Дните на отпуска са свалени от основната заплата, а перо 165 липсва. Фишът не се потвърждава, докато не се поправи входът (базов месец, работни дни, перата с постоянен характер) и не се натисне „Преизчисли“."/>
+    </panel>
+
+    <panel name="totalsPanel" title="Суми">
+      <field name="bgGrossTotal" readonly="true"/>
+      <field name="bgInsuranceIncome" readonly="true"/>
+      <field name="bgTaxBase" readonly="true"/>
+      <field name="bgTaxAmount" readonly="true"/>
+      <field name="bgNetTotal" readonly="true"/>
+      <field name="bgEmployerCost" readonly="true"/>
+      <!-- ⚠️ НЕ Е ЧАСТ ОТ НЕТОТО. Месечната данъчна основа за данъка върху разходите (ЗКПО чл. 213 и
+        чл. 214) е задължение на ПРЕДПРИЯТИЕТО, а не доход или удръжка на лицето — стои тук, защото
+        входът ѝ съществува само в този месец, и се показва само когато има какво да покаже. -->
+      <field name="bgSocialExpenseTaxBase" readonly="true"
+        showIf="bgSocialExpenseTaxBase &amp;&amp; bgSocialExpenseTaxBase > 0"/>
+      <!-- ⚠️ СКРИТО, НО НА ФОРМАТА: пресмятането го връща на екрана и записът трябва да го носи
+        обратно. Извън формата то нямаше да стигне до записа и всеки фиш щеше да е „непресметнат“. -->
+      <field name="bgCalcFingerprint" hidden="true" readonly="true"/>
+    </panel>
+
+    <!-- ИЗПОЛЗВАНОТО ОТ ТАВАНИТЕ НА СОЦИАЛНИТЕ РАЗХОДИ (BgPaySlipCapUsage) — по ред на таван. Само за
+      четене: пише го „Преизчисли“, ретро-копието го наследява, а „Потвърди“ го сверява с прясната
+      сметка. Показва се само когато има редове. -->
+    <panel name="capUsagePanel" title="Таваните на социалните разходи" colSpan="12"
+      showIf="bgCapUsageList &amp;&amp; bgCapUsageList.length > 0">
+      <field name="bgCapUsageList" colSpan="12" readonly="true" showTitle="false"
+        grid-view="bg-payslip-cap-usage-grid"/>
+      <field name="bgCapUsageFrozenAt" readonly="true"/>
+    </panel>
+
+    <!-- ⚠️ Панелите се показват САМО за съответния фиш. Празен панел „Корекция“ на всеки редовен фиш
+      учи окото да го прескача и точно тогава пропуска единствения път, когато има значение. -->
+    <panel name="correctionPanel" title="Корекция" showIf="bgIsCorrection">
+      <field name="bgIsCorrection" readonly="true"
+        help="Носи ПЪЛНИТЕ верни числа за периода и храни коригираща Д1/Д6 за него. НЕ се изплаща: към лицето отива само нетната разлика, в текущия отворен фиш."/>
+      <field name="bgCorrectionOf" readonly="true" canEdit="false"
+        help="Оригиналният фиш, който този поправя. Той остава непокътнат — той е одитната следа."/>
+    </panel>
+
+    <panel name="deletionPanel" title="Заличаване" showIf="bgIsDeletion">
+      <field name="bgIsDeletion" readonly="true"
+        help="Записът НЕ бива да съществува — грешно лице, грешен период, дубликат. Числата тук са тези на оригинала и НЕ се редактират: те идентифицират записа, който НАП трябва да заличи. НЕ се изплаща — към лицето отива МИНУС цялото оригинално нето, в текущия отворен фиш."/>
+      <field name="bgDeletionOf" readonly="true" canEdit="false"
+        help="Грешният фиш, който този заличава. Той ОСТАВА в Nyxa за одит и не се трие — „заличен“ е за НАП, не за нас."/>
+    </panel>
+
+    <!-- ⚠️ ПАНЕЛЪТ, БЕЗ КОЙТО ГЕНЕРАТОРИТЕ СА ПОЛОВИН ГЕНЕРАТОРИ. Присъдите СА изходът, не дневник:
+      всеки отказ тук е перо, което го НЯМА, с назована причина. Без панела отказът „липсва
+      осигурителен стаж по чл. 40 ал. 1“ изглежда на екрана точно като „няма какво да се начисли“. Перо няма
+      и в двата случая; разликата е, че единият е тихо недоплащане.
+
+      ⚠️ ПОКАЗВА СЕ САМО СЛЕД ОБХОД (bgGeneratedAt). Празен панел „Присъди“ на всеки нов фиш учи
+      окото да го прескача и точно тогава пропуска единствения път, когато има значение — същият
+      довод като при панелите „Корекция“ и „Болничен“ по-горе.
+
+      ⚠️ И ДВАТА СПИСЪКА, А НЕ ЕДИН. „Какво липсва“ отговаря на „какво трябва да поправя“ и стои
+      ПЪРВО; пълните присъди отговарят на „защо това перо го няма“ и стоят под него. Слети, три
+      отказа се губят между шейсет присъди. Същата двойка като bgEmissionGaps и resolverNotes при
+      удостоверението по Приложение № 9. -->
+    <panel name="verdictPanel" title="Присъди на генераторите" showIf="bgGeneratedAt">
+      <field name="bgGeneratedAt" readonly="true"/>
+      <field name="bgGeneratorRefusalCount" readonly="true"
+        help="Колко пера НЕ са начислени по причина, която иска поправка. Нула значи, че всяко перо е или сметнато, или обявено за неотносимо — не че генераторите не са пускани; за това говори датата вляво."/>
+      <field name="bgGeneratorGaps" colSpan="12" readonly="true"
+        showIf="bgGeneratorRefusalCount &gt; 0"
+        help="Какво липсва и къде се попълва — по един ред на отказ. Липсващо перо тук НЕ значи „не се дължи“: значи, че генераторът е трябвало да сметне и не е могъл."/>
+      <field name="bgGeneratorNotes" colSpan="12" showTitle="false" readonly="true"
+        help="По една присъда за всяко перо: [начислено] със сумата, [законна нула], [не се дължи] с нормата, [няма източник · WS-5], [не се отнася] или [! ОТКАЗ] с назована липса."/>
+    </panel>
+
+    <!-- СЧЕТОВОДНАТА СТАТИЯ. ⚠️ ПАНЕЛЪТ СЕ ПОКАЗВА И КОГАТО СТАТИЯ НЯМА, стига да има причина —
+      точно това е случаят, който трябва да се вижда. Скрит при празна препратка, той щеше да мълчи
+      именно когато нещо липсва, а да се показва само когато всичко е наред. -->
+    <panel name="payrollMovePanel" title="Счетоводна статия"
+      showIf="bgPayrollMove || bgPayrollMoveNote">
+      <field name="bgPayrollMove" readonly="true" colSpan="6" form-view="move-form"
+        grid-view="move-grid"
+        help="Статията се строи при изплащане (а при КОРИГИРАЩ или ЗАЛИЧАВАЩ фиш — при потвърждаване, защото той не се изплаща), в журнала от AccountConfig.bgPayrollJournal, и се ражда като ЧЕРНОВА — осчетоводяването е решение на счетоводителя. Датата ѝ е датата на изплащане, а при ретро-фиш — краят на коригирания период, тоест статията сяда в онзи месец."/>
+      <field name="bgPayrollMoveNote" colSpan="12" readonly="true" showIf="!bgPayrollMove"
+        help="Защо статия няма. Изплащането НЕ се отказва заради причина в самия фиш; празен заплатен журнал и липсваща сметка в сметкоплана обаче го отказват още при изплащането. ⚠️ Ако тук пише за перо 620, текущата статия чака ретро-статията за коригирания период — делтата се осчетоводява ТАМ, а не тук."/>
+    </panel>
+
+    <!-- ПЛАТЕЖНАТА СЛЕДА — другата половина на последната миля, до счетоводната точно отгоре.
+
+      ⚠️ ПАНЕЛЪТ СЕ КРИЕ, КОГАТО НАРЕЖДАНЕ НЯМА, и това НЕ е същият избор като при статията отгоре.
+      Там празното поле има ПРИЧИНА, която трябва да се види; тук празното значи само „още не е
+      пуснат пробегът“ — състояние, в което са всички фишове между потвърждаването и петък. -->
+    <panel name="paymentOrderPanel" title="Платежно нареждане (SEPA)" showIf="bgPaymentBankOrder">
+      <field name="bgPaymentBankOrder" readonly="true" colSpan="6" form-view="bank-order-form"
+        grid-view="bank-order-grid"
+        help="Нареждането, в което нетото на този фиш има свой ред. Файлът (pain.001.001.03) е ЗАКАЧЕН към него. ⚠️ Това НЕ значи „изплатен“: файлът се качва в банката от човек и може да бъде отхвърлен. Състоянието „Изплатен“ и датата на изплащане си остават отделно решение върху фиша."/>
+    </panel>
+
+    <panel name="notePanel" title="Забележки">
+      <field name="note" colSpan="12"/>
+      <field name="bgCancelReason" colSpan="12" showIf="statusSelect == 'CANCELLED'"
+        readonly="true"/>
+    </panel>
+
+    <!-- ⚠️ ЗАМРАЗЕНИЯТ РЕЖИМ НА ОСИГУРЯВАНЕ. Редовният фиш го замразява при пресмятане и тук само се
+      показва. В КОРИГИРАЩОТО копие полетата се редактират — така се поправя грешен режим на
+      оригинала (неотбелязан ТЕЛК, грешен вид осигурен) — и всяка промяна остава в одита отдолу.
+      Копие на заварен фиш (отпреди замразяването) няма режим: полетата са заключени, докато човек
+      не натисне „Попълни от текущите данни“, а пресмятането и потвърждаването отказват с изброени
+      липсващи полета. Живите данни не се четат тихо никъде. -->
+    <panel name="regimePanel" title="Режим на осигуряване" colSpan="12"
+      showIf="bgRegimeFrozenAt || bgIsCorrection || bgIsDeletion">
+      <field name="bgRegimeChangeSummary" colSpan="12" readonly="true" showTitle="false"
+        showIf="bgRegimeChangeSummary"/>
+      <field name="bgRegimeSource" readonly="true"/>
+      <field name="bgRegimeFrozenAt" readonly="true"/>
+      <button name="fillRegimeBtn" title="Попълни от текущите данни" colSpan="12"
+        onClick="action-bg-payslip-fill-regime"
+        showIf="(bgIsCorrection || bgIsDeletion) &amp;&amp; statusSelect == 'DRAFT' &amp;&amp; (!bgRegimeFrozenAt || (bgIsCorrection &amp;&amp; !bgCarveDaysFrozenAt) || !bgCapUsageFrozenAt)"
+        help="Оригиналът е отпреди замразяването на режима, на дните на карва или на използваното от таваните на социалните разходи. Действието чете ДНЕШНИТЕ данни на договора, служителя, фирмата и заявките за отпуск — проверете ги срещу онзи месец. Попълва само липсващото. Записва се в одита: поле по поле, кой и кога."/>
+      <field name="bgRegimeInsuredTypeCode" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeLaborCategory" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeBornAfter1959" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimePensionChoice" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeSolScope" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeTeacherScope" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeNkpdCode" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeNkidCode" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeTzpbDivision" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeMinIncomeRow" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeWorkTimeMode" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeHoursPerDay" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeDaysPerWeek" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeExpenseRate" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeInsuredOnOtherGround" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeOtherPayerIncome" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeMinIncomeOverride" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeSelfInsuredIncome" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeDisabilityRelief" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <field name="bgRegimeDisabilityValidUntil" readonlyIf="!bgIsCorrection || statusSelect != 'DRAFT' || !bgRegimeFrozenAt"
+        onChange="action-bg-payslip-calculate"/>
+      <!-- Дните на карва: по тях копието карвира 180/181 по ОНЗИ месец. Само за четене —
+        идват от оригинала или от „Попълни от текущите данни“, с одит. -->
+      <field name="bgArt177LeaveDays" readonly="true" showIf="bgIsCorrection"/>
+      <field name="bgUnpaidLeaveDaysInD1" readonly="true" showIf="bgIsCorrection"/>
+      <field name="bgCarveDaysFrozenAt" readonly="true" showIf="bgIsCorrection"/>
+      <field name="bgRegimeChangeList" colSpan="12" readonly="true"
+        grid-view="bg-payslip-regime-change-grid" showIf="bgIsCorrection || bgIsDeletion"/>
+    </panel>
+
+    <!-- ⚠️ ОТКАЗЪТ: ПРИЧИНАТА И БУТОНЪТ СА ЗАЕДНО. Отказът иска причината, затова тя се пише до
+      самия бутон. Неотказано коригиращо копие остава чернова, периодът — под корекция, и
+      „Отрази пристигнал болничен“ отказва с „ВЕЧЕ е под корекция“. Същият идиом като
+      „Отмяна на отметката“ при Приложение 9: входът не се пази, а бутонът НЕ записва първо —
+      записът преди действие презарежда записа и губи входа. -->
+    <panel name="cancelPanel" title="Отказ" colSpan="12"
+      showIf="id &amp;&amp; statusSelect != 'CANCELLED'">
+      <field name="bgCancelReasonInput" colSpan="8"
+        help="Задължителна. Записва се във фиша заедно с отказа. Отказът на коригиращо или заличаващо копие връща периода от „под корекция“ в „затворен“ — тогава корекцията може да започне наново."/>
+      <button name="cancelBtn" title="Откажи" colSpan="4" onClick="action-bg-payslip-cancel"/>
+    </panel>
+
+    <panel name="actionsPanel" showTitle="false" sidebar="true">
+      <!-- ⚠️ „Печат“ стои ПЪРВИ и НЕ е гейтнат по статус: ТРЗ сверява черновата на ХАРТИЯ, преди да
+        я потвърди, а лицето иска фиша си след изплащането. Състоянието е написано ВЪРХУ листа, за да
+        не се сбърка разпечатка на чернова с окончателна. ⚠️ save,action — записът трябва да има
+        идентификатор, инак услугата няма какво да прочете и към какво да закачи PDF-а. -->
+      <button name="printBtn" title="Печат" onClick="save,action-bg-payslip-print" colSpan="12"/>
+      <!-- ⚠️ „Преизчисли“ е същото пресмятане като всяка промяна по формата, но ЗАПИСВА: фишът
+        и т. 9 на болничните листове влизат в една транзакция. onChange само показва и изтрива
+        отпечатъка, тоест потвърждаването приема единствено фиш след „Преизчисли“ — отказът при
+        „Потвърди“ праща оператора точно тук. ⚠️ БЕЗ „save,“ отпред: записът е вътре в действието,
+        иначе провал в пресмятането би оставил записан фиш с непресметнати суми. -->
+      <button name="calculateBtn" title="Преизчисли" onClick="action-bg-payslip-recalculate"
+        showIf="statusSelect == 'DRAFT'" colSpan="12"/>
+      <button name="confirmBtn" title="Потвърди" onClick="save,action-bg-payslip-confirm"
+        showIf="statusSelect == 'DRAFT'" colSpan="12"/>
+      <button name="payBtn" title="Отбележи като изплатен" onClick="save,action-bg-payslip-pay"
+        showIf="statusSelect == 'CONFIRMED'" colSpan="12"/>
+      <!-- ⚠️ Само върху ПОТВЪРДЕН или ИЗПЛАТЕН фиш, и само върху такъв, който сам не е коригиращ.
+        Услугата пак проверява всичко — бутонът само не предлага невъзможното. -->
+      <button name="correctBtn" title="Коригирай" onClick="save,action-bg-payslip-correct"
+        showIf="(statusSelect == 'CONFIRMED' || statusSelect == 'PAID') &amp;&amp; !bgIsCorrection &amp;&amp; !bgIsDeletion"
+        colSpan="12"/>
+      <!-- ⚠️ „Заличи“ стои до „Коригирай“, но е ДРУГО нещо и не е за случая „числата са други“.
+        Ретро-фиш не се заличава — той не е плащал и няма какво да се връща; ако е сгрешен, отказва
+        се. Услугата пак проверява всичко. -->
+      <button name="voidBtn" title="Заличи (грешен запис)" onClick="save,action-bg-payslip-void"
+        showIf="(statusSelect == 'CONFIRMED' || statusSelect == 'PAID') &amp;&amp; !bgIsCorrection &amp;&amp; !bgIsDeletion"
+        colSpan="12"/>
+    </panel>
+  </form>
+
+  <!-- ============ BgPaySlipRegimeChange — одитът на режима в копието ============ -->
+
+  <grid name="bg-payslip-regime-change-grid" title="Одит на режима"
+    model="com.axelor.apps.bglocalization.db.BgPaySlipRegimeChange" orderBy="changedOn" canNew="false"
+    canDelete="false" canEdit="false">
+    <field name="changedOn" width="150"/>
+    <field name="changedBy" width="140"/>
+    <field name="fieldTitle" width="200"/>
+    <field name="oldValue" width="140"/>
+    <field name="newValue" width="140"/>
+    <field name="source" width="180"/>
+    <field name="note" width="240"/>
+  </grid>
+
+  <grid name="bg-payslip-cap-usage-grid" title="Използвано от таваните"
+    model="com.axelor.apps.bglocalization.db.BgPaySlipCapUsage" canNew="false" canDelete="false"
+    canEdit="false">
+    <field name="bgSocialExpenseCap" width="260"/>
+    <field name="bgUsedBefore" width="180"/>
+    <field name="bgExempt" width="180"/>
+  </grid>
+
+  <!-- ============ BgPaySlipLine ============ -->
+
+  <!-- ⚠️ Подредбата е по bgLineNumber, а НЕ по реда на въвеждане: групите трябва да излизат
+    1xx, 5xx, 6xx, 7xx, 8xx, 9xx, за да се чете фишът отгоре надолу като фиш. -->
+  <!-- ⚠️ ШИРИНИТЕ СА ЧАСТ ОТ ЧЕТИМОСТТА. Без тях заглавията се режат до „Наимен…“, „Правно …“,
+    „Количес…“ и човек не вижда коя колона е коя, преди да я разшири. Редът следва въпроса, който
+    човек задава на един ред от фиш: КОЕ перо (номер, наименование), В КОЯ ПОСОКА, ПО КОЛКО
+    (количество × ставка), КОЛКО (сума).
+
+    Групата и правното основание остават — те са причината да не се търси в речника при спор — но са
+    ИЗТЛАСКАНИ НАДЯСНО и стеснени: те обясняват перото, а не го идентифицират. -->
+  <grid name="bg-payslip-line-grid" title="Пера"
+    model="com.axelor.apps.bglocalization.db.BgPaySlipLine" orderBy="bgLineNumber">
+    <field name="bgLineNumber" title="№" width="60"/>
+    <field name="name" title="Перо" width="260"/>
+    <field name="bgSign" title="Посока" width="110"/>
+    <field name="bgQuantity" title="Кол." width="90"/>
+    <field name="bgRate" title="Ставка" width="100"/>
+    <!-- ⚠️ ВЪВЕДЕНАТА СУМА Е РЕДАКТИРУЕМОТО ПОЛЕ ЗА РЪЧНИТЕ ПОСТОЯННИ ПЕРА, а „Сума“ е резултатът.
+      Разменени, редакцията на оператора щеше да се губи при всяко преизчисляване: карвът смята
+      сумата от въведената, тоест пипнатата „Сума“ се пренаписва. Празно за всички останали пера. -->
+    <!-- ⚠️ И ЗА ЕДНОКРАТНАТА ПОМОЩ (220/222/224): въведена е ЦЯЛАТА помощ, а „Сума“ е освободената
+      част до тавана — превишението е в генерираното перо 221/223/225. Показва се, щом е уловена. -->
+    <field name="bgEnteredAmount" title="Въведена" width="130"
+      hideIf="!bgIsPermanentCharacter &amp;&amp; !bgEnteredAmount"/>
+    <field name="bgAmount" title="Сума" width="120"
+      readonlyIf="bgIsPermanentCharacter || (bgEnteredAmount &amp;&amp; bgLineNumber &gt;= 200 &amp;&amp; bgLineNumber &lt; 300)"/>
+    <!-- ⚠️ Маркерът е видим В ГРИДА, не само във формата на перото. Той е причината един ред да е
+      извън Д1/Д6 на този месец, а фишът се проверява от грида. -->
+    <field name="bgCorrectsPeriod" title="Корекция за" width="130" readonly="true"/>
+    <field name="bgPaySlipLineType.bgGroup" title="Група" width="130" readonly="true"/>
+    <field name="bgPaySlipLineType.bgLegalBasis" title="Основание" width="150" readonly="true"/>
+  </grid>
+
+  <form name="bg-payslip-line-form" title="Перо"
+    model="com.axelor.apps.bglocalization.db.BgPaySlipLine">
+    <panel name="mainPanel" title="Перо">
+      <!-- ⚠️ ПРЕВИШЕНИЯТА НАД КАПАЧКАТА (DERIVED 2xx: 201, 203, 205, 211, 221, 223, 225) НЕ СЕ ИЗБИРАТ.
+        Те са изход на BgSocialExpenseCapResolver — операторът въвежда цялото начислено на реда „в
+        рамките“. Домейнът е удобството; пазачът е в репозитория и в „Преизчисли“/„Потвърди“
+        (BgSocialExpenseCapResolver#refuseManualDerivedSocialExpense). „IS NULL“ е нарочно: ред без
+        начин на изчисление не бива да изчезва от списъка заради NULL в сравнението. -->
+      <field name="bgPaySlipLineType" canEdit="false" onChange="action-bg-payslip-line-from-type"
+        domain="self.number &lt; 200 OR self.number &gt;= 300 OR self.bgCalculationBase IS NULL OR self.bgCalculationBase != 'DERIVED'"/>
+      <field name="bgLineNumber"/>
+      <field name="name" colSpan="12"/>
+      <field name="bgSign"/>
+      <!-- ⚠️ ЗА РЪЧНИТЕ ПОСТОЯННИ ПЕРА СЕ ПОПЪЛВА ТОВА, а „Сума“ е сметната от него и е readonly —
+        виж BgEarningsService#carveManualPermanentLines. За всички останали остава скрито. -->
+      <field name="bgEnteredAmount" hideIf="!bgIsPermanentCharacter &amp;&amp; !bgEnteredAmount"/>
+      <field name="bgAmount"
+        readonlyIf="bgIsPermanentCharacter || (bgEnteredAmount &amp;&amp; bgLineNumber &gt;= 200 &amp;&amp; bgLineNumber &lt; 300)"/>
+      <field name="bgQuantity"/>
+      <field name="bgRate"/>
+    </panel>
+    <!-- ⚠️ ЧЕТЕНЕ, А НЕ РЕДАКЦИЯ, както казва и заглавието. Петте флага се преписват от
+      речника при ВСЕКИ запис (BgPaySlipManagementRepository#fillTreatmentFromType), тоест отметка
+      тук би се върнала мълчаливо при следващото записване. Сменя се ВИДЪТ ПЕРО, не третирането му.
+      ⚠️ Видими са всичките, включително двата, заради които ръчно добавено перо пада от т. 29 на
+      Д1 и от базата по чл. 17. Скрити, тази последица не се вижда от екрана. -->
+    <panel name="treatmentPanel" title="Третиране (копия от речника)">
+      <field name="bgIsTaxable" readonly="true"/>
+      <field name="bgIsInsuranceIncome" readonly="true"/>
+      <field name="bgIsPermanentCharacter" readonly="true"/>
+      <field name="bgFormsGrossWage" readonly="true"/>
+      <field name="bgIsArt17Base" readonly="true"/>
+      <field name="bgContributionFund" readonly="true"/>
+      <field name="bgCompensation" readonly="true"/>
+      <field name="bgIsGenerated" readonly="true"
+        help="Перото е създадено от генератора на вноските или на данъка. Само такова перо генераторът маха, когато вече не се дължи; ръчно добавеното със същия код остава."/>
+      <field name="bgCorrectsPeriod" readonly="true" canEdit="false"
+        help="Празно значи „перото е за периода на този фиш“. Попълнено значи, че перото носи нетната разлика за друг, вече затворен период: тогава то е ИЗВЪН Д1/Д6 на този месец и ВЪТРЕ в нетото му."/>
+    </panel>
+    <panel name="notePanel" title="Забележка">
+      <field name="note" colSpan="12"/>
+    </panel>
+  </form>
+
+  <!-- ============ Actions ============ -->
+
+  <!-- ⚠️ САМО ПРИЗНАКЪТ, БЕЗ prepare(). Ръчната сума е решение на човека; повторно извеждане тук би
+    я презаписало в мига, в който я е въвел. -->
+  <action-record name="action-bg-payslip-record-manual-base-salary"
+    model="com.axelor.apps.bglocalization.db.BgPaySlip">
+    <field name="bgAutoFillBaseSalary" expr="false"/>
+  </action-record>
+
+  <action-method name="action-bg-payslip-prepare">
+    <call class="com.axelor.apps.bglocalization.web.BgPaySlipController" method="prepare"/>
+  </action-method>
+
+  <action-method name="action-bg-payslip-fill-regime">
+    <call class="com.axelor.apps.bglocalization.web.BgPaySlipController" method="fillRegime"/>
+  </action-method>
+
+  <action-method name="action-bg-payslip-calculate">
+    <call class="com.axelor.apps.bglocalization.web.BgPaySlipController" method="calculate"/>
+  </action-method>
+
+  <action-method name="action-bg-payslip-recalculate">
+    <call class="com.axelor.apps.bglocalization.web.BgPaySlipController" method="recalculate"/>
+  </action-method>
+
+  <action-method name="action-bg-payslip-print">
+    <call class="com.axelor.apps.bglocalization.web.BgPaySlipController" method="print"/>
+  </action-method>
+
+  <action-method name="action-bg-payslip-confirm">
+    <call class="com.axelor.apps.bglocalization.web.BgPaySlipController" method="confirm"/>
+  </action-method>
+
+  <action-method name="action-bg-payslip-pay">
+    <call class="com.axelor.apps.bglocalization.web.BgPaySlipController" method="pay"/>
+  </action-method>
+
+  <action-method name="action-bg-payslip-cancel">
+    <call class="com.axelor.apps.bglocalization.web.BgPaySlipController" method="cancel"/>
+  </action-method>
+
+  <action-method name="action-bg-payslip-correct">
+    <call class="com.axelor.apps.bglocalization.web.BgPaySlipController" method="correct"/>
+  </action-method>
+
+  <action-method name="action-bg-payslip-void">
+    <call class="com.axelor.apps.bglocalization.web.BgPaySlipController" method="voidRecord"/>
+  </action-method>
+
+  <action-method name="action-bg-payslip-line-from-type">
+    <call class="com.axelor.apps.bglocalization.web.BgPaySlipController" method="lineFromType"/>
+  </action-method>
+
+  <action-view name="bg.payslip.all" title="Фишове"
+    model="com.axelor.apps.bglocalization.db.BgPaySlip">
+    <view type="grid" name="bg-payslip-grid"/>
+    <view type="form" name="bg-payslip-form"/>
+  </action-view>
+
+</object-views>

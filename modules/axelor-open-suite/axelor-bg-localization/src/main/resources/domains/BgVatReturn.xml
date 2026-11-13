@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Persisted VAT/NAP return: the front trigger for generating the four NAP files (PRODAGBI, POKUPKI,
+    DEKLAR, VIES). Phase 1б-1: the source of truth is the four generated files themselves; the DEKLAR cell
+    columns are DEFINED here but populated by the service only in 1б-2. NOTE: importId is inherited from
+    com.axelor.db.Model — do NOT declare it (shadow field footgun). -->
+  <entity name="BgVatReturn">
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"
+      required="true"/>
+
+    <!-- Serialization source of truth (ГГГГММ) that the adapters/files read. Derived from the two input
+      selects below; kept as-is so nothing in the file serialization changes. -->
+    <string name="period" title="Период (ГГГГММ)"/>
+
+    <!-- Input-only month/year selects (transient — NOT persisted; period is the stored value). Derived
+      → period on onChange; reverse-populated from period on onLoad for existing records. -->
+    <string name="bgPeriodMonth" title="Месец" selection="bg.vat.period.month.select"
+      transient="true"/>
+    <string name="bgPeriodYear" title="Година" selection="bg.vat.period.year.select"
+      transient="true"/>
+    <string name="statusSelect" title="Статус" selection="bg.vat.return.status.select"
+      default="draft"/>
+    <string name="napEntryNumber" title="НАП входящ №"/>
+
+    <!-- Correction link: a corrected return points to the original it supersedes (traceability). -->
+    <many-to-one name="correctsPrevious"
+      ref="com.axelor.apps.bglocalization.db.BgVatReturn" title="Коригира декларация"/>
+
+    <!-- Coefficient (кл.33) snapshot — prefilled from BgVatCoefficient(company, year); editable. -->
+    <decimal name="k33" title="Коефициент чл.73 (кл.33)" scale="2" precision="5" default="0"/>
+
+    <!-- Selected declarant (per-company). The generator resolves + snapshots it into the fields below. -->
+    <many-to-one name="bgDeclarant" ref="com.axelor.apps.bglocalization.db.BgDeclarant"
+      title="Декларатор"/>
+
+    <!-- Registered-person + declarant SNAPSHOT (written by the generator from the resolved declarant;
+      frozen on the record). -->
+    <string name="companyAddress" title="Адрес на рег. лице"/>
+    <string name="bgDeclarantEgn" title="Декларатор ЕГН/ЛНЧ"/>
+    <string name="bgDeclarantNames" title="Декларатор имена"/>
+    <string name="bgDeclarantCity" title="Декларатор град"/>
+    <string name="bgDeclarantPostCode" title="Декларатор пощ. код"/>
+    <string name="bgDeclarantAddress" title="Декларатор адрес"/>
+    <!-- ДЛЪЖНОСТТА на декларатора (BgDeclarant.declarantPosition) — подписът на Прил. № 13
+      („Долуподписаният …, Длъжност“). Не е „Качество“ (R/A). Снимка, като останалите. Nullable. -->
+    <string name="bgDeclarantPosition" title="Декларатор длъжност"/>
+    <string name="bgDeclarantCapacity" title="Декларатор качество"
+      selection="bg.vat.declarant.capacity.select" default="A"/>
+
+    <!-- Авто-попълване на ефективните клетки по чл.92 (две отделни отметки). При изключена отметка съответната
+      клетка е ръчен вход. Мигрирано от старото bgAutoFillResult (осиротялата колона bg_auto_fill_result остава
+      в БД за data-migration; дропва се ръчно по-късно). -->
+    <boolean name="bgAutoFillK71" title="Авто-попълни кл.71 (внесен ефективно)"
+      default="true"/>
+    <boolean name="bgAutoFillK82" title="Авто-попълни кл.82 (възстановяване)" default="true"/>
+
+    <!-- Generated NAP files (source of truth in 1б-1). -->
+    <many-to-one name="prodagbiFile" ref="com.axelor.meta.db.MetaFile"
+      title="PRODAGBI.TXT"/>
+    <many-to-one name="pokupkiFile" ref="com.axelor.meta.db.MetaFile"
+      title="POKUPKI.TXT"/>
+    <many-to-one name="deklarFile" ref="com.axelor.meta.db.MetaFile" title="DEKLAR.TXT"/>
+    <many-to-one name="viesFile" ref="com.axelor.meta.db.MetaFile" title="VIES.TXT"/>
+
+    <!-- Persisted diary rows (snapshot == TXT), frozen at generate() from the single collector pass.
+      Backing store for the BIRT дневник продажби/покупки reports. Replaced on every regenerate: BgVatDiarySnapshotService
+      bulk-deletes by parent first; orphanRemoval is the domain backstop. -->
+    <one-to-many name="bgVatSalesLineList"
+      ref="com.axelor.apps.bglocalization.db.BgVatSalesLine" mappedBy="bgVatReturn"
+      title="Редове дневник продажби" orphanRemoval="true"/>
+    <one-to-many name="bgVatPurchaseLineList"
+      ref="com.axelor.apps.bglocalization.db.BgVatPurchaseLine" mappedBy="bgVatReturn"
+      title="Редове дневник покупки" orphanRemoval="true"/>
+
+    <!-- Prepared НАП packages (immutable snapshots) + append-only lifecycle log. One report → many packages
+      (regenerate creates a new one; older packages are superseded but never modified). -->
+    <one-to-many name="bgVatPackageList"
+      ref="com.axelor.apps.bglocalization.db.BgVatPackage" mappedBy="bgVatReturn"
+      title="Подготвени пакети"/>
+    <one-to-many name="bgVatPackageEventList"
+      ref="com.axelor.apps.bglocalization.db.BgVatPackageEvent" mappedBy="bgVatReturn"
+      title="Логове"/>
+
+    <!-- Local-mock submission attempts (immutable; one report → many attempts). -->
+    <one-to-many name="bgVatSubmissionList"
+      ref="com.axelor.apps.bglocalization.db.BgVatSubmission" mappedBy="bgVatReturn"
+      title="Подавания (mock)"/>
+
+    <!-- Stale banner (transient — computed on form load from the latest package's source fingerprint). -->
+    <boolean name="bgPackageStale" title="Пакетът е остарял" transient="true"/>
+    <string name="bgPackageInfo" title="Инфо за пакета" transient="true"/>
+
+    <!-- Dev-only: which deterministic scenario to ask the local mock server for on the next send. -->
+    <string name="bgMockScenario" title="Mock сценарий (dev)"
+      selection="bg.vat.mock.scenario.select" default="success" transient="true"/>
+
+    <!-- DEKLAR cell columns, in the order of the NAP VAT file specification §5 (DECLARATION_ORDER). Defined now;
+      population from the service is deferred to 1б-2 (1б-1 uses the files as truth). -->
+    <decimal name="k01" title="кл.01" scale="2" precision="18"/>
+    <decimal name="k20" title="кл.20" scale="2" precision="18"/>
+    <decimal name="k11" title="кл.11" scale="2" precision="18"/>
+    <decimal name="k21" title="кл.21" scale="2" precision="18"/>
+    <decimal name="k12" title="кл.12" scale="2" precision="18"/>
+    <decimal name="k22" title="кл.22" scale="2" precision="18"/>
+    <decimal name="k23" title="кл.23" scale="2" precision="18"/>
+    <decimal name="k13" title="кл.13" scale="2" precision="18"/>
+    <decimal name="k24" title="кл.24" scale="2" precision="18"/>
+    <decimal name="k14" title="кл.14" scale="2" precision="18"/>
+    <decimal name="k15" title="кл.15" scale="2" precision="18"/>
+    <decimal name="k16" title="кл.16" scale="2" precision="18"/>
+    <decimal name="k17" title="кл.17" scale="2" precision="18"/>
+    <decimal name="k18" title="кл.18" scale="2" precision="18"/>
+    <decimal name="k19" title="кл.19" scale="2" precision="18"/>
+    <decimal name="k30" title="кл.30" scale="2" precision="18"/>
+    <decimal name="k31" title="кл.31" scale="2" precision="18"/>
+    <decimal name="k41" title="кл.41" scale="2" precision="18"/>
+    <decimal name="k32" title="кл.32" scale="2" precision="18"/>
+    <decimal name="k42" title="кл.42" scale="2" precision="18"/>
+    <decimal name="k43" title="кл.43" scale="2" precision="18"/>
+    <decimal name="k40" title="кл.40" scale="2" precision="18"/>
+    <decimal name="k50" title="кл.50 (за внасяне)" scale="2" precision="18"/>
+    <decimal name="k60" title="кл.60 (за възстановяване)" scale="2" precision="18"/>
+    <decimal name="k70" title="кл.70" scale="2" precision="18"/>
+    <decimal name="k71" title="кл.71" scale="2" precision="18"/>
+    <decimal name="k80" title="кл.80" scale="2" precision="18"/>
+    <decimal name="k81" title="кл.81" scale="2" precision="18"/>
+    <decimal name="k82" title="кл.82" scale="2" precision="18"/>
+
+  </entity>
+
+</domain-models>

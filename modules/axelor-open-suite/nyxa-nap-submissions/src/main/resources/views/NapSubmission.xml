@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Read/track list only: submissions are created by their own flows — Д1/Д6 by the "Подаване
+    Д1/Д6 към НАП" wizard (BgNapFilingWizard) and SAF-T by SaftReportWorkflowService.createSubmission.
+    Hand-creating a row here let a user pick a serviceCode (incl. SAF-T) and a generic API channel
+    that no client implements, producing the misleading "НАП API submission is not configured
+   " message. canNew is off so that stale path is gone; history and every
+    existing record stay fully viewable/editable. -->
+  <grid name="nap-submission-grid" title="All submissions" canNew="false"
+    model="com.axelor.apps.napsubmissions.db.NapSubmission" orderBy="-createdOn">
+    <field name="name"/>
+    <field name="serviceCodeSelect"/>
+    <field name="serviceDocumentTypeSelect"/>
+    <field name="company"/>
+    <field name="period"/>
+    <field name="channelSelect"/>
+    <field name="environmentSelect"/>
+    <field name="submissionStatusSelect"/>
+    <field name="attemptNumber"/>
+    <field name="entryNumber"/>
+    <field name="submittedOn"/>
+  </grid>
+
+  <form name="nap-submission-form" title="Submission"
+    model="com.axelor.apps.napsubmissions.db.NapSubmission" width="large">
+
+    <panel name="statusPanel" colSpan="12">
+      <field name="submissionStatusSelect" readonly="true" widget="single-select" colSpan="3"/>
+      <field name="channelSelect" colSpan="3"/>
+      <field name="environmentSelect" colSpan="2"/>
+      <!-- Стар/неподдържан generic API път — премахнат. Единственият generic NapSubmissionClient е
+        UnsupportedNapApiSubmissionClient, който винаги връща „НАП API submission is not configured…
+        официалната спецификация на API на НАП“; SAF-T се подава ръчно (manual_portal), а Д1/Д6 имат собствения панел
+        „Подаване към НАП“ по-долу. Бутоните „Submit via API“/„Refresh status“ и техните action-и са
+        махнати, за да не подвеждат; контролерните методи остават само в Java (виж бележката при
+        action-ите по-долу). -->
+    </panel>
+
+    <!-- ЕДНА СЕКЦИЯ, ЕДИН БУТОН за целия API път на Д1/Д6: избира се метод (USB КЕП или Evrotrust)
+      и се натиска „Подпиши и изпрати“. Бутонът НЕ отваря отделен екран — вгражда подписващия поток
+      за избрания метод в ПАНЕЛА по-долу (iframe към същия REST ресурс, същият произход и сесия).
+      Подписването и ЕДНАТА заявка към НАП стават там, в браузъра, защото нито един от двата истински
+      подписа не може да се произведе в Java (USB токенът е на машината на потребителя, облачният КЕП
+      подписва при доставчика след потвърждение от човека). Подпис не се симулира при никакви обстоятелства.
+
+      ⚠️ Страницата „Подпиши и изпрати“ е ВГРАДЕНА тук, не в нов таб: същият html+JS и същите REST
+      услуги, но в iframe във формата — прогресът и крайният резултат се виждат на ТОЗИ екран.
+
+      ⚠️ ЕТЗ (DEC_ETZ62/DEC_ETZ123) — БЕЗ ТОЗИ ПАНЕЛ: подава се само през портала с КЕП
+      или ПИК; каналът API отказва (NapFilingLock.MANUAL_ONLY). -->
+    <panel name="napTransportPanel" title="Sign and submit to NAP" colSpan="12"
+      showIf="serviceCodeSelect == 'declarations' &amp;&amp; serviceDocumentTypeSelect != 'DEC_ETZ62' &amp;&amp; serviceDocumentTypeSelect != 'DEC_ETZ123'">
+      <field name="qesSigningMethodSelect" colSpan="4"
+        readonlyIf="documentId || (submissionStatusSelect != 'locked' &amp;&amp; submissionStatusSelect != 'signed' &amp;&amp; submissionStatusSelect != 'technical_error')"/>
+      <button name="signAndSubmitBtn" title="Sign and submit" icon="fa-paper-plane" colSpan="4"
+        css="btn-primary"
+        showIf="!documentId &amp;&amp; (submissionStatusSelect == 'locked' || submissionStatusSelect == 'signed' || submissionStatusSelect == 'technical_error')"
+        onClick="save,action-nap-submission-method-sign-and-submit"/>
+      <label name="signingNote" colSpan="12"
+        showIf="!documentId &amp;&amp; (submissionStatusSelect == 'locked' || submissionStatusSelect == 'signed' || submissionStatusSelect == 'technical_error')"
+        title="The EXACT locked version of each file is signed. USB QES: the local component (BISS) on your own computer signs — the private key and the PIN never enter Nyxa. Evrotrust: you sign in the provider's app or portal. In both cases Nyxa receives only a detached PKCS#7 and a public certificate, verifies them cryptographically over the locked bytes and files once; the signature is not kept — on a retry the files are signed again. The public certificate is kept, because NAP asks for it again when the result is checked."/>
+      <!-- ВГРАДЕНИЯТ ПОДПИСВАЩ ПОТОК. „Подпиши и изпрати“ задава signingEmbedUrl (релативен ws/...
+        адрес към същата страница и REST услуги); тогава iframe-ът се показва ТУК. JavaScript-ът се
+        изпълнява в браузъра (същия произход, същата сесия) — USB КЕП говори с локалния компонент на
+        https://localhost:53952..53955, Evrotrust върви по облачния поток. При липсваща конфигурация
+        (напр. сертификат на услугата за USB) отказът се показва директно в този панел. -->
+      <panel name="napSigningEmbedPanel" title="Signing in the browser" colSpan="12"
+        showIf="signingEmbedUrl">
+        <field name="signingEmbedUrl" showTitle="false" readonly="true" colSpan="12">
+          <viewer depends="signingEmbedUrl"><![CDATA[
+            <>
+              <Box as="iframe" width="100%" height="560" border="0" src={signingEmbedUrl}></Box>
+            </>
+          ]]></viewer>
+        </field>
+      </panel>
+      <!-- НАП иска сертификата и при заявката за резултат. Изпращането го пази
+        (signerCertificateBase64), така че „Обнови резултата" не иска нищо. Полето за поставяне е само
+        за подавания, изпратени преди това (празен signerCertificateBase64); преходно, не се записва. -->
+      <field name="signerCertificateBase64" hidden="true"/>
+      <field name="resultSignerCertificatePem" colSpan="12"
+        showIf="!signerCertificateBase64 &amp;&amp; (documentId || entryNumber) &amp;&amp; (submissionStatusSelect == 'submitted' || submissionStatusSelect == 'submission_outcome_unknown')"/>
+      <button name="fetchNapResultBtn" title="Refresh the result from NAP" icon="fa-refresh"
+        colSpan="4"
+        showIf="(documentId || entryNumber) &amp;&amp; (submissionStatusSelect == 'submitted' || submissionStatusSelect == 'submission_outcome_unknown')"
+        onClick="action-nap-submission-method-fetch-nap-result"/>
+      <label name="napNotLockedLabel" colSpan="12"
+        showIf="submissionStatusSelect == 'draft' || submissionStatusSelect == 'signing'"
+        title="Lock the selection first, on the “File D1/D6 with NAP” screen. Until the submission is locked there are no exact bytes to sign. The manual path is available at any time: download the file from “Submitted files”, sign and file it in the NAP portal, then enter the incoming number in “Manual portal” below."/>
+    </panel>
+
+    <panel name="unknownWarnPanel" colSpan="12"
+      showIf="submissionStatusSelect == 'submission_outcome_unknown'">
+      <label name="unknownWarn" colSpan="12"
+        title="Outcome unknown: it is not known whether NAP accepted this submission. Resubmitting is blocked. First reconcile via “Refresh the result from NAP” using the document ID / entry number; if it cannot be reconciled, resolve manually below."/>
+      <field name="resolutionReason" colSpan="8"/>
+      <button name="resolveUnknownBtn" title="Mark resolved (technical error)"
+        icon="fa-wrench" colSpan="4" onClick="action-nap-submission-method-resolve-unknown"/>
+    </panel>
+
+    <panel name="mainPanel" title="Submission" colSpan="12">
+      <field name="name"/>
+      <!-- Задава се от създаващия поток (wizard за Д1/Д6, услугата за SAF-T), не се избира на ръка
+        тук — затова е само за четене: няма смяна на услугата/избор на SAF-T върху заварен запис. -->
+      <field name="serviceCodeSelect" readonly="true"/>
+      <field name="serviceDocumentTypeSelect" readonly="true"
+        showIf="serviceCodeSelect == 'declarations'"/>
+      <field name="filedByInsuranceFund" showIf="serviceDocumentTypeSelect == 'DEC_1_6'"
+        readonlyIf="submissionStatusSelect != 'draft'"/>
+      <field name="company"/>
+      <field name="period"/>
+      <field name="referenceDate"/>
+      <field name="saftReport" readonly="true" showIf="saftReport != null"/>
+      <field name="relatedModel" readonly="true" showIf="relatedModel"/>
+      <field name="relatedRecordId" readonly="true" showIf="relatedRecordId"/>
+      <field name="attemptNumber" readonly="true"/>
+      <field name="idempotencyKey" readonly="true"/>
+      <field name="correlationId" readonly="true"/>
+      <field name="previousSubmission" readonly="true" showIf="previousSubmission != null"/>
+    </panel>
+
+    <panel name="identifiersPanel" title="NAP identifiers" colSpan="12">
+      <field name="documentId" readonly="true"/>
+      <field name="entryNumber" readonly="true"/>
+      <field name="entryDate" readonly="true"/>
+      <field name="externalStatus" readonly="true"/>
+      <field name="taxpayerPin" readonly="true"/>
+      <field name="taxpayerPinTypeSelect" readonly="true"/>
+      <field name="submitterPin" readonly="true"/>
+      <field name="submitterPinTypeSelect" readonly="true"/>
+      <!-- Whose КЕП signed: the НАП author identity, kept visible for the whole lifecycle. -->
+      <field name="qesSignerProfile" readonly="true" showIf="qesSignerProfile != null"/>
+    </panel>
+
+    <!-- РЪЧНИЯТ ПЪТ — винаги наличен, и където има API: файлът се изтегля от „Submitted files“, човек
+      го подава в портала със собствен КЕП и въвежда тук входящия номер и датата; протоколът (по
+      желание) — с „Attach response file“. Подаденото е доказателство (#334): входящият номер още
+      може да се поправи (не и да се изчисти), всичко друго е замръзнало; друг ред за същия документ,
+      вече подаден, заключва този (NapFilingLock). -->
+    <panel name="manualPanel" title="Manual portal" colSpan="12"
+      showIf="channelSelect == 'manual_portal' || (!documentId &amp;&amp; !entryNumber &amp;&amp; (submissionStatusSelect == 'draft' || submissionStatusSelect == 'locked' || submissionStatusSelect == 'signed' || submissionStatusSelect == 'technical_error'))">
+      <field name="napIncomingNumber" colSpan="4"/>
+      <field name="portalSubmittedDate" colSpan="4"
+        showIf="!documentId &amp;&amp; !entryNumber &amp;&amp; (submissionStatusSelect == 'draft' || submissionStatusSelect == 'locked' || submissionStatusSelect == 'signed' || submissionStatusSelect == 'technical_error')"/>
+      <button name="recordManualBtn" title="Record manual submission" icon="fa-upload"
+        colSpan="4"
+        showIf="!documentId &amp;&amp; !entryNumber &amp;&amp; (submissionStatusSelect == 'draft' || submissionStatusSelect == 'locked' || submissionStatusSelect == 'signed' || submissionStatusSelect == 'technical_error')"
+        onClick="action-nap-submission-method-record-manual"/>
+    </panel>
+
+    <!-- КОЙ И КОГА Е ПОДАЛ — само за четене; SHA-256 на всеки подаден файл е в „Submitted files“
+      (на непроменимия NapArtifact, #327; връзката към него замръзва при подаване, #334). -->
+    <panel name="filedPanel" title="Filed" colSpan="12" showIf="submittedOn">
+      <field name="submittedOn" colSpan="6" readonly="true"/>
+      <field name="submittedBy" colSpan="6" readonly="true"/>
+    </panel>
+
+    <panel name="outcomePanel" title="Outcome" colSpan="12"
+      showIf="submissionStatusSelect == 'submitted' || submissionStatusSelect == 'accepted' || submissionStatusSelect == 'rejected' || submissionStatusSelect == 'correction_required'">
+      <field name="actionReason" colSpan="12" showIf="submissionStatusSelect == 'submitted'"/>
+      <button name="acceptBtn" title="Record accepted" icon="fa-check" colSpan="4"
+        css="btn-primary" showIf="submissionStatusSelect == 'submitted'"
+        onClick="action-nap-submission-method-record-accepted"/>
+      <button name="rejectBtn" title="Record rejected" icon="fa-times" colSpan="4"
+        showIf="submissionStatusSelect == 'submitted'"
+        onClick="action-nap-submission-method-record-rejected"/>
+      <button name="correctionBtn" title="Correction required" icon="fa-exclamation-triangle"
+        colSpan="4" showIf="submissionStatusSelect == 'submitted'"
+        onClick="action-nap-submission-method-record-correction"/>
+    </panel>
+
+    <panel name="filesPanel" title="Submitted files" colSpan="12">
+      <field name="submissionFileList" colSpan="12"
+        grid-view="nap-submission-file-grid" form-view="nap-submission-file-form"/>
+    </panel>
+
+    <panel name="resultsPanel" title="Processing results" colSpan="12">
+      <field name="responseFile" widget="binary-link" colSpan="6"/>
+      <field name="resultSummary" colSpan="6"/>
+      <button name="recordResultBtn" title="Record processing result" icon="fa-file-text-o"
+        colSpan="6" onClick="action-nap-submission-method-record-result"/>
+      <button name="attachResponseBtn" title="Attach response file" icon="fa-paperclip"
+        colSpan="6" onClick="action-nap-submission-method-attach-response"/>
+      <!-- Ред → почистеният отговор на НАП (nap-processing-result-form). -->
+      <field name="processingResultList" colSpan="12" readonly="true"
+        grid-view="nap-processing-result-grid" form-view="nap-processing-result-form"/>
+    </panel>
+
+    <panel name="responsePanel" title="Errors &amp; metadata" colSpan="12">
+      <field name="errorCode" readonly="true"/>
+      <field name="exceptionId" readonly="true"/>
+      <field name="errorMessage" readonly="true" colSpan="12"/>
+      <field name="requestMeta" readonly="true" colSpan="12" showIf="requestMeta"/>
+      <field name="responseMeta" readonly="true" colSpan="12" showIf="responseMeta"/>
+    </panel>
+
+    <panel name="artifactsPanel" title="Artifacts" colSpan="12">
+      <field name="artifactLinkList" colSpan="12"/>
+    </panel>
+
+    <!-- История: append-only одит (КОЙ избра/заключи/подписа/подаде, КОГА, предишен→нов статус).
+      Само за четене — записва се единствено от NapAuditService. SHA-256 на всеки файл е в
+      „Submitted files“ (на непроменимия NapArtifact). -->
+    <panel name="historyPanel" title="History" colSpan="12">
+      <field name="auditEventList" colSpan="12" readonly="true"
+        grid-view="nap-audit-event-grid" form-view="nap-audit-event-form"/>
+    </panel>
+
+  </form>
+
+  <!-- ⚠️ Generic API действия (action-nap-submission-method-submit-api / -refresh) НЯМА: те водят
+    към UnsupportedNapApiSubmissionClient, който не подава нищо. Контролерните методи остават
+    в Java — пазени са от BgFilingGatesTest като заключен път — но не са достижими от нито един
+    екран. Д1/Д6 ползват action-nap-submission-method-submit-nap по-долу. -->
+  <!-- ЕДИНСТВЕНОТО действие за подписване и подаване. Контролерът проверява всичко, което може да
+    се провери без подпис, и ВГРАЖДА подписващата страница за избрания метод във формата (задава
+    signingEmbedUrl → iframe в napSigningEmbedPanel; същият произход, същата сесия), вместо да отваря
+    отделен екран: USB КЕП говори с локалния компонент на https://localhost:53952..53955 по официалния
+    BISS/SCS протокол, Evrotrust — с документирания облачен поток през сървъра. -->
+  <action-method name="action-nap-submission-method-sign-and-submit">
+    <call class="com.axelor.apps.napsubmissions.web.NapSubmissionController"
+      method="signAndSubmit"/>
+  </action-method>
+  <action-method name="action-nap-submission-method-fetch-nap-result">
+    <call class="com.axelor.apps.napsubmissions.web.NapSubmissionController"
+      method="fetchNapResult"/>
+  </action-method>
+  <action-method name="action-nap-submission-method-record-manual">
+    <call class="com.axelor.apps.napsubmissions.web.NapSubmissionController"
+      method="recordManualSubmission"/>
+  </action-method>
+  <action-method name="action-nap-submission-method-record-accepted">
+    <call class="com.axelor.apps.napsubmissions.web.NapSubmissionController"
+      method="recordAccepted"/>
+  </action-method>
+  <action-method name="action-nap-submission-method-record-rejected">
+    <call class="com.axelor.apps.napsubmissions.web.NapSubmissionController"
+      method="recordRejected"/>
+  </action-method>
+  <action-method name="action-nap-submission-method-record-correction">
+    <call class="com.axelor.apps.napsubmissions.web.NapSubmissionController"
+      method="recordCorrectionRequired"/>
+  </action-method>
+  <action-method name="action-nap-submission-method-attach-response">
+    <call class="com.axelor.apps.napsubmissions.web.NapSubmissionController"
+      method="attachResponseFile"/>
+  </action-method>
+  <action-method name="action-nap-submission-method-record-result">
+    <call class="com.axelor.apps.napsubmissions.web.NapSubmissionController"
+      method="recordProcessingResult"/>
+  </action-method>
+  <action-method name="action-nap-submission-method-resolve-unknown">
+    <call class="com.axelor.apps.napsubmissions.web.NapSubmissionController"
+      method="resolveOutcomeUnknown"/>
+  </action-method>
+
+  <!-- ⚠️ Няма меню „Всички подавания“ (и действие action-nap-submission-view-all). Гридът
+    nap-submission-grid ОСТАВА: от него се
+    отваря формата, когато „Създай и заключи чернова“ (BgNapFilingController) подаде
+    _showRecord към nap-submission-form. Нито един запис не се трие. -->
+
+</object-views>

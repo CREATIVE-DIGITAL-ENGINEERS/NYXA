@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="aiaccountant" package="com.axelor.apps.aiaccountant.db"/>
+
+  <!-- What the server has measured about one chat panel's model conversation.
+
+    WHY IT IS IN THE DATABASE. The figures that decide whether the retained conversation still fits
+    inside the provider's context window used to travel only in the blob the browser stores and returns.
+    That made a SAFETY decision depend on a value the caller supplies: a client that reported a smaller
+    chain than it really had — by accident, by a stale bundle, or by editing the number — could keep a
+    conversation chained past the point where the next request is refused, and the user loses the turn.
+    Reporting a LARGER number is harmless (an early reset), so the exposure was one-directional and
+    entirely in the wrong direction.
+
+    So the measurements are recorded here, from the provider's own `usage` object, by the turn that
+    produced them. The blob still carries them and they are still read — as a HINT, and only to notice
+    that the two disagree, which is itself a reason to reset. Nothing the client sends can lower the
+    number the decision is made on.
+
+    SCOPE. One row per (user, company, conversation), the same key the workflow row uses and for the
+    same reasons: a chain belongs to one person, in one set of books, in one chat panel. Two tabs are
+    two chains and must never read each other's accounting.
+
+    NOT AN AUTHORISATION. This row governs one thing — whether to keep chaining — and nothing else. It
+    holds no target, no goal and no record reference, and no write is ever permitted or refused on the
+    strength of it. What may be written is AiWorkflowState's question alone.
+
+    LIFETIME. Written once per turn and read once per turn. Rows are small, bounded by the number of
+    conversations a user opens, and are kept rather than deleted so a chain's growth history remains
+    inspectable beside the turn metrics. -->
+  <entity name="AiChatSession">
+
+    <!-- `column` is explicit because `user` is an SQL keyword and the generator refuses to derive a
+      column of that name. Same as AiWorkflowState, and stock does it wherever it holds a User. -->
+    <many-to-one name="user" ref="com.axelor.auth.db.User" title="User" required="true"
+      index="true" column="user_id"/>
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Company"
+      required="true" index="true"/>
+
+    <!-- Which chat panel. Minted by the client, opaque here, only ever compared. See
+      AiConversationKey — a value that fails its shape check never reaches this row. -->
+    <string name="conversationId" title="Conversation" index="true"/>
+
+    <!-- Which chain the measurements below describe. Minted whenever a turn starts a fresh model
+      conversation, and never reused.
+
+      WHY IT IS NEEDED. Two turns of one panel can be in flight at once — the user sends a second
+      message while the first is still running, or the client retries. Without an identity for the
+      chain, the turn that COMMITS last wins, and a turn that started earlier carries a smaller
+      measurement: the row then reports a chain smaller than the real one, which is exactly the
+      under-measurement that suppresses a required reset. It is the same hazard the client-side
+      figures had, arriving through concurrency instead.
+
+      HOW IT FENCES. A turn records which chain it was measuring. If the row has moved to a different
+      chain since — somebody reset in between — the measurement describes a conversation that no
+      longer exists and is discarded. Within one chain, `lastInputTokens` only ever grows (every
+      request re-reads the whole retained history), so two concurrent turns are merged by keeping the
+      larger, and an older one cannot pull the number down. -->
+    <string name="chainId" title="Chain" index="true"/>
+
+    <!-- Input tokens of the LAST model request of the last turn, as the provider reported them. This
+      is the number every bound is checked against. -->
+    <integer name="lastInputTokens" title="Last input tokens" default="0"/>
+
+    <!-- How much the chain grew across that turn: its last request minus its first. What lets the next
+      turn project its own peak instead of deciding from a measurement that is already one turn old. -->
+    <integer name="chainGrowthTokens" title="Chain growth" default="0"/>
+
+    <!-- How many turns this chain has run. A counter rather than a flag: it says whether a row that
+      reports a small chain is a genuinely young conversation or one whose measurements stopped being
+      written, and those two look identical without it. -->
+    <integer name="turnCount" title="Turns" default="0"/>
+
+    <!-- When the measurement was taken. A row nobody has updated for a long time cannot describe a
+      chain the client is still sending an id for, so an old one is treated as no measurement at all. -->
+    <datetime name="lastTurnDateTime" title="Last turn"/>
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title data-i18n>You have been signed out</title>
+    <!--
+      Landing page after logout. Served from /public/**, which is anonymous in the Shiro filter
+      chain, so the browser is not bounced back into the application and silently re-authenticated
+      through the still-valid Entra session. Must be registered as a valid post logout redirect URI
+      on the Keycloak client.
+
+      Strings are authored in English and translated from the application's own catalog, fetched
+      from /js/messages.js — the same bundle the SPA uses. That endpoint is anonymous too, and for
+      a request without a user I18nServlet resolves the locale from Accept-Language (AppFilter
+      falls through to request.getLocale()), so an anonymous visitor gets their own language.
+      A missing translation falls back to the English source, as everywhere else in the app.
+    -->
+    <link rel="stylesheet" href="notice.css" />
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true"></div>
+      <h1 data-i18n>You have been signed out</h1>
+      <p data-i18n>Your session has ended.</p>
+      <a href="../" data-i18n>Sign in again</a>
+    </main>
+
+    <script>
+      (function () {
+        var SUPPORTED = ["bg", "en", "fr"];
+
+        function apply(bundle) {
+          var translated = false;
+
+          document.querySelectorAll("[data-i18n]").forEach(function (el) {
+            var source = el.textContent.trim();
+            var message = bundle[source];
+            if (message && message !== source) {
+              el.textContent = message;
+              translated = true;
+            }
+          });
+
+          if (!translated) return;
+
+          // The bundle carries no locale of its own. It was resolved from Accept-Language, which
+          // is the same preference list exposed here, so take the first supported entry.
+          var match = (navigator.languages || [navigator.language || ""])
+            .map(function (tag) {
+              return String(tag).split("-")[0];
+            })
+            .find(function (tag) {
+              return SUPPORTED.indexOf(tag) >= 0;
+            });
+
+          if (match) document.documentElement.lang = match;
+        }
+
+        fetch("../js/messages.js", { credentials: "omit" })
+          .then(function (res) {
+            return res.ok ? res.json() : null;
+          })
+          .then(function (bundle) {
+            if (bundle) apply(bundle);
+          })
+          .catch(function () {
+            // Keep the English source text.
+          });
+      })();
+    </script>
+  </body>
+</html>

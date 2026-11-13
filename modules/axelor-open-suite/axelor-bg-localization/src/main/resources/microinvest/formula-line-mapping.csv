@@ -1,0 +1,110 @@
+# Microinvest FormulaSalary.Name -> Nyxa BgPaySlipLineType.code.
+#
+# Curated by hand against a real FormulaSalary catalogue (763 rows) and Nyxa's
+# bg_pay_slip_line_type*.csv seed data. Only unambiguous 1:1 matches are listed here; the flat
+# catalogue must not be copied wholesale.
+#
+# Deliberately NOT listed, even when a plausible-looking Microinvest row exists:
+#   - Anything Nyxa splits by alinea/paragraph that Microinvest does not distinguish
+#     (chl.213, chl.226: Nyxa has two lines, Microinvest has one undifferentiated formula).
+#   - Anything with a near-duplicate Microinvest formula where picking one risks double-counting
+#     if both are ever populated for the same payroll/month. The two чл. 224 names are the one
+#     exception (see the 224 section below); this bullet applies to every other near-duplicate
+#     pair not individually verified.
+#   - Generic overtime/night-work amount lines (150/151/152/153/130/140 in BgPaySlipLineType):
+#     no Microinvest formula in the pilot catalogue names the AMOUNT for these under a matching
+#     legal basis -- only the HOURS are tracked as separate formulas, and turning hours into an
+#     amount here would mean re-deriving Nyxa's own rate computation, not importing a result.
+#   - Fund-contribution formulas that combine multiple contract types (ТД/ДУК/ГД/СОЛ) or are
+#     reconciliation ("изравнителна")/advance ("аванс") variants of a fund total already listed --
+#     only the plain "Сума фонд <X> от осигурител/осигурен" rows are mapped, to avoid summing a
+#     fund twice for the same person.
+#   - Any formula whose value is a rate, a day/hour count, or a flag rather than a EUR amount.
+#
+# Anything not listed here that appears with a nonzero value is reported in Preflight as an
+# unmapped component (grouped by name, with a best-effort FLAG/INTERMEDIATE/TOTAL/OTHER label for
+# readability only -- that label never decides what gets imported).
+#
+# Format: name;code  (code = BgPaySlipLineType.code; the importer copies number/name/sign/flags
+# from the live BgPaySlipLineType row itself, not from this file -- see BgPaySlipLine.xml's own
+# "freeze by copy" note.)
+name;code
+
+# 1xx — SALARY ADDITIONS
+# Отпуск платен годишен/Отпуск платен - общо: confirmed against the EventPayments table -- the
+# Payment amount there is byte-for-byte the same
+# value as this formula for the same payroll/month (e.g. 31.82 for PayrollID 18, Aug 2024), which
+# is why EventPayments itself is skipped rather than imported: this line already carries it.
+Отпуск платен годишен;pl_otpusk_177
+Отпуск платен - общо;pl_otpusk_177
+
+# 1xx cont. — base salary (verified against payrolls with a partial-attendance month):
+# "Основно възнаграждение" is NOT the payable base-pay line --
+# it is a second copy of the SAME constant contractual figure as "...по договор" (byte-identical
+# whenever both are present, e.g. both stayed 710.00 across a month where the person worked a
+# partial period). The actual amount payable for the period -- prorated when attendance is
+# partial -- is "Възнаграждение за отработени дни" (verified equal to "Брутна заплата" whenever
+# no other addition exists for that month/payroll, and exactly `Брутна заплата` minus already-
+# separately-mapped additions like paid leave (pl_otpusk_177) when one does exist, e.g. PayrollID
+# 18 Aug 2024: Брутна заплата 700.00 = Възнаграждение за отработени дни 668.18 + Отпуск платен
+# годишен 31.82). "Брутна заплата" itself is therefore an AGGREGATE of already-mapped lines and is
+# deliberately NOT mapped here (would double-count against pl_osnovna + the other lines it sums).
+Възнаграждение за отработени дни;pl_osnovna
+
+# 6xx — PAYMENTS
+Аванс;pl_avans
+Частично плащане по банков път;pl_chastichno
+
+# 7xx — TAX
+Данък по ЗДДФЛ;pl_dod
+
+# 8xx — DEDUCTIONS
+Глоба;pl_globa
+Заем към работодателя;pl_zaem_rabotodatel
+Заем към банка;pl_zaem_banka
+Запор върху възнаграждението;pl_zapor
+Запор върху възнаграждението - ограничен според чл.446 ал.1 от ГПК;pl_zapor_446
+Удръжка "Членски внос";pl_chlenski_vnos
+Работнически влог;pl_rabotnicheski_vlog
+
+# 2xx — SOCIAL EXPENSES
+Работно облекло;pl_soc_rabotno_obleklo
+Безплатна храна;pl_soc_bezplatna_hrana_285
+Помощи за лечение;pl_soc_pomosht_lechenie
+
+# 5xx — CONTRIBUTIONS (plain "от осигурител/осигурен" rows only, see note above)
+Сума фонд пенсии от осигурител;pl_vn_pension_osig
+Сума фонд пенсии от осигурен;pl_vn_pension_lice
+Сума фонд общо заболяване от осигурител;pl_vn_ozm_osig
+Сума фонд общо заболяване от осигурен;pl_vn_ozm_lice
+Сума фонд безработица от осигурител;pl_vn_unemployment_osig
+Сума фонд безработица от осигурен;pl_vn_unemployment_lice
+Сума фонд трудова злополука и професионална болест;pl_vn_tzpb_osig
+Сума фонд ДЗПО в УПФ от осигурител;pl_vn_upf_osig
+Сума фонд ДЗПО в УПФ от осигурен;pl_vn_upf_lice
+Сума фонд ДЗПО в ППФ от осигурител;pl_vn_ppf_osig
+Сума учителски ПФ;pl_vn_teacher_pf_osig
+Сума фонд ЗО от осигурител;pl_vn_health_osig
+Сума фонд ЗО от осигурен;pl_vn_health_lice
+Сума фонд ГВРС;pl_vn_gvrs_osig
+
+# 9xx — COMPENSATIONS (only articles where Nyxa has exactly one, unambiguous target line)
+Сума за обезщетение чл. 200 от КТ;pl_obez_kt_200
+Обезщетение чл. 214 от КТ;pl_obez_kt_214
+Обезщетение чл. 217 от КТ;pl_obez_kt_217
+Обезщетение чл. 220 от КТ работодател;pl_obez_kt_220_1
+Обезщетение чл. 220 от КТ работник;pl_obez_kt_220_2
+Сума за Обезщетение чл. 221, ал. 1 от КТ работодател;pl_obez_kt_221_1
+Сума за Обезщетение чл. 221, ал. 2 от КТ работник;pl_obez_kt_221_2
+Обезщетение чл. 222, ал. 1 от КТ;pl_obez_kt_222_1
+Обезщетение чл. 222, ал. 2 от КТ;pl_obez_kt_222_2
+Обезщетение чл. 222, ал. 3 от КТ;pl_obez_kt_222_3
+Обезщетение чл. 224 от КТ;pl_obez_kt_224_1
+# "Сума за Обезщетение по чл. 224 от КТ" (note "Сума за"/"по") is NOT a near-duplicate risking
+# double-counting: the plain "Обезщетение чл. 224 от КТ" name above has no nonzero rows in the
+# ValueSalary table -- Microinvest's calculation engine only ever populates the "Сума за ... по"
+# variant. The two names can therefore never both be populated
+# for the same payroll/month; mapping both to the same code is safe, not a double-count.
+Сума за Обезщетение по чл. 224 от КТ;pl_obez_kt_224_1
+Обезщетение чл. 225 от КТ;pl_obez_kt_225_1
+Обезщетение чл. 331 от КТ;pl_obez_kt_331

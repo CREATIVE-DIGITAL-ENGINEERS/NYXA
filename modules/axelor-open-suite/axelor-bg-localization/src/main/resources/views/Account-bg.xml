@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- А/П ОСТА НА ЕКРАНА. Без този файл полето се пълни от сметкоплана, стои в базата и излиза в
+    SAF-T, но ЧОВЕК не може нито да го види, нито да го поправи за своя сметка — а сметкопланът е на
+    предприятието (ЗСч), тоест добавена на ръка сметка няма откъде да получи А/П.
+
+    ⚠️ ДО commonPosition, А НЕ В ДРУГ ПАНЕЛ. Двете се бъркат лесно и точно затова стоят едно до
+    друго: видени заедно, разликата е очевидна („обичайна позиция“ предупреждава при въвеждане,
+    „А/П ос“ описва салдото). Разделени из формата, второто изглежда като дубликат на първото.
+
+    ⚠️ ЧЕТИМО ЗА РЕПОРТЕН ВЪЗЕЛ. Копира readonlyIf на съседа: регулаторна view сметка не се пипа от
+    потребителя, а А/П ѝ е празно по замисъл. -->
+  <form name="account-form" title="Accounting.Account" id="bg-localization-account-form"
+    model="com.axelor.apps.account.db.Account" extension="true">
+    <extend target="//panel[@name='settingsPanel']/field[@name='commonPosition']">
+      <insert position="after">
+        <field name="bgApSelect" colSpan="3"
+          readonlyIf="accountType.technicalTypeSelect == 'view' &amp;&amp; isRegulatoryAccount"/>
+        <field name="bgSaftTaxCode" colSpan="6"
+          readonlyIf="accountType.technicalTypeSelect == 'view'"/>
+      </insert>
+    </extend>
+  </form>
+
+  <!-- В решетката до кода и типа: А/П е първото, по което счетоводител подрежда план. -->
+  <grid name="account-grid" title="Accounts" id="bg-localization-account-grid"
+    model="com.axelor.apps.account.db.Account" extension="true">
+    <extend target="//field[@name='commonPosition']">
+      <insert position="after">
+        <field name="bgApSelect"/>
+      </insert>
+    </extend>
+  </grid>
+
+</object-views>

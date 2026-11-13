@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ СКРИВАНЕ НА МЕНЮТА НА axelor-base ═══
+
+    Механизмът е същият като в Menu-account-hide.xml: `id` ражда втори ред в meta_menu със същото
+    `name` и по-висок приоритет, а MenuService прекратява обхода при скрит възел. Пазачът е общ —
+    BgHiddenMenuTest.
+
+    „Администрация › Поддръжка › Import demo data“ (Excel съветникът на axelor-base) налива
+    френските демо данни на AOS — без пазач за дружество и без отказ за жива база. Бутонът и
+    отметката в приложенията са махнати (nyxa-security, views/App.xml); тук се скрива и менюто.
+    Демо данни в Nyxa се наливат само с бутона „Налей демо данни“ в дружеството
+    (bg-localization, BgDemoDataController) — измислен български набор, само в празно дружество.
+    Менюто е само за администратори (admin-root), тоест роли в каталога няма за отнемане. -->
+  <menuitem id="bg-hide-admin-root-import-demo-data" name="admin-root-import-demo-data"
+    parent="admin-root-maintenance" title="Import demo data" hidden="true"/>
+
+  <!-- ГЛАВНИТЕ МЕНЮТА „Екипна работа“, „Календар“ и „Документи“. Ръчната отметка
+    „Скрито меню“ не стига — тя пада при всеки деплой: ModuleViewSyncService →
+    ModuleManager.update → ViewLoader#importMenu (update=true) записва `hidden` от XML. Затова тук.
+
+    ⚠️ menu-team и menu-dms имат ДВА чужди реда: axelor-core (Team.xml, DMS.xml, без id → приоритет
+    0) и axelor-base (Menu.xml, id abs-menu-team / abs-menu-dms → приоритет 1). Нашият ред взима
+    приоритет `other.getPriority() + 1`, а `other` е MetaMenuRepository#findByName, който подрежда
+    по `-priority` — тоест реда на axelor-base. Нашият е 2 и MenuUtils#fetchMetaMenu (priority DESC)
+    оставя него. bg-localization зависи и от двата модула, затова и двата реда са вече в базата.
+    Скрит възел прекратява обхода и на поддървото му. Записите (задачи, събития, документи) остават. -->
+  <menuitem id="bg-hide-menu-team" name="menu-team" title="Teamwork" hidden="true"/>
+  <menuitem id="bg-hide-menu-calendar" name="menu-calendar" title="Calendar" hidden="true"/>
+  <menuitem id="bg-hide-menu-dms" name="menu-dms" title="Documents" hidden="true"/>
+
+</object-views>

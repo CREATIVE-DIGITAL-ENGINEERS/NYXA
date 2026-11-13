@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="nap-submission-file-grid" title="Files"
+    model="com.axelor.apps.napsubmissions.db.NapSubmissionFile">
+    <field name="sequence"/>
+    <field name="submittedFileName"/>
+    <field name="fileDocumentTypeSelect"/>
+    <field name="payloadArtifact"/>
+    <field name="payloadArtifact.sha256" title="SHA-256" readonly="true"/>
+    <field name="qesSigningStatusSelect"/>
+    <field name="signatureArtifact"/>
+    <field name="fileStatusSelect"/>
+  </grid>
+
+  <form name="nap-submission-file-form" title="File"
+    model="com.axelor.apps.napsubmissions.db.NapSubmissionFile" width="large">
+    <panel name="filePanel" title="File" colSpan="12">
+      <field name="submission" readonly="true"/>
+      <field name="sequence"/>
+      <field name="submittedFileName"/>
+      <field name="fileDocumentTypeSelect"/>
+      <field name="fileTypeSelect"/>
+      <field name="payloadArtifact"/>
+      <field name="fileSize" readonly="true"/>
+      <field name="numRecords"/>
+    </panel>
+    <panel name="signingStatePanel" title="QES signing" colSpan="12">
+      <field name="qesSigningStatusSelect" readonly="true" widget="single-select"/>
+      <field name="qesProviderId" readonly="true"/>
+      <field name="qesSigningStartedOn" readonly="true"/>
+      <field name="qesSigningCompletedOn" readonly="true"/>
+      <field name="qesRequestedSha256" readonly="true"/>
+      <field name="signatureArtifact" readonly="true"/>
+      <field name="signerCertificateArtifact" readonly="true"/>
+      <field name="signerCertificateSha256" readonly="true"/>
+      <field name="qesFailureReason" readonly="true" colSpan="12"
+        showIf="qesFailureReason"/>
+    </panel>
+    <panel name="fileStatusPanel" title="NAP processing" colSpan="12">
+      <field name="fileStatusSelect" readonly="true"/>
+      <field name="fileError" readonly="true" colSpan="12" showIf="fileError"/>
+    </panel>
+  </form>
+
+</object-views>

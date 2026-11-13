@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="stock" package="com.axelor.apps.stock.db"/>
+
+  <!-- СКЛАДЪТ ЗА SAF-T (WarehouseID, MF.PS.2 и ShipFrom/ShipTo на движението).
+
+    Правилото от S1: складът е НАЙ-ГОРНИЯТ вътрешен родител, а локацията (LocationID) е листът.
+    Флагът е изключението: локация с вдигнат флаг е склад сама по себе си, и то за всичко под нея —
+    печели най-близкият вдигнат предшественик (или самата локация). Виж BgSaftWarehouses.of. -->
+  <entity name="StockLocation">
+    <boolean name="bgSaftWarehouse" title="Склад за SAF-T (WarehouseID)"/>
+  </entity>
+
+</domain-models>

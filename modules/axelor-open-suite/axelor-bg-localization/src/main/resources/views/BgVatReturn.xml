@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="bg-vat-return-grid" title="ДДС декларации (NAP)"
+    model="com.axelor.apps.bglocalization.db.BgVatReturn">
+    <field name="period"/>
+    <field name="company"/>
+    <field name="statusSelect"/>
+    <!-- Коригиращата се познава по correctsPrevious, не по статуса (corrected е само началният). -->
+    <field name="correctsPrevious"/>
+    <field name="napEntryNumber"/>
+  </grid>
+
+  <form name="bg-vat-return-form" title="ДДС декларация (NAP)"
+    model="com.axelor.apps.bglocalization.db.BgVatReturn" width="large"
+    onLoad="action-bg-vat-return-load-period,action-bg-vat-return-method-check-stale">
+
+    <panel name="mainPanel" title="Параметри" colSpan="12">
+      <field name="company" colSpan="6" onChange="action-bg-vat-return-method-prefill"/>
+      <field name="statusSelect" colSpan="6" readonly="true"/>
+      <!-- Данъчен период = месец + година (вход); period (ГГГГММ) се деривира и е сериализацията. -->
+      <!-- x-dirty="false": onLoad ги сетва от period (action-bg-vat-return-load-period); без него
+        всяко отваряне прави формата „променена“ (*). Ръчната промяна пак мърси формата — през
+        period, който derive-period сменя. -->
+      <field name="bgPeriodMonth" colSpan="3" x-dirty="false"
+        onChange="action-bg-vat-return-derive-period,action-bg-vat-return-method-prefill"/>
+      <field name="bgPeriodYear" colSpan="3" x-dirty="false"
+        onChange="action-bg-vat-return-derive-period,action-bg-vat-return-method-prefill"/>
+      <field name="period" colSpan="3" title="Период (ГГГГММ)" readonly="true"/>
+      <field name="napEntryNumber" colSpan="3"/>
+      <!-- Избор на декларатор (само за това дружество). Снапшотът се пише при генериране. -->
+      <field name="bgDeclarant" colSpan="6" domain="self.company = :company"/>
+      <field name="correctsPrevious" colSpan="6" readonly="true" showIf="correctsPrevious"/>
+    </panel>
+
+    <!-- Снапшот на рег. лице/декларатор — ИЗХОД (пише се от генератора при разрешаване). -->
+    <panel name="snapshotPanel" title="Рег. лице / Декларатор (снапшот)" colSpan="12"
+      collapsible="true">
+      <field name="companyAddress" colSpan="12" readonly="true"/>
+      <field name="bgDeclarantEgn" colSpan="6" readonly="true"/>
+      <field name="bgDeclarantNames" colSpan="6" readonly="true"/>
+      <field name="bgDeclarantCity" colSpan="6" readonly="true"/>
+      <field name="bgDeclarantPostCode" colSpan="6" readonly="true"/>
+      <field name="bgDeclarantAddress" colSpan="6" readonly="true"/>
+      <field name="bgDeclarantCapacity" colSpan="6" readonly="true"/>
+      <field name="bgDeclarantPosition" colSpan="6" readonly="true"/>
+    </panel>
+
+    <!-- Stale banner: shown when the source VAT data changed after the package was prepared. -->
+    <panel name="packageBannerPanel" colSpan="12" showIf="bgPackageInfo">
+      <!-- Банерът се смята при отваряне (checkPackageStale) — x-dirty="false", иначе формата е „*“. -->
+      <field name="bgPackageStale" hidden="true" x-dirty="false"/>
+      <field name="bgPackageInfo" colSpan="12" readonly="true" showTitle="false"
+        css="label-warning" x-dirty="false"/>
+    </panel>
+
+    <panel name="actionsPanel" colSpan="12">
+      <!-- draft/corrected→generated: save → (get id) → generate → save (persist attached files +
+        status). Коригиращата започва в corrected и оттам върви като всяка друга. -->
+      <button name="generateBtn" title="Генерирай" icon="fa-cogs" css="btn-primary"
+        showIf="!statusSelect || statusSelect == 'draft' || statusSelect == 'corrected'"
+        onClick="save,action-bg-vat-return-method-generate,save"/>
+      <!-- Re-prepare the package (new immutable snapshot; the previous one is superseded). -->
+      <button name="regenerateBtn" title="Генерирай отново" icon="fa-refresh"
+        showIf="statusSelect == 'generated'"
+        onClick="save,action-bg-vat-return-method-generate,save"/>
+      <!-- Преглед на последния пакет — само чете. БЕЗ save: на „променена“ форма save
+        праща _original от отварянето, а JPA.verify го сверява с пакетите и логовете в базата →
+        OptimisticLockException. Бутонът се вижда само за записана декларация (statusSelect). -->
+      <button name="previewFilesBtn" title="Преглед на файловете" icon="fa-search"
+        showIf="statusSelect &amp;&amp; statusSelect != 'draft'"
+        onClick="action-bg-vat-return-method-open-preview"/>
+      <!-- generated→submitted (validated). -->
+      <button name="markSubmittedBtn" title="Отбележи подадена" icon="fa-paper-plane"
+        showIf="statusSelect == 'generated'"
+        onClick="save,action-bg-vat-return-method-mark-submitted,save"/>
+      <!-- submitted→accepted / submitted→rejected. -->
+      <button name="markAcceptedBtn" title="Отбележи приета" icon="fa-check"
+        showIf="statusSelect == 'submitted'"
+        onClick="save,action-bg-vat-return-method-mark-accepted,save"/>
+      <button name="markRejectedBtn" title="Отбележи отхвърлена" icon="fa-times"
+        showIf="statusSelect == 'submitted'"
+        onClick="save,action-bg-vat-return-method-mark-rejected,save"/>
+      <!-- Протоколите по чл. 117 от покупните фактури с обратно начисляване за периода — преди
+        генерирането: фактура без протокол е ГРЕШКА в дневника. -->
+      <button name="bgVatInvoiceProtocolsBtn" title="Състави протоколите по чл. 117 за периода"
+        icon="fa-file-text-o"
+        showIf="!statusSelect || statusSelect == 'draft' || statusSelect == 'corrected' || statusSelect == 'generated'"
+        onClick="save,action-bg-vat-return-method-invoice-protocols"/>
+      <!-- submitted/accepted/rejected → new corrected return. -->
+      <button name="createCorrectionBtn" title="Създай корекция" icon="fa-copy"
+        showIf="statusSelect == 'submitted' || statusSelect == 'accepted' || statusSelect == 'rejected'"
+        onClick="save,action-bg-vat-return-method-create-correction"/>
+    </panel>
+
+    <!-- Печат/експорт на дневниците от персистирания снапшот (отчет == TXT). Видими след генериране
+      (има редове). СД (справка-декларация) PDF предстои (образец на НАП). -->
+    <panel name="reportsPanel" title="Отчети" colSpan="12"
+      showIf="statusSelect &amp;&amp; statusSelect != 'draft'">
+      <button name="printDeclarationBtn" title="Печат СД (PDF)" icon="fa-file-pdf-o"
+        onClick="save,action-bg-vat-return-method-print-declaration"/>
+      <button name="printSalesBtn" title="Печат продажби (PDF)" icon="fa-file-pdf-o"
+        onClick="save,action-bg-vat-return-method-print-sales"/>
+      <button name="exportSalesBtn" title="Експорт продажби (Excel)" icon="fa-file-excel-o"
+        onClick="save,action-bg-vat-return-method-export-sales"/>
+      <button name="printPurchaseBtn" title="Печат покупки (PDF)" icon="fa-file-pdf-o"
+        onClick="save,action-bg-vat-return-method-print-purchase"/>
+      <button name="exportPurchaseBtn" title="Експорт покупки (Excel)" icon="fa-file-excel-o"
+        onClick="save,action-bg-vat-return-method-export-purchase"/>
+    </panel>
+
+    <panel name="filesPanel" title="Генерирани файлове" colSpan="12">
+      <field name="prodagbiFile" colSpan="6" readonly="true"/>
+      <field name="pokupkiFile" colSpan="6" readonly="true"/>
+      <field name="deklarFile" colSpan="6" readonly="true"/>
+      <field name="viesFile" colSpan="6" readonly="true"/>
+    </panel>
+
+    <!-- РАЗДЕЛ А: изчислени (readonly). title = кратък, help = пълен официален текст (tooltip). -->
+    <panel name="sectionA" title="РАЗДЕЛ А: Данни за начислен данък върху добавената стойност"
+      colSpan="12">
+      <field name="k01" colSpan="4" readonly="true"
+        title="Общ размер данъчни основи (сума кл.11–16) (кл.01)"
+        help="Общ размер на данъчните основи за облагане с ДДС (сума от кл.11 до кл.16)"/>
+      <field name="k11" colSpan="4" readonly="true"
+        title="Основа облагаеми доставки 20% (кл.11)"
+        help="Данъчна основа, подлежаща на облагане със ставка 20%: данъчна основа на облагаемите доставки, вкл. доставките при условията на дистанционни продажби с място на изпълнение на територията на страната"/>
+      <field name="k12" colSpan="4" readonly="true" title="Основа ВОП и чл.82 ал.2-6 (кл.12)"
+        help="Данъчна основа на ВОП и данъчна основа на получени доставки по чл.82, ал.2-6 от ЗДДС"/>
+      <field name="k13" colSpan="4" readonly="true"
+        title="Основа облагаеми доставки 9% (кл.13)"
+        help="Данъчна основа на облагаемите доставки със ставка 9%"/>
+      <field name="k14" colSpan="4" readonly="true"
+        title="Основа доставки 0% (глава трета) (кл.14)"
+        help="Данъчна основа, подлежаща на облагане със ставка 0%: данъчна основа за доставки по глава трета от ЗДДС"/>
+      <field name="k15" colSpan="4" readonly="true" title="Основа ВОД на стоки (кл.15)"
+        help="Данъчна основа на ВОД на стоки"/>
+      <field name="k16" colSpan="4" readonly="true"
+        title="Основа доставки чл.140/146/173 (кл.16)"
+        help="Данъчна основа на доставки по чл.140, 146 и чл.173 ЗДДС"/>
+      <field name="k17" colSpan="4" readonly="true"
+        title="Основа услуги чл.21 ал.2 (ЕС) (кл.17)"
+        help="Данъчна основа на доставки на услуги по чл.21, ал.2 с място на изпълнение на територията на друга страна членка"/>
+      <field name="k18" colSpan="4" readonly="true"
+        title="Основа доставки чл.69 ал.2 (тристранни/дистанц.) (кл.18)"
+        help="Данъчна основа на доставки по чл.69, ал.2 ЗДДС, вкл. доставките при условията на дистанционни продажби с място на изпълнение на територията на друга държава членка, както и на доставки като посредник в тристранна операция"/>
+      <field name="k19" colSpan="4" readonly="true"
+        title="Основа освободени доставки и ВОП (кл.19)"
+        help="Данъчна основа на освободените доставки и освободени ВОП"/>
+      <field name="k20" colSpan="4" readonly="true"
+        title="Всичко начислен ДДС (сума кл.21–24) (кл.20)"
+        help="Всичко начислен ДДС (сума от кл.21 до кл.24)"/>
+      <field name="k21" colSpan="4" readonly="true" title="Начислен ДДС (кл.21)"
+        help="Начислен ДДС"/>
+      <field name="k22" colSpan="4" readonly="true"
+        title="Начислен ДДС за ВОП и чл.82 ал.2-6 (кл.22)"
+        help="Начислен ДДС за ВОП и за получени доставки по чл.82, ал.2-6 от ЗДДС"/>
+      <field name="k23" colSpan="4" readonly="true" title="Начислен данък лични нужди (кл.23)"
+        help="Начислен данък за доставки на стоки и услуги за лични нужди"/>
+      <field name="k24" colSpan="4" readonly="true" title="Начислен ДДС (9%) (кл.24)"
+        help="Начислен ДДС (9%)"/>
+    </panel>
+
+    <!-- РАЗДЕЛ Б: изчислени readonly + к33 (коефициент, ръчен/prefill, условен) + к43 (ръчна корекция). -->
+    <panel name="sectionB" title="РАЗДЕЛ Б: Данни за упражненото право на данъчен кредит"
+      colSpan="12">
+      <field name="k30" colSpan="4" readonly="true"
+        title="Основа получени доставки без право на ДК (кл.30)"
+        help="Данъчна основа и данък на получените доставки, ВОП, получените доставки по чл.82, ал.2-6 от ЗДДС и вноса без право на данъчен кредит или без данък"/>
+      <field name="k31" colSpan="4" readonly="true" title="Основа с право на пълен ДК (кл.31)"
+        help="Данъчна основа на получените доставки, ВОП, получените доставки по чл.82, ал.2-6 от ЗДДС, вноса, както и данъчната основа на получени доставки, използвани за извършване на доставки по чл.69, ал.2 ЗДДС с право на пълен данъчен кредит"/>
+      <field name="k32" colSpan="4" readonly="true"
+        title="Основа с право на частичен ДК (кл.32)" help="с право на частичен данъчен кредит"/>
+      <field name="k33" colSpan="4" showIf="(k42||0) != 0" requiredIf="(k42||0) != 0"
+        title="Коефициент чл.73 ал.5 (кл.33)" help="Коефициент по чл.73, ал.5 ЗДДС"/>
+      <field name="k41" colSpan="4" readonly="true" title="ДДС пълен данъчен кредит (кл.41)"
+        help="ДДС с право на пълен данъчен кредит"/>
+      <field name="k42" colSpan="4" readonly="true"
+        title="ДДС частичен данъчен кредит (кл.42)" help="ДДС с право на частичен данъчен кредит"/>
+      <field name="k43" colSpan="4" title="Годишна корекция чл.73 ал.8 (кл.43)"
+        help="Годишна корекция по чл.73, ал.8 (+ / -)"/>
+      <field name="k40" colSpan="4" readonly="true" title="Общо данъчен кредит (кл.40)"
+        help="Общо данъчен кредит (кл.41 + кл.42 x кл.33 + кл.43)"/>
+    </panel>
+
+    <!-- Авто-попълване на резултата (двете отметки). -->
+    <panel name="autoFillPanel" title="Авто-попълване на резултата" colSpan="12"
+      collapsible="true">
+      <field name="bgAutoFillK71" colSpan="6"
+        onChange="action-bg-vat-return-method-recompute-result"/>
+      <field name="bgAutoFillK82" colSpan="6"
+        onChange="action-bg-vat-return-method-recompute-result"/>
+    </panel>
+
+    <!-- РАЗДЕЛ В: резултат (readonly); title = пълен текст. -->
+    <panel name="sectionC" title="РАЗДЕЛ В: Резултат за периода" colSpan="12">
+      <field name="k50" colSpan="6" readonly="true"
+        title="ДДС за внасяне (кл.20 - кл.40) &gt;= 0 (кл.50)"/>
+      <field name="k60" colSpan="6" readonly="true"
+        title="ДДС за възстановяване (кл.20 - кл.40) &lt; 0 (кл.60)"/>
+    </panel>
+
+    <!-- РАЗДЕЛ Г: ДДС за внасяне. к70 ръчен; к71 авто (readonlyIf bgAutoFillK71). -->
+    <panel name="sectionD" title="РАЗДЕЛ Г: ДДС за внасяне" colSpan="12">
+      <field name="k70" colSpan="6" onChange="action-bg-vat-return-method-recompute-result"
+        title="Данък за внасяне от кл.50, приспаднат по реда на чл.92, ал.1 ЗДДС (кл.70)"/>
+      <field name="k71" colSpan="6" readonlyIf="bgAutoFillK71"
+        title="Данък за внасяне от кл.50, внесен ефективно (кл.71)"/>
+    </panel>
+
+    <!-- РАЗДЕЛ Д: ДДС за възстановяване. к80/к81 ръчни; к82 авто (readonlyIf bgAutoFillK82). -->
+    <panel name="sectionE" title="РАЗДЕЛ Д: ДДС, подлежащ на възстановяване" colSpan="12">
+      <field name="k80" colSpan="4" onChange="action-bg-vat-return-method-recompute-result"
+        title="Съгласно чл.92, ал.1 ЗДДС в 30-дневен срок от подаването на тази декларация (кл.80)"/>
+      <field name="k81" colSpan="4" onChange="action-bg-vat-return-method-recompute-result"
+        title="Съгласно чл.92, ал.3 ЗДДС в 30-дневен срок от подаването на тази декларация (кл.81)"/>
+      <field name="k82" colSpan="4" readonlyIf="bgAutoFillK82"
+        title="Съгласно чл.92, ал.4 ЗДДС в 30-дневен срок от подаването на тази декларация (кл.82)"/>
+    </panel>
+
+    <!-- НАП пакет: подготвени файлове / история на подаванията / логове. -->
+    <panel-tabs name="bgPackageTabs" colSpan="12">
+
+      <panel name="preparedFilesTab" title="Подготвени файлове">
+        <button name="previewFilesTabBtn" title="Преглед на файловете" icon="fa-search"
+          colSpan="4" showIf="statusSelect &amp;&amp; statusSelect != 'draft'"
+          onClick="action-bg-vat-return-method-open-preview"/>
+        <field name="bgVatPackageList" colSpan="12" readonly="true"
+          grid-view="bg-vat-package-grid" form-view="bg-vat-package-form"/>
+      </panel>
+
+      <panel name="submissionHistoryTab" title="История на подаванията">
+        <panel name="mockTargetPanel" colSpan="12">
+          <!-- Target is ALWAYS the local mock; real НАП submission does not exist and sending is disabled
+            by default (enable with -Dnyxa.vat.mock.enabled=true + a local URL). -->
+          <label name="mockTargetLabel" colSpan="12"
+            title="Цел: LOCAL MOCK (локален тестов сървър). Реално подаване към НАП НЕ съществува. Изпращането е изключено по подразбиране."/>
+          <field name="bgMockScenario" colSpan="4"
+            showIf="statusSelect &amp;&amp; statusSelect != 'draft'"/>
+          <button name="sendToNapBtn" title="Изпрати към НАП (LOCAL MOCK)"
+            icon="fa-paper-plane" css="btn-danger" colSpan="4"
+            showIf="statusSelect &amp;&amp; statusSelect != 'draft'"
+            prompt="Изпращане към LOCAL MOCK сървър (тест). Реално подаване към НАП няма. Продължавате ли?"
+            onClick="save,action-bg-vat-return-method-send-to-nap,save"/>
+          <button name="checkStatusBtn" title="Провери статус" icon="fa-refresh" colSpan="4"
+            showIf="statusSelect &amp;&amp; statusSelect != 'draft'"
+            onClick="save,action-bg-vat-return-method-check-status,save"/>
+        </panel>
+        <field name="bgVatSubmissionList" colSpan="12" readonly="true"
+          grid-view="bg-vat-submission-grid" form-view="bg-vat-submission-form"/>
+      </panel>
+
+      <panel name="logsTab" title="Логове">
+        <field name="bgVatPackageEventList" colSpan="12" readonly="true"
+          grid-view="bg-vat-package-event-grid" form-view="bg-vat-package-event-form"/>
+      </panel>
+
+    </panel-tabs>
+
+  </form>
+
+  <action-method name="action-bg-vat-return-method-invoice-protocols">
+    <call class="com.axelor.apps.bglocalization.web.BgVatInvoiceProtocolController"
+      method="generateForPeriod"/>
+  </action-method>
+
+  <action-method name="action-bg-vat-return-method-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController" method="generate"/>
+  </action-method>
+
+  <!-- СД (1:1) + diary print (PDF) / export (XLSX) from the persisted snapshot. -->
+  <action-method name="action-bg-vat-return-method-print-declaration">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="printDeclaration"/>
+  </action-method>
+  <action-method name="action-bg-vat-return-method-print-sales">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="printSalesDiary"/>
+  </action-method>
+  <action-method name="action-bg-vat-return-method-export-sales">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="exportSalesDiary"/>
+  </action-method>
+  <action-method name="action-bg-vat-return-method-print-purchase">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="printPurchaseDiary"/>
+  </action-method>
+  <action-method name="action-bg-vat-return-method-export-purchase">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="exportPurchaseDiary"/>
+  </action-method>
+
+  <action-method name="action-bg-vat-return-method-prefill">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController" method="prefill"/>
+  </action-method>
+
+  <action-method name="action-bg-vat-return-method-mark-submitted">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="markSubmitted"/>
+  </action-method>
+
+  <action-method name="action-bg-vat-return-method-mark-accepted">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="markAccepted"/>
+  </action-method>
+
+  <action-method name="action-bg-vat-return-method-mark-rejected">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="markRejected"/>
+  </action-method>
+
+  <action-method name="action-bg-vat-return-method-create-correction">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="createCorrection"/>
+  </action-method>
+
+  <action-method name="action-bg-vat-return-method-recompute-result">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="recomputeResult"/>
+  </action-method>
+
+  <!-- VAT package: preview / staleness banner / (future) НАП send. -->
+  <action-method name="action-bg-vat-return-method-open-preview">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController" method="openPreview"/>
+  </action-method>
+  <action-method name="action-bg-vat-return-method-check-stale">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="checkPackageStale"/>
+  </action-method>
+  <action-method name="action-bg-vat-return-method-send-to-nap">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController" method="sendToNap"/>
+  </action-method>
+  <action-method name="action-bg-vat-return-method-check-status">
+    <call class="com.axelor.apps.bglocalization.web.BgVatReturnController"
+      method="checkVatStatus"/>
+  </action-method>
+
+  <!-- Derive period (ГГГГММ) from the month+year selects; non-destructive (keeps period if a select
+    is empty). Chained BEFORE prefill so prefill reads the fresh period. -->
+  <action-record name="action-bg-vat-return-derive-period"
+    model="com.axelor.apps.bglocalization.db.BgVatReturn">
+    <field name="period"
+      expr="eval: bgPeriodMonth &amp;&amp; bgPeriodYear ? bgPeriodYear + bgPeriodMonth : period"/>
+  </action-record>
+
+  <!-- Reverse: populate the month+year selects from an existing period (ГГГГММ) on load. -->
+  <action-record name="action-bg-vat-return-load-period"
+    model="com.axelor.apps.bglocalization.db.BgVatReturn">
+    <field name="bgPeriodYear"
+      expr="eval: period != null &amp;&amp; period.length() == 6 ? period.substring(0, 4) : null"/>
+    <field name="bgPeriodMonth"
+      expr="eval: period != null &amp;&amp; period.length() == 6 ? period.substring(4, 6) : null"/>
+  </action-record>
+
+  <action-view name="action-bg-vat-return-view" title="ДДС декларации (NAP)"
+    model="com.axelor.apps.bglocalization.db.BgVatReturn">
+    <view type="grid" name="bg-vat-return-grid"/>
+    <view type="form" name="bg-vat-return-form"/>
+  </action-view>
+
+</object-views>

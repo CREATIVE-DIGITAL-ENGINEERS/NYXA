@@ -1,0 +1,130 @@
+"importId";"codeSelect";"name";"sequenceTypeSelect";"sequenceLettersTypeSelect";"nextNum";"padding";"prefixe";"suffixe";"toBeAdded";"yearlyResetOk"
+"1";"project";"Project";"NUMBERS";"UPPERCASE";"1";"5";"PRJ";"";"1";0
+"10";"invoice";"Кредитно известие от доставчик";"NUMBERS";"UPPERCASE";"1";"10";"";"";"1";0
+"12";"irrecoverable";"Прехвърляне в несъбираеми";"NUMBERS";"UPPERCASE";"1";"4";"IRREC_%YY_";"";"1";1
+"20";"move";"Журнален запис постъпление с кредитна карта";"NUMBERS";"UPPERCASE";"1";"4";"MVCC_%YY_";"";"1";1
+"19";"move";"Журнален запис постъпление с чек";"NUMBERS";"UPPERCASE";"1";"4";"MVCHQ_%YY_";"";"1";1
+"18";"move";"Журнален запис постъпление в брой";"NUMBERS";"UPPERCASE";"1";"4";"MVCSH_%YY_";"";"1";1
+"22";"move";"Журнален запис постъпление IPO";"NUMBERS";"UPPERCASE";"1";"4";"MVIPO_%YY_";"";"1";1
+"15";"move";"Журнален запис покупка";"NUMBERS";"UPPERCASE";"1";"4";"MVPUR_%YY_";"";"1";1
+"14";"move";"Журнален запис кредитно известие";"NUMBERS";"UPPERCASE";"1";"4";"MVREF_%YY_";"";"1";1
+"13";"move";"Журнален запис продажба";"NUMBERS";"UPPERCASE";"1";"4";"MVSAL_%YY_";"";"1";1
+"3";"product";"Продукт";"NUMBERS";"UPPERCASE";"1";"4";"PR";"";"1";0
+"84";"purchaseOrder";"Запитване/Оферти от доставчици";"NUMBERS";"UPPERCASE";"1";"4";"PO";"";"1";0
+"16";"move";"Журнален запис кредитно известие покупка";"NUMBERS";"UPPERCASE";"1";"4";"MVSREF_%YY_";"";"1";1
+"17";"move";"Журнален запис виртуален";"NUMBERS";"UPPERCASE";"1";"4";"MVVIRT_%YY_";"";"1";1
+"129";"moveLineExport";"Accounting export";"NUMBERS";"UPPERCASE";"1";"4";"ACCEXP_%YY_";"";"1";0
+"130";"reimbursement";"Reimbursement proposals";"NUMBERS";"UPPERCASE";"1";"4";"REIMB_%YY_";"";"1";0
+"131";"noteBills";"Note bills";"NUMBERS";"UPPERCASE";"1";"3";"NB%YYYY";"";"1";0
+"132";"analyticReport";"Analytical reports";"NUMBERS";"UPPERCASE";"1";"4";"ANAREP_%YY_";"";"1";0
+"133";"purchaseInterface";"Purchase Interface";"NUMBERS";"UPPERCASE";"1";"4";"PURINT_%YY_";"";"1";0
+"134";"refundInterface";"Refund interface";"NUMBERS";"UPPERCASE";"1";"4";"REFINT_%YY_";"";"1";0
+"135";"saleInterface";"Sales Interface";"NUMBERS";"UPPERCASE";"1";"4";"SALINT_%YY_";"";"1";0
+"136";"treasuryInterface";"Treasury Interface";"NUMBERS";"UPPERCASE";"1";"4";"TREINT_%YY_";"";"1";0
+"137";"move";"Payroll Entry";"NUMBERS";"UPPERCASE";"1";"5";"PAY%YY";"";"1";0
+"138";"move";"Cash Entry";"NUMBERS";"UPPERCASE";"1";"5";"CSH%YY";"";"1";0
+"139";"move";"Fiscal Z-Report Entry";"NUMBERS";"UPPERCASE";"1";"5";"FIS%YY";"";"1";0
+"140";"move";"VAT Protocol Entry";"NUMBERS";"UPPERCASE";"1";"5";"VAT%YY";"";"1";0
+"141";"move";"Adjustment Entry";"NUMBERS";"UPPERCASE";"1";"5";"ADJ%YY";"";"1";0
+"142";"move";"Closing Entry";"NUMBERS";"UPPERCASE";"1";"5";"CLO%YY";"";"1";0
+"144";"napDoc05";"Документ тип 05 - вътрешен";"NUMBERS";"UPPERCASE";"1";"5";"D05_%YY_";"";"1";0
+"145";"bgVatProtocol";"ДДС протокол (ЗДДС чл. 117 ал. 2 т. 1)";"NUMBERS";"UPPERCASE";"1";"10";"";"";"1";0
+"4";"abcAnalysis";"ABC анализ";"NUMBERS";"UPPERCASE";"1";"3";"ABC";"";"1";0
+"5";"accountClearance";"Прихващане на надплащане";"NUMBERS";"UPPERCASE";"1";"4";"ACCCLR_%YY_";"";"1";1
+"85";"PurchaseRequest";"Заявка за покупка";"NUMBERS";"UPPERCASE";"1";"3";"ASK";"";"1";0
+"6";"chequeReject";"Отказан чек";"NUMBERS";"UPPERCASE";"1";"4";"CHQREJ_%YY_";"";"1";1
+"39";"move";"Журнален запис несъбираем";"NUMBERS";"UPPERCASE";"1";"4";"MVIRREC%YY_";"";"1";1
+"35";"move";"Журнален запис плащане друго";"NUMBERS";"UPPERCASE";"1";"4";"MVOTH_%YY_";"";"1";1
+"26";"move";"Журнален запис постъпление друго";"NUMBERS";"UPPERCASE";"1";"4";"MVOTH_%YY_";"";"1";1
+"27";"move";"Журнален запис отказано плащане";"NUMBERS";"UPPERCASE";"1";"4";"MVREJ_%YY_";"";"1";1
+"24";"move";"Журнален запис постъпил банков превод";"NUMBERS";"UPPERCASE";"1";"4";"MVWT_%YY_";"";"1";1
+"33";"move";"Журнален запис изходящ банков превод";"NUMBERS";"UPPERCASE";"1";"4";"MVWT_%YY_";"";"1";1
+"86";"opportunity";"Сделка";"NUMBERS";"UPPERCASE";"1";"4";"O";"";"1";0
+"87";"saleOrder";"Поръчка от клиент";"NUMBERS";"UPPERCASE";"1";"4";"SO";"";"1";0
+"36";"move";"Други операции - автоматични";"NUMBERS";"UPPERCASE";"1";"4";"MISCAUT%YY_";"";"1";1
+"40";"moveLineExport";"Експорт счетоводен";"NUMBERS";"UPPERCASE";"1";"4";"ACCEXP_%YY_";"";"1";1
+"41";"moveLineReport";"Счетоводен отчет";"NUMBERS";"UPPERCASE";"1";"4";"ACCREP_%YY_";"";"1";1
+"68";"analyticReport";"Аналитичен отчет";"NUMBERS";"UPPERCASE";"1";"4";"ANAREP_%YY_";"";"1";1
+"64";"treasuryInterface";"Интерфейс паричен поток";"NUMBERS";"UPPERCASE";"1";"4";"CFINT_%YY_";"";"1";1
+"11";"debit";"Директен дебит (фактура и вноски)";"NUMBERS";"UPPERCASE";"1";"4";"DDINV_%YY_";"";"1";1
+"69";"depositSlip";"Вносна бележка";"NUMBERS";"UPPERCASE";"1";"4";"DS%YY%FM";"";"1";1
+"79";"bankOrder";"Международни кредитни преводи";"NUMBERS";"UPPERCASE";"1";"4";"ICT%YY%FM";"";"1";1
+"80";"bankOrder";"Международни директни дебити";"NUMBERS";"UPPERCASE";"1";"4";"IDD%YY%FM";"";"1";1
+"104";"fixedAsset";"№ на дълготраен актив";"NUMBERS";"UPPERCASE";"1";"3";"IMMO%YYYY";"";"1";0
+"42";"paymentSchedule";"№ на вноска";"NUMBERS";"UPPERCASE";"1";"4";"INSTAL_%YY_";"";"1";1
+"7";"invoice";"Фактура за продажби";"NUMBERS";"UPPERCASE";"1";"10";"";"";"1";0
+"8";"invoice";"Кредитно известие към клиент";"NUMBERS";"UPPERCASE";"1";"10";"";"";"1";0
+"9";"invoice";"Фактура от доставчик";"NUMBERS";"UPPERCASE";"1";"10";"";"";"1";0
+"56";"paymentVoucher";"№ за изходящ банков превод";"NUMBERS";"UPPERCASE";"1";"4";"PO_VIR_%YY_";"";"1";1
+"53";"paymentVoucher";"№ за плащане с чек";"NUMBERS";"UPPERCASE";"1";"4";"PO_CHQ_%YY_";"";"1";1
+"54";"paymentVoucher";"№ за плащане с кредитна карта";"NUMBERS";"UPPERCASE";"1";"4";"PO_CB_%YY_";"";"1";1
+"57";"paymentVoucher";"№ за плащане директен дебит";"NUMBERS";"UPPERCASE";"1";"4";"PO_PRE_%YY_";"";"1";1
+"52";"paymentVoucher";"№ за плащане в брой";"NUMBERS";"UPPERCASE";"1";"4";"PO_ESP_%YY_";"";"1";1
+"55";"paymentVoucher";"№ за плащане IPO";"NUMBERS";"UPPERCASE";"1";"4";"PO_TIP_%YY_";"";"1";1
+"49";"paymentVoucher";"N° for payments received in Wire Transfer";"NUMBERS";"UPPERCASE";"1";"4";"PI_VIR_%YY_";"";"1";1
+"58";"paymentVoucher";"№ за плащане друго";"NUMBERS";"UPPERCASE";"1";"4";"PO_OTH_%YY_";"";"1";1
+"59";"paymentVoucherReceiptNo";"Voucher Receipt N°";"NUMBERS";"UPPERCASE";"1";"4";"RECPT_%YY_";"";"1";1
+"107";"paymentVoucher";"N° for payments received in Cheque";"NUMBERS";"UPPERCASE";"1";"4";"PI_CHQ_%YY_";"";"1";0
+"92";"move";"Журнал продажби";"NUMBERS";"UPPERCASE";"1";"4";"SAL%YY";"";"1";0
+"93";"move";"Журнал кредитни известия продажби";"NUMBERS";"UPPERCASE";"1";"4";"RFS%YY";"";"1";0
+"94";"move";"Журнал покупки";"NUMBERS";"UPPERCASE";"1";"4";"PCH%YY";"";"1";0
+"95";"move";"Журнал кредитни известия покупки";"NUMBERS";"UPPERCASE";"1";"4";"RFP%YY";"";"1";0
+"96";"move";"Журнал банка";"NUMBERS";"UPPERCASE";"1";"4";"BNK%YY";"";"1";0
+"98";"move";"Журнал други операции ръчен";"NUMBERS";"UPPERCASE";"1";"4";"MOM%YY";"";"1";0
+"99";"move";"Журнал пренесено салдо";"NUMBERS";"UPPERCASE";"1";"4";"RPB%YY";"";"1";0
+"100";"accountingReport";"Счетоводни отчети";"NUMBERS";"UPPERCASE";"1";"4";"AX%YY";"";"1";0
+"60";"purchaseInterface";"Purchase interface";"NUMBERS";"UPPERCASE";"1";"4";"PURINT_%YY_";"";"1";1
+"63";"saleInterface";"Sale interface";"NUMBERS";"UPPERCASE";"1";"4";"SALINT_%YY_";"";"1";1
+"81";"bankOrder";"Международни хазни преводи";"NUMBERS";"UPPERCASE";"1";"4";"ITT%YY%FM";"";"1";1
+"65";"reconcile";"Account reconcile";"NUMBERS";"UPPERCASE";"1";"4";"REC_%YY_%M_";"";"1";1
+"66";"reconcileGroupDraft";"Draft lettering";"LETTERS";"LOWERCASE";"1";"4";"";"";"1";0
+"67";"reconcileGroupFinal";"Final lettering";"LETTERS";"UPPERCASE";"1";"4";"";"";"1";0
+"72";"move";"Журнален запис разход";"NUMBERS";"UPPERCASE";"1";"4";"MVEXP%YY%FM";"";"1";1
+"73";"move";"Журнален запис пренесено салдо";"NUMBERS";"UPPERCASE";"1";"4";"MVRBLA%YY%FM";"";"1";1
+"70";"subrogationRelease";"Subrogation release";"NUMBERS";"UPPERCASE";"1";"4";"SR%YY%FM";"";"1";1
+"71";"debitReject";"Direct debit reject";"NUMBERS";"UPPERCASE";"1";"4";"REJDD%YY";"";"1";1
+"110";"paymentVoucher";"№ за постъпление директен дебит";"NUMBERS";"UPPERCASE";"1";"4";"PI_PRE_%YY_";"";"1";0
+"75";"paymentSession";"N° Payment process";"NUMBERS";"UPPERCASE";"1";"3";"PMTS%YYYY";"";"1";1
+"76";"noteBills";"Note Bills";"NUMBERS";"UPPERCASE";"1";"3";"NB%YYYY";"";"1";1
+"77";"bankOrder";"SEPA кредитни преводи";"NUMBERS";"UPPERCASE";"1";"4";"SCT%YY%FM";"";"1";1
+"111";"paymentVoucher";"N° for payments received in Cash";"NUMBERS";"UPPERCASE";"1";"4";"PI_ESP_%YY_";"";"1";0
+"112";"paymentVoucher";"N° for payments received by other means";"NUMBERS";"UPPERCASE";"1";"4";"PI_OTH_%YY_";"";"1";0
+"114";"paymentVoucher";"N° for payments executed by Cheque";"NUMBERS";"UPPERCASE";"1";"4";"PO_CHQ_%YY_";"";"1";0
+"117";"paymentVoucher";"NV for payments executed by Cash";"NUMBERS";"UPPERCASE";"1";"4";"PO_ESP_%YY_";"";"1";0
+"118";"paymentVoucher";"N° for payments executed by IPO";"NUMBERS";"UPPERCASE";"1";"4";"PO_IPO_%YY_";"";"1";0
+"119";"paymentVoucher";"N° for payments executed by other means";"NUMBERS";"UPPERCASE";"1";"4";"PO_OTH_%YY_";"";"1";0
+"121";"debit";"Direct debit (invoice and installments)";"NUMBERS";"UPPERCASE";"1";"4";"DDINV_%YY_";"";"1";0
+"123";"depositSlip";"Deposit slip";"NUMBERS";"UPPERCASE";"1";"4";"DS%YY%FM";"";"1";0
+"124";"chequeReject";"Cheque reject";"NUMBERS";"UPPERCASE";"1";"4";"CHQREJ_%YY_";"";"1";0
+"125";"paymentSchedule";"Installment N° ";"NUMBERS";"UPPERCASE";"1";"4";"INSTAL_%YY_";"";"1";0
+"127";"irrecoverable";"Shift to irrecoverable";"NUMBERS";"UPPERCASE";"1";"4";"IRREC_%YY_";"";"1";0
+"128";"accountClearance";"Overpayment clearance";"NUMBERS";"UPPERCASE";"1";"4";"ACCCLR_%YY_";"";"1";0
+"78";"bankOrder";"SEPA директни дебити";"NUMBERS";"UPPERCASE";"1";"4";"SDD%YY%FM";"";"1";1
+"82";"bankOrder";"SEPA хазни преводи";"NUMBERS";"UPPERCASE";"1";"4";"STT%YY%FM";"";"1";1
+"83";"bankOrder";"Запис на заповед";"NUMBERS";"UPPERCASE";"1";"4";"OBLCR%YY";"";"1";1
+"37";"move";"Други операции - ръчни";"NUMBERS";"UPPERCASE";"1";"4";"MISCMAN%YY_";"";"1";1
+"28";"move";"Журнален запис автоматично възстановяване";"NUMBERS";"UPPERCASE";"1";"4";"MVATRB_%YY_";"";"1";1
+"31";"move";"Журнален запис плащане с кредитна карта";"NUMBERS";"UPPERCASE";"1";"4";"MVCC_%YY_";"";"1";1
+"30";"move";"Журнален запис плащане с чек";"NUMBERS";"UPPERCASE";"1";"4";"MVCHQ_%YY_";"";"1";1
+"38";"move";"Прихващане - запис активен";"NUMBERS";"UPPERCASE";"1";"4";"MVCLR_%YY_";"";"1";1
+"29";"move";"Журнален запис плащане в брой";"NUMBERS";"UPPERCASE";"1";"4";"MVCSH_%YY_";"";"1";1
+"34";"move";"Журнален запис плащане директен дебит";"NUMBERS";"UPPERCASE";"1";"4";"MVDD_%YY_";"";"1";1
+"25";"move";"Журнален запис постъпление директен дебит";"NUMBERS";"UPPERCASE";"1";"4";"MVDD_%YY_";"";"1";1
+"23";"move";"Журнален запис постъпление IPOC";"NUMBERS";"UPPERCASE";"1";"4";"MVIPOC_%YY_";"";"1";1
+"32";"move";"Журнален запис плащане IPO";"NUMBERS";"UPPERCASE";"1";"4";"MVIPO_%YY_";"";"1";1
+"21";"move";"Журнален запис постъпление онлайн";"NUMBERS";"UPPERCASE";"1";"4";"MVWEB_%YY_";"";"1";1
+"97";"move";"Журнал други операции автоматичен";"NUMBERS";"UPPERCASE";"1";"4";"MOA%YY";"";"1";0
+"105";"paymentSession";"№ обработка плащане";"NUMBERS";"UPPERCASE";"1";"3";"PMTS%YYYY";"";"1";0
+"106";"paymentVoucher";"№ за постъпил банков превод";"NUMBERS";"UPPERCASE";"1";"4";"PI_VIR_%YY_";"";"1";0
+"44";"paymentVoucher";"№ за постъпление с чек";"NUMBERS";"UPPERCASE";"1";"4";"PI_CHQ_%YY_";"";"1";1
+"108";"paymentVoucher";"№ за постъпление с кредитна карта";"NUMBERS";"UPPERCASE";"1";"4";"PI_CC_%YY_";"";"1";0
+"109";"paymentVoucher";"№ за постъпление онлайн";"NUMBERS";"UPPERCASE";"1";"4";"PI_WEB_%YY_";"";"1";0
+"43";"paymentVoucher";"№ за постъпление в брой";"NUMBERS";"UPPERCASE";"1";"4";"PI_ESP_%YY_";"";"1";1
+"51";"paymentVoucher";"№ за постъпление друго";"NUMBERS";"UPPERCASE";"1";"4";"PI_OTH_%YY_";"";"1";1
+"47";"paymentVoucher";"№ за постъпление IPO";"NUMBERS";"UPPERCASE";"1";"4";"PI_TIP_%YY_";"";"1";1
+"48";"paymentVoucher";"№ за постъпление IPOC";"NUMBERS";"UPPERCASE";"1";"4";"PI_TEC_%YY_";"";"1";1
+"146";"inStockMove";"Приемане на склад";"NUMBERS";"UPPERCASE";"1";"6";"PRM";"";"1";0
+"147";"outStockMove";"Експедиция от склад";"NUMBERS";"UPPERCASE";"1";"6";"EXP";"";"1";0
+"148";"intStockMove";"Вътрешно преместване";"NUMBERS";"UPPERCASE";"1";"6";"VSD";"";"1";0
+"149";"inventory";"Инвентаризация";"NUMBERS";"UPPERCASE";"1";"6";"INV";"";"1";0
+"150";"move";"Изписване на МЗ";"NUMBERS";"UPPERCASE";"1";"6";"STK%YY";"";"1";0

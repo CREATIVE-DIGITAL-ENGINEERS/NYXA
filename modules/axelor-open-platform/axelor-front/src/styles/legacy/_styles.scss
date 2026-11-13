@@ -1,0 +1,161 @@
+@use "sass:map";
+@use "colors";
+
+$text: (
+  "primary": #fff,
+  "warning": #fff,
+  "success": #fff,
+  "danger": #fff,
+  "error": #fff,
+  "info": #fff,
+  "red": #fff,
+  "pink": #fff,
+  "purple": #fff,
+  "deeppurple": #fff,
+  "indigo": #fff,
+  "blue": #fff,
+  "lightblue": #fff,
+  "cyan": #fff,
+  "teal": #fff,
+  "green": #fff,
+  "lightgreen": #000,
+  "lime": #000,
+  "yellow": #000,
+  "amber": #000,
+  "orange": #000,
+  "deeporange": #fff,
+  "brown": #fff,
+  "grey": #000,
+  "bluegrey": #fff,
+  "black": white,
+  "white": black,
+  "olive": #000,
+  "violet": #fff,
+);
+
+$text_styles: (
+  "bold": (
+    font-weight: 600,
+  ),
+  "italic": (
+    font-style: italic,
+  ),
+  "underline": (
+    text-decoration: underline,
+  ),
+  "overline": (
+    text-decoration: overline,
+  ),
+  "line-through": (
+    text-decoration: line-through,
+  ),
+  "small": (
+    font-size: 10px,
+  ),
+  "big": (
+    font-size: 16px,
+  ),
+  "large": (
+    font-size: 18px,
+  ),
+  "left": (
+    text-align: left,
+  ),
+  "right": (
+    text-align: right,
+  ),
+  "center": (
+    text-align: center,
+  ),
+  "justify": (
+    text-align: justify,
+  ),
+);
+
+[class*="hilite-"] > .display-text {
+  color: inherit;
+}
+
+[class*="hilite-"].strong {
+  &,
+  input:first-of-type,
+  textarea:first-of-type {
+    font-weight: 600 !important;
+  }
+}
+
+@each $name, $value in colors.$colors {
+  .hilite-#{$name}-card {
+    border-left: 3px solid $value !important;
+  }
+
+  .hilite-#{$name}-text,
+  .hilite-#{$name}-text input:first-of-type,
+  .hilite-#{$name}-text textarea:first-of-type,
+  .hilite-#{$name}-text .slick-cell {
+    color: $value !important;
+  }
+
+  .hilite-#{$name},
+  .hilite-#{$name} .slick-cell {
+    color: map.get($text, $name) !important;
+    background-color: $value !important;
+  }
+  .hilite-#{$name}.hilite-fill-body-bg {
+    --bs-body-bg: #{$value} !important;
+    --bs-body-bg-rgb: #{$value} !important;
+  }
+}
+
+@each $name, $properties in $text_styles {
+  @each $property, $value in $properties {
+    .form-item label.label-#{$name},
+    .form-item-container.#{$name},
+    .form-item-container.#{$name} input:first-of-type,
+    .form-item-container.#{$name} input:first-of-type {
+      #{$property}: $value !important;
+    }
+  }
+}
+
+
+.font-bold {
+  font-weight: 600;
+}
+
+// Remove mispelled rule name in future versions
+.font-normal,
+.font-noraml {
+  font-weight: 400;
+}
+
+@each $name, $value in colors.$colors {
+  .fg-#{$name} {
+    color: $value;
+  }
+}
+
+@each $name, $value in colors.$colors {
+  .bg-#{$name} {
+    background-color: $value;
+  }
+}
+
+@each $name, $value in colors.$colors {
+  .panel-#{$name} .panel .panel-header,
+  .panel-#{$name} .dashlet .dashlet-header {
+    border-top-color: $value;
+  }
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}

@@ -1,0 +1,16 @@
+.container {
+  position: relative;
+}
+
+.input.viewer {
+  border-color: transparent !important;
+}
+
+button.viewer {
+  outline: none;
+  user-select: auto;
+
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+}

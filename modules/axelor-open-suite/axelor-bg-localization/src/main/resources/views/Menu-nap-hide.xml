@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ СКРИВАНЕ НА СТАРИТЕ МЕНЮТА НА nyxa-nap-submissions ═══
+
+    Механизмът е ЕДИН И СЪЩ с Menu-hr-hide.xml и Menu-account-hide.xml: `id` ражда втори ред в
+    meta_menu със същото `name` и по-висок приоритет, а MenuService прекратява обхода при скрит
+    възел. bg-localization зависи от nyxa-nap-submissions, тоест този ред се зарежда след чуждия.
+    Пазачът е общ — BgHiddenMenuTest.
+
+    ⚠️ Само XML не стига: Axelor не трие ред в meta_menu, махнат от XML, а меню без роли под родител
+    е видимо за всеки, който вижда родителя. Затова ролите на чуждия ред се снемат с role-menu в
+    nx_retired.csv (nyxa-security), а генераторът на каталога вече не ги дава (HIDDEN_MENUS).
+  -->
+
+  <!-- „НАП › SAF-T справки“. Заменено от „SAF-T — месечен файл“
+    (bg-compliance-vat-saft) — същото действие, до ДДС декларациите. -->
+  <menuitem id="bg-hide-nap-saft-reports" name="nap-saft-reports" parent="nap-root"
+    title="SAF-T reports" hidden="true"/>
+
+</object-views>

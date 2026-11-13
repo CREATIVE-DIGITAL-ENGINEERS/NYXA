@@ -1,0 +1,23 @@
+.container {
+  cursor: pointer;
+}
+
+.top {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  [dir="rtl"] & {
+    right: unset !important;
+    left: 0.25rem !important;
+  }
+}
+
+.list > div {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  @media (max-width: 767px) {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem !important;
+  }
+}

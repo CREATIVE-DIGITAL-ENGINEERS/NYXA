@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<csv-inputs xmlns="http://axelor.com/xml/ns/data-import"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/data-import
+    http://axelor.com/xml/ns/data-import/data-import_7.4.xsd">
+
+  <!-- WHAT THIS ROW IS FOR. The Settings and Statistics menus are hidden from everyone but admins, and
+    both controllers check AuthUtils.isAdmin themselves — but generic CRUD over /ws/rest is neither of those
+    things. Granting this module's entities to the Admin role only means nobody else is granted them at all,
+    which is the state we want: settings that decide whether the assistant may write to the books, and telemetry
+    naming users and companies, are not ordinary business data. Being in the `admins` group bypasses the
+    permission engine entirely, which is why the row exists for the Admin ROLE and why the controllers still
+    check: this layer stops everyone else, the controller check is what governs the admins. The "Admin" role
+    comes from axelor-base's own data-init, imported earlier as a transitive dependency, so it already exists
+    here. Moved here from the generic data-init/ (which only ever runs once, at initial empty-DB creation)
+    so that installing, uninstalling and reinstalling the AI Accountant app in Application Configuration
+    always leaves this grant correctly in place, with no manual CSV import step. The search key is an upsert,
+    so reinstalling never duplicates it. -->
+  <input file="ai_accountant_permission.csv" separator=";"
+    type="com.axelor.auth.db.Permission" search="self.name = :name"
+    call="com.axelor.csv.script.ImportPermission:importPermissionToRole">
+    <bind to="canRead" eval="can_read == 'x' ? 'true' : 'false'"/>
+    <bind to="canWrite" eval="can_write == 'x' ? 'true' : 'false'"/>
+    <bind to="canCreate" eval="can_create == 'x' ? 'true' : 'false'"/>
+    <bind to="canRemove" eval="can_remove == 'x' ? 'true' : 'false'"/>
+    <bind to="canExport" eval="can_export == 'x' ? 'true' : 'false'"/>
+  </input>
+
+</csv-inputs>

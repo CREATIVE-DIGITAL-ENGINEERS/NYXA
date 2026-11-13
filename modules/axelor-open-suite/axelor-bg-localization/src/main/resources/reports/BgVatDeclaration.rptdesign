@@ -1,0 +1,2704 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Nyxa BG localization (WS-D)</property>
+    <property name="units">in</property>
+    <parameters>
+        <!-- ⚠️ БЕЗ ЕДНО `isRequired=false` ПРАЗНИЯТ НИЗ ПОВАЛЯ ЦЕЛИЯ ОТЧЕТ. BIRT смята скаларния
+            параметър за ЗАДЪЛЖИТЕЛЕН по подразбиране (ROM 4.4.2: <Default>true</Default>) и хвърля
+            ParameterValidationException („Required parameter … is blank“) още преди първата
+            заявка — тоест не се отпечатва празна клетка, а не се отпечатва НИЩО.
+
+            А празното тук е НОРМАЛНО състояние, не повреда: адресът на регистрираното лице се
+            снима само при onChange на дружество/период и само ако партньорът вече има mainAddress;
+            името и качеството на декларатора са празни, докато декларацията не е генерирана;
+            четирите параметъра за връзка с базата са ЗАВАРЕНИ (наборите данни ползват
+            PASS_IN_CONNECTION, а odaURL по-долу е закован), а db.default.password е празен на
+            всяка инсталация с trust/peer автентикация.
+
+            Същото важи и за BgPaySlip.rptdesign и BgPayrollLedger.rptdesign.
+
+            ⚠️ BgVatReturnId и GenDate НАРОЧНО остават задължителни. Те се изчисляват на всяко
+            извикване и липсата им не е „непопълнени данни“, а счупен извикващ: декларация без
+            номер на запис би се отпечатала ПРАЗНА, но валидна на вид. По-добре да падне. -->
+        <scalar-parameter name="BgVatReturnId" id="1000">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">decimal</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="CompanyName" id="1001">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="CompanyVatNumber" id="1002">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="CompanyIdNumber" id="1003">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="CompanyAddress" id="1004">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="PeriodLabel" id="1005">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="DeclarantNames" id="1006">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="DeclarantCapacity" id="1007">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="DeclarantPosition" id="1739">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="GenDate" id="1008">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="DBName" id="1009">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="UserName" id="1010">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="Password" id="1011">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="DefaultDriver" id="1012">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">org.postgresql.Driver</value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <oda-data-source extensionID="org.eclipse.birt.report.data.oda.jdbc" name="Data Source" id="23">
+            <property name="odaDriverClass">org.postgresql.Driver</property>
+            <property name="odaURL">jdbc:postgresql://localhost:5432/</property>
+        </oda-data-source>
+    </data-sources>
+    <data-sets>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="Data Set" id="24">
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">param_1</property>
+                    <property name="paramName">BgVatReturnId</property>
+                    <property name="nativeName"></property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">2</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <property name="dataSource">Data Source</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">k01</property>
+                    <property name="nativeName">k01</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">k11</property>
+                    <property name="nativeName">k11</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">k12</property>
+                    <property name="nativeName">k12</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">k13</property>
+                    <property name="nativeName">k13</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">k14</property>
+                    <property name="nativeName">k14</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">k15</property>
+                    <property name="nativeName">k15</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">k16</property>
+                    <property name="nativeName">k16</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">k17</property>
+                    <property name="nativeName">k17</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">9</property>
+                    <property name="name">k18</property>
+                    <property name="nativeName">k18</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">10</property>
+                    <property name="name">k19</property>
+                    <property name="nativeName">k19</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">11</property>
+                    <property name="name">k20</property>
+                    <property name="nativeName">k20</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">12</property>
+                    <property name="name">k21</property>
+                    <property name="nativeName">k21</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">13</property>
+                    <property name="name">k22</property>
+                    <property name="nativeName">k22</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">14</property>
+                    <property name="name">k23</property>
+                    <property name="nativeName">k23</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">15</property>
+                    <property name="name">k24</property>
+                    <property name="nativeName">k24</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">16</property>
+                    <property name="name">k30</property>
+                    <property name="nativeName">k30</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">17</property>
+                    <property name="name">k31</property>
+                    <property name="nativeName">k31</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">18</property>
+                    <property name="name">k32</property>
+                    <property name="nativeName">k32</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">19</property>
+                    <property name="name">k33</property>
+                    <property name="nativeName">k33</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">20</property>
+                    <property name="name">k40</property>
+                    <property name="nativeName">k40</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">21</property>
+                    <property name="name">k41</property>
+                    <property name="nativeName">k41</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">22</property>
+                    <property name="name">k42</property>
+                    <property name="nativeName">k42</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">23</property>
+                    <property name="name">k43</property>
+                    <property name="nativeName">k43</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">24</property>
+                    <property name="name">k50</property>
+                    <property name="nativeName">k50</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">25</property>
+                    <property name="name">k60</property>
+                    <property name="nativeName">k60</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">26</property>
+                    <property name="name">k70</property>
+                    <property name="nativeName">k70</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">27</property>
+                    <property name="name">k71</property>
+                    <property name="nativeName">k71</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">28</property>
+                    <property name="name">k80</property>
+                    <property name="nativeName">k80</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">29</property>
+                    <property name="name">k81</property>
+                    <property name="nativeName">k81</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">30</property>
+                    <property name="name">k82</property>
+                    <property name="nativeName">k82</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[select k01 as k01, k11 as k11, k12 as k12, k13 as k13, k14 as k14, k15 as k15, k16 as k16, k17 as k17, k18 as k18, k19 as k19, k20 as k20, k21 as k21, k22 as k22, k23 as k23, k24 as k24, k30 as k30, k31 as k31, k32 as k32, k33 as k33, k40 as k40, k41 as k41, k42 as k42, k43 as k43, k50 as k50, k60 as k60, k70 as k70, k71 as k71, k80 as k80, k81 as k81, k82 as k82
+from bglocalization_bg_vat_return
+where id = ?]]></xml-property>
+        </oda-data-set>
+    </data-sets>
+    <styles>
+        <style name="report" id="4">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">7pt</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <property name="orientation">portrait</property>
+            <property name="type">a4</property>
+            <property name="topMargin">0.3in</property>
+            <property name="leftMargin">0.35in</property>
+            <property name="rightMargin">0.3in</property>
+            <property name="bottomMargin">0.3in</property>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <grid id="1397">
+            <property name="width">100%</property>
+            <column id="1398"><property name="width">60%</property></column>
+            <column id="1399"><property name="width">40%</property></column>
+            <row id="1400">
+                <cell id="1401">
+        <text id="1402">
+            <property name="fontSize">14pt</property>
+            <property name="textAlign">left</property>
+            <property name="fontWeight">bold</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[СПРАВКА-ДЕКЛАРАЦИЯ]]></text-property>
+        </text>
+        <text id="1403">
+            <property name="fontSize">10pt</property>
+            <property name="textAlign">left</property>
+            <property name="fontWeight">bold</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[ЗА ДАНЪК ВЪРХУ ДОБАВЕНАТА СТОЙНОСТ]]></text-property>
+        </text>
+                </cell>
+                <cell id="1404">
+                    <property name="borderTopColor">#000000</property><property name="borderTopStyle">solid</property><property name="borderTopWidth">0.5pt</property>
+                    <property name="borderBottomColor">#000000</property><property name="borderBottomStyle">solid</property><property name="borderBottomWidth">0.5pt</property>
+                    <property name="borderLeftColor">#000000</property><property name="borderLeftStyle">solid</property><property name="borderLeftWidth">0.5pt</property>
+                    <property name="borderRightColor">#000000</property><property name="borderRightStyle">solid</property><property name="borderRightWidth">0.5pt</property>
+        <text id="1405">
+            <property name="fontSize">7pt</property>
+            <property name="textAlign">left</property>
+            <property name="fontWeight">bold</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[ТД на НАП/офис]]></text-property>
+        </text>
+        <text id="1406">
+            <property name="fontSize">7pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[Входящ № ............ / ............ г.]]></text-property>
+        </text>
+        <text id="1407">
+            <property name="fontSize">6pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[<i>попълва се от приходната администрация</i>]]></text-property>
+        </text>
+                </cell>
+            </row>
+            <row id="1408">
+                <cell id="1409">
+                    <property name="borderTopColor">#000000</property><property name="borderTopStyle">solid</property><property name="borderTopWidth">0.5pt</property>
+                    <property name="borderBottomColor">#000000</property><property name="borderBottomStyle">solid</property><property name="borderBottomWidth">0.5pt</property>
+                    <property name="borderLeftColor">#000000</property><property name="borderLeftStyle">solid</property><property name="borderLeftWidth">0.5pt</property>
+                    <property name="borderRightColor">#000000</property><property name="borderRightStyle">solid</property><property name="borderRightWidth">0.5pt</property>
+        <text id="1410">
+            <property name="fontSize">6.5pt</property>
+            <property name="textAlign">left</property>
+            <property name="fontWeight">bold</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[А. Наименование и адрес за кореспонденция за регистрираното лице]]></text-property>
+        </text>
+        <text id="1411">
+            <property name="fontSize">8pt</property>
+            <property name="textAlign">center</property>
+            <property name="fontWeight">bold</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[<value-of>params["CompanyName"].value</value-of>]]></text-property>
+        </text>
+        <text id="1412">
+            <property name="fontSize">7pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[<value-of>params["CompanyAddress"].value</value-of>]]></text-property>
+        </text>
+                </cell>
+                <cell id="1413">
+                    <property name="borderTopColor">#000000</property><property name="borderTopStyle">solid</property><property name="borderTopWidth">0.5pt</property>
+                    <property name="borderBottomColor">#000000</property><property name="borderBottomStyle">solid</property><property name="borderBottomWidth">0.5pt</property>
+                    <property name="borderLeftColor">#000000</property><property name="borderLeftStyle">solid</property><property name="borderLeftWidth">0.5pt</property>
+                    <property name="borderRightColor">#000000</property><property name="borderRightStyle">solid</property><property name="borderRightWidth">0.5pt</property>
+        <text id="1414">
+            <property name="fontSize">7.5pt</property>
+            <property name="textAlign">left</property>
+            <property name="fontWeight">bold</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[Данъчен период: <value-of>params["PeriodLabel"].value</value-of>]]></text-property>
+        </text>
+        <text id="1415">
+            <property name="fontSize">7.5pt</property>
+            <property name="textAlign">left</property>
+            <property name="fontWeight">bold</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[ИН по ЗДДС: <value-of>params["CompanyVatNumber"].value</value-of>]]></text-property>
+        </text>
+        <text id="1416">
+            <property name="fontSize">7.5pt</property>
+            <property name="textAlign">left</property>
+            <property name="fontWeight">bold</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[ИН: <value-of>params["CompanyIdNumber"].value</value-of>]]></text-property>
+        </text>
+                </cell>
+            </row>
+        </grid>
+        <text id="1685">
+            <property name="fontSize">3pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[&nbsp;]]></text-property>
+        </text>
+        <grid id="1686">
+            <property name="width">100%</property>
+            <property name="backgroundColor">#D9D9D9</property>
+            <column id="1687"/>
+            <row id="1688">
+                <cell id="1689">
+                    <label id="1690">
+                        <property name="fontSize">8pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textAlign">center</property>
+                        <text-property name="text">Раздел А: Данни за начислен данък върху добавената стойност</text-property>
+                    </label>
+                </cell>
+            </row>
+        </grid>
+        <grid id="1691">
+            <property name="width">100%</property>
+            <column id="1692"><property name="width">50%</property></column>
+            <column id="1693"><property name="width">50%</property></column>
+            <row id="1694">
+                <cell id="1695">
+                    <property name="verticalAlign">top</property>
+                    <grid id="1696">
+                        <property name="width">100%</property>
+                        <column id="1697"><property name="width">70%</property></column>
+                        <column id="1698"><property name="width">22%</property></column>
+                        <column id="1699"><property name="width">8%</property></column>
+            <row id="1418">
+                <cell id="1419">
+                    <property name="width">70%</property>
+                        <label id="1417">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Общ размер на данъчните основи за облагане с ДДС (сума от кл.11 до кл.16)</text-property>
+                        </label>
+                </cell>
+                <cell id="1420">
+                    <property name="width">22%</property>
+                        <data id="1421">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k01</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k01"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k01</property>
+                        </data>
+                </cell>
+                <cell id="1422">
+                    <property name="width">8%</property>
+                        <label id="1423">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">01</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1424">
+                <cell id="1425">
+                    <property name="colSpan">3</property>
+                        <label id="1426">
+                            <property name="fontSize">6.5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">данъчна основа, подлежаща на облагане със ставка 20%:</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1428">
+                <cell id="1429">
+                    <property name="width">70%</property>
+                        <label id="1427">
+                            <property name="fontSize">6.5pt</property> <property name="marginLeft">10pt</property>
+                            <text-property name="text">- данъчна основа на облагаемите доставки, вкл. доставките при условията на дистанционни продажби с място на изпълнение на територията на страната</text-property>
+                        </label>
+                </cell>
+                <cell id="1430">
+                    <property name="width">22%</property>
+                        <data id="1431">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k11</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k11"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k11</property>
+                        </data>
+                </cell>
+                <cell id="1432">
+                    <property name="width">8%</property>
+                        <label id="1433">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">11</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1435">
+                <cell id="1436">
+                    <property name="width">70%</property>
+                        <label id="1434">
+                            <property name="fontSize">6.5pt</property> <property name="marginLeft">10pt</property>
+                            <text-property name="text">- данъчна основа на ВОП и данъчна основа на получени доставки по чл.82, ал.2-6 от ЗДДС</text-property>
+                        </label>
+                </cell>
+                <cell id="1437">
+                    <property name="width">22%</property>
+                        <data id="1438">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k12</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k12"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k12</property>
+                        </data>
+                </cell>
+                <cell id="1439">
+                    <property name="width">8%</property>
+                        <label id="1440">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">12</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1442">
+                <cell id="1443">
+                    <property name="width">70%</property>
+                        <label id="1441">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">данъчна основа на облагаемите доставки със ставка 9%</text-property>
+                        </label>
+                </cell>
+                <cell id="1444">
+                    <property name="width">22%</property>
+                        <data id="1445">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k13</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k13"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k13</property>
+                        </data>
+                </cell>
+                <cell id="1446">
+                    <property name="width">8%</property>
+                        <label id="1447">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">13</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1448">
+                <cell id="1449">
+                    <property name="colSpan">3</property>
+                        <label id="1450">
+                            <property name="fontSize">6.5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">данъчна основа, подлежаща на облагане със ставка 0%:</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1452">
+                <cell id="1453">
+                    <property name="width">70%</property>
+                        <label id="1451">
+                            <property name="fontSize">6.5pt</property> <property name="marginLeft">10pt</property>
+                            <text-property name="text">- данъчна основа за доставки по глава трета от ЗДДС</text-property>
+                        </label>
+                </cell>
+                <cell id="1454">
+                    <property name="width">22%</property>
+                        <data id="1455">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k14</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k14"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k14</property>
+                        </data>
+                </cell>
+                <cell id="1456">
+                    <property name="width">8%</property>
+                        <label id="1457">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">14</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1459">
+                <cell id="1460">
+                    <property name="width">70%</property>
+                        <label id="1458">
+                            <property name="fontSize">6.5pt</property> <property name="marginLeft">10pt</property>
+                            <text-property name="text">- данъчна основа на ВОД на стоки</text-property>
+                        </label>
+                </cell>
+                <cell id="1461">
+                    <property name="width">22%</property>
+                        <data id="1462">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k15</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k15"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k15</property>
+                        </data>
+                </cell>
+                <cell id="1463">
+                    <property name="width">8%</property>
+                        <label id="1464">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">15</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1466">
+                <cell id="1467">
+                    <property name="width">70%</property>
+                        <label id="1465">
+                            <property name="fontSize">6.5pt</property> <property name="marginLeft">10pt</property>
+                            <text-property name="text">- данъчна основа на доставки по чл.140, 146 и чл.173 ЗДДС</text-property>
+                        </label>
+                </cell>
+                <cell id="1468">
+                    <property name="width">22%</property>
+                        <data id="1469">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k16</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k16"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k16</property>
+                        </data>
+                </cell>
+                <cell id="1470">
+                    <property name="width">8%</property>
+                        <label id="1471">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">16</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1473">
+                <cell id="1474">
+                    <property name="width">70%</property>
+                        <label id="1472">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">данъчна основа на доставки на услуги по чл.21, ал.2 с място на изпълнение на територията на друга страна членка</text-property>
+                        </label>
+                </cell>
+                <cell id="1475">
+                    <property name="width">22%</property>
+                        <data id="1476">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k17</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k17"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k17</property>
+                        </data>
+                </cell>
+                <cell id="1477">
+                    <property name="width">8%</property>
+                        <label id="1478">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">17</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1480">
+                <cell id="1481">
+                    <property name="width">70%</property>
+                        <label id="1479">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">данъчна основа на доставки по чл.69, ал.2 ЗДДС, вкл. доставките при условията на дистанционни продажби с място на изпълнение на територията на друга държава членка, както и на доставки като посредник в тристранна операция</text-property>
+                        </label>
+                </cell>
+                <cell id="1482">
+                    <property name="width">22%</property>
+                        <data id="1483">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k18</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k18"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k18</property>
+                        </data>
+                </cell>
+                <cell id="1484">
+                    <property name="width">8%</property>
+                        <label id="1485">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">18</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1487">
+                <cell id="1488">
+                    <property name="width">70%</property>
+                        <label id="1486">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">данъчна основа на освободени доставки и освободен ВОП</text-property>
+                        </label>
+                </cell>
+                <cell id="1489">
+                    <property name="width">22%</property>
+                        <data id="1490">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k19</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k19"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k19</property>
+                        </data>
+                </cell>
+                <cell id="1491">
+                    <property name="width">8%</property>
+                        <label id="1492">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">19</text-property>
+                        </label>
+                </cell>
+            </row>
+                    </grid>
+                </cell>
+                <cell id="1700">
+                    <property name="verticalAlign">top</property>
+                    <grid id="1701">
+                        <property name="width">100%</property>
+                        <column id="1702"><property name="width">70%</property></column>
+                        <column id="1703"><property name="width">22%</property></column>
+                        <column id="1704"><property name="width">8%</property></column>
+            <row id="1494">
+                <cell id="1495">
+                    <property name="width">70%</property>
+                        <label id="1493">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Всичко начислен ДДС (сума от кл.21 до кл.24)</text-property>
+                        </label>
+                </cell>
+                <cell id="1496">
+                    <property name="width">22%</property>
+                        <data id="1497">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k20</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k20"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k20</property>
+                        </data>
+                </cell>
+                <cell id="1498">
+                    <property name="width">8%</property>
+                        <label id="1499">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">20</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1501">
+                <cell id="1502">
+                    <property name="width">70%</property>
+                        <label id="1500">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Начислен ДДС</text-property>
+                        </label>
+                </cell>
+                <cell id="1503">
+                    <property name="width">22%</property>
+                        <data id="1504">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k21</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k21"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k21</property>
+                        </data>
+                </cell>
+                <cell id="1505">
+                    <property name="width">8%</property>
+                        <label id="1506">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">21</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1508">
+                <cell id="1509">
+                    <property name="width">70%</property>
+                        <label id="1507">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Начислен ДДС за ВОП и за получени доставки по чл.82, ал.2-6 от ЗДДС</text-property>
+                        </label>
+                </cell>
+                <cell id="1510">
+                    <property name="width">22%</property>
+                        <data id="1511">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k22</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k22"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k22</property>
+                        </data>
+                </cell>
+                <cell id="1512">
+                    <property name="width">8%</property>
+                        <label id="1513">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">22</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1515">
+                <cell id="1516">
+                    <property name="width">70%</property>
+                        <label id="1514">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Начислен данък за доставки на стоки и услуги за лични нужди</text-property>
+                        </label>
+                </cell>
+                <cell id="1517">
+                    <property name="width">22%</property>
+                        <data id="1518">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k23</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k23"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k23</property>
+                        </data>
+                </cell>
+                <cell id="1519">
+                    <property name="width">8%</property>
+                        <label id="1520">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">23</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1522">
+                <cell id="1523">
+                    <property name="width">70%</property>
+                        <label id="1521">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Начислен ДДС (9%)</text-property>
+                        </label>
+                </cell>
+                <cell id="1524">
+                    <property name="width">22%</property>
+                        <data id="1525">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k24</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k24"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k24</property>
+                        </data>
+                </cell>
+                <cell id="1526">
+                    <property name="width">8%</property>
+                        <label id="1527">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">24</text-property>
+                        </label>
+                </cell>
+            </row>
+                    </grid>
+                </cell>
+            </row>
+        </grid>
+        <grid id="1705">
+            <property name="width">100%</property>
+            <property name="backgroundColor">#D9D9D9</property>
+            <column id="1706"/>
+            <row id="1707">
+                <cell id="1708">
+                    <label id="1709">
+                        <property name="fontSize">8pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textAlign">center</property>
+                        <text-property name="text">Раздел Б: Данни за упражненото право на данъчен кредит</text-property>
+                    </label>
+                </cell>
+            </row>
+        </grid>
+        <grid id="1710">
+            <property name="width">100%</property>
+            <column id="1711"><property name="width">50%</property></column>
+            <column id="1712"><property name="width">50%</property></column>
+            <row id="1713">
+                <cell id="1714">
+                    <property name="verticalAlign">top</property>
+                    <grid id="1715">
+                        <property name="width">100%</property>
+                        <column id="1716"><property name="width">70%</property></column>
+                        <column id="1717"><property name="width">22%</property></column>
+                        <column id="1718"><property name="width">8%</property></column>
+            <row id="1529">
+                <cell id="1530">
+                    <property name="width">70%</property>
+                        <label id="1528">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Данъчна основа и данък на получените доставки, ВОП, получените доставки по чл.82, ал.2-6 от ЗДДС и вноса без право на данъчен кредит или без данък</text-property>
+                        </label>
+                </cell>
+                <cell id="1531">
+                    <property name="width">22%</property>
+                        <data id="1532">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k30</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k30"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k30</property>
+                        </data>
+                </cell>
+                <cell id="1533">
+                    <property name="width">8%</property>
+                        <label id="1534">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">30</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1535">
+                <cell id="1536">
+                    <property name="colSpan">3</property>
+                        <label id="1537">
+                            <property name="fontSize">6.5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">Данъчна основа на получени доставки, ВОП, вноса и др., използвани за доставки по чл.69, ал.2 ЗДДС:</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1539">
+                <cell id="1540">
+                    <property name="width">70%</property>
+                        <label id="1538">
+                            <property name="fontSize">6.5pt</property> <property name="marginLeft">10pt</property>
+                            <text-property name="text">- с право на пълен данъчен кредит</text-property>
+                        </label>
+                </cell>
+                <cell id="1541">
+                    <property name="width">22%</property>
+                        <data id="1542">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k31</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k31"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k31</property>
+                        </data>
+                </cell>
+                <cell id="1543">
+                    <property name="width">8%</property>
+                        <label id="1544">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">31</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1546">
+                <cell id="1547">
+                    <property name="width">70%</property>
+                        <label id="1545">
+                            <property name="fontSize">6.5pt</property> <property name="marginLeft">10pt</property>
+                            <text-property name="text">- с право на частичен данъчен кредит</text-property>
+                        </label>
+                </cell>
+                <cell id="1548">
+                    <property name="width">22%</property>
+                        <data id="1549">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k32</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k32"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k32</property>
+                        </data>
+                </cell>
+                <cell id="1550">
+                    <property name="width">8%</property>
+                        <label id="1551">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">32</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1553">
+                <cell id="1554">
+                    <property name="width">70%</property>
+                        <label id="1552">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Коефициент по чл.73, ал.5 ЗДДС</text-property>
+                        </label>
+                </cell>
+                <cell id="1555">
+                    <property name="width">22%</property>
+                        <data id="1556">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k33</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k33"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k33</property>
+                        </data>
+                </cell>
+                <cell id="1557">
+                    <property name="width">8%</property>
+                        <label id="1558">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">33</text-property>
+                        </label>
+                </cell>
+            </row>
+                    </grid>
+                </cell>
+                <cell id="1719">
+                    <property name="verticalAlign">top</property>
+                    <grid id="1720">
+                        <property name="width">100%</property>
+                        <column id="1721"><property name="width">70%</property></column>
+                        <column id="1722"><property name="width">22%</property></column>
+                        <column id="1723"><property name="width">8%</property></column>
+            <row id="1560">
+                <cell id="1561">
+                    <property name="width">70%</property>
+                        <label id="1559">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">ДДС с право на пълен данъчен кредит</text-property>
+                        </label>
+                </cell>
+                <cell id="1562">
+                    <property name="width">22%</property>
+                        <data id="1563">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k41</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k41"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k41</property>
+                        </data>
+                </cell>
+                <cell id="1564">
+                    <property name="width">8%</property>
+                        <label id="1565">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">41</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1567">
+                <cell id="1568">
+                    <property name="width">70%</property>
+                        <label id="1566">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">ДДС с право на частичен данъчен кредит</text-property>
+                        </label>
+                </cell>
+                <cell id="1569">
+                    <property name="width">22%</property>
+                        <data id="1570">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k42</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k42"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k42</property>
+                        </data>
+                </cell>
+                <cell id="1571">
+                    <property name="width">8%</property>
+                        <label id="1572">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">42</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1574">
+                <cell id="1575">
+                    <property name="width">70%</property>
+                        <label id="1573">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Годишна корекция по чл.73, ал.8 (+ / -)</text-property>
+                        </label>
+                </cell>
+                <cell id="1576">
+                    <property name="width">22%</property>
+                        <data id="1577">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k43</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k43"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k43</property>
+                        </data>
+                </cell>
+                <cell id="1578">
+                    <property name="width">8%</property>
+                        <label id="1579">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">43</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1581">
+                <cell id="1582">
+                    <property name="width">70%</property>
+                        <label id="1580">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Общ данъчен кредит (41 + 42 x кл.33 + 43)</text-property>
+                        </label>
+                </cell>
+                <cell id="1583">
+                    <property name="width">22%</property>
+                        <data id="1584">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k40</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k40"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k40</property>
+                        </data>
+                </cell>
+                <cell id="1585">
+                    <property name="width">8%</property>
+                        <label id="1586">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">40</text-property>
+                        </label>
+                </cell>
+            </row>
+                    </grid>
+                </cell>
+            </row>
+        </grid>
+        <grid id="1724">
+            <property name="width">100%</property>
+            <property name="backgroundColor">#D9D9D9</property>
+            <column id="1725"/>
+            <row id="1726">
+                <cell id="1727">
+                    <label id="1728">
+                        <property name="fontSize">8pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textAlign">center</property>
+                        <text-property name="text">Раздел В: Резултат за периода</text-property>
+                    </label>
+                </cell>
+            </row>
+        </grid>
+        <grid id="1601">
+            <property name="width">100%</property>
+            <column id="1602"><property name="width">50%</property></column>
+            <column id="1603"><property name="width">50%</property></column>
+            <row id="1604">
+                <cell id="1605">
+                    <property name="verticalAlign">top</property>
+                    <grid id="1606">
+                        <property name="width">100%</property>
+                        <column id="1607"><property name="width">70%</property></column>
+                        <column id="1608"><property name="width">22%</property></column>
+                        <column id="1609"><property name="width">8%</property></column>
+            <row id="1588">
+                <cell id="1589">
+                    <property name="width">70%</property>
+                        <label id="1587">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">ДДС за внасяне (кл.20 - кл.40) &amp;gt;= 0</text-property>
+                        </label>
+                </cell>
+                <cell id="1590">
+                    <property name="width">22%</property>
+                        <data id="1591">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k50</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k50"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k50</property>
+                        </data>
+                </cell>
+                <cell id="1592">
+                    <property name="width">8%</property>
+                        <label id="1593">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">50</text-property>
+                        </label>
+                </cell>
+            </row>
+                    </grid>
+                </cell>
+                <cell id="1610">
+                    <property name="verticalAlign">top</property>
+                    <grid id="1611">
+                        <property name="width">100%</property>
+                        <column id="1612"><property name="width">70%</property></column>
+                        <column id="1613"><property name="width">22%</property></column>
+                        <column id="1614"><property name="width">8%</property></column>
+            <row id="1595">
+                <cell id="1596">
+                    <property name="width">70%</property>
+                        <label id="1594">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">ДДС за възстановяване (кл.20 - кл.40) &amp;lt; 0</text-property>
+                        </label>
+                </cell>
+                <cell id="1597">
+                    <property name="width">22%</property>
+                        <data id="1598">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k60</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k60"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k60</property>
+                        </data>
+                </cell>
+                <cell id="1599">
+                    <property name="width">8%</property>
+                        <label id="1600">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">60</text-property>
+                        </label>
+                </cell>
+            </row>
+                    </grid>
+                </cell>
+            </row>
+        </grid>
+        <grid id="1729">
+            <property name="width">100%</property>
+            <property name="backgroundColor">#D9D9D9</property>
+            <column id="1730"/>
+            <row id="1731">
+                <cell id="1732">
+                    <label id="1733">
+                        <property name="fontSize">8pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textAlign">center</property>
+                        <text-property name="text">Раздел Г: ДДС за внасяне</text-property>
+                    </label>
+                </cell>
+            </row>
+        </grid>
+        <grid id="1629">
+            <property name="width">100%</property>
+            <column id="1630"><property name="width">50%</property></column>
+            <column id="1631"><property name="width">50%</property></column>
+            <row id="1632">
+                <cell id="1633">
+                    <property name="verticalAlign">top</property>
+                    <grid id="1634">
+                        <property name="width">100%</property>
+                        <column id="1635"><property name="width">70%</property></column>
+                        <column id="1636"><property name="width">22%</property></column>
+                        <column id="1637"><property name="width">8%</property></column>
+            <row id="1616">
+                <cell id="1617">
+                    <property name="width">70%</property>
+                        <label id="1615">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Данък за внасяне от кл.50, приспаднат по реда на чл.92, ал.1 ЗДДС</text-property>
+                        </label>
+                </cell>
+                <cell id="1618">
+                    <property name="width">22%</property>
+                        <data id="1619">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k70</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k70"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k70</property>
+                        </data>
+                </cell>
+                <cell id="1620">
+                    <property name="width">8%</property>
+                        <label id="1621">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">70</text-property>
+                        </label>
+                </cell>
+            </row>
+                    </grid>
+                </cell>
+                <cell id="1638">
+                    <property name="verticalAlign">top</property>
+                    <grid id="1639">
+                        <property name="width">100%</property>
+                        <column id="1640"><property name="width">70%</property></column>
+                        <column id="1641"><property name="width">22%</property></column>
+                        <column id="1642"><property name="width">8%</property></column>
+            <row id="1623">
+                <cell id="1624">
+                    <property name="width">70%</property>
+                        <label id="1622">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Данък за внасяне по кл.50, внесен ефективно</text-property>
+                        </label>
+                </cell>
+                <cell id="1625">
+                    <property name="width">22%</property>
+                        <data id="1626">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k71</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k71"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k71</property>
+                        </data>
+                </cell>
+                <cell id="1627">
+                    <property name="width">8%</property>
+                        <label id="1628">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">71</text-property>
+                        </label>
+                </cell>
+            </row>
+                    </grid>
+                </cell>
+            </row>
+        </grid>
+        <grid id="1734">
+            <property name="width">100%</property>
+            <property name="backgroundColor">#D9D9D9</property>
+            <column id="1735"/>
+            <row id="1736">
+                <cell id="1737">
+                    <label id="1738">
+                        <property name="fontSize">8pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textAlign">center</property>
+                        <text-property name="text">Раздел Д: ДДС, подлежащ на възстановяване</text-property>
+                    </label>
+                </cell>
+            </row>
+        </grid>
+        <grid id="1664">
+            <property name="width">100%</property>
+            <column id="1665"><property name="width">50%</property></column>
+            <column id="1666"><property name="width">50%</property></column>
+            <row id="1667">
+                <cell id="1668">
+                    <property name="verticalAlign">top</property>
+                    <grid id="1669">
+                        <property name="width">100%</property>
+                        <column id="1670"><property name="width">70%</property></column>
+                        <column id="1671"><property name="width">22%</property></column>
+                        <column id="1672"><property name="width">8%</property></column>
+            <row id="1644">
+                <cell id="1645">
+                    <property name="width">70%</property>
+                        <label id="1643">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Съгласно чл.92, ал.1 ЗДДС в 30-дневен срок от подаването на тази декларация</text-property>
+                        </label>
+                </cell>
+                <cell id="1646">
+                    <property name="width">22%</property>
+                        <data id="1647">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k80</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k80"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k80</property>
+                        </data>
+                </cell>
+                <cell id="1648">
+                    <property name="width">8%</property>
+                        <label id="1649">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">80</text-property>
+                        </label>
+                </cell>
+            </row>
+            <row id="1651">
+                <cell id="1652">
+                    <property name="width">70%</property>
+                        <label id="1650">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Съгласно чл.92, ал.3 ЗДДС в 30-дневен срок от подаването на тази декларация</text-property>
+                        </label>
+                </cell>
+                <cell id="1653">
+                    <property name="width">22%</property>
+                        <data id="1654">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k81</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k81"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k81</property>
+                        </data>
+                </cell>
+                <cell id="1655">
+                    <property name="width">8%</property>
+                        <label id="1656">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">81</text-property>
+                        </label>
+                </cell>
+            </row>
+                    </grid>
+                </cell>
+                <cell id="1673">
+                    <property name="verticalAlign">top</property>
+                    <grid id="1674">
+                        <property name="width">100%</property>
+                        <column id="1675"><property name="width">70%</property></column>
+                        <column id="1676"><property name="width">22%</property></column>
+                        <column id="1677"><property name="width">8%</property></column>
+            <row id="1658">
+                <cell id="1659">
+                    <property name="width">70%</property>
+                        <label id="1657">
+                            <property name="fontSize">6.5pt</property>
+                            <text-property name="text">Съгласно чл.92, ал.4 ЗДДС в 30-дневен срок от подаването на тази декларация</text-property>
+                        </label>
+                </cell>
+                <cell id="1660">
+                    <property name="width">22%</property>
+                        <data id="1661">
+                            <property name="fontSize">7pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <structure name="numberFormat">
+                                <property name="category">Fixed</property>
+                                <property name="pattern">#,##0.00</property>
+                            </structure>
+                            <property name="dataSet">Data Set</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">k82</property>
+                                    <expression name="expression" type="javascript">dataSetRow["k82"]</expression>
+                                    <property name="dataType">decimal</property>
+                                </structure>
+                            </list-property>
+                            <property name="resultSetColumn">k82</property>
+                        </data>
+                </cell>
+                <cell id="1662">
+                    <property name="width">8%</property>
+                        <label id="1663">
+                            <property name="fontSize">7pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <property name="borderTopColor">#000000</property>
+                            <property name="borderTopStyle">solid</property>
+                            <property name="borderTopWidth">0.5pt</property>
+                            <property name="borderBottomColor">#000000</property>
+                            <property name="borderBottomStyle">solid</property>
+                            <property name="borderBottomWidth">0.5pt</property>
+                            <property name="borderLeftColor">#000000</property>
+                            <property name="borderLeftStyle">solid</property>
+                            <property name="borderLeftWidth">0.5pt</property>
+                            <property name="borderRightColor">#000000</property>
+                            <property name="borderRightStyle">solid</property>
+                            <property name="borderRightWidth">0.5pt</property>
+                            <text-property name="text">82</text-property>
+                        </label>
+                </cell>
+            </row>
+                    </grid>
+                </cell>
+            </row>
+        </grid>
+        <text id="1678">
+            <property name="fontSize">6pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[&nbsp;]]></text-property>
+        </text>
+        <text id="1679">
+            <property name="fontSize">7pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[Долуподписаният, <value-of>params["DeclarantNames"].value</value-of>, декларирам, че:]]></text-property>
+        </text>
+        <text id="1680">
+            <property name="fontSize">7pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[[ ] представлявам лицето, посочено в кл. А, и посочената в този формуляр информация е вярна и точна.]]></text-property>
+        </text>
+        <text id="1681">
+            <property name="fontSize">7pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[[ ] са налице обстоятелствата по чл. 92, ал. 3 и 4 ЗДДС]]></text-property>
+        </text>
+        <text id="1682">
+            <property name="fontSize">7pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[Известно ми е, че за неверни данни нося отговорност по чл. 313 НК]]></text-property>
+        </text>
+        <text id="1683">
+            <property name="fontSize">4pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[&nbsp;]]></text-property>
+        </text>
+        <text id="1684">
+            <property name="fontSize">7pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[Дата на съставяне: <value-of>params["GenDate"].value</value-of> г.&nbsp;&nbsp;&nbsp;&nbsp;Длъжност: <value-of>params["DeclarantPosition"].value</value-of>&nbsp;&nbsp;&nbsp;&nbsp;Подпис и печат: ...................]]></text-property>
+        </text>
+    </body>
+</report>

@@ -1,0 +1,78 @@
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    mavenCentral() {
+      content {
+        excludeGroup 'com.axelor'
+      }
+    }
+    maven {
+      url 'https://repository.axelor.com/nexus/repository/maven-public/'
+    }
+  }
+  plugins {
+    id 'com.axelor.app' version '7.4.3'
+  }
+}
+
+plugins {
+  id 'com.github.node-gradle.node' version '3.5.1' apply false
+}
+
+
+dependencyResolutionManagement {
+  repositories {
+    mavenCentral() {
+      content {
+        excludeGroup 'com.axelor'
+      }
+    }
+    maven {
+      url 'https://repository.axelor.com/nexus/repository/maven-public/'
+    }
+    // Declare the Node.js download repository
+    ivy {
+      name = "Node.js"
+      setUrl("https://nodejs.org/dist/")
+      patternLayout {
+        artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]")
+      }
+      metadataSources {
+        artifact()
+      }
+      content {
+        includeModule("org.nodejs", "node")
+      }
+    }
+  }
+}
+
+//Include all modules
+rootProject.name = "nyxa"
+
+def modules = []
+def modulesDir = new File(rootDir, "modules")
+
+// Only include top-level modules that have build.gradle
+modulesDir.listFiles().findAll { it.isDirectory() }.each { dir ->
+  // Use composite build for axelor-open-platform (self-contained multi-project)
+  if (dir.name == "axelor-open-platform") {
+    modules.add(dir)
+    includeBuild(dir)
+  } else if (dir.name == "axelor-open-suite") {
+    // Include each submodule of axelor-open-suite as a regular subproject.
+    dir.listFiles().sort().findAll { it.isDirectory() && new File(it, "build.gradle").exists() }.each { subDir ->
+      modules.add(subDir)
+      String modulePath = "modules:${subDir.name}"
+      include modulePath
+      project(":$modulePath").projectDir = subDir
+    }
+  } else if (new File(dir, "build.gradle").exists()) {
+    modules.add(dir)
+    String modulePath = "modules:$dir.name"
+    include modulePath
+    project(":$modulePath").projectDir = dir
+  }
+}
+
+gradle.ext.appModules = modules

@@ -1,0 +1,19 @@
+.container {
+  border-radius: var(--bs-input-border-radius, var(--bs-border-radius));
+}
+
+.invalid {
+  border: var(--bs-input-invalid-border, 1px solid var(--bs-danger));
+}
+
+.btns {
+  height: fit-content;
+}
+
+/* Plain inline text, deliberately not a spinner or a blocking overlay: it only has to show that the
+   (possibly very slow) transfer is running. */
+.uploading {
+  padding-inline: 0.5rem;
+  font-style: italic;
+  color: var(--bs-secondary-color, var(--bs-secondary));
+}

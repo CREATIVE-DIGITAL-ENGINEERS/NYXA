@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views https://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid title="Permissions" name="simple-permission-grid" model="com.axelor.auth.db.Permission">
+    <field name="name" />
+    <field name="object" />
+  </grid>
+
+  <grid title="Permissions" name="permission-grid" model="com.axelor.auth.db.Permission">
+    <field name="name" />
+    <field name="object" />
+    <field name="canRead" width="100" />
+    <field name="canWrite" width="100" />
+    <field name="canCreate" width="100" />
+    <field name="canRemove" width="100" />
+    <field name="canExport" width="100" />
+  </grid>
+
+  <form title="Permission" name="permission-form" model="com.axelor.auth.db.Permission">
+    <panel title="Overview">
+      <field name="name" />
+      <field name="object" />
+    </panel>
+    <panel title="Allow" itemSpan="2">
+      <field name="canRead" widget="inline-checkbox" />
+      <field name="canWrite" widget="inline-checkbox" />
+      <field name="canCreate" widget="inline-checkbox" />
+      <field name="canRemove" widget="inline-checkbox" />
+      <field name="canExport" widget="inline-checkbox" />
+    </panel>
+    <panel title="Condition" itemSpan="12">
+      <field name="condition" title="Condition" />
+      <field name="conditionParams" title="Params" />
+    </panel>
+  </form>
+
+</object-views>

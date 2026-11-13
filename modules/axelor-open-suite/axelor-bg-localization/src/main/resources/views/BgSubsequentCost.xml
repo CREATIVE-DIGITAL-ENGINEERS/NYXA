@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="bg-subsequent-cost-grid" title="Последващи разходи по актив"
+    model="com.axelor.apps.bglocalization.db.BgSubsequentCost">
+    <field name="completionDate"/>
+    <field name="fixedAsset"/>
+    <field name="amount"/>
+    <field name="classificationSelect"/>
+    <field name="routingSelect"/>
+    <field name="effectiveFrom"/>
+    <field name="isApplied"/>
+  </grid>
+
+  <form name="bg-subsequent-cost-form" title="Последващ разход по актив"
+    model="com.axelor.apps.bglocalization.db.BgSubsequentCost" width="large">
+
+    <panel name="mainPanel" title="Разходът" colSpan="12">
+      <field name="fixedAsset" onChange="action-method-bg-subsequent-cost-resolve"/>
+      <field name="company"/>
+      <field name="completionDate" onChange="action-method-bg-subsequent-cost-resolve"
+        help="Датата на ЗАВЪРШВАНЕ на разходите — не на фактурата и не на плащането. И чл. 63 изр. 2, и чл. 64 ал. 2 говорят за „месеца, през който са ЗАВЪРШЕНИ последващите разходи“."/>
+      <field name="amount"/>
+      <field name="classificationSelect" onChange="action-method-bg-subsequent-cost-resolve"
+        help="⚠️ Това е ВАША преценка по счетоводната политика, не се извежда от сумата. И чл. 63, и чл. 64 ал. 1 препращат към счетоводното законодателство за критерия („водят до бъдещи икономически изгоди, свързани с актива“) и не дават свой. Голяма сума за ремонт си остава ТЕКУЩ разход; малка сума за надграждане си остава капиталова."/>
+      <field name="justification" colSpan="12"
+        help="Основанието за класификацията — то прави записа проверим при ревизия."/>
+    </panel>
+
+    <panel name="routingPanel" title="Правен път" colSpan="12">
+      <field name="routingSelect" readonly="true"
+        help="Изведен от ПРИСЪСТВИЕТО на актива в данъчния амортизационен план: чл. 63 иска актив „наличен“ в плана, чл. 64 ал. 1 — актив, който „е отписан от данъчния амортизационен план, но не е отписан за счетоводни цели“."/>
+      <field name="effectiveFrom" readonly="true"
+        help="⚠️ НЕ е 1 януари. Чл. 62 ал. 2 отразява промените към 1 януари, но целият чл. 62 е РЕТРОСПЕКТИВЕН — ал. 3 иска новите стойности да са равни на онези, които биха били определени, ако обстоятелствата са били известни през предходните години. Последващият разход е НОВ факт, тъй че важи ал. 5 („към момента на установяване през текущата година“), а чл. 63 изр. 2 прави момента точен: началото на месеца на завършване."/>
+      <field name="amortizableValueBefore" readonly="true"/>
+      <field name="amortizableValueAfter" readonly="true"/>
+      <field name="generatedFixedAsset" readonly="true" showIf="routingSelect == 'ART64'"
+        form-view="fixed-asset-form" grid-view="fixed-asset-grid"
+        help="Самостоятелният актив по чл. 64 ал. 1. Категорията и нормата са НАСЛЕДЕНИ от стария актив — ал. 3: „се разпределя в категорията, в която е бил разпределен активът, във връзка с който са извършени последващите разходи“."/>
+      <field name="isBelowThreshold" readonly="true" showIf="routingSelect == 'ART64'"
+        help="⚠️ Прагът по чл. 50/51 е приложен по ТЪЛКУВАНЕ, не по цитат: чл. 64 ал. 1 казва императивно „се завежда самостоятелен данъчен амортизируем актив“, без да препраща към праг, а чл. 50/51 определят какво Е такъв актив. Да се потвърди. Забележете асиметрията: чл. 63 няма никакъв праг."/>
+    </panel>
+
+    <panel name="actionPanel" colSpan="12">
+      <field name="isApplied" readonly="true"/>
+      <field name="appliedOn" readonly="true"/>
+      <button name="applyBtn" title="Приложи" hideIf="isApplied"
+        onClick="save,action-method-bg-subsequent-cost-apply,save"
+        help="Чл. 63: увеличава ДАС и преизчислява ОСТАТЪКА от данъчния план от датата нататък — реализираните редове не се пипат и корекция по чл. 62 ал. 4 не се прави. Чл. 64: поражда самостоятелен актив в категорията на стария."/>
+    </panel>
+
+    <panel name="bgVatPanel" title="ДДС — носител на начислен данък (чл. 79а/79б)" colSpan="12">
+      <field name="bgVatIsImprovement" colSpan="6"
+        help="„Подобрение“ по § 1 т. 32 ДР ЗДДС. Без нея носител изобщо не възниква. ⚠️ Различно от класификацията CAPITAL/CURRENT — тя е ЗКПО чл. 63/64 и отговаря на друг въпрос: капиталов по ЗКПО разход върху сграда, който не прави нова сграда, НЕ е подобрение по ЗДДС."/>
+      <field name="bgVatAssetIsBuilding" colSpan="6" showIf="bgVatIsImprovement"
+        help="§ 1 т. 32 дели точно по това: за СГРАДИ важи б. „а“ (иска нова сграда като резултат), за стоки, недвижими имоти различни от сгради и услуги — б. „б“. Класификацията на актива различава имот от стока, но НЕ различава сграда от друг недвижим имот."/>
+      <field name="bgVatResultsInNewBuilding" colSpan="6"
+        showIf="bgVatIsImprovement &amp;&amp; bgVatAssetIsBuilding"
+        help="Дава ли подобрението „нова сграда“ по § 1 т. 5 б. „в“ ПОДТ. „аа“: преки разходи ≥ 1/3 от пазарната цена към датата на ново разрешение за ползване, или обособени самостоятелни обекти, годни за отделни доставки. ⚠️ Само подточка „аа“ — 60-месечният срок на „бб“ важи за режима на доставката, не за корекцията. Има нова сграда → чл. 79а ал. 9 (нов 20-годишен срок); няма → носител НЕ възниква по нито един текст."/>
+      <field name="bgVatImprovementJustification" colSpan="12"
+        showIf="bgVatIsImprovement &amp;&amp; bgVatAssetIsBuilding"
+        help="Номер и дата на новото разрешение за ползване, размер на преките разходи, пазарна цена към същата дата. Това прави декларираната отметка проверима при ревизия."/>
+      <field name="bgVatChargedOnCost" colSpan="6" showIf="bgVatIsImprovement"
+        help="НДДС на подобрението — „начисленият ДДС за извършените разходи за извършеното подобрение“ (чл. 79а ал. 9 т. 2). ⚠️ НЕ е полето „Сума“: то е капитализираната стойност по ЗКПО, БЕЗ данък."/>
+      <field name="bgVatCreditYear" colSpan="6" showIf="bgVatIsImprovement"
+        help="Годината на упражняване на кредита ЗА ПОДОБРЕНИЕТО — началото на неговия прозорец. Когато кредит не е упражнен, тук стои годината, през която изтича срокът по чл. 72 ал. 1."/>
+      <field name="bgVatCreditTypeSelect" colSpan="6" showIf="bgVatIsImprovement"/>
+      <field name="bgVatFirstUseYear" colSpan="6"
+        showIf="bgVatIsImprovement &amp;&amp; bgVatResultsInNewBuilding"
+        help="Годината на фактическото използване на СГРАДАТА след извършеното подобрение (чл. 79а ал. 9 т. 1 б. „а“/„б“) — мери се по сградата, не по разхода."/>
+      <field name="bgVatCoefficientK0" colSpan="6" showIf="bgVatIsImprovement"
+        help="⚠️ СВОЙ К₀, не този на актива: кредитът за подобрението е от ДРУГА година, тъй че коефициентът по конструкция е различен. Пренесен от актива, той би описал чужд оборот."/>
+      <field name="bgVatProportionNid0" colSpan="6" showIf="bgVatIsImprovement"/>
+      <field name="bgVatRegimeSelect" colSpan="6" readonly="true"
+        help="Изведеният режим: нов срок по чл. 79а ал. 9, остатък по ППЗДДС чл. 67 ал. 4, или няма носител. Смята се при всяко предлагане на годишна корекция."/>
+    </panel>
+
+    <panel name="commentsPanel" colSpan="12">
+      <field name="comments" colSpan="12"/>
+    </panel>
+  </form>
+
+  <action-method name="action-method-bg-subsequent-cost-resolve">
+    <call class="com.axelor.apps.bglocalization.web.BgSubsequentCostController" method="resolve"/>
+  </action-method>
+
+  <action-method name="action-method-bg-subsequent-cost-apply">
+    <call class="com.axelor.apps.bglocalization.web.BgSubsequentCostController" method="apply"/>
+  </action-method>
+
+  <action-view name="action-bg-subsequent-cost-view" title="Последващи разходи по активи"
+    model="com.axelor.apps.bglocalization.db.BgSubsequentCost">
+    <view type="grid" name="bg-subsequent-cost-grid"/>
+    <view type="form" name="bg-subsequent-cost-form"/>
+  </action-view>
+
+</object-views>

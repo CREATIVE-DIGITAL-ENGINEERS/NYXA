@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="napsubmissions" package="com.axelor.apps.napsubmissions.db"/>
+
+  <!-- ONE attempt to submit something to НАП. Service-AGNOSTIC common registry (SAF-T is one service
+    among many; the Declarations API is another). Kept separate from SaftReport (one report -> many attempts).
+    submissionStatus lives ONLY here. External identifiers (documentId/entryNumber/ entryDate) come from
+    the Declarations API submit response; manual portal uses napIncomingNumber. -->
+  <entity name="NapSubmission" sequential="true">
+
+    <string name="name" title="Reference" namecolumn="true"/>
+
+    <!-- What service + document type this attempt is (serviceDocumentType is set for declarations). -->
+    <string name="serviceCodeSelect" title="Service" selection="nap.service.code.select"
+      required="true" default="saft"/>
+    <string name="serviceDocumentTypeSelect" title="Document type"
+      selection="nap.declarations.service.document.type.select"/>
+
+    <many-to-one name="company" title="Company" ref="com.axelor.apps.base.db.Company"
+      required="true"/>
+    <many-to-one name="period" title="Reporting period"
+      ref="com.axelor.apps.base.db.Period"/>
+    <date name="referenceDate" title="Reference date"/>
+
+    <!-- Optional link to the SAF-T report being sent (null for other services). -->
+    <many-to-one name="saftReport" title="SAF-T report" ref="SaftReport"/>
+
+    <!-- Transport context -->
+    <string name="channelSelect" title="Channel" selection="nap.submission.channel.select"
+      required="true" default="manual_portal"/>
+    <string name="environmentSelect" title="Environment"
+      selection="nap.api.environment.select" default="test"/>
+    <string name="submissionStatusSelect" title="Status"
+      selection="nap.submission.status.select" default="draft" readonly="true"/>
+    <string name="externalStatus" title="External status" readonly="true"/>
+
+    <!-- External identifiers from the Declarations API submit response. -->
+    <long name="documentId" title="Document ID (NAP)" readonly="true"/>
+    <string name="entryNumber" title="Entry number (NAP)" readonly="true"/>
+    <string name="entryDate" title="Entry date" readonly="true"/>
+
+    <!-- Manual portal incoming number (separate channel from the API entry number). -->
+    <string name="napIncomingNumber" title="NAP incoming No. (manual)"/>
+
+    <!-- Ръчният път: датата, на която порталът е дал входящия номер (не „сега“ — номерът често се
+      въвежда дни по-късно). Само вход на екрана; записва се в submittedOn. -->
+    <date name="portalSubmittedDate" title="Date filed on the portal" transient="true"/>
+
+    <!-- DEC_1_6 only: the official `insuranceFund` flag (0 = no, 1 = filed BY an insurance fund).
+      Boolean here, mapped to 0/1 at the transport edge; never defaulted silently to "yes". -->
+    <boolean name="filedByInsuranceFund" title="Filed by an insurance fund" default="false"/>
+
+    <!-- Transport bookkeeping -->
+    <integer name="attemptNumber" title="Attempt #" default="1" readonly="true"/>
+    <string name="idempotencyKey" title="Idempotency key" readonly="true"/>
+    <string name="correlationId" title="Correlation ID" readonly="true"/>
+
+    <!-- Timeline -->
+    <datetime name="submittedOn" title="Submitted on" readonly="true"/>
+    <datetime name="processedOn" title="Processed on" readonly="true"/>
+    <datetime name="lastStatusCheckOn" title="Last status check" readonly="true"/>
+    <many-to-one name="submittedBy" title="Submitted by" ref="com.axelor.auth.db.User"
+      readonly="true"/>
+
+    <!-- WHOSE КЕП SIGNED THIS SUBMISSION — the НАП "author" identity, pinned to the submission and
+      not to whoever happens to be logged in later. Set by QesSigningService when signing starts;
+      every file must be signed through this one profile; frozen once the submission is SIGNED (see
+      RegulatoryImmutabilityGuard). ⚠️ Идентификаторът на подписващия (НАП `userPin` — ЕГН/ЛНЧ/сл. №/
+      ЕИК, НЕ код за отключване на КЕП) се чете ОТ този профил при транспорта и нарочно НЕ се копира
+      върху подаването или файловете му. -->
+    <many-to-one name="qesSignerProfile" title="Signed by (QES profile)" ref="UserQesProfile"
+      readonly="true"/>
+
+    <!-- Как ще се подпише това подаване: локален USB КЕП или облачен доставчик. Избира се преди
+      подписване (в заключено състояние) и определя кой адаптер се ползва. Нито един от двата не чете
+      частен ключ/PIN в Nyxa. -->
+    <string name="qesSigningMethodSelect" title="Signing method"
+      selection="nap.qes.signing.method.select"/>
+
+    <!-- Snapshot of who the declaration is for and who submits it (identifiers only, no secrets). -->
+    <string name="taxpayerPin" title="Taxpayer ID" readonly="true"/>
+    <string name="taxpayerPinTypeSelect" title="Taxpayer ID type"
+      selection="nap.pin.type.select" readonly="true"/>
+    <string name="submitterPin" title="Submitter ID" readonly="true"/>
+    <string name="submitterPinTypeSelect" title="Submitter ID type"
+      selection="nap.pin.type.select" readonly="true"/>
+
+    <!-- Errors -->
+    <string name="errorCode" title="Error code" readonly="true"/>
+    <string name="errorMessage" title="Error message" large="true" multiline="true"
+      readonly="true"/>
+    <string name="exceptionId" title="Exception ID (NAP)" readonly="true"/>
+
+    <!-- Secret-free request/response metadata (never store credentials/tokens/private keys here). -->
+    <string name="requestMeta" title="Request metadata" large="true" multiline="true"
+      readonly="true"/>
+    <string name="responseMeta" title="Response metadata" large="true" multiline="true"
+      readonly="true"/>
+
+    <!-- Corrections chain -->
+    <string name="correctionReason" title="Correction reason" large="true" multiline="true"/>
+    <many-to-one name="previousSubmission" title="Supersedes" ref="NapSubmission"/>
+
+    <!-- Which business record this submission relates to (generic, e.g. a SaftReport or other doc). -->
+    <string name="relatedModel" title="Related model" readonly="true"/>
+    <long name="relatedRecordId" title="Related record ID" readonly="true"/>
+
+    <!-- Files sent in this submission (НАП allows multiple files per submission). -->
+    <one-to-many name="submissionFileList" title="Files" ref="NapSubmissionFile"
+      mappedBy="submission"/>
+
+    <!-- Immutable+interpreted processing results fetched from НАП. -->
+    <one-to-many name="processingResultList" title="Processing results"
+      ref="NapProcessingResult" mappedBy="submission"/>
+
+    <!-- Artifact links (payload/signature/response/...) via join so one file serves many attempts. -->
+    <one-to-many name="artifactLinkList" title="Artifacts" ref="NapSubmissionArtifact"
+      mappedBy="submission"/>
+
+    <!-- Append-only одит на подаването — КОЙ избра/заключи/подписа/подаде, КОГА и какво. Пише се САМО
+      от NapAuditService и се показва само за четене. Инверсната страна на NapAuditEvent.submission. -->
+    <one-to-many name="auditEventList" title="History" ref="NapAuditEvent"
+      mappedBy="submission"/>
+
+    <!-- Transient UI inputs (not persisted): response file to attach, a free-text action reason, and
+      a sanitized summary for a recorded processing result. -->
+    <many-to-one name="responseFile" title="Response file"
+      ref="com.axelor.meta.db.MetaFile" transient="true"/>
+    <string name="actionReason" title="Reason" transient="true"/>
+    <string name="resultSummary" title="Summary" transient="true"/>
+    <string name="resolutionReason" title="Resolution reason" transient="true"/>
+
+    <!-- Публичният сертификат на подписващия (base64, без PEM редовете), с който е изпратено
+      подаването — точно стойността userSignatureBase64 от заявката. НАП го иска и при заявката за
+      резултат, затова се пази, а не се въвежда отново всеки път. Публичен
+      е — няма ключов материал. Пише го само изпращането; след документния номер е замръзнал
+      (NapSubmissionEvidence.SUBMISSION_RESEND). -->
+    <string name="signerCertificateBase64" title="Signer's public certificate" large="true"
+      readonly="true"/>
+
+    <!-- ⚠️ ПРЕХОДНО, НЕ СЕ ПАЗИ. Сертификат, въведен на ръка за заявката за резултат — само за
+      подавания, изпратени преди signerCertificateBase64 да съществува (там е празен). Transient —
+      няма колона; ползва се за едно извикване. PEM или base64 (без ключов материал). -->
+    <string name="resultSignerCertificatePem" title="Signer's public certificate (for the result)"
+      large="true" multiline="true" transient="true"/>
+
+    <!-- ⚠️ ПРЕХОДНО, НЕ СЕ ПАЗИ. URL на вградената подписваща страница (същият REST ресурс, същият
+      произход и сесия), който „Подпиши и изпрати“ задава, за да се покаже BISS/облачният поток ВЪВ
+      формата, вместо да се отваря отделен екран. Transient — няма колона; изчезва при презареждане на
+      записа. Релативен „ws/...“ адрес → вгражда се в iframe в същия прозорец; никога външна страница. -->
+    <string name="signingEmbedUrl" title="Signing" transient="true"/>
+
+    <extra-code><![CDATA[
+      // serviceCodeSelect (keep in sync with nap.service.code.select)
+      public static final String SERVICE_SAFT = "saft";
+      public static final String SERVICE_DECLARATIONS = "declarations";
+      // ⚠️ НОИ, не НАП: удостоверението по Приложение № 9 (НПОПДОО чл. 8 ал. 1). Каналът е винаги
+      // manual_portal — човек подава с КЕП през портала на НОИ и тук се записва ВХОДЯЩИЯТ номер,
+      // който порталът дава на ФАЙЛА. Един ред = един файл = един входящ номер.
+      public static final String SERVICE_NOI_APP9 = "noi_app9";
+      // FATCA XML (автоматичен обмен на финансова информация) — само ръчно през портала на НАП; API на НАП за FATCA няма.
+      public static final String SERVICE_FATCA = "fatca";
+
+      // channelSelect (keep in sync with nap.submission.channel.select)
+      public static final String CHANNEL_API = "api";
+      public static final String CHANNEL_MANUAL_PORTAL = "manual_portal";
+
+      // environmentSelect (keep in sync with nap.api.environment.select)
+      public static final String ENVIRONMENT_TEST = "test";
+      public static final String ENVIRONMENT_PROD = "prod";
+
+      // qesSigningMethodSelect (keep in sync with nap.qes.signing.method.select). Two planned
+      // adapters: the local USB КЕП component (client-side signing) and a cloud provider API.
+      public static final String QES_METHOD_LOCAL_USB = "local_usb";
+      public static final String QES_METHOD_CLOUD = "cloud";
+
+      // submissionStatusSelect (keep in sync with nap.submission.status.select)
+      public static final String STATUS_DRAFT = "draft";
+      // ЗАКЛЮЧЕНО за подаване: операторът е избрал и ЗАМРАЗИЛ точните файлове, периода и вида от
+      // генерираните в Nyxa декларации. Още НЕ е подписано и НЕ е подадено — подписът и подаването
+      // са човешки стъпки (портал на НАП, собствен КЕП). ⚠️ isSubmissionLocked(..) третира ВСЕКИ
+      // статус извън draft/signing като заключен, тоест идентичността, периодът и файловете са
+      // замразени server-side (RegulatoryImmutabilityGuard) още от този момент, не едва при SIGNED.
+      public static final String STATUS_LOCKED = "locked";
+      // QES signing lifecycle (precedes any НАП transport): SIGNING while cloud-QES requests are
+      // outstanding, SIGNED once every required file carries a verified detached signature. These are
+      // distinct from the НАП transport states below and never imply anything was sent to НАП.
+      public static final String STATUS_SIGNING = "signing";
+      public static final String STATUS_SIGNED = "signed";
+      public static final String STATUS_SUBMITTING = "submitting";
+      public static final String STATUS_SUBMITTED = "submitted";
+      // Submit timed out / connection dropped: unknown whether НАП accepted it. NEVER blind-retry;
+      // reconcile via the result endpoint using documentId/entryNumber first.
+      public static final String STATUS_OUTCOME_UNKNOWN = "submission_outcome_unknown";
+      public static final String STATUS_ACCEPTED = "accepted";
+      public static final String STATUS_REJECTED = "rejected";
+      public static final String STATUS_CORRECTION_REQUIRED = "correction_required";
+      public static final String STATUS_TECHNICAL_ERROR = "technical_error";
+      // Ръчната отметка „подадено“ е ОТМЕНЕНА от човек, с причина (одитът я пази). Не е отговор на
+      // органа: файлът не е стигнал там, където отметката твърдеше. ⚠️ Безопасно за Д1:
+      // BgD1RegenerationRules е списък на ПОЗВОЛЕНОТО, а BgD1PeriodLockRules изрежда заключващите.
+      public static final String STATUS_WITHDRAWN = "withdrawn";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

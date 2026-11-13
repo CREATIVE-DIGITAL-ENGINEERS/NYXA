@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="bg-vat-coefficient-grid" title="Коефициенти чл.73 (ДДС)"
+    model="com.axelor.apps.bglocalization.db.BgVatCoefficient">
+    <field name="company"/>
+    <field name="year"/>
+    <field name="coefficient"/>
+    <field name="finalCoefficient"/>
+    <field name="notes"/>
+  </grid>
+
+  <form name="bg-vat-coefficient-form" title="Коефициент чл.73 (ДДС)"
+    model="com.axelor.apps.bglocalization.db.BgVatCoefficient">
+    <panel name="mainPanel" colSpan="12">
+      <field name="company" colSpan="6"/>
+      <field name="year" colSpan="6"/>
+      <field name="coefficient" colSpan="6"
+        help="Прогнозният по чл. 73 ал. 5 — изчислен от оборотите на ПРЕДХОДНАТА календарна година. Той пълни кл.33 на справка-декларацията през цялата година."/>
+      <field name="finalCoefficient" colSpan="6"
+        help="Окончателният по чл. 73 ал. 6 — преизчисленият в последния данъчен период по реалните обороти на ТЕКУЩАТА година. Той, а не прогнозният, е Кх за годишните корекции по чл. 79а/79б (определенията под ал. 3 искат коефициента ЗА ГОДИНАТА на изменението). Празно значи „още не е преизчислен“ — предложението отказва да смята, вместо да падне на прогнозния."/>
+      <field name="notes" colSpan="12"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-vat-coefficient-view" title="Коефициенти чл.73 (ДДС)"
+    model="com.axelor.apps.bglocalization.db.BgVatCoefficient">
+    <view type="grid" name="bg-vat-coefficient-grid"/>
+    <view type="form" name="bg-vat-coefficient-form"/>
+  </action-view>
+
+</object-views>

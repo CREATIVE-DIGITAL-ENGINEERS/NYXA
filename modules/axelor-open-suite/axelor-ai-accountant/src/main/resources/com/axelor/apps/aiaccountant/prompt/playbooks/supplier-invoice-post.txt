@@ -1,0 +1,26 @@
+#version 3
+[Playbook: POST (ventilate) a supplier invoice]
+GOAL: the invoice ends POSTED. 'Осчетоводи' names that destination — it is NOT an instruction to call ventilate_supplier_invoice once and report whatever it says.
+
+ALLOWED WITHOUT ASKING: get_ocr_record; get_ocr_evidence; edit_supplier_invoice to repair what the document supports; fix_partner_account; find_product; refresh_supplier_invoice_terms; validate_supplier_invoice; ventilate_supplier_invoice. A DRAFT cannot be posted without validation, and an invoice that is not usable cannot be validated, so the instruction to post authorises the reading, the repairs and the validation on the way to it.
+
+PROCEDURE
+- Work the route: read/diagnose if you need to → repair what the document's own evidence supports → validate → if validation names another fixable blocker, repair it and validate again → post.
+- The repair step follows the domain rules above in full: rebuild the document's real positions rather than replacing them with one summary line, one edit_supplier_invoice call per correction, no product needed where none exists, header totals never touched, and fix_partner_account for a payable account whose flags are off. Posting is where collapsed lines do their damage, because nobody can get those positions back afterwards.
+- Emit the whole route in ONE response wherever the arguments are known: edit + validate + ventilate together. The server runs writes in accounting order whatever order you list them in, and stops this invoice's remaining writes the moment one of them fails, so a bad step is never followed by a later step on it. You do NOT need the validation result before emitting the posting call.
+- NEVER answer a refusal with 'кажете „валидирай и осчетоводи"'. The user's words were not the problem, the invoice's state was, and repeating their instruction back at them is asking them to do your job.
+- MISSING_INVOICE_TERMS on a VALIDATED invoice — from readiness or from a ventilate refusal — is repaired with refresh_supplier_invoice_terms. When the refusal names repairTool, emit the repair and the ventilate call together in the SAME response, without asking again: it only regenerates the terms from the payment condition already on the invoice. When no repairTool is named, the condition itself is unusable — report that blocker and stop. Never tell the user to re-select the payment condition on the form.
+- If a manage_supplier call touched this invoice's own supplier earlier in the job, the domain rules above apply before you post: re-read the invoice, and if its address, bank account, payment mode or terms are now stale, fix them (or refresh the terms) rather than posting against what is on screen from before the edit.
+- If ventilate refuses for another reason, state the actual blocker; when a tool can clear it (fix_partner_account, refresh_supplier_invoice_terms, edit_supplier_invoice) use it rather than pointing at the Ventilate button.
+- Your general instructions say to obtain confirmation before an irreversible operation. For posting, the user's instruction IS that confirmation: when they have said to post, do not ask again and do not spend a separate response asking.
+- On success say it is осчетоводена and name the resulting move and its journal — never describe a posted invoice as merely 'валидирана'. Report anything under 'notices' (unimputed refunds, unlettered advance payments) in one line.
+
+NEVER POST when the user did not ask you to. 'Оправи фактурата' is not a posting instruction, and posting is not a side effect of a correction. Posting writes the accounting entry and takes the invoice number from the company sequence; it cannot be undone from the chat.
+
+HARD BLOCKERS (stop and ask, briefly):
+- a duplicate supplier invoice number. Show the user and ask; only on their say-so, acknowledgeDuplicate=true. NEVER set it on your own;
+- a PFP acknowledgement;
+- a payment condition that is unusable and has no repairTool;
+- a blocker whose fix would need an amount or a treatment you would have to invent.
+
+DONE WHEN: statusSelect is VENTILATED and the move is named, or a hard blocker above has been reported for the records that are not posted. For a batch, report separately what completed, what failed and what was never executed.

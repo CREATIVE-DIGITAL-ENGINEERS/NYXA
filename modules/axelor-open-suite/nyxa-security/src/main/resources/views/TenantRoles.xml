@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Application Config › Roles: the roles a client administrator can grant, with what each one
+    gives, so they know what they are granting on the Users screen.
+
+    Read-only for client.admin: it has read on these roles (nx.client.admin.role) and no write, so
+    the client makes the list and page read-only. Technical admins (nyxa.admin) bypass permissions
+    and may edit here; New and Delete stay off, because roles come from the catalogue
+    (nyxa-security nx_role.csv, re-imported at every boot, and the Keycloak catalogue in
+    the identity-provider configuration). The list is filtered to the catalogue in TenantRolesController. -->
+
+  <grid name="nx-tenant-role-grid" title="Roles" model="com.axelor.auth.db.Role"
+    canNew="false" canDelete="false" orderBy="name" x-selector="none">
+    <field name="name"/>
+    <field name="description"/>
+  </grid>
+
+  <form name="nx-tenant-role-form" title="Role" model="com.axelor.auth.db.Role"
+    canNew="false" canDelete="false" canCopy="false" canAttach="false" width="large">
+    <panel name="mainPanel" itemSpan="12">
+      <field name="name"/>
+      <field name="description" widget="text"/>
+    </panel>
+  </form>
+
+  <action-method name="action-nx-tenant-roles">
+    <call class="com.axelor.apps.nyxasecurity.web.TenantRolesController" method="open"/>
+  </action-method>
+
+  <menuitem name="nx-tenant-roles" parent="admin-root-user" title="Roles"
+    action="action-nx-tenant-roles" order="150"/>
+
+</object-views>

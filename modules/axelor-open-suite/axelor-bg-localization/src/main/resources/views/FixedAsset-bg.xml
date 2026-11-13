@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Данъчните полета по ЗКПО върху стандартния актив.
+
+    ⚠️ extension="true" ИСКА И id — инак Axelor вижда дубликат по name и изхвърля разширението
+    ИЗЦЯЛО, при зелен билд. -->
+
+  <form name="fixed-asset-form" title="Fixed asset" id="bg-localization-fixed-asset-form"
+    model="com.axelor.apps.account.db.FixedAsset" extension="true">
+
+    <!-- Изборът на категория трябва да донесе И нормата. Базовото
+      action-account-attrs-fill-fiscal-panel пълни целия fiscal набор от категорията, но нищо не
+      знае за bgTax* — а onChange ЗАМЕСТВА стойността си, не я допълва, тъй че базовата верига се
+      преписва ДОСЛОВНО и БГ действието се закача НАКРАЯ. Свери я с базовия
+      fixed-asset-form, ако тя се промени нагоре по веригата.
+
+      Стойността се пренася и без този изглед — BgTaxDepreciation.effectiveRate() чете нормата от
+      категорията, когато активът е с празна — но тогава числото не се вижда на екрана и не може да
+      се промени за конкретния актив. Тук е учтивостта; верността е в услугата. -->
+    <extend target="//panel[@name='mainPanel']/field[@name='fixedAssetCategory']">
+      <attribute name="onChange"
+        value="action-group-account-record-on-change-asset-category, action-method-account-fixed-asset-compute-first-depreciation-date, action-bg-attrs-fixed-asset-fill-tax-fields"/>
+    </extend>
+
+    <!-- Целта е panel-scoped и се резолвва до ЕДИН възел: fiscalPanel се среща веднъж в базовия
+      fixed-asset-form. Полетата влизат В НЕГО, защото това е панелът на данъчния план — там са
+      fiscalFirstDepreciationDate, fiscalNumberOfDepreciation и самият ДАП
+      (fiscalFixedAssetLineList). Нормата на друго място би карала човека да я търси. -->
+    <extend target="//panel[@name='fiscalPanel']/field[@name='fiscalFirstDepreciationDate']">
+      <insert position="before">
+        <field name="bgTaxCategorySelect"
+          help="Категория по чл. 55 ал. 1 ЗКПО. Пренася се от категорията на актива; сменя се, когато конкретният актив попада в друга категория."/>
+        <field name="bgTaxDepreciationRate" min="0" max="100"
+          onChange="action-bg-fixed-asset-validate-tax-rate-ceiling"
+          help="Годишна данъчна амортизационна норма (ГДАН) по чл. 55 ал. 2 ЗКПО, в проценти — ТАВАН, не задължение: предприятието може да избере по-ниска. От нея излиза целият данъчен план: месеците са 1200/ГДАН, а последният месец поема остатъка. Оставена празна, важи нормата на категорията."/>
+        <field name="bgTaxStartSelect"
+          help="Чл. 58 ал. 1 ЗКПО дава избор: данъчното амортизиране започва от началото на месеца, в който активът е въведен в експлоатация, ИЛИ от началото на следващия месец. По подразбиране е месецът на въвеждане — така данъчният и счетоводният план тръгват заедно и в първата година няма временна разлика."/>
+      </insert>
+    </extend>
+
+    <!-- Прагът и спирането стоят СЛЕД панела на данъчния план, защото и двете говорят за него: едното
+      решава дали изобщо да го има, другото — кога спира да се начислява. -->
+    <extend target="//panel[@name='fiscalPanel']">
+      <insert position="after">
+        <panel name="bgMicroinvestSourcePanel" title="Microinvest source" colSpan="12"
+          showIf="importOrigin">
+          <field name="bgMicroinvestInventoryNumber"/>
+          <field name="bgMicroinvestSourceCurrencyCode"/>
+          <field name="bgBookCurrency"/>
+          <field name="bgMicroinvestLocation"/>
+          <field name="bgMicroinvestTerminationStatus"/>
+          <field name="bgMicroinvestDebitAccountNumber"/>
+          <field name="bgMicroinvestCreditAccountNumber"/>
+          <field name="bgMicroinvestInventoryAccountNumber"/>
+          <field name="bgMicroinvestTerminationAccountingId"/>
+          <field name="importId"/>
+          <field name="importOrigin"/>
+        </panel>
+        <panel name="bgTaxThresholdPanel" title="Праг по чл. 50/51 ЗКПО" colSpan="12">
+          <field name="bgIsBelowTaxThreshold" readonly="true"
+            help="Вдигнато значи, че стойността на актива е ПОД по-ниската от прага по счетоводната политика на дружеството и законовата сума (чл. 50 ал. 1, чл. 51 ал. 1 т. 1 б. „г“). Тогава активът не е данъчен амортизируем актив и данъчен план не му се строи. ⚠️ Това НЕ казва нищо за счетоводното третиране — активът може напълно законно да е капитализиран и да се амортизира по вашата политика."/>
+          <field name="bgTaxThresholdApplied" readonly="true"
+            help="Прагът, който е бил приложен при завеждането — по-ниският от двата. Пази се, защото и двата източника се менят: политиката на дружеството и законовата сума в настройките."/>
+        </panel>
+
+        <panel name="bgArt59Panel" title="Спиране на данъчната амортизация (чл. 59 ЗКПО)"
+          colSpan="12">
+          <field name="bgIdleSince"
+            help="Датата, от която активът временно НЕ СЕ ИЗПОЛЗВА (не носи икономическа изгода). ⚠️ Тя е начало на отчитането на срока, не на спирането: чл. 59 ал. 1 се задейства при период ПО-ДЪЛЪГ ОТ ДВАНАДЕСЕТ МЕСЕЦА, тъй че консервация за три месеца не спира нищо."/>
+          <field name="bgReturnedToServiceOn"
+            help="Начисляването се възобновява от началото на месеца НА връщането в експлоатация (чл. 59 ал. 1, изречение второ). Забележете асиметрията: спирането е от СЛЕДВАЩИЯ месец, възобновяването — от текущия."/>
+          <field name="bgSuspensionOrderNumber"
+            help="Заповедта за консервация — документът, който прави датите проверими."/>
+          <field name="bgSuspensionOrderDate"/>
+          <field name="bgTaxSuspensionFrom" readonly="true"
+            help="Изведено: първият ден на месеца след месеца, в който изтича дванадесетмесечният срок. Празно значи, че спиране още не се дължи — или срокът не е изтекъл, или активът се е върнал преди това. ⚠️ Активът ОСТАВА в данъчния амортизационен план и на баланс — чл. 59 ал. 1 казва дословно, че „не се отписва от данъчния амортизационен план“."/>
+          <field name="bgArt59Al2Reversal" readonly="true"
+            help="Изведено: начислената ДАНЪЧНА амортизация през дванадесетте месеца на неползване, която чл. 59 ал. 2 обръща. С нея се НАМАЛЯВА годишната данъчна амортизация за годината, през която е изтекъл срокът, начислената амортизация се сваля и ДАНЪЧНАТА СТОЙНОСТ СЕ УВЕЛИЧАВА. ⚠️ Числото се изчислява и се показва, но редове на плана НЕ се пренаписват сами: спирането се задейства на тринайсетия месец, тъй че обърнатите дванадесет почти винаги пресичат вече подадена годишна декларация. Дали да мине с коригираща декларация е ваше решение."
+            showIf="bgTaxSuspensionFrom"/>
+          <field name="bgArt59Al2Year" readonly="true" showIf="bgTaxSuspensionFrom"
+            help="Годината, за която се прави намалението — „годината, през която е изтекъл дванадесетмесечният срок“. Това е годината на ПОСЛЕДНИЯ начислен месец, а при срок, изтичащ през декември, тя е различна от годината на първия спрян месец."/>
+          <field name="bgMaterialityIncrease" readonly="true"
+            grid-view="bg-asset-materiality-increase-grid"
+            form-view="bg-asset-materiality-increase-form"
+            help="Вдигането на прага, което е засегнало този актив (чл. 60 ал. 3 т. 2 ЗКПО). Попълнено значи, че активът остава в данъчния амортизационен план и излиза от него по реда на ал. 1 — при пълно данъчно амортизиране (ал. 4). ⚠️ И че чл. 59 НЕ се прилага за него: ал. 4 казва дословно „Не се преустановява начисляването на данъчни амортизации за активите по чл. 60, ал. 3“."/>
+        </panel>
+
+        <!-- ДДС при ПРИДОБИВАНЕТО — входът на чл. 79 ал. 3 ЗДДС.
+
+          ⚠️ ФАКТИТЕ СА НА АКТИВА, ЗАЩОТО СА ИЗВЕСТНИ ДНЕС, А ПОТРЯБВАТ СЛЕД ГОДИНИ. Корекция по
+          чл. 79 се смята при брак или продажба, а годишната по чл. 79а/79б — всеки декември до
+          двадесетата година. Тогава покупната фактура отдавна е извън погледа на оператора.
+
+          ⚠️ И БЕЗ КЛАСИФИКАЦИЯТА ЦЕЛИЯТ РЕЖИМ МЪЛЧИ. Тя е единственият гейт: годишният съветник
+          обхожда само активи с попълнено поле, а отписването пише „не е изчислена“. Затова е първа
+          и няма подразбиране — вж. BgArt79Acquisition. -->
+        <panel name="bgVatArt79Panel" title="ДДС при придобиване (чл. 79 ал. 3 ЗДДС)"
+          colSpan="12">
+          <field name="bgVatAssetKindSelect" colSpan="6"
+            help="Коя точка на ал. 3 описва актива — оттам излиза знаменателят: 1/20 за недвижим имот (20 години), 1/5 за движима вещ и за услуга (5 години). ⚠️ ПОПЪЛВА СЕ РЪЧНО И НЕ СЕ ИЗВЕЖДА ОТ ДАНЪЧНАТА КАТЕГОРИЯ: „недвижим имот“ по ЗДДС не е същото понятие като категория I по чл. 55 ЗКПО, а сгрешената точка умножава дължимия данък по четири. ⚠️ Празно поле значи, че активът НЕ участва в корекциите по чл. 79/79а/79б — нито в годишния съветник, нито при отписване. Оставете го празно само за активи без начислен ДДС при придобиването."/>
+          <field name="bgVatAcquisitionCreditTypeSelect" colSpan="6"
+            help="Буквата на точката — кои множители влизат във формулата. Пренася се от вида данъчен кредит на реда на покупната фактура (пълен → „а“, частичен → „б“, без право → чл. 70), но ⚠️ ПРОПОРЦИОНАЛНИЯТ ПО ЧЛ. 71а/71б („в“) се маркира САМО НА РЪКА: дневникът за покупките не го различава от частичния, а формулата ги дели."/>
+          <field name="bgVatChargedOnAcquisition" colSpan="6"
+            help="НДДС — начисленият ДДС при производството, придобиването, вноса или изграждането. ⚠️ БРУТНИЯТ НАЧИСЛЕН ДАНЪК, не ползваният данъчен кредит: при частичен коефициент К₀ влиза отделно във формулата, тъй че записан нетно данъкът би се занижил с квадрата на коефициента. Пренася се от покупната фактура като „с данък минус без данък“; за сграда, изградена от много фактури, се въвежда наръчно."/>
+          <field name="bgVatCreditYear" colSpan="6"
+            help="Годината, през която е УПРАЖНЕНО правото на данъчен кредит — началото на 20-/5-годишния срок. ⚠️ НЕ Е ГОДИНАТА НА ПРИДОБИВАНЕ: чл. 72 ал. 1 дава правото да се упражни в периода на възникване или в един от следващите 12, тъй че фактура от декември може законно да е ползвана през следващата година — и тогава целият срок се мести. Годината на фактурата е само подразбиране. ⚠️ При актив без ползван кредит (буква „а“ на ал. 3) тук се пише годината, в която изтича срокът по чл. 72 ал. 1."/>
+          <field name="bgVatCoefficientK0" colSpan="6"
+            showIf="bgVatAcquisitionCreditTypeSelect == 'PARTIAL'"
+            help="Коефициентът по чл. 73 за годината на упражняване на кредита, до втория знак. Подразбира се от „Коефициенти чл.73“ за същата година — окончателният по ал. 6, а прогнозният по ал. 5 само когато преизчисляването още не е направено. ⚠️ ПОДРАЗБИРАНЕТО СЕ ПРОВЕРЯВА: взет прогнозен, коефициентът описва оборота на предходната година. Чл. 79в т. 4 не допуска 0 при частичен кредит. При изцяло приспаднат и при чл. 70 полето не се пита — чл. 79в т. 3 и т. 5 заковават К₀ на 1, съответно 0."/>
+          <field name="bgVatProportionNid0" colSpan="6"
+            showIf="bgVatAcquisitionCreditTypeSelect == 'PROPORTIONAL'"
+            help="ПрНИД₀ — пропорцията на използването за независима икономическа дейност спрямо общото използване в годината на упражняване на кредита. Само за буква „в“ (чл. 71а/71б). ⚠️ Чл. 79в т. 8: не може да бъде 0 или 1 — калкулаторът отказва и двете. Няма източник в системата: въвежда се от документите по придобиването."/>
+          <field name="bgVatFirstUseYear" colSpan="6"
+            showIf="bgVatAssetKindSelect == 'IMMOVABLE_PROPERTY'"
+            help="Годината на ФАКТИЧЕСКОТО използване — алтернативното начало на срока. ⚠️ САМО ЗА НЕДВИЖИМ ИМОТ (т. 1) и само когато имотът НЕ Е ИЗПОЛЗВАН ПОВЕЧЕ ОТ ЕДНА ГОДИНА след годината на упражняване на кредита. Т. 2 и т. 3 нямат такова изречение, тъй че за движима вещ и за услуга полето не мести нищо."/>
+        </panel>
+      </insert>
+    </extend>
+
+    <!-- SAF-T. Инвентарният номер е AssetID в годишния SAF-T — „Отделен от“ показва
+      оригинала на актив, отделен със split (пише го само BgFixedAssetServiceImpl). -->
+    <extend target="//panel[@name='statusSelectPanel']/field[@name='fixedAssetSeq']">
+      <insert position="after">
+        <field name="bgSplitFrom" readonly="true" showIf="bgSplitFrom" colSpan="3"
+          form-view="fixed-asset-form" grid-view="fixed-asset-grid"/>
+      </insert>
+    </extend>
+
+    <!-- Сметката на валидиран актив не се сменя: тиха смяна без статия чупи сверката с главната
+      книга, а смяната е вътрешен трансфер. Пазачът е BgFixedAssetGuard — тук е учтивостта. -->
+    <extend target="//panel[@name='otherDetailsPanel']/field[@name='purchaseAccount']">
+      <attribute name="readonlyIf" value="statusSelect &gt; 1"/>
+    </extend>
+
+    <!-- Видът на актива. Държан за продажба (МСФО 5) и право на ползване (МСФО 16) — само при рамка
+      МСФО: полето е два пъти, по рамката на дружеството, а пазачът отказва двата вида при НСС. -->
+    <extend target="//panel[@name='otherDetailsPanel']/field[@name='purchaseAccount']">
+      <insert position="after">
+        <field name="company.bgAccountingFramework" hidden="true"/>
+        <field name="bgAssetKindSelect"
+          showIf="company.bgAccountingFramework != 'IFRS'"
+          selection-in="'TANGIBLE','INTANGIBLE','INVESTMENT_PROPERTY_COST','INVESTMENT_PROPERTY_FAIR_VALUE'"
+          help="ДМА / НМА се попълва сам от сметката при запис (21x → НМА). Инвестиционен имот по справедлива стойност засега не се поддържа в годишния SAF-T (ГРЕШКА)."/>
+        <field name="bgAssetKindSelect"
+          showIf="company.bgAccountingFramework == 'IFRS'"
+          help="ДМА / НМА се попълва сам от сметката при запис (21x → НМА). Инвестиционен имот по справедлива стойност, държан за продажба (МСФО 5) и право на ползване (МСФО 16) засега не се поддържат в годишния SAF-T (ГРЕШКА)."/>
+      </insert>
+    </extend>
+  </form>
+
+  <!-- Пренася данъчните полета от категорията при избора ѝ. Празната норма на актива значи
+    „както казва категорията“, тъй че се презаписва само когато категорията носи своя. -->
+  <action-attrs name="action-bg-attrs-fixed-asset-fill-tax-fields">
+    <attribute name="value" for="bgTaxCategorySelect"
+      expr="eval: fixedAssetCategory?.bgTaxCategorySelect"/>
+    <attribute name="value" for="bgTaxDepreciationRate"
+      expr="eval: fixedAssetCategory?.bgTaxDepreciationRate"
+      if="fixedAssetCategory?.bgTaxDepreciationRate"/>
+    <attribute name="value" for="bgTaxStartSelect" expr="eval: 'SERVICE_MONTH'"
+      if="bgTaxStartSelect == null"/>
+  </action-attrs>
+
+  <!-- Учтивост към човека пред екрана. Таванът е АБСОЛЮТНИЯТ, тоест с включените завишения по
+    ал. 3 (кат. II до 50%) и ал. 7 (кат. IV до 100%): условията им са факти за актива — фабрично
+    нов ли е, в списъка по чл. 118 ал. 16 ЗДДС ли е — и не могат да се проверят оттук. Проверка
+    срещу 30% и 50% би отричала две законни норми. Виж BgTaxDepreciation.ceilingForCategory. -->
+  <action-validate name="action-bg-fixed-asset-validate-tax-rate-ceiling">
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория I (4%). По-висока норма не се признава за данъчни цели."
+      if="bgTaxCategorySelect == 'I' &amp;&amp; bgTaxDepreciationRate &gt; 4"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория II (30% по ал. 2, до 50% по ал. 3 за фабрично нови машини, част от първоначална инвестиция)."
+      if="bgTaxCategorySelect == 'II' &amp;&amp; bgTaxDepreciationRate &gt; 50"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория III (10%). По-висока норма не се признава за данъчни цели."
+      if="bgTaxCategorySelect == 'III' &amp;&amp; bgTaxDepreciationRate &gt; 10"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория IV (50% по ал. 2, 100% по ал. 7 за софтуер СУПТО по чл. 118 ал. 16 ЗДДС)."
+      if="bgTaxCategorySelect == 'IV' &amp;&amp; bgTaxDepreciationRate &gt; 100"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория V (25% по ал. 2, до 50% по ал. 8 за електрически автомобили)."
+      if="bgTaxCategorySelect == 'V' &amp;&amp; bgTaxDepreciationRate &gt; 50"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ал. 2 ЗКПО за категория VI (дефинирана в ал. 1 т. 6): 100 / години на правното ограничение, като годишната норма не може да превишава 33 1/3."
+      if="bgTaxCategorySelect == 'VI' &amp;&amp; bgTaxDepreciationRate &gt; 33.34"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория VII (15%). По-висока норма не се признава за данъчни цели."
+      if="bgTaxCategorySelect == 'VII' &amp;&amp; bgTaxDepreciationRate &gt; 15"/>
+  </action-validate>
+
+  <!-- Съветникът за отписване. Приходът и ДДС-то НЕ идват оттук.
+
+    ⚠️ ЗАЩО ПОЛЕТАТА СЕ СКРИВАТ, А НЕ САМО СЕ ОБЯСНЯВАТ. Продажбата на дълготраен актив е облагаема
+    доставка и по чл. 113 ЗДДС се документира с ФАКТУРА, която сама осчетоводява Дт 411 / Кт 705 +
+    Кт 4532. Вдигнат, базовият флаг прави същото в журнал SAL — приходът и ДДС-то влизат ДВА пъти, а
+    дневникът за продажби получава ДВА реда за една доставка, защото BgVatDocumentCollector.isVatRelevant
+    приема всеки Move с данъчна линия. При това редът от Move-а излиза с номер на АКТИВА вместо номер
+    на фактура (enrichFromMove чете move.getOrigin(), а за актив това е fixedAssetSeq) — тоест ред,
+    който не може да се подаде.
+
+    Скриването е учтивостта; правилото е в BgFixedAssetDisposalServiceImpl.fullDisposal, който
+    заковава generateSaleMove на false и по REST, и по импорт. Стойностите остават празни, тъй че
+    readonlyIf на бутона „confirm.disposal“ не се задейства. -->
+  <form name="fixed-asset-disposal-wizard-form" title="Disposal"
+    id="bg-localization-fixed-asset-disposal-wizard-form" model="com.axelor.utils.db.Wizard"
+    extension="true">
+    <extend target="//field[@name='$generateSaleMove']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='saleTaxLineSet']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='assetDisposalReason']">
+      <attribute name="required" value="true"/>
+      <attribute name="help"
+        value="Причината води всичко останало: разходната сметка при отписване (60908 при продажба и дарение, 60905 при брак, липси и непреодолима сила), предложеното третиране по ЗДДС и дали отписване изобщо се дължи. Консервацията и напълно данъчно амортизираният актив НЕ са отписване — там съветникът отказва и обяснява защо (чл. 59 ал. 1 и чл. 60 ал. 1 ЗКПО). Приходът и ДДС-то при продажба идват от клиентската фактура по чл. 113 ЗДДС, не оттук. ⚠️ И едно разграничение, което съветникът НЕ прави от името ви: при активи по чл. 60 ал. 3 — напълно амортизирани за счетоводни цели (т. 1) или отписани заради увеличение в стойностния праг на същественост (т. 2) — счетоводното отписване НЕ води до данъчно. Данъчният амортизационен план остава непокътнат и активът излиза от него по реда на ал. 1, при пълно данъчно амортизиране (ал. 4). Тоест намалението по чл. 66 ал. 2 идва в ПО-КЪСНА година, а не в тази. Проверете панела „Спиране на данъчната амортизация“ на актива, преди да отпишете."/>
+    </extend>
+  </form>
+
+</object-views>

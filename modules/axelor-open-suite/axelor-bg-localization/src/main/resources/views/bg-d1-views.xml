@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ЕКРАНЪТ НА ДЕКЛАРАЦИЯ ОБР. № 1.
+
+    ⚠️ ЗАЩО ЕКРАН, СЛЕД КАТО ФАЙЛ ОЩЕ НЯМА. Защото хартиеният носител Е разрешен: чл. 8 ал. 1 т. 1.
+    Тоест записът има пълноценен живот преди сериализацията — човек го чете, сверява го и го
+    подписва. Точно обратното на „екранът чака файла“: файлът чака ЗАПОВЕД по чл. 8 ал. 5, а
+    сверяването не чака нищо.
+
+    ⚠️ И затова панелът с отказите стои НАД записите, а не под тях. Онова, което НЕ е влязло в
+    декларацията, е по-опасно от онова, което е — липсващо лице се открива от НАП, а сгрешено число
+    се вижда на екрана. -->
+
+  <grid name="bg-d1-declaration-grid" title="Декларации обр. 1"
+    model="com.axelor.apps.bglocalization.db.BgD1Declaration">
+    <field name="bgDataPeriod"/>
+    <field name="company"/>
+    <!-- ⚠️ ВИДЪТ СТОИ ДО СТАТУСА, защото двете се бъркат: „Коригираща“ е и стойност на статуса
+      (заварена, неизползвана за Д1), и вид. В списъка за един месец може да има ДВЕ декларации за едно
+      дружество и без тази колона те се различават само по това коя е отворена. -->
+    <field name="bgDeclarationKind"/>
+    <field name="statusSelect"/>
+    <field name="napEntryNumber"/>
+  </grid>
+
+  <form name="bg-d1-declaration-form" title="Декларация обр. 1 (Наредба Н-13)"
+    model="com.axelor.apps.bglocalization.db.BgD1Declaration" width="large">
+
+    <panel name="mainPanel" title="Параметри" colSpan="12">
+      <field name="company" colSpan="6"/>
+      <field name="statusSelect" colSpan="6" readonly="true"/>
+
+      <!-- ДВАТА ПЕРИОДА. Подсказките казват разликата на самия екран, защото тя е точно мястото,
+        където се греши мълчаливо. -->
+      <!-- ⚠️ САМО ПЕРИОДИТЕ НА ФИРМАТА НА ДЕКЛАРАЦИЯТА: Period › Year › company. Без домейна
+        селекторът показва периодите на всички фирми. -->
+      <field name="bgDataPeriod" colSpan="6" domain="self.year.company = :company"
+        help="Месецът, ЗА КОЙТО се отнасят данните — пълни т. 2 и т. 3 на всеки запис."/>
+      <field name="bgSubmissionPeriod" colSpan="6" domain="self.year.company = :company"
+        help="Месецът, В КОЙТО се подава. Празно = същият. Различава се по чл. 4 ал. 1 т. 1 б. „б“ — допълнителни доходи, начислени след 25-о."/>
+
+      <field name="bgDeclarant" colSpan="6" domain="self.company = :company"/>
+      <field name="napEntryNumber" colSpan="6"/>
+
+      <!-- ВИДЪТ. ⚠️ Заключва се след подаване: видът решава КОИ фишове влизат, тоест подменен след
+        подаването той би дал файл с друго съдържание под същия входящ номер. Чернова и генерирана
+        се сменят свободно — дотам нищо не е излязло навън.
+
+        ⚠️ ЗАДЪЛЖИТЕЛЕН Е САМО ЗА НОВ ЗАПИС (requiredIf="id == null"), а НЕ в домейна. В домейна
+        required се превежда в @NotNull и вали ВСЕКИ запис на заварен ред — ред, който няма как да е
+        имал стойност, защото колоната не е съществувала. Тук условието пита точно каквото трябва:
+        новото се ражда с вид (инициализаторът дава REGULAR), а заварените се пипат без да ги
+        дописваме. На нов запис стойността вече е налична, тоест условието не пречи на никого —
+        то пази срещу изчистване на полето на ръка. -->
+      <field name="bgDeclarationKind" colSpan="6"
+        requiredIf="id == null"
+        readonlyIf="statusSelect &amp;&amp; statusSelect != 'draft' &amp;&amp; statusSelect != 'generated'"
+        help="Редовна носи ДЕЙСТВАЩИЯ фиш на всяко лице — и корекция, направена преди подаването, като обикновен запис. Коригираща носи САМО ретро-копията, които подадената редовна не носи, и се генерира едва след като НАП е приела редовната (Н-13 чл. 9 ал. 3–4). Допълнителна носи само НОВИ редове вид 27 (обезщетение по чл. 222 ал. 1 КТ) за месец, чиято редовна НАП вече държи — нов ред, не корекция."/>
+
+      <!-- ⚠️ КОРИГИРАНАТА ДЕКЛАРАЦИЯ Е ЗАДЪЛЖИТЕЛНА ПРЕДПОСТАВКА, не проследимост. Полето се
+        попълва тук на ръка, защото за Д1 нищо в кода не го пише (setCorrectsPrevious има само
+        пътят на ДДС). Домейнът ограничава
+        избора до редовна декларация за СЪЩИЯ период и СЪЩОТО дружество; същото се отказва и в
+        BgD1DeclarationKind#refuseCorrectingTarget, защото домейнът е удобство, а не пазач. -->
+      <field name="correctsPrevious" colSpan="6"
+        showIf="bgDeclarationKind == 'CORRECTING'"
+        requiredIf="bgDeclarationKind == 'CORRECTING'"
+        readonlyIf="statusSelect &amp;&amp; statusSelect != 'draft' &amp;&amp; statusSelect != 'generated'"
+        domain="self.bgDataPeriod = :bgDataPeriod AND self.company = :company AND (self.bgDeclarationKind IS NULL OR self.bgDeclarationKind = 'REGULAR')"/>
+    </panel>
+
+    <panel name="actionsPanel" colSpan="12">
+      <button name="generateBtn" title="Генерирай записите" icon="fa-cogs" css="btn-primary"
+        showIf="!statusSelect || statusSelect == 'draft' || statusSelect == 'generated'"
+        onClick="save,action-bg-d1-method-generate,save"/>
+      <button name="printBtn" title="Печат (PDF)" icon="fa-file-pdf-o"
+        showIf="statusSelect &amp;&amp; statusSelect != 'draft'"
+        onClick="save,action-bg-d1-method-print"/>
+    </panel>
+
+    <!-- ⚠️ ОТКАЗИТЕ — НАД записите. Фиш без запис е по-скъп от запис с грешно число. -->
+    <panel name="refusalPanel" title="Откази (фишове БЕЗ запис)" colSpan="12"
+      showIf="bgRefusalReport" css="label-danger">
+      <field name="bgRefusalReport" colSpan="12" readonly="true" showTitle="false"
+        widget="CodeEditor" height="6"/>
+    </panel>
+
+    <panel name="validationPanel" title="Проверки" colSpan="12" showIf="bgValidationReport"
+      collapsible="true">
+      <field name="bgValidationReport" colSpan="12" readonly="true" showTitle="false"
+        widget="CodeEditor" height="8"/>
+    </panel>
+
+    <panel-related name="recordsPanel" field="bgD1RecordList"
+      title="Записи (по осигурено лице)" colSpan="12" form-view="bg-d1-record-form"
+      grid-view="bg-d1-record-grid"/>
+
+    <!-- ОБЯВЕНАТА ГРАНИЦА, на самия екран. Човекът, който подписва, трябва да знае какво НЕ е в
+      декларацията — инак празната точка се чете като сметната нула. -->
+    <panel name="boundaryPanel" title="Какво тази декларация ОЩЕ не съдържа" colSpan="12"
+      collapsible="true">
+      <static name="boundaryNote"><![CDATA[
+        <p><b>ВСИЧКИТЕ 54 ПОЛЕТА на файла вече имат носител.</b> Онова, което остава, НЕ е липсваща
+        точка, а точка, чиято СТОЙНОСТ идва от човек — и всяка по своя причина:</p>
+        <ul>
+          <li><b>т. 13 позиция 2</b> (поредността на месеца при СИРВ) — иска НАЧАЛОТО на отчетния
+          период, а то е акт на работодателя по КТ чл. 142 ал. 2. Изведена от календарната година,
+          цифрата е валидна и невярна за всеки, чийто период не започва през януари.</li>
+          <li><b>т. 12.1/12.2/12.3 при вид осигурен 94</b> — попълват се само когато доходът се
+          определя по чл. 6 ал. 3 КСО, а този признак няма носител (заб. 2 към т. 12).</li>
+          <li><b>т. 34</b> при три случая: липсващ параметър MAX_INSURABLE_INCOME, НЕначислено
+          възнаграждение (чл. 32 ал. 1 изр. 2 иска минималния осигурителен доход ИЛИ МРЗ — изборът
+          зависи от длъжността) и отрицателно нето. За 20-те кода на забележката точката не се полага
+          изобщо и остава празна БЕЗ находка.</li>
+        </ul>
+        <p><b>Онова, което се ЧЕТЕ, но може да липсва в средата:</b> т. 16 позиция 3 иска
+        „Законоустановено работно време за длъжността“ НА ДОГОВОРА; т. 16.7/16.8 искат ВАЛИДИРАНИ
+        отчети за време и допълнителни часове. И в двата случая празната точка носи назована причина
+        в „Проверки“ — нула НЕ се записва.</p>
+        <p><b>⚠️ И ТОВА ВЕЧЕ НЕ Е ВЯРНО: ФАЙЛЪТ СЕ ПРОИЗВЕЖДА.</b> Заповедта по <b>чл. 8 ал. 5</b>
+        е набавена и <code>EMPL2021.TXT</code> се сериализира (CP1251, CRLF, CTRL+Z, 54 полета,
+        разделени със запетая). Закачането към транспорта живее на екрана на <b>Декларация обр. 6</b>
+        — едно подаване носи ДВАТА файла (<code>serviceDocumentType = DEC_1_6</code>).
+        ⚠️ Закачането НЕ подава: подписването с КЕП, подаването и тестовата среда на НАП са ЧОВЕШКИ
+        стъпки. Хартиеният носител остава разрешен по чл. 8 ал. 1 т. 1 и е пълноценен изход.</p>
+      ]]></static>
+    </panel>
+
+  </form>
+
+  <grid name="bg-d1-record-grid" title="Записи"
+    model="com.axelor.apps.bglocalization.db.BgD1Record">
+    <field name="t1CorrectionCode" width="60"/>
+    <field name="t5PersonalId"/>
+    <field name="t6Surname"/>
+    <field name="t7Initials" width="70"/>
+    <field name="t12InsuredTypeCode" width="70"/>
+    <field name="t21InsuranceIncome"/>
+    <field name="t22DooRateEmployer"/>
+    <field name="t22DooRateInsured"/>
+    <field name="t31aTax"/>
+  </grid>
+
+  <form name="bg-d1-record-form" title="Запис · Декларация обр. 1"
+    model="com.axelor.apps.bglocalization.db.BgD1Record" width="large">
+
+    <panel name="identityPanel" title="Идентификация (т. 1 – т. 7)" colSpan="12">
+      <field name="t1CorrectionCode" colSpan="4"/>
+      <field name="t2Month" colSpan="4"/>
+      <field name="t3Year" colSpan="4"/>
+      <field name="t4ObligedPersonCode" colSpan="6"/>
+      <field name="t5PersonalId" colSpan="4"/>
+      <field name="t51PersonalIdCode" colSpan="2"/>
+      <field name="t6Surname" colSpan="6"/>
+      <field name="t7Initials" colSpan="6"/>
+    </panel>
+
+    <panel name="insuredPanel" title="Вид осигурен и дейност (т. 12)" colSpan="12">
+      <field name="t12InsuredTypeCode" colSpan="3"/>
+      <field name="t121QualificationGroup" colSpan="3"/>
+      <field name="t122ActivityCode" colSpan="3"
+        help="Четири цифри БЕЗ точка (КИД 2008), от дейността на дружеството. Поле 29."/>
+      <field name="t123ActivityRow" colSpan="3"/>
+    </panel>
+
+    <!-- ⚠️ Т. 13 СЕ ПОПЪЛВА САМО ЗА ВИД ОСИГУРЕН 16 („сумирано изчисляване за ПОВЕЧЕ ОТ ЕДИН
+      месец“). Панелът е скрит за останалите кодове: видимо празно поле приканва да бъде попълнено, а
+      попълнена т. 13 при друг код твърди нещо за КОДА, което не е вярно. -->
+    <panel name="sirvPanel" title="Код за сумирано изчисляване (т. 13)" colSpan="12"
+      showIf="t12InsuredTypeCode == '16'">
+      <field name="t13SirvPeriodMonths" colSpan="6"
+        help="От 02 до 12. ⚠️ ИЗВЕДЕНА от „Отчетен период при СИРВ (месеци)“ на договора — поправяй ТАМ, инак следващото генериране я презаписва."/>
+      <field name="t13SirvMonthIndex" colSpan="6"
+        help="От 01 до 12, и НЕ ПОВЕЧЕ от позиция 1. ⚠️ НЯМА автоматичен източник: началото на отчетния период е акт на работодателя по КТ чл. 142 ал. 2. Изведена от календарната година, цифрата е валидна и невярна за всеки, чийто период не започва през януари."/>
+    </panel>
+
+    <!-- ⚠️ ПЕТ ДВОЙКИ, защото полета 9–18 са пет двойки, И ВСИЧКИТЕ ВЕЧЕ ИМАТ ИЗТОЧНИК. Позиция 1
+      идва от датите на договора; 2–5 — от прекъсванията на ОСИГУРЯВАНЕТО по КСО чл. 10 ал. 2, тоест
+      от отсъствията, които НЕ се зачитат за осигурителен стаж (неплатен отпуск над 30 дни,
+      неприсъствие, самоотлъчка, непредставен болничен). ⚠️ Болничният и платеният отпуск НЕ са
+      прекъсване — те се зачитат за стаж и се броят в т. 16. Затова панелът остава видим и подреден
+      по двойки: човекът, който сверява, трябва да вижда кое до кое стои. -->
+    <panel name="boundaryPanel" title="Възникване и прекъсване на осигуряването (т. 14 / т. 15)"
+      colSpan="12" collapseIf="true">
+      <field name="t14Day1" colSpan="6" help="Първият календарен ден в осигуряване. Поле 9."/>
+      <field name="t15Day1" colSpan="6"
+        help="Последният календарен ден при прекъсване или ПРЕКРАТЯВАНЕ. Чете се от действителната дата на прекратяване, не от уговорения край. Поле 10."/>
+      <field name="t14Day2" colSpan="6"/>
+      <field name="t15Day2" colSpan="6"/>
+      <field name="t14Day3" colSpan="6"/>
+      <field name="t15Day3" colSpan="6"/>
+      <field name="t14Day4" colSpan="6"/>
+      <field name="t15Day4" colSpan="6"/>
+      <field name="t14Day5" colSpan="6"/>
+      <field name="t15Day5" colSpan="6"/>
+    </panel>
+
+    <!-- ⚠️ Т. 16 Е ЕДНО ПОЛЕ ОТ ЧЕТИРИ ПОЗИЦИИ във файла, но ЧЕТИРИ ПОЛЕТА тук — заб. 1 иска
+      позиции 1–2 да са СБОРЪТ на кофите, а сбор не се сверява срещу слепен низ „2188“. Слепването
+      прави сериализаторът. -->
+    <panel name="daysPanel" title="Дни в осигуряване (т. 16 и кофите ѝ)" colSpan="12">
+      <field name="t16Days" colSpan="3"
+        help="Сборът от т. 16.1 до 16.5 и т. 16.А (заб. 1). Изведен, не въведен."/>
+      <field name="t16LegalHours" colSpan="3"
+        help="Законоустановеното работно време за ДЛЪЖНОСТТА (КТ чл. 136 ал. 3, или 7/6 при намалено по чл. 137). ⚠️ ИЗВЕДЕНО от новото поле на ТРУДОВИЯ ДОГОВОР — поправяй ТАМ, защото се сменя при смяна на длъжността, а не всеки месец, и следващото генериране презаписва въведеното тук."/>
+      <field name="t16ContractedHours" colSpan="3"
+        help="Дневното ДОГОВОРЕНО работно време. Съвпада с горното при пълен щат и се различава при чл. 137/138 КТ."/>
+      <field name="t161WorkedDays" colSpan="3"
+        help="Отработени + платен отпуск. ИЗВЕДЕНА като остатък: отработени дни минус т. 16.3, 16.4 и 16.5."/>
+      <field name="t162SickDays" colSpan="4"/>
+      <field name="t163ChildCareDays" colSpan="4"/>
+      <field name="t164NoContributionDays" colSpan="4"/>
+      <field name="t165UnpaidLeaveDays" colSpan="4"/>
+      <field name="t16aEmployerSickDays" colSpan="4"/>
+      <field name="t167WorkedHours" colSpan="4"
+        help="Отработени + извънреден труд + часовете на платения отпуск. ⚠️ ИЗВЕДЕНИ от ВАЛИДИРАНИТЕ отчети за време и допълнителни часове. Часовете на платения отпуск се извеждат по ДНЕВНОТО ДОГОВОРЕНО работно време — без него точката остава празна, вместо да излезе непълна."/>
+      <field name="t168OvertimeHours" colSpan="4"
+        help="⚠️ САМО четирите вида извънреден труд по чл. 262 ал. 1 КТ. Нощният труд и времето на разположение НЕ са извънреден труд; работата на празник по чл. 264 се брои през своя ред по чл. 262 ал. 1 т. 3, инак часовете ѝ излизат два пъти."/>
+    </panel>
+
+    <!-- ⚠️ ДОХОДЪТ Е СУМА, ВНОСКИТЕ СА ПРОЦЕНТИ, и екранът го казва в заглавието си — защото
+      човекът, който сверява, вижда 10,92 до 2000,00 и трябва да знае кое е кое без да отваря
+      наредбата. Левовите суми на вноските са в Декларация обр. 6. -->
+    <panel name="contributionPanel"
+      title="Осигурителен доход (сума) и вноски (ставки в %) — т. 21 – т. 30" colSpan="12">
+      <field name="t21InsuranceIncome" colSpan="12"/>
+      <!-- ⚠️ ТРИТЕ ЗДРАВНИ ТОЧКИ СТОЯТ ЗАЕДНО НАРОЧНО: един фонд, три бази. Човекът, който сверява,
+        трябва да види, че 4,80 в т. 18 и 8,00 в т. 28 НЕ са грешка — първата е ПОЛОВИН вноска (ЗЗО
+        чл. 40 ал. 1 т. 5: „равни на дължимата от него част“), втората е ЦЯЛА (б. „б“: „изцяло за
+        сметка на“). -->
+      <field name="t17Art4015Income" colSpan="6"/>
+      <field name="t18HealthRateOnT17" colSpan="6"/>
+      <field name="t27HealthOnlyIncome" colSpan="6"/>
+      <field name="t28HealthRateOnT27" colSpan="6"/>
+      <field name="t22DooRateEmployer" colSpan="6"
+        help="Сборът на ставките на Пенсии + чл. 69 + ОЗМ + Безработица за сметка на ОСИГУРИТЕЛЯ. БЕЗ ТЗПБ (§ 2 ал. 1 т. 1) и БЕЗ УПФ (той е т. 26). Поле 35."/>
+      <field name="t22DooRateInsured" colSpan="6" help="Същият сбор за сметка на ЛИЦЕТО. Поле 36."/>
+      <field name="t221HealthRateEmployer" colSpan="6" help="Поле 37."/>
+      <field name="t221HealthRateInsured" colSpan="6" help="Поле 38."/>
+      <field name="t222TzpbRate" colSpan="4"
+        help="За сметка на осигурителя — или на МОРСКОТО ЛИЦЕ (вид 92). Поле 39."/>
+      <field name="t23TeacherPfRate" colSpan="4" help="За сметка на осигурителя. Поле 40."/>
+      <field name="t25PpfRate" colSpan="4"
+        help="ППФ, или фонд „Пенсии“ в размера за ППФ при избор по чл. 4в КСО. Поле 41."/>
+      <field name="t26UpfRateEmployer" colSpan="6" help="Поле 42."/>
+      <field name="t26UpfRateInsured" colSpan="6" help="Поле 43."/>
+      <field name="t29GrossWage" colSpan="6"
+        help="Брутна работна заплата по НСОРЗ чл. 16 ал. 2 — БАЗАТА на т. 30. НЕ е брутото на фиша: то включва обезщетенията."/>
+      <field name="t30GvrsRate" colSpan="6"
+        help="Ставката ВЪРХУ Т. 29, само за трудови правоотношения (заб. към т. 29/30). Поле 47."/>
+    </panel>
+
+    <panel name="taxPanel" title="Облагаем доход, данък и нето (т. 31, 31а, 34)" colSpan="12">
+      <field name="t31TaxableIncome" colSpan="6"
+        help="Начислените облагаеми плащания, БЕЗ приспадане на личните вноски. НЕ е данъчната основа по чл. 42 ал. 2 ЗДДФЛ."/>
+      <field name="t34NetPay" colSpan="6"
+        help="НПОПДОО чл. 32: възнаграждение (БТВ + други доходи от трудова дейност + социални разходи) − задължителните вноски ЗА СМЕТКА НА ЛИЦЕТО − данъкът по ЗДДФЛ, но не повече от максималния месечен осигурителен доход. ⚠️ НЕ е „нето за получаване“: то е след заеми, издръжка и запор. Празна точка има ТРИ различни причини — виж панела „Проверки“."/>
+      <field name="t31aTax" colSpan="6"
+        help="Начислен данък по чл. 42 ал. 4 / чл. 41а ЗДДФЛ. Морското лице носи 1 %, решено още на фиша."/>
+      <field name="paySlip" colSpan="6" readonly="true"/>
+    </panel>
+
+  </form>
+
+  <action-view name="bg.d1.declaration.all" title="Декларации обр. 1"
+    model="com.axelor.apps.bglocalization.db.BgD1Declaration">
+    <view type="grid" name="bg-d1-declaration-grid"/>
+    <view type="form" name="bg-d1-declaration-form"/>
+  </action-view>
+
+  <action-method name="action-bg-d1-method-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgD1DeclarationController" method="generate"/>
+  </action-method>
+
+  <action-method name="action-bg-d1-method-print">
+    <call class="com.axelor.apps.bglocalization.web.BgD1DeclarationController" method="print"/>
+  </action-method>
+
+</object-views>

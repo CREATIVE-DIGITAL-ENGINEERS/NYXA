@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="aiaccountant" package="com.axelor.apps.aiaccountant.db"/>
+
+  <!-- One row per model request that was actually sent, whoever sent it.
+
+    WHY IT EXISTS. AiRequestMetrics has always measured this, but only onto a log line: container
+    stdout dies with the container and a rolling file is greppable but not chartable. Nineteen recorded
+    chat turns once accounted for ~886k input tokens while the Azure portal showed ~2.4M consumed over
+    the same period — the gap being every request that never opened a chat turn (OCR intake
+    correction, post-draft line repair). This table is what makes that question answerable in the
+    application, per caller and per agent, instead of by hand.
+
+    WHAT IT IS NOT. Not a transcript and not an audit trail of what the assistant did. Counts,
+    durations, category names and token figures only — never a prompt, a reply, a tool argument, a
+    tool result, a supplier, an invoice number or an amount. The same rule AiTurnMetrics documents,
+    for the same reason: a metrics table is exactly the wrong place for business data.
+
+    WHY SCALAR IDS AND NOT many-to-one. Axelor has no ON DELETE SET NULL — the attribute does not
+    exist in the domain schema — so a many-to-one from here would generate an ordinary RESTRICT
+    foreign key, and a single recorded request would make its User or Company undeletable forever.
+    Telemetry must never be the reason an administrator cannot remove a user. The id is kept for
+    grouping and the label is captured at write time so a chart can still name a row whose subject has
+    since been deleted. AiChatSession and AiTurnMemory deliberately do the opposite: those belong to a
+    live conversation and are meant to go when their user does.
+
+    LIFETIME. Written best-effort and asynchronously (AiUsageStatRecorder) and pruned by
+    AiAccountantRetentionJob. Rows may be missing — a full queue or a restart drops them — which is
+    acceptable because Azure Monitor, not this table, is the authority on totals; this table is the
+    authority on the breakdown. -->
+  <entity name="AiUsageStat">
+
+    <!-- UTC. Written from the recorder, not from the database clock, so the bucket a request falls
+      into does not depend on which thread eventually persisted it. -->
+    <datetime name="requestDateTime" title="Request date" index="true"/>
+
+    <!-- Null for a request made under a system scope, which has no user by construction. -->
+    <long name="userId" title="User ID" index="true"/>
+    <string name="userLabel" title="User" max="255"/>
+
+    <long name="companyId" title="Company ID" index="true"/>
+    <string name="companyLabel" title="Company" max="255"/>
+
+    <!-- Who asked: `chat` for a real user turn, otherwise the reason named by
+      AiExecutionContext.callAsSystem — `ocr-intake`, `ocr-draft-repair`, … -->
+    <string name="caller" title="Caller" max="64" index="true"/>
+
+    <!-- Which agent answered: `main` or `router`. Its own dimension because they are separate agents
+      with separate endpoints and separate bills, and the router was previously uninstrumented and
+      therefore invisible in every measurement taken so far. -->
+    <string name="agentRole" title="Agent" max="16" index="true"/>
+
+    <!-- `ok`, or the failure category emit() already reports: `http_429`, `transport_timeout`,
+      `malformed`, … One row is one logical request: the retry loop inside the REST client is absorbed
+      before this is written, so an entry here is an attempt that reached a verdict, not an HTTP try. -->
+    <string name="outcome" title="Outcome" max="64"/>
+
+    <boolean name="chained" title="Chained" default="false"/>
+
+    <string name="model" title="Model" max="128"/>
+    <string name="agentVersion" title="Agent version" max="64"/>
+
+    <long name="durationMs" title="Duration (ms)" default="0"/>
+
+    <!-- The provider's own usage figures, never a local estimate.
+
+      SUBSETS, NOT ADDENDS. `cachedInputTokens` is the part of `inputTokens` served from the prompt
+      cache and `reasoningTokens` is part of `outputTokens` — both are read from the nested
+      *_tokens_details objects. `totalTokens` is what the provider reported, not a local sum. Adding a
+      subset to its parent double-counts; any aggregate over this table must use the parent fields, or
+      the subsets on their own, never both. -->
+    <long name="inputTokens" title="Input tokens" default="0"/>
+    <long name="cachedInputTokens" title="Cached input tokens" default="0"/>
+    <long name="outputTokens" title="Output tokens" default="0"/>
+    <long name="reasoningTokens" title="Reasoning tokens" default="0"/>
+    <long name="totalTokens" title="Total tokens" default="0"/>
+
+  </entity>
+
+</domain-models>

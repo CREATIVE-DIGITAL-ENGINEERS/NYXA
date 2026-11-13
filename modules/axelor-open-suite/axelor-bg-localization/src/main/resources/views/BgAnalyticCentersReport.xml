@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ СПРАВКА ПО ЦЕНТРОВЕ (разходни и профит центрове) ═══
+
+    Собствена справка няма: това са отчетите на Axelor за аналитичното счетоводство, които BG_COA
+    вече създава за всяко дружество (account_accountingReportType.csv, importId 16 и 17, поредица
+    „analyticReport“):
+    - 2000 „Аналитична оборотна ведомост“ — аналитичен дневник › ос › център › вид сметка (разход /
+      приход), сума = аналитичната сума със знака на реда (дебит +, кредит −);
+    - 2001 „Аналитична главна книга“ — същото по редове, със сметката (60x/70x), датата и документа.
+    И двата са с PDF / Excel / ODS (полето „Формат“), периодът е „От дата“ – „До дата“, филтри —
+    аналитичен дневник, оси и центрове.
+
+    Дотук двата отчета стояха само в „Счетоводни експорти/доклади › Счетоводни отчети“ между още
+    двадесет вида. Менюто „Справки › Справка по центрове“ показва само тях; новият запис се отваря
+    с „Аналитична оборотна ведомост“ на дружеството и период от 1 януари до днес. -->
+
+  <menuitem name="bg-analytic-centers-report" parent="account-root-report"
+    title="Справка по центрове" action="action-bg-analytic-centers-report" order="300"
+    if="__config__.app.getApp('account')?.getManageAnalyticAccounting()"/>
+
+  <action-view name="action-bg-analytic-centers-report" title="Справка по центрове"
+    model="com.axelor.apps.account.db.AccountingReport">
+    <view type="grid" name="accounting-report-grid"/>
+    <view type="form" name="accounting-report-form"/>
+    <view-param name="search-filters" value="accounting-report-filters"/>
+    <domain>self.reportType.typeSelect IN (2000, 2001)</domain>
+    <context name="_isCustom" expr="eval: false"/>
+    <context name="_bgAnalyticCenters" expr="eval: true"/>
+  </action-view>
+
+  <!-- Формата на Axelor, разширена само за менюто по-горе (_bgAnalyticCenters): при „Нов“ —
+    типът 2000 на дружеството и периодът; изборът на тип — само 2000/2001 на дружеството. От
+    „Счетоводни отчети“ формата е непроменена (условието е на всяко действие). -->
+  <form id="bg-accounting-report-form" name="accounting-report-form" title="Accounting report"
+    model="com.axelor.apps.account.db.AccountingReport" extension="true">
+    <extend target="/">
+      <attribute name="onNew"
+        value="action-group-account-report-on-new,action-bg-analytic-centers-report-on-new"/>
+    </extend>
+    <extend target="//field[@name='reportType']">
+      <attribute name="onSelect"
+        value="action-accounting-report-method-set-report-type-domain,action-bg-analytic-centers-report-attrs-type-domain"/>
+    </extend>
+  </form>
+
+  <action-group name="action-bg-analytic-centers-report-on-new">
+    <action name="action-bg-analytic-centers-report-record-type" if="_bgAnalyticCenters"/>
+    <!-- Както при ръчен избор на типа: формат PDF, статус на статиите (дневник), дружество. -->
+    <action name="action-group-account-accounting-report-reporttype-onchange"
+      if="_bgAnalyticCenters"/>
+    <action name="action-bg-analytic-centers-report-record-period" if="_bgAnalyticCenters"/>
+  </action-group>
+
+  <action-record name="action-bg-analytic-centers-report-record-type"
+    model="com.axelor.apps.account.db.AccountingReport">
+    <field name="reportType" if="company"
+      expr="eval: __repo__(AccountingReportType).all().filter('self.typeSelect = 2000 AND self.reportExportTypeSelect = 1 AND self.company = ?1', company).order('id').fetchOne()"/>
+  </action-record>
+
+  <action-record name="action-bg-analytic-centers-report-record-period"
+    model="com.axelor.apps.account.db.AccountingReport">
+    <field name="dateFrom" expr="eval: __config__.date.withDayOfYear(1)"/>
+    <field name="dateTo" expr="eval: __config__.date"/>
+  </action-record>
+
+  <action-attrs name="action-bg-analytic-centers-report-attrs-type-domain">
+    <attribute name="domain" for="reportType" if="_bgAnalyticCenters"
+      expr="eval: &quot;self.typeSelect IN (2000, 2001) AND self.reportExportTypeSelect = 1 AND self.company.id = ${company?.id ?: 0}&quot;"/>
+  </action-attrs>
+
+  <!-- ═══ „АНАЛИТИЧЕН ПРЕГЛЕД“ (Конфигурация › Аналитичен) — ПРОИЗХОД ПО ПОДРАЗБИРАНЕ ═══
+
+    Търсенето на Axelor по подразбиране е с произход 1 „Осчетоводени движения“, а това значи
+    статии БЕЗ фактура (AnalyticMoveLineQueryServiceImpl#getStatusQuery: move.invoice IS null).
+    Аналитичните редове идват от редовете на фактурите (шаблонът за разпределение на реда), тоест
+    търсенето с подразбирането винаги е празно. Тук: 3 „Фактури и осчетоводени движения“ и период
+    от 1 януари до днес (Axelor оставя „От дата“ празно). Останалото е на Axelor. -->
+  <action-record id="bg-action-analytic-move-line-query-record-default"
+    name="action-analytic-move-line-query-record-default"
+    model="com.axelor.apps.account.db.AnalyticMoveLineQuery">
+    <field name="company" expr="eval:__user__.activeCompany" if="__user__.activeCompany"/>
+    <field name="fromDate" expr="eval:__config__.date.withDayOfYear(1)"/>
+    <field name="toDate" expr="eval:__config__.date"/>
+    <field name="specificOriginSelect" expr="eval: 3"/>
+  </action-record>
+
+</object-views>

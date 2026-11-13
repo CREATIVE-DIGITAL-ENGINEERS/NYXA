@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="aiocr" package="com.axelor.apps.aiocr.db"/>
+
+  <!-- Permanent, admin-only audit summary: ONE row per AiOcrUpload row (including every ZIP/PDF-split
+    child), kept up to date as processing progresses, that survives the hard deletion of its
+    AiOcrUpload. Every field here is a scalar snapshot, never a foreign key to AiOcrUpload/User/Company/
+    Invoice/Move, so this row is never blocked by, and never blocks, deleting any of those. It stores no
+    file, no MetaFile/DMSFile/attachment reference, no OCR JSON, no invoice lines and no extracted text —
+    only the small set of fields an administrator needs to answer "what happened to upload #N" after it
+    is gone. Written ONLY by AiOcrUploadAuditService (see AiOcrUploadAuditRepository's write guard); this
+    entity has no create/edit/delete UI at all. -->
+  <entity name="AiOcrUploadAudit" sequential="true">
+
+    <!-- Snapshot of AiOcrUpload.id at write time — deliberately NOT a many-to-one: the upload's own
+      id sequence can be reset, and a later upload may reuse a recycled id. Not unique either: many
+      historical rows (across the reused id's different owners, over time) can share this value. -->
+    <long name="uploadId" title="Upload ID" required="true" index="true"/>
+
+    <!-- The actual "at most one active row per upload id" enforcement, at the database level: equal
+      to uploadId while this row is the current one (any non-DELETED status), cleared to null the
+      moment it is marked DELETED. A plain unique constraint on a nullable column is standard SQL
+      here — Postgres (and the JPA unique="true" mapping) never treats two NULLs as duplicates, so
+      any number of DELETED historical rows can coexist, while at most one row can hold a given
+      upload id here at a time. This is also what makes reusing a numeric upload id after a sequence
+      reset safe: the prior row's activeUploadId is null by the time that id is reused, so a fresh
+      active row for it never conflicts. findActive() looks up this field, never uploadId, so the
+      match is always deterministic (unique constraint) rather than "most recent of possibly several". -->
+    <long name="activeUploadId" title="Active upload ID" unique="true"/>
+
+    <string name="fileName" title="File name" namecolumn="true"/>
+
+    <!-- Uploader snapshot: id kept for lookup, display name captured so the row still reads correctly
+      after the User is renamed or removed. -->
+    <long name="uploaderUserId" title="Uploader user ID"/>
+    <string name="uploaderDisplayName" title="Uploader"/>
+
+    <!-- Company snapshot, same reasoning. -->
+    <long name="companyId" title="Company ID" index="true"/>
+    <string name="companyName" title="Company"/>
+
+    <datetime name="uploadedOn" title="Uploaded on"/>
+    <datetime name="processedOn" title="Processed on"/>
+    <integer name="retryCount" title="Retry count" default="0"/>
+
+    <!-- Mirrors ai.ocr.upload.status.select, plus the audit-only 'deleted' terminal state meaning the
+      AiOcrUpload row itself no longer exists (distinct from the upload's own deletedFromSupplInvoices/
+      deletedFromMoves/deletedFromBankStatements, which mean only the destination was removed while the
+      upload row is still alive and reprocessable). Kept as its own selection, manually mirrored from the
+      source list — see ai.ocr.upload.audit.status.select in the views file. -->
+    <string name="statusSelect" title="Status" selection="ai.ocr.upload.audit.status.select"/>
+
+    <!-- Status codes live in the hand-written service/audit/AiOcrUploadAuditStatus class (single
+      source of truth), mirroring how AiOcrUpload's own codes live in service/ocr/AiOcrUploadStatus
+      rather than generated repository constants. -->
+
+  </entity>
+
+</domain-models>

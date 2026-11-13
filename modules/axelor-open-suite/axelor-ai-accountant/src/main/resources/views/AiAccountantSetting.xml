@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Inherit is the default and it is first deliberately: a fresh row must change nothing, and the
+    reader must be able to tell "nobody has decided" from "somebody decided no". Still used by the
+    backend fields kept off this simplified form (enabledSelect, routerEnabledSelect, ...); see
+    AiAccountantConfig. -->
+  <selection name="aiaccountant.override.tristate.select">
+    <option value="0">Inherit from configuration</option>
+    <option value="1" color="green">Enabled</option>
+    <option value="2" color="red">Disabled</option>
+  </selection>
+
+  <selection name="aiaccountant.override.router.mode.select">
+    <option value="0">Inherit from configuration</option>
+    <option value="1">Shadow (observe only)</option>
+    <option value="2" color="orange">Active (routes turns)</option>
+  </selection>
+
+  <!-- Plain-language trade-off, one option per preset: the token count is shown so an administrator
+    can compare them, but it is always a label they pick, never a number they type. The mapping
+    itself lives in exactly one place, AiConversationMemoryPreset. -->
+  <selection name="aiaccountant.memory.preset.select">
+    <option value="1">Minimal — forgets the soonest, cheapest per turn (~40,000 tokens)</option>
+    <option value="2">Low — shorter memory, quicker and cheaper (~80,000 tokens)</option>
+    <option value="3">Medium — remembers a long conversation without much extra cost (~160,000 tokens, recommended)</option>
+    <option value="4">High — remembers the most, but costs more once a long conversation is full (~240,000 tokens)</option>
+  </selection>
+
+  <form name="ai-accountant-setting-form" title="AI Accountant Settings"
+    model="com.axelor.apps.aiaccountant.db.AiAccountantSetting" onLoad="ai-accountant-setting-effective"
+    onNew="ai-accountant-setting-effective" width="large">
+
+    <panel title="What these settings are for" colSpan="12">
+      <static name="explanation" colSpan="12">
+        <![CDATA[
+        <p>Turning AI Accountant on or off entirely is done from <b>Application Configuration</b>,
+        not here. The two choices below only apply while it is active.</p>
+        <p>Endpoints, tenant and client ids and the client secret are deliberately not here: they are
+        infrastructure credentials and belong in the container's configuration, not in a table.</p>
+        ]]>
+      </static>
+    </panel>
+
+    <panel title="Assistant" colSpan="12">
+      <field name="memoryPresetSelect" title="Conversation memory"
+        onChange="ai-accountant-setting-effective" colSpan="12" help="How much of a conversation the
+        assistant keeps in mind before it starts fresh. A longer memory means fewer interruptions in
+        a long back-and-forth, at the cost of a slightly larger request once the conversation is
+        long; a shorter one resets sooner but stays cheap and quick throughout. Medium is right for
+        almost everyone."/>
+      <field name="$effectiveConversationMemory" title="In effect now" type="string" readonly="true"
+        colSpan="12"/>
+    </panel>
+
+    <panel title="Last change" colSpan="12">
+      <field name="updatedBy" readonly="true" colSpan="4"/>
+      <field name="updatedOn" readonly="true" colSpan="4"/>
+      <field name="singletonKey" readonly="true" hidden="true"/>
+    </panel>
+
+  </form>
+
+  <!-- Opens the one row, creating it if this is the first time anybody has looked. The create lives
+    here, in an administrator's own deliberate action, and NOT in the config reader — a getter that
+    inserts a row is a getter that can fail on a unique constraint under concurrency. -->
+  <action-method name="ai-accountant-setting-open">
+    <call class="com.axelor.apps.aiaccountant.web.AiAccountantSettingController" method="openSettings"/>
+  </action-method>
+
+  <!-- Fills the read-only "in effect now" fields from the running configuration, so the screen can
+    never disagree with what the assistant is actually doing. -->
+  <action-method name="ai-accountant-setting-effective">
+    <call class="com.axelor.apps.aiaccountant.web.AiAccountantSettingController"
+      method="showEffectiveValues"/>
+  </action-method>
+
+</object-views>

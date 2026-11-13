@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="__NAP_LANG__">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title data-i18n="Sign and submit">Sign and submit</title>
+<!--
+  ПРЕВОДИТЕ: всеки текст тук е английски ключ — в JS през функцията t(ключ, …), в HTML през
+  атрибута data-i18n.
+  Сървърът (NapBrowserSigningPage) намира ключовете в този файл, превежда ги с I18n.get за езика на
+  потребителя и ги вгражда в #nap-i18n като JSON. Българските стойности са в messages_bg.csv на модула;
+  NapBrowserSigningPageTest пази всеки ключ преведен. Параметрите са {0}, {1}, …
+
+  ДИЗАЙНЪТ: страницата живее в iframe във формата на подаването, затова взима цветовете и шрифта от
+  темата на Axelor в родителския прозорец (CSS променливите --bs-* на Bootstrap 5.3). НЕ следва
+  тъмната тема на ОС — само тази, която потребителят вижда в Nyxa. Без достъп до родителя остават
+  светлите стойности по подразбиране на Bootstrap.
+-->
+<script type="application/json" id="nap-i18n">__NAP_I18N__</script>
+<style>
+  :root {
+    color-scheme: light;
+    --bs-body-bg:#fff; --bs-body-color:#212529; --bs-secondary-color:rgba(33,37,41,.75);
+    --bs-tertiary-bg:#f8f9fa; --bs-secondary-bg:#e9ecef; --bs-border-color:#dee2e6;
+    --bs-primary:#0d6efd; --bs-primary-rgb:13,110,253; --bs-success:#198754; --bs-danger:#dc3545;
+    --bs-link-color:#0d6efd; --bs-border-radius:.375rem;
+    --bs-body-font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --bs-body-font-size:.875rem;
+  }
+  * { box-sizing:border-box; }
+  /* .btn задава display — без това правило атрибутът hidden не скрива бутона на портала. */
+  [hidden] { display:none !important; }
+  html, body { background:transparent; }
+  body { margin:0; padding:4px 2px 12px; color:var(--bs-body-color);
+         font-family:var(--bs-body-font-family); font-size:var(--bs-body-font-size); line-height:1.5; }
+  h1 { font-size:1rem; font-weight:600; margin:0 0 4px; }
+  .hint { color:var(--bs-secondary-color); margin:0 0 12px; }
+  ol.steps { margin:0 0 12px; padding-left:20px; color:var(--bs-secondary-color); }
+  ol.steps li { margin:2px 0; }
+  .table-wrap { border:1px solid var(--bs-border-color); border-radius:var(--bs-border-radius);
+                overflow-x:auto; margin:0 0 12px; background:var(--bs-body-bg); }
+  table { border-collapse:collapse; width:100%; }
+  th, td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--bs-border-color);
+           vertical-align:middle; }
+  th { background:var(--bs-tertiary-bg); font-weight:600; white-space:nowrap; }
+  tbody tr:last-child td { border-bottom:0; }
+  td.num { white-space:nowrap; }
+  code { font-family:SFMono-Regular,Consolas,"Liberation Mono",monospace; font-size:.75rem;
+         color:var(--bs-secondary-color); word-break:break-all; }
+  a { color:var(--bs-link-color); }
+  .actions { display:flex; flex-wrap:wrap; gap:8px; }
+  .btn { display:inline-flex; align-items:center; gap:6px; font:inherit; line-height:1.5;
+         padding:.375rem .75rem; border-radius:var(--bs-border-radius); border:1px solid transparent;
+         cursor:pointer; text-decoration:none; }
+  .btn-primary { background:var(--bs-primary); border-color:var(--bs-primary); color:#fff; }
+  .btn-primary:hover:not([disabled]) { filter:brightness(.92); }
+  .btn-outline { background:var(--bs-body-bg); border-color:var(--bs-border-color);
+                 color:var(--bs-body-color); }
+  .btn-outline:hover:not([disabled]) { background:var(--bs-tertiary-bg); }
+  /* Deep Blue #123055 от брандбука на CDE.
+     Иконата за нов таб е в ::after, защото текстът идва от превода и би изтрил вграден елемент. */
+  .btn-brand { background:#123055; border-color:#123055; color:#fff; font-weight:600; }
+  .btn-brand:hover:not([disabled]) { background:#1b3f6e; border-color:#1b3f6e; }
+  .btn-brand:focus-visible { box-shadow:0 0 0 .2rem rgba(18,48,85,.35); }
+  .btn-brand::after { content:"\2197"; font-weight:400; opacity:.85; }
+  .btn[disabled] { opacity:.65; cursor:default; }
+  .btn:focus-visible { outline:0; box-shadow:0 0 0 .2rem rgba(var(--bs-primary-rgb),.25); }
+  input[type=file] { font:inherit; max-width:100%; }
+  .picked { color:var(--bs-success); font-size:.75rem; margin-top:2px; }
+  #log { margin-top:12px; display:flex; flex-direction:column; gap:4px; }
+  #log:empty { display:none; }
+  .line { padding:6px 10px; border-radius:var(--bs-border-radius); background:var(--bs-tertiary-bg);
+          border:1px solid var(--bs-border-color); white-space:pre-wrap; }
+  .line.ok { color:var(--bs-success); border-color:var(--bs-success); }
+  .line.err { color:var(--bs-danger); border-color:var(--bs-danger); }
+  .line.wait { display:flex; align-items:center; gap:10px; border-color:var(--bs-primary);
+               background:rgba(var(--bs-primary-rgb),.06); }
+  .spinner { flex:none; width:16px; height:16px; border-radius:50%;
+             border:2px solid rgba(var(--bs-primary-rgb),.25); border-top-color:var(--bs-primary);
+             animation:spin .8s linear infinite; }
+  .wait .elapsed { margin-left:auto; color:var(--bs-secondary-color); font-variant-numeric:tabular-nums; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration:2.4s; } }
+</style>
+</head>
+<body>
+<h1 id="title" data-i18n="Sign and submit to NAP">Sign and submit to NAP</h1>
+<p class="hint" id="hint" data-i18n="Loading…">Loading…</p>
+<ol class="steps" id="steps" hidden></ol>
+
+<div id="files"></div>
+<div class="actions">
+  <button id="portal" class="btn btn-brand" type="button" hidden
+    data-i18n="Open the Evrotrust portal (new tab)">Open the Evrotrust portal (new tab)</button>
+  <button id="go" class="btn btn-primary" type="button" disabled
+    data-i18n="Sign and submit">Sign and submit</button>
+</div>
+<div id="log"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // --- превод --------------------------------------------------------------------------------
+  var MESSAGES = {};
+  try {
+    MESSAGES = JSON.parse(document.getElementById("nap-i18n").textContent) || {};
+  } catch (e) { MESSAGES = {}; }
+
+  // t(ключ, стойност…) — преведеният текст (или самият английски ключ) с попълнени параметри.
+  function t(key) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    var text = Object.prototype.hasOwnProperty.call(MESSAGES, key) ? MESSAGES[key] : key;
+    return String(text).replace(/\{(\d+)\}/g, function (m, i) {
+      return args[i] === undefined ? m : String(args[i]);
+    });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function (el) {
+    el.textContent = t(el.getAttribute("data-i18n"));
+  });
+
+  // --- темата на Axelor от родителския прозорец ---------------------------------------------
+  var THEME_VARS = [
+    "--bs-body-bg", "--bs-body-color", "--bs-secondary-color", "--bs-tertiary-bg",
+    "--bs-secondary-bg", "--bs-border-color", "--bs-primary", "--bs-primary-rgb", "--bs-success",
+    "--bs-danger", "--bs-link-color", "--bs-border-radius", "--bs-body-font-family",
+    "--bs-body-font-size"
+  ];
+
+  function adoptParentTheme() {
+    try {
+      if (!window.parent || window.parent === window) { return; }
+      var doc = window.parent.document;
+      var source = doc.body || doc.documentElement;
+      var style = window.parent.getComputedStyle(source);
+      var root = document.documentElement;
+      THEME_VARS.forEach(function (name) {
+        var value = style.getPropertyValue(name);
+        if (value && value.trim()) { root.style.setProperty(name, value.trim()); }
+      });
+      var mode = doc.documentElement.getAttribute("data-bs-theme") ||
+        (doc.body && doc.body.getAttribute("data-bs-theme"));
+      root.style.colorScheme = mode === "dark" ? "dark" : "light";
+    } catch (e) {
+      // друг произход или няма родител — остават светлите стойности по подразбиране
+    }
+  }
+  adoptParentTheme();
+
+  // Официалният локален подписващ компонент (B-Trust BISS — „Локална услуга за електронно
+  // подписване в браузър", спец. v3.44, реализация на Signature Creation Service 1.0.1):
+  //   GET  https://localhost:5395x/version    -> възможности (hashAlgorithms, signatureTypes, ...)
+  //   POST https://localhost:5395x/getsigner  -> избор на сертификат от токена (status/chain)
+  //   POST https://localhost:5395x/sign       -> подпис (status/reasonCode/reasonText/signatures)
+  // ⚠️ BISS заема ПЪРВИЯ СВОБОДЕН порт от 53952 до 53955 — затова се обхождат и четирите.
+  var BISS_PORTS = [53952, 53953, 53954, 53955];
+  var biss = null; // базовият адрес, открит при сканирането
+
+  // Облачният поток е асинхронен: човекът потвърждава в приложението си. Изчакваме ограничено
+  // време и ясно се отказваме, вместо да държим заявка отворена безкрайно.
+  var CLOUD_POLL_MS = 5000;
+  var CLOUD_MAX_WAIT_MS = 5 * 60 * 1000;
+
+  var params = new URLSearchParams(window.location.search);
+  var submissionId = params.get("submissionId");
+  var titleEl = document.getElementById("title");
+  var hintEl = document.getElementById("hint");
+  var stepsEl = document.getElementById("steps");
+  var filesEl = document.getElementById("files");
+  var goEl = document.getElementById("go");
+  var logEl = document.getElementById("log");
+  var portalEl = document.getElementById("portal");
+  var payloads = [];
+  var signedContentsCert = null;
+  var method = null;
+  // Evrotrust: "api" — асинхронният поток през сървъра; "portal" — подписване в портала на
+  // доставчика и качване на подписаните файлове (когато API потокът не е конфигуриран).
+  var cloudFlow = null;
+  var portalUrl = null;
+  var uploaded = {}; // fileId -> base64 на качения подписан файл (само в паметта на страницата)
+  var base = "../../../nyxa/nap/browser-signing/" + encodeURIComponent(submissionId || "");
+
+  function usbHint() {
+    return t("Signing happens on YOUR computer, in the local signing component (BISS). The token" +
+      " PIN is entered only there — it and the private key never reach Nyxa. Nyxa receives only a" +
+      " detached PKCS#7 and the public certificate, verifies them against the exact locked bytes" +
+      " and submits once.");
+  }
+
+  function cloudHint() {
+    return t("Your cloud QES (Evrotrust) signs. Only the SHA-256 fingerprint of the locked files is" +
+      " sent to the provider — not the data itself. Confirm the request in your app; Nyxa downloads" +
+      " the signature and certificate, verifies them against the exact bytes and submits once." +
+      " Nothing from the signature is stored.");
+  }
+
+  function portalHint() {
+    return t("Sign with your cloud QES in the Evrotrust portal. Nyxa verifies the signature against" +
+      " the exact locked bytes and submits once. Nothing from the signature is stored.");
+  }
+
+  function portalSteps() {
+    return [
+      t("Download each file from the table."),
+      t("Open the portal, sign each file there without changes and download the signed result" +
+        " (.p7s or .p7m)."),
+      t("Upload the signed files here and click “Send the signed files”.")
+    ];
+  }
+
+  function isPortalFlow() { return method === "cloud" && cloudFlow === "portal"; }
+
+  function say(text, cls) {
+    var line = document.createElement("div");
+    line.className = "line" + (cls ? " " + cls : "");
+    line.textContent = text;
+    logEl.appendChild(line);
+  }
+
+  function fail(text) { say(text, "err"); goEl.disabled = false; }
+
+  // Колко чака сървърът отговора на НАП — същото като REQUEST_TIMEOUT в NraDeclarationsApiClient.
+  var NAP_WAIT_SECONDS = 120;
+
+  // ЕДИНСТВЕНАТА заявка към НАП може да отнеме до две минути (НАП проверява подписите синхронно).
+  // Докато тече, се показва въртележка с изминалото време, за да не изглежда страницата замръзнала.
+  function awaitNap(request) {
+    var line = document.createElement("div");
+    line.className = "line wait";
+    line.setAttribute("role", "status");
+    var spinner = document.createElement("span");
+    spinner.className = "spinner";
+    var text = document.createElement("span");
+    text.textContent = t("Awaiting the response from NAP — this can take up to {0} minutes." +
+      " Do not close this page.", Math.round(NAP_WAIT_SECONDS / 60));
+    var elapsed = document.createElement("span");
+    elapsed.className = "elapsed";
+    line.appendChild(spinner);
+    line.appendChild(text);
+    line.appendChild(elapsed);
+    logEl.appendChild(line);
+    var started = Date.now();
+    var tick = function () {
+      var s = Math.floor((Date.now() - started) / 1000);
+      elapsed.textContent = Math.floor(s / 60) + ":" + (s % 60 < 10 ? "0" : "") + (s % 60);
+    };
+    tick();
+    var timer = setInterval(tick, 1000);
+    var done = function () { clearInterval(timer); if (line.parentNode) { line.parentNode.removeChild(line); } };
+    return request().then(function (res) { done(); return res; },
+      function (e) { done(); throw e; });
+  }
+
+  function json(url, options) {
+    return fetch(url, options).then(function (r) {
+      return r.text().then(function (body) {
+        var parsed = null;
+        try { parsed = body ? JSON.parse(body) : null; } catch (e) { parsed = null; }
+        return { ok: r.ok, status: r.status, body: parsed, raw: body };
+      });
+    });
+  }
+
+  // Axelor пази /ws заявките с CSRF (pac4j): всяка ПРОМЕНЯЩА заявка (POST) трябва да носи стойността
+  // на бисквитката CSRF-TOKEN в хедъра X-CSRF-Token, иначе се отхвърля ПРЕДИ контролера (403 без
+  // JSON тяло) и истинската причина за отказа така и не стига дотук. GET заявките (/payloads) са
+  // освободени.
+  function csrfToken() {
+    var parts = ("; " + document.cookie).split("; CSRF-TOKEN=");
+    return parts.length === 2 ? parts.pop().split(";").shift() : "";
+  }
+
+  function post(path, payload) {
+    var headers = { "Content-Type": "application/json" };
+    var token = csrfToken();
+    if (token) { headers["X-CSRF-Token"] = token; }
+    var options = { method: "POST", headers: headers };
+    if (payload !== undefined) { options.body = JSON.stringify(payload); }
+    return json(base + path, options);
+  }
+
+  // --- 1. точните заключени байтове от Nyxa -------------------------------------------------
+  function loadPayloads() {
+    if (!submissionId) { hintEl.textContent = ""; fail(t("The submission is missing.")); return; }
+    json(base + "/payloads")
+      .then(function (res) {
+        if (!res.ok || !res.body || !res.body.files) {
+          hintEl.textContent = "";
+          fail((res.body && res.body.message) || t("The files to sign cannot be read."));
+          return;
+        }
+        payloads = res.body.files;
+        signedContentsCert = res.body.signedContentsCertBase64;
+        method = res.body.method;
+        cloudFlow = res.body.cloudFlow || null;
+        portalUrl = res.body.portalUrl || null;
+        if (isPortalFlow()) {
+          hintEl.textContent = portalHint();
+          stepsEl.innerHTML = "";
+          portalSteps().forEach(function (text) {
+            var li = document.createElement("li");
+            li.textContent = text;
+            stepsEl.appendChild(li);
+          });
+          stepsEl.hidden = false;
+          titleEl.textContent = t("Sign in the Evrotrust portal and submit to NAP");
+          goEl.textContent = t("Send the signed files");
+          portalEl.hidden = !portalUrl;
+        } else {
+          hintEl.textContent = method === "local_usb" ? usbHint() : cloudHint();
+          titleEl.textContent = method === "local_usb"
+            ? t("Sign with a USB QES and submit to NAP")
+            : t("Sign with a cloud QES (Evrotrust) and submit to NAP");
+        }
+        render();
+        goEl.disabled = isPortalFlow() ? !allUploaded() : false;
+      })
+      .catch(function (e) {
+        hintEl.textContent = "";
+        fail(t("The files to sign cannot be read: {0}", e));
+      });
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function render() {
+    var portal = isPortalFlow();
+    var rows = payloads.map(function (f) {
+      var cells = "<td>" + escapeHtml(f.documentType) + "</td><td>" + escapeHtml(f.fileName) +
+        "</td><td class=\"num\">" + escapeHtml(t("{0} B", f.byteLength)) + "</td><td><code>" +
+        escapeHtml(f.sha256Hex) + "</code></td>";
+      if (portal) {
+        var id = escapeHtml(f.fileId);
+        cells +=
+          "<td><a class=\"btn btn-outline\" href=\"" + base + "/file/" +
+          encodeURIComponent(f.fileId) + "\" download=\"" + escapeHtml(f.fileName) + "\">" +
+          escapeHtml(t("Download")) + "</a></td>" +
+          "<td><input type=\"file\" data-file-id=\"" + id + "\" " +
+          "accept=\".p7s,.p7m,.p7b,.pem,application/pkcs7-signature,application/pkcs7-mime\"/>" +
+          "<div class=\"picked\" id=\"picked-" + id + "\"></div></td>";
+      }
+      return "<tr>" + cells + "</tr>";
+    }).join("");
+    var head = "<th>" + escapeHtml(t("Document")) + "</th><th>" + escapeHtml(t("File")) +
+      "</th><th>" + escapeHtml(t("Size")) + "</th><th>" +
+      escapeHtml(t("SHA-256 of the locked bytes")) + "</th>";
+    if (portal) {
+      head += "<th>" + escapeHtml(t("1. Download")) + "</th><th>" +
+        escapeHtml(t("2. Signed file")) + "</th>";
+    }
+    filesEl.innerHTML = "<div class=\"table-wrap\"><table><thead><tr>" + head +
+      "</tr></thead><tbody>" + rows + "</tbody></table></div>";
+    if (portal) {
+      Array.prototype.forEach.call(filesEl.querySelectorAll("input[type=file]"), function (input) {
+        input.addEventListener("change", function () { pick(input); });
+      });
+    }
+  }
+
+  // --- 2в. Evrotrust през портала: качените подписани файлове --------------------------------
+  function allUploaded() {
+    return payloads.length > 0 && payloads.every(function (f) { return !!uploaded[String(f.fileId)]; });
+  }
+
+  function toBase64(buffer) {
+    var bytes = new Uint8Array(buffer);
+    var chunks = [];
+    for (var i = 0; i < bytes.length; i += 0x8000) {
+      chunks.push(String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)));
+    }
+    return btoa(chunks.join(""));
+  }
+
+  function pick(input) {
+    var fileId = input.getAttribute("data-file-id");
+    var note = document.getElementById("picked-" + fileId);
+    var file = input.files && input.files[0];
+    delete uploaded[fileId];
+    if (note) { note.textContent = ""; }
+    if (!file) { goEl.disabled = !allUploaded(); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      uploaded[fileId] = toBase64(reader.result);
+      if (note) { note.textContent = "✓ " + file.name; }
+      goEl.disabled = !allUploaded();
+    };
+    reader.onerror = function () { fail(t("The file “{0}” cannot be read.", file.name)); };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function runPortalFlow() {
+    if (!allUploaded()) {
+      throw new Error(t("Upload a signed file for every file in the table; nothing was sent."));
+    }
+    say(t("Checking the signed files and submitting to NAP…"));
+    return awaitNap(function () { return post("/portal/submit", uploaded); }).then(report);
+  }
+
+  portalEl.addEventListener("click", function () {
+    if (portalUrl) { window.open(portalUrl, "_blank", "noopener"); }
+  });
+
+  // --- 2а. USB КЕП: локалният компонент ------------------------------------------------------
+  // Обхожда 53952..53955 и спира на първия, който отговори на /version.
+  function componentVersion() {
+    var attempt = function (i) {
+      if (i >= BISS_PORTS.length) {
+        return Promise.reject(new Error(t(
+          "The local signing component does not respond on ports {0}. Install/start it (BISS)," +
+          " plug in the USB token and open {1} once to accept its certificate. Otherwise sign and" +
+          " submit in the NAP portal.",
+          BISS_PORTS.join(", "), "https://localhost:" + BISS_PORTS[0] + "/version")));
+      }
+      var url = "https://localhost:" + BISS_PORTS[i];
+      return json(url + "/version", { method: "GET", mode: "cors" })
+        .then(function (res) {
+          if (!res.ok || !res.body) { return attempt(i + 1); }
+          biss = url;
+          return res.body;
+        })
+        .catch(function () { return attempt(i + 1); });
+    };
+    return attempt(0);
+  }
+
+  // BISS подписва СУРОВО: signature = RSA(sha(content)). Готов PKCS#7 не се връща и не се иска —
+  // контейнерът се сглобява на сървъра и там се проверява. Тук само се избира хеш алгоритъм:
+  // спецификацията (v3.44, стр. 13) обявява ТОЧНО "SHA256" (по подразбиране) и "SHA512".
+  // ⚠️ Не се гадае: обяви ли /version нещо, което не е нито едното, подписването се отказва.
+  var SUPPORTED_HASH = ["SHA256", "SHA512"];
+
+  function hashAlgorithmOf(version) {
+    var algorithms = version && version.hashAlgorithms;
+    if (typeof algorithms === "string") { algorithms = algorithms.split(/[,;\s]+/); }
+    if (!algorithms || !algorithms.length) {
+      throw new Error(t(
+        "The local component did not announce supported hash algorithms in /version. Expected" +
+        " {0}; signing was refused.", SUPPORTED_HASH.join(" / ")));
+    }
+    for (var i = 0; i < SUPPORTED_HASH.length; i++) {
+      for (var j = 0; j < algorithms.length; j++) {
+        if (String(algorithms[j]).trim().toUpperCase() === SUPPORTED_HASH[i]) {
+          return SUPPORTED_HASH[i];
+        }
+      }
+    }
+    throw new Error(t(
+      "The local component announced hash algorithms {0}, but {1} is required; signing was refused.",
+      JSON.stringify(algorithms), SUPPORTED_HASH.join(" / ")));
+  }
+
+  function chooseSigner() {
+    return json(biss + "/getsigner", {
+      method: "POST", mode: "cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ version: "1.0", selector: {} })
+    }).then(function (res) {
+      var b = res.body;
+      if (!res.ok || !b || String(b.status).toLowerCase() !== "ok") {
+        throw new Error(b && b.reasonText
+          ? t("The certificate selection was refused: {0}", b.reasonText)
+          : t("The certificate selection was refused (cancelled by the user or no device)."));
+      }
+      if (!b.chain || !b.chain.length) { throw new Error(t("The component returned no certificate.")); }
+      return b.chain;
+    });
+  }
+
+  function signOne(file, hashAlgorithm, chain) {
+    return json(biss + "/sign", {
+      method: "POST", mode: "cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        version: "1.0",
+        signerCertificateB64: chain[0],
+        contents: [file.contentBase64],
+        // Доказателство за произход на заявката: подпис и сертификат на НАШАТА услуга. И двете
+        // идват готови от сървъра — частният ключ на услугата не влиза в браузъра.
+        signedContents: [file.signedContentsBase64],
+        signedContentsCert: [signedContentsCert],
+        contentType: "data",
+        hashAlgorithm: hashAlgorithm,
+        signatureType: "signature",
+        confirmText: [t("Signing for submission to NAP: {0}", file.fileName || "")]
+      })
+    }).then(function (res) {
+      var b = res.body;
+      if (!res.ok || !b || String(b.status).toLowerCase() !== "ok") {
+        throw new Error(b && b.reasonText
+          ? t("Signing was refused ({0}): {1}", b.reasonCode || "", b.reasonText)
+          : t("Signing was refused."));
+      }
+      if (!b.signatures || !b.signatures.length) { throw new Error(t("The component returned no signature.")); }
+      return {
+        fileId: file.fileId,
+        // СУРОВАТА подписна стойност; PKCS#7 се сглобява и проверява на сървъра.
+        signatureBase64: b.signatures[0],
+        certificateBase64: chain[0],
+        chainBase64: chain.slice(1),
+        hashAlgorithm: hashAlgorithm,
+        payloadSha256Hex: file.sha256Hex
+      };
+    });
+  }
+
+  function runUsbFlow() {
+    return componentVersion().then(function (version) {
+      if (!signedContentsCert) {
+        throw new Error(t("The service certificate for BISS requests is missing; the submission was refused."));
+      }
+      var hashAlgorithm = hashAlgorithmOf(version);
+      say(t("Component {0} at {1}, hash: {2}", version.version || "", biss, hashAlgorithm));
+      return chooseSigner().then(function (chain) {
+        var signed = [];
+        return payloads.reduce(function (chainPromise, file) {
+          return chainPromise.then(function () {
+            say(t("Signing: {0}", file.fileName || file.fileId));
+            return signOne(file, hashAlgorithm, chain).then(function (s) { signed.push(s); });
+          });
+        }, Promise.resolve()).then(function () {
+          return awaitNap(function () { return post("/submit", signed); }).then(report);
+        });
+      });
+    });
+  }
+
+  // --- 2б. облачен КЕП: старт → потвърждение → статус → подаване ------------------------------
+  // Трите стъпки са ОТДЕЛНИ заявки нарочно: между тях сървърът пази само transactionID (не тайна),
+  // а подписът и сертификатът се свалят чак в последната и умират с нея.
+  function runCloudFlow() {
+    return post("/cloud/start").then(function (res) {
+      var b = res.body || {};
+      if (!res.ok || !b.ok || !b.started || !b.started.length) {
+        // Сървърът връща конкретната причина в b.message. Общият текст остава само ако отговорът
+        // изобщо не е стигнал контролера (напр. CSRF/мрежа) — тогава поне HTTP кодът насочва.
+        throw new Error(
+          b.message || t("Signing was not started at the provider (HTTP {0}).", res.status));
+      }
+      var started = b.started;
+      var byFileId = {};
+      var transactionIds = started.map(function (s) {
+        byFileId[String(s.fileId)] = s.transactionId;
+        return s.transactionId;
+      });
+      say(t("Signing requested at the provider for {0} file(s).", started.length));
+      say(t("Confirm the request in your app — waiting up to {0} minutes.",
+        Math.round(CLOUD_MAX_WAIT_MS / 60000)));
+      return waitForConfirmation(transactionIds).then(function () {
+        say(t("Confirmed. Downloading and verifying the signature…"));
+        return awaitNap(function () { return post("/cloud/submit", byFileId); }).then(report);
+      });
+    });
+  }
+
+  function waitForConfirmation(transactionIds) {
+    var deadline = Date.now() + CLOUD_MAX_WAIT_MS;
+    var step = function () {
+      return post("/cloud/status", transactionIds).then(function (res) {
+        var b = res.body || {};
+        if (!res.ok || !b.ok) {
+          throw new Error(b.message || t("The signing status cannot be read."));
+        }
+        if (b.allCompleted) { return true; }
+        if (Date.now() >= deadline) {
+          throw new Error(t(
+            "The signing was not confirmed within the waiting time. Nothing was sent to NAP;" +
+            " please try again."));
+        }
+        return new Promise(function (resolve) { setTimeout(resolve, CLOUD_POLL_MS); }).then(step);
+      });
+    };
+    return step();
+  }
+
+  // --- 3. резултатът от единственото подаване ------------------------------------------------
+  function report(res) {
+    var b = res.body || {};
+    if (b.ok) { say(b.message || t("Submitted."), "ok"); }
+    else { say(b.message || t("The submission was refused."), "err"); }
+    say(t("Refresh the record to see the status, the result and the audit."));
+  }
+
+  goEl.addEventListener("click", function () {
+    goEl.disabled = true;
+    logEl.innerHTML = "";
+    var flow;
+    try {
+      if (method === "local_usb") { flow = runUsbFlow(); }
+      else if (isPortalFlow()) { flow = runPortalFlow(); }
+      else if (method === "cloud") { flow = runCloudFlow(); }
+      else { throw new Error(t("No signing method is selected; the submission was refused.")); }
+    } catch (e) {
+      fail(e.message || String(e));
+      return;
+    }
+    flow.catch(function (e) { fail(e.message || String(e)); });
+  });
+
+  loadPayloads();
+})();
+</script>
+</body>
+</html>

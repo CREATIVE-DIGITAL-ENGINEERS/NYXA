@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Application Config › Users: the client administrator's list of staff users, a read-only page per
+    user with its actions, and two popups (invite, change roles).
+
+    Everything here is presentation. Keycloak decides (through its client-users endpoint), the
+    checks run server-side in TenantUserService / UserManagementRule, and the local User is written
+    inside the user-management scope of the self-edit guard.
+
+    The user page is a normal form (Edit from the list, Back, Undo) because client.admin has write
+    on staff users. That write opens nothing by itself: the self-edit guard refuses every change to
+    another user's row outside an explicit scope, except the configuration fields a client
+    administrator may change (CLIENT_ADMIN_EDITABLE) and roles Keycloak has just accepted.
+
+    Field names deliberately have no "$" prefix: the web client drops every "$" key from request
+    bodies (axelor-front client.ts), so an action-method would never see a "$" field's value. -->
+
+  <grid name="nx-tenant-user-grid" title="Users" model="com.axelor.auth.db.User"
+    canNew="false" canDelete="false" orderBy="name" x-selector="none">
+    <toolbar>
+      <button name="inviteBtn" title="Invite" icon="person-plus"
+        onClick="action-nx-tenant-users-open-invite"/>
+    </toolbar>
+    <!-- massUpdate="false" on every column: no Mass update on this list. Users are changed one at
+      a time on their page, where roles go through the identity provider and access is revoked
+      with its own action. -->
+    <field name="name" massUpdate="false"/>
+    <field name="code" title="Email" massUpdate="false"/>
+    <field name="roles" widget="TagSelect" massUpdate="false"/>
+    <field name="blocked" title="Access revoked" massUpdate="false"/>
+  </grid>
+
+  <!-- The user page: who the user is (from Keycloak), their roles, and their configuration.
+    One Save for everything: onSave sends changed roles to Keycloak and records a one-time approval,
+    then the platform save writes the roles with the rest (RolesApproval, UserSelfEditListener).
+    The configuration fields are the ones UserSelfEditPolicy.CLIENT_ADMIN_EDITABLE lets a client
+    administrator change; the onChange/onSelect actions are Open Suite's own user-form actions. -->
+  <form name="nx-tenant-user-form" title="User" model="com.axelor.auth.db.User"
+    canNew="false" canDelete="false" canCopy="false" canAttach="false"
+    onLoad="action-nx-tenant-users-describe"
+    onSave="action-nx-tenant-users-before-save"
+    width="large">
+    <panel name="mainPanel" title="User account" itemSpan="6">
+      <field name="name" readonly="true"/>
+      <field name="code" title="Email" readonly="true"/>
+      <!-- x-dirty="false": filled in by onLoad. Without it the page opens "edited", and the client
+        then hides Back and shows Cancel. -->
+      <field name="accessStatus" type="string" title="Access status" readonly="true" x-dirty="false"
+        colSpan="12"/>
+      <!-- At least one role while the user has access (TenantUserService refuses none too); a
+        revoked user has none by design, and their page must stay savable. Hidden for Nyxa admins:
+        their roles come from their own login and are never changed here. -->
+      <field name="roles" widget="TagSelect" colSpan="12" canNew="false" canEdit="false"
+        canView="false" requiredIf="!blocked &amp;&amp; !nyxaAdmin" readonlyIf="blocked"
+        hideIf="nyxaAdmin"/>
+      <field name="blocked" hidden="true"/>
+      <!-- A Nyxa technical admin, listed so the client administrator can give it companies: the
+        page then offers only the Companies panel (the self-edit guard allows nothing else on that
+        row). Set by onLoad; x-dirty="false" as for accessStatus. -->
+      <field name="nyxaAdmin" type="boolean" hidden="true" x-dirty="false"/>
+    </panel>
+    <panel name="preferencesPanel" title="Preferences" itemSpan="6" readonlyIf="nyxaAdmin">
+      <field name="localization" onChange="action-base-user-record-change-language"
+        form-view="localization-form" grid-view="localization-grid"/>
+      <field name="language" hidden="true"/>
+      <field name="theme" widget="theme-select"/>
+      <field name="homeAction" widget="ref-text" x-target="com.axelor.meta.db.MetaAction"
+        x-target-name="name" domain="self.type = 'action-view' and self.home = true"/>
+      <field name="singleTab" widget="inline-checkbox" colSpan="3"/>
+      <field name="noHelp" widget="inline-checkbox" colSpan="3"/>
+      <field name="receiveEmails" widget="inline-checkbox" colSpan="6"/>
+      <field name="emailSignature" widget="html" colSpan="12"/>
+    </panel>
+    <panel name="companiesPanel" title="Companies" itemSpan="6">
+      <field name="companySet" widget="TagSelect" colSpan="12" canNew="false" canEdit="false"
+        canView="false"/>
+      <field name="activeCompany" onSelect="action-user-attrs-domain-active-company"
+        onChange="action-user-record-change-trading-name" canNew="false" canEdit="false"
+        canView="false"/>
+      <field name="tradingName"
+        if="__config__.app.getApp('base')?.getEnableTradingNamesManagement()"
+        domain="self.company = :activeCompany" canNew="false" canEdit="false" canView="false"/>
+    </panel>
+    <panel name="linksPanel" title="Contact and employee" itemSpan="6" readonlyIf="nyxaAdmin">
+      <field name="partner" title="Contact" canNew="false" canEdit="false"
+        domain="self.linkedUser = null OR self.linkedUser.id = :id"/>
+      <field name="employee" if-module="axelor-human-resource"
+        if="__config__.app.isApp('employee')" canNew="false" canEdit="false" canView="false"/>
+    </panel>
+    <!-- A revoked user has no access in the identity provider: Resend and Revoke make no sense,
+      Restore access opens a popup to choose the roles to give it back with (an invitation, email
+      included). One panel per state, shown or hidden as a whole: a hidden button inside a shared
+      panel still keeps its cell, which pushed Revoke onto a second row. -->
+    <panel name="actionsPanel" itemSpan="6" showIf="!blocked &amp;&amp; !nyxaAdmin">
+      <button name="resendBtn" title="Resend invitation"
+        onClick="action-nx-tenant-users-resend"/>
+      <button name="revokeBtn" title="Revoke access" css="btn-danger"
+        prompt="Revoke this person's access? They are signed out and can no longer use the application."
+        onClick="action-nx-tenant-users-revoke"/>
+    </panel>
+    <panel name="restorePanel" itemSpan="6" showIf="blocked &amp;&amp; !nyxaAdmin">
+      <button name="restoreBtn" title="Restore access"
+        onClick="action-nx-tenant-users-open-restore"/>
+    </panel>
+  </form>
+
+  <form name="nx-tenant-user-invite-form" title="Invite" model="com.axelor.utils.db.Wizard"
+    onNew="action-nx-tenant-users-role-domain">
+    <panel name="mainPanel" itemSpan="12">
+      <field name="inviteEmail" type="string" title="Email"/>
+      <field name="inviteRoles" type="many-to-many" target="com.axelor.auth.db.Role"
+        title="Roles" widget="TagSelect" required="true" canNew="false" canEdit="false"
+        canView="false"/>
+      <button name="inviteBtn" title="Invite" onClick="action-nx-tenant-users-invite"/>
+    </panel>
+  </form>
+
+
+  <!-- Opening Users first brings the local users in line with the identity provider (at most every
+    few minutes, only what changed), then shows the list: TenantUsersController.open. -->
+  <action-method name="action-nx-tenant-users">
+    <call class="com.axelor.apps.nyxasecurity.web.TenantUsersController" method="open"/>
+  </action-method>
+
+  <form name="nx-tenant-user-restore-form" title="Restore access"
+    model="com.axelor.utils.db.Wizard" onNew="action-nx-tenant-users-load-restore">
+    <panel name="mainPanel" itemSpan="12">
+      <field name="targetUser" type="many-to-one" target="com.axelor.auth.db.User" title="User"
+        readonly="true" canView="false"/>
+      <field name="restoreRoles" type="many-to-many" target="com.axelor.auth.db.Role"
+        title="Roles" widget="TagSelect" required="true" canNew="false" canEdit="false"
+        canView="false"/>
+      <button name="restoreBtn" title="Restore access" onClick="action-nx-tenant-users-restore"/>
+    </panel>
+  </form>
+
+  <action-view name="action-nx-tenant-users-open-restore" title="Restore access"
+    model="com.axelor.utils.db.Wizard">
+    <view type="form" name="nx-tenant-user-restore-form"/>
+    <view-param name="popup" value="reload"/>
+    <view-param name="show-toolbar" value="false"/>
+    <view-param name="show-confirm" value="false"/>
+    <view-param name="popup-save" value="false"/>
+    <view-param name="forceEdit" value="true"/>
+    <context name="_targetUserId" expr="eval: id"/>
+  </action-view>
+
+  <action-method name="action-nx-tenant-users-load-restore">
+    <call class="com.axelor.apps.nyxasecurity.web.TenantUsersController" method="loadRestore"/>
+  </action-method>
+
+  <action-view name="action-nx-tenant-users-open-invite" title="Invite"
+    model="com.axelor.utils.db.Wizard">
+    <view type="form" name="nx-tenant-user-invite-form"/>
+    <view-param name="popup" value="reload"/>
+    <view-param name="show-toolbar" value="false"/>
+    <view-param name="show-confirm" value="false"/>
+    <view-param name="popup-save" value="false"/>
+    <view-param name="forceEdit" value="true"/>
+  </action-view>
+
+
+  <action-method name="action-nx-tenant-users-describe">
+    <call class="com.axelor.apps.nyxasecurity.web.TenantUsersController" method="describe"/>
+  </action-method>
+
+  <action-method name="action-nx-tenant-users-role-domain">
+    <call class="com.axelor.apps.nyxasecurity.web.TenantUsersController" method="roleDomain"/>
+  </action-method>
+
+
+  <action-method name="action-nx-tenant-users-invite">
+    <call class="com.axelor.apps.nyxasecurity.web.TenantUsersController" method="invite"/>
+  </action-method>
+
+  <action-method name="action-nx-tenant-users-before-save">
+    <call class="com.axelor.apps.nyxasecurity.web.TenantUsersController" method="beforeSave"/>
+  </action-method>
+
+  <action-method name="action-nx-tenant-users-resend">
+    <call class="com.axelor.apps.nyxasecurity.web.TenantUsersController" method="resend"/>
+  </action-method>
+
+  <action-method name="action-nx-tenant-users-restore">
+    <call class="com.axelor.apps.nyxasecurity.web.TenantUsersController" method="restore"/>
+  </action-method>
+
+  <action-method name="action-nx-tenant-users-revoke">
+    <call class="com.axelor.apps.nyxasecurity.web.TenantUsersController" method="revoke"/>
+  </action-method>
+
+  <!-- Application Config › Users/Companies › Users opens this screen instead of Open Suite's user
+    form, for everyone (technical admins keep Administration › User Management › Users). Same name
+    as Open Suite's item, so it replaces it (see the id note below). client.admin sees Application Config only down this path, plus Roles and the companies:
+    every other child is granted to nyxa.admin (gen-catalogue.js, APP_CONFIG_CLIENT_ADMIN), which
+    hides it from client.admin.
+    The id is what makes this the row shown: the loader gives a redefined menu the existing row's
+    priority + 1, but only when the two ids differ (ViewLoader), and Open Suite's has none. A
+    "priority" attribute is not in the 7.4 schema and fails the whole view import. -->
+  <menuitem id="nx-admin-root-user-user" name="admin-root-user-user" parent="admin-root-user"
+    title="Users" action="action-nx-tenant-users" order="100"
+    if="__config__.app.isApp('base')"/>
+
+  <!-- Retired 2026-10-20: the separate Administration root and its Users item, replaced by
+    Application Config › Users/Companies. Kept, hidden, so the rows already in tenant databases
+    stay out of every menu, technical admins' included; client.admin's grants on them are retired
+    in nx_retired.csv. -->
+  <menuitem name="nx-admin-root" title="Administration" order="99" hidden="true"/>
+
+  <menuitem name="nx-tenant-users" parent="nx-admin-root" title="Users"
+    action="action-nx-tenant-users" order="10" hidden="true"/>
+
+</object-views>

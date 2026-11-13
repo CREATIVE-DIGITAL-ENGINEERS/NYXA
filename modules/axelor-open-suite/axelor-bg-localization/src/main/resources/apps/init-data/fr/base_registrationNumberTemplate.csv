@@ -1,0 +1,2 @@
+importId;name;titleToDisplay;validationMethodSelect;requiredSize;isRequiredForCompanies;useSiren;sirenPos;useNic;nicPos;useTaxNbr
+RNT-BG;България;ЕИК/Булстат;;1;false;false;1;false;1;true

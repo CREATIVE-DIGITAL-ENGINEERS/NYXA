@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views https://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <menuitem name="menu-admin" title="Administration" order="100" groups="admins" icon="wrench" icon-background="red" />
+  <menuitem name="menu-auth" parent="menu-admin" title="User Management" />
+  <menuitem name="menu-model" title="Model Management" parent="menu-admin"/>
+  <menuitem name="menu-view-management" title="View Management" parent="menu-admin"/>
+  <menuitem name="menu-help-management" title="Help Management" parent="menu-admin"/>
+  <menuitem name="menu-module-management" title="Module Management" parent="menu-admin" />
+  <menuitem name="menu-theme-management" title="Theme Management" parent="menu-admin" />
+  <menuitem name="menu-job-management" title="Job Management" parent="menu-admin" />
+
+  <menuitem name="menu-auth-users" parent="menu-auth" title="Users"
+    action="action-auth-users" />
+
+  <action-view name="action-auth-users" title="Users" model="com.axelor.auth.db.User">
+    <view type="grid" name="user-grid" />
+    <view type="form" name="user-form" />
+  </action-view>
+
+  <menuitem name="menu-auth-groups" parent="menu-auth" title="Groups"
+    action="action-auth-groups" />
+
+  <action-view name="action-auth-groups" title="Groups"
+    model="com.axelor.auth.db.Group">
+    <view type="grid" name="group-grid" />
+    <view type="form" name="group-form" />
+  </action-view>
+
+  <menuitem name="menu-auth-roles" parent="menu-auth" title="Roles"
+    action="action-auth-roles" />
+
+  <action-view name="action-auth-roles" title="Roles"
+    model="com.axelor.auth.db.Role">
+    <view type="grid" name="role-grid" />
+    <view type="form" name="role-form" />
+  </action-view>
+
+  <menuitem name="menu-auth-permissions" parent="menu-auth" title="Permissions"
+    action="action-auth-permissions"/>
+
+  <action-view name="action-auth-permissions" title="Permissions"
+    model="com.axelor.auth.db.Permission">
+    <view type="grid" name="permission-grid" />
+    <view type="form" name="permission-form" />
+  </action-view>
+
+  <menuitem name="menu-meta-module" parent="menu-module-management"
+    title="All Modules"
+    action="meta.modules"/>
+
+  <action-view name="meta.modules" title="Modules" model="com.axelor.meta.db.MetaModule">
+    <view type="grid" name="meta-module-grid"/>
+    <view type="form" name="meta-module-form"/>
+  </action-view>
+
+  <menuitem name="menu-meta-model" parent="menu-model"
+    title="All Models"
+    action="action-meta-model-views"/>
+
+  <action-view name="action-meta-model-views" title="Models" model="com.axelor.meta.db.MetaModel">
+    <view type="grid" name="meta-model-grid"/>
+    <view type="form" name="meta-model-form"/>
+  </action-view>
+
+  <menuitem name="menu-view-all" parent="menu-view-management"
+    title="All Views"
+    action="action-meta-views"/>
+
+  <action-view name="action-meta-views" title="Views" model="com.axelor.meta.db.MetaView">
+    <view type="grid" name="meta-view-grid"/>
+    <view type="form" name="meta-view-form"/>
+  </action-view>
+
+  <menuitem name="menu-view-my" parent="menu-view-management"
+    title="All Custom Views"
+    action="action-meta-views-my"/>
+
+  <action-view name="action-meta-views-my" title="All Custom Views" model="com.axelor.meta.db.MetaViewCustom">
+    <view type="grid" name="meta-view-custom-grid"/>
+    <view type="form" name="meta-view-custom-form"/>
+  </action-view>
+
+  <menuitem name="menu-view-menus" parent="menu-view-management"
+    title="All Menus"
+    action="action-meta-menus"/>
+
+  <action-view name="action-meta-menus" title="Menus" model="com.axelor.meta.db.MetaMenu">
+    <view type="grid" name="meta-menu-grid"/>
+    <view type="form" name="meta-menu-form"/>
+  </action-view>
+
+  <menuitem name="menu-view-actions" parent="menu-view-management"
+    title="All Actions"
+    action="action-meta-actions"/>
+
+  <action-view name="action-meta-actions" title="Actions" model="com.axelor.meta.db.MetaAction">
+    <view type="grid" name="meta-action-grid"/>
+    <view type="form" name="meta-action-form"/>
+  </action-view>
+
+  <menuitem name="menu-view-selects" parent="menu-view-management"
+    title="All Selects" action="action-meta-select"/>
+
+  <action-view name="action-meta-select" title="Selects" model="com.axelor.meta.db.MetaSelect">
+    <view type="grid" name="meta-select-grid"/>
+    <view type="form" name="meta-select-form"/>
+  </action-view>
+
+  <menuitem name="menu-view-action-menus" parent="menu-view-management"
+    title="Action Menus"
+    action="action-meta-action-menus"/>
+
+  <action-view name="action-meta-action-menus" title="Action Menus" model="com.axelor.meta.db.MetaActionMenu">
+    <view type="grid" name="meta-action-menu-grid"/>
+    <view type="form" name="meta-action-menu-form"/>
+  </action-view>
+
+  <menuitem name="menu-view-translations" parent="menu-view-management"
+    title="All Translations"
+    action="action-meta-translations"/>
+
+  <action-view name="action-meta-translations" title="All Translations" model="com.axelor.meta.db.MetaTranslation">
+    <view type="grid" name="meta-translations-grid"/>
+    <view type="form" name="meta-translations-form"/>
+  </action-view>
+
+  <menuitem name="menu-view-help-views" parent="menu-help-management"
+    title="View Help"
+    action="action-meta-help-views" />
+  <menuitem name="menu-view-help-menus" parent="menu-help-management"
+    title="Menu Help"
+    action="action-meta-help-menus" />
+
+  <action-view name="action-meta-help-views" title="View Help" model="com.axelor.meta.db.MetaHelp">
+    <view type="grid" name="meta-help-view-grid"/>
+    <view type="form" name="meta-help-view-form"/>
+    <domain>self.menu is null</domain>
+  </action-view>
+
+  <action-view name="action-meta-help-menus" title="Menu Help" model="com.axelor.meta.db.MetaHelp">
+    <view type="grid" name="meta-help-menu-grid"/>
+    <view type="form" name="meta-help-menu-form"/>
+    <domain>self.menu is not null</domain>
+  </action-view>
+
+  <menuitem name="menu-meta-attrs" parent="menu-view-management"
+    title="View Attributes"
+    action="action-meta-attrs" />
+
+  <action-view name="action-meta-attrs" title="View Attributes" model="com.axelor.meta.db.MetaAttrs">
+    <view type="grid" name="meta-attrs-grid"/>
+    <view type="form" name="meta-attrs-form"/>
+  </action-view>
+
+  <menuitem name="menu-view-charts" parent="menu-view-management"
+    title="All Charts"
+    action="meta.charts"/>
+
+  <action-view name="meta.charts" title="All Charts" model="com.axelor.meta.db.MetaView">
+    <view type="grid" name="meta-view-chart-grid"/>
+    <view type="form" name="meta-view-form"/>
+    <domain>self.type = :defaultType</domain>
+    <context name="defaultType" expr="chart"/>
+  </action-view>
+
+  <menuitem name="menu-job-all" parent="menu-job-management"
+    title="All Schedules"
+    action="meta.jobs" />
+
+  <action-view name="meta.jobs" title="All Schedules" model="com.axelor.meta.db.MetaSchedule">
+    <view type="grid" name="meta-schedule-grid"/>
+    <view type="form" name="meta-schedule-form"/>
+    <context name="isServiceEnable" expr="call: com.axelor.quartz.JobRunner:isEnabled()"/>
+  </action-view>
+
+  <menuitem name="menu-theme-all" parent="menu-theme-management" title="All Themes" action="meta.themes" />
+
+  <action-view name="meta.themes" title="All Themes" model="com.axelor.meta.db.MetaTheme">
+    <view type="grid" name="meta-theme-grid" />
+    <view type="form" name="meta-theme-form" />
+  </action-view>
+
+</object-views>

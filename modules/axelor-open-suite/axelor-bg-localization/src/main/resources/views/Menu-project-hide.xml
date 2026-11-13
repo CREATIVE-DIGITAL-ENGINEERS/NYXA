@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ СКРИВАНЕ НА МЕНЮТА НА axelor-project ═══
+
+    Механизмът е същият като в Menu-account-hide.xml: `id` ражда втори ред в meta_menu със същото
+    `name` и по-висок приоритет, а MenuService прекратява обхода при скрит възел. Пазачът е общ —
+    BgHiddenMenuTest. axelor-project е зависимост на bg-localization (транзитивно, в `depends` на
+    axelor-module.properties), тоест чуждият ред вече е в базата, когато се зарежда нашият.
+
+    „Управление на проекти“ (menu-project-root) — скрито за всички. Ръчната отметка
+    „Скрито меню“ не стига — тя пада при всеки деплой (ViewLoader#importMenu
+    записва `hidden` от XML). Записите на проектите остават; „Моите проекти“ (menu-my-project-root)
+    не е в обхвата. -->
+  <menuitem id="bg-hide-menu-project-root" name="menu-project-root" title="Project management"
+    hidden="true"/>
+
+</object-views>

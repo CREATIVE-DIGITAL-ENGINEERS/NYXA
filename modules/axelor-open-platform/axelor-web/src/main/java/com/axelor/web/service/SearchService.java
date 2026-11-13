@@ -1,0 +1,104 @@
+/*
+ * Axelor Business Solutions
+ *
+ * Copyright (C) 2005-2026 Axelor (<http://axelor.com>).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package com.axelor.web.service;
+
+import com.axelor.app.AppSettings;
+import com.axelor.app.AvailableAppSettings;
+import com.axelor.mail.service.MailService;
+import com.axelor.meta.service.MetaService;
+import com.axelor.rpc.Request;
+import com.axelor.rpc.Response;
+import com.google.inject.servlet.RequestScoped;
+import io.swagger.v3.oas.annotations.Hidden;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.inject.Inject;
+import javax.mail.internet.InternetAddress;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+
+@RequestScoped
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Path("/search")
+@Hidden
+public class SearchService {
+
+  @Inject private MetaService metaService;
+
+  @Inject private MailService mailService;
+
+  @POST
+  public Response run(Request request) {
+    return metaService.runSearch(request);
+  }
+
+  @POST
+  @Path("emails")
+  @SuppressWarnings("all")
+  public Response emails(Request request) {
+    final Response response = new Response();
+    final String matching = (String) request.getData().get("search");
+    final List selected = (List) request.getData().get("selected");
+    int limit = request.getLimit();
+    int maxPerPage =
+        AppSettings.get().getInt(AvailableAppSettings.API_PAGINATION_MAX_PER_PAGE, 500);
+    int defaultPerPage =
+        AppSettings.get().getInt(AvailableAppSettings.API_PAGINATION_DEFAULT_PER_PAGE, 40);
+    limit = limit > 0 ? Math.min(limit, maxPerPage) : defaultPerPage;
+    final List<InternetAddress> addresses = mailService.findEmails(matching, selected, limit);
+    final List<Object> data = new ArrayList<>();
+
+    for (InternetAddress address : addresses) {
+      final Map<String, String> item = new HashMap<>();
+      item.put("address", address.getAddress());
+      item.put("personal", address.getPersonal());
+      data.add(item);
+    }
+
+    response.setData(data);
+    response.setStatus(Response.STATUS_SUCCESS);
+
+    return response;
+  }
+
+  @GET
+  @Path("menu")
+  public Response menu(
+      @QueryParam("parent") @DefaultValue("") String parent,
+      @QueryParam("category") @DefaultValue("") String category) {
+    Response response = new Response();
+    try {
+      response.setData(metaService.getActionMenus(parent, category));
+      response.setStatus(Response.STATUS_SUCCESS);
+    } catch (Exception e) {
+      e.printStackTrace();
+      response.setException(e);
+    }
+    return response;
+  }
+}

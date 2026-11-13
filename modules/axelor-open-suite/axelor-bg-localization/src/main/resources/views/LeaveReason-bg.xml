@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Разширения на стандартните изгледи на LeaveReason (axelor-human-resource), за да е достъпно
+    съпоставянето към българската номенклатура. PANEL-SCOPED target нарочно, по същото правило като
+    EndOfContractReason-bg.xml: гол //field[@name='...'] покрива само първото срещане.
+
+    ⚠️ СЪПОСТАВЯНЕТО Е В ГРИДА, А НЕ САМО ВЪВ ФОРМАТА. Въпросът „кои видове отпуск още нямат
+    съпоставяне“ е въпрос към целия СПИСЪК, а не към отделния ред — а точно той решава дали
+    ведомостта ще откаже. Скрито във формата, празното съпоставяне се вижда чак когато фишът падне. -->
+
+  <grid name="leave-reason-grid" title="Видове отпуск"
+    id="bg-localization-leave-reason-grid"
+    model="com.axelor.apps.hr.db.LeaveReason" extension="true">
+    <extend target="field[@name='name']">
+      <insert position="after">
+        <field name="bgAbsenceType"/>
+        <field name="bgAbsenceTypeDefaulted"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <form name="leave-reason-form" title="Вид отпуск"
+    id="bg-localization-leave-reason-form"
+    model="com.axelor.apps.hr.db.LeaveReason" extension="true">
+    <!-- ⚠️ ПЪЛЕН ПЪТ, НЕ САМО ИМЕТО НА ПАНЕЛА. AOP гради израза като
+      /:object-views/:form[@name='...']/<target> — тоест target-ът е ПРЯК НАСЛЕДНИК на изгледа, а
+      configPanel е вътре в mainPanel. Гол panel[@name='configPanel'] НЕ хваща нищо и AOP само
+      записва грешка при зареждане на изгледите и продължава — тоест полетата просто нямаше да ги
+      има, без нищо да падне. Хванато от BgViewExtendTargetTest. -->
+    <extend target="panel[@name='mainPanel']/panel[@name='configPanel']">
+      <insert position="after">
+        <panel name="bgMappingPanel" title="Българска локализация" colSpan="12">
+          <field name="bgAbsenceType" colSpan="6"
+            help="Определя в коя кофа влизат дните по този вид отпуск: платен, неплатен или друго. Без съпоставяне сглобителят на ведомостта ОТКАЗВА — вместо да преброи дните в грешната кофа."/>
+          <!-- ⚠️ Флагът е ВИДИМ, а не вътрешен: подразбиране, което не се различава от потвърден
+            избор, е догадка с вид на решение. Свалянето му е потвърждението. -->
+          <field name="bgAbsenceTypeDefaulted" colSpan="6" showIf="bgAbsenceType"
+            help="Вдигнат означава, че съпоставянето е сложено по подразбиране и НЕ е потвърдено от човек. Свалете го, след като сверите вида."/>
+        </panel>
+      </insert>
+    </extend>
+  </form>
+
+</object-views>

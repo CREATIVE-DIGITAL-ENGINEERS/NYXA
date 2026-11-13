@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Top-level НАП menu. Gated to `admins` only for now: referencing a group that does not yet exist
+    (the nap_* roles are provisioned by data-init, not by a view "Restore all") triggers an Axelor group-linking
+    NPE during restore. `admins` always exists, so it is safe. Re-introduce the nap_* role groups here once
+    they are reliably provisioned. Data access is still enforced by the seeded model permissions. -->
+  <menuitem name="nap-root" title="NAP" order="210" icon="fa-university"
+    icon-background="#1f6feb" groups="admins"/>
+
+  <menuitem name="nap-saft-reports" parent="nap-root" title="SAF-T reports" order="100"
+    action="action-saft-report-view-all"/>
+
+  <!-- „НАП › Всички подавания“ е ОТТЕГЛЕНО (30.10.2026). Общият екран предлагаше ръчно създаване на
+    подаване и generic „Submit via API“ път, който никога не е бил реализиран: единственият generic
+    NapSubmissionClient е UnsupportedNapApiSubmissionClient и винаги връщаше „НАП API submission is
+    not configured… официалната спецификация на API на НАП“. Д1/Д6 се подават от „Подаване Д1/Д6 към НАП“, а SAF-T
+    има свои менюта.
+
+    ⚠️ РЕДЪТ ОСТАВА КАТО НАДГРОБИЕ — същият похват като bg-compliance-vat-export. Axelor не трие ред
+    от meta_menu, махнат от XML; в заварена база той щеше да сочи към премахнато действие и
+    администраторите (родителят е groups="admins") щяха да виждат мъртво меню. Същото name без id:
+    ViewLoader#importMenu намира заварения ред по име и го обновява на място — hidden="true", а
+    MenuService спира обхода на скрит възел. Без action: празният атрибут не пипа заварената връзка,
+    но скритото меню не се отваря. Ролите му се снемат през nx_retired.csv, а генераторът на
+    каталога го изключва (HIDDEN_MENUS в tools/gen-catalogue.js).
+
+    ⚠️ НИЩО НЕ СЕ ТРИЕ ОТ ДАННИТЕ: NapSubmission, nap-submission-form, заварените подавания и
+    историята (вкл. SAF-T) остават непокътнати и достъпни — формата се отваря от „Създай и заключи
+    чернова“ и от SAF-T екраните. -->
+  <menuitem name="nap-all-submissions" parent="nap-root" title="All submissions"
+    order="200" hidden="true"/>
+
+  <menuitem name="nap-problems" parent="nap-root" title="Problems requiring action"
+    order="300" action="action-saft-validation-issue-view-problems"/>
+
+  <menuitem name="nap-files" parent="nap-root" title="Files" order="400"
+    action="action-nap-artifact-view-all"/>
+
+  <!-- „НАП › QES signing profiles" — проста настройка: Nyxa потребител + неговото ЕГН, записани
+    веднъж. Екранът за подаване вече не събира идентичност; всеки подписва само със своя профил.
+    hidden="false" изрично: същото name обновява заварения скрит ред на място. -->
+  <menuitem name="nap-qes-profiles" parent="nap-root" title="QES signing profiles"
+    order="450" hidden="false" action="action-user-qes-profile-view-all"/>
+
+  <menuitem name="nap-settings" parent="nap-root" title="Settings" order="500"
+    action="action-app-nap-submissions-view"/>
+
+</object-views>

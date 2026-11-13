@@ -1,0 +1,31 @@
+.pre {
+  word-break: break-all;
+  white-space: pre-wrap;
+  padding: 0.5rem !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-radius: var(--bs-border-radius) !important;
+}
+
+.textarea {
+  padding: 0.5rem !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-radius: var(--bs-border-radius) !important;
+}
+
+.container {
+  position: relative;
+}
+
+.translatable textarea {
+  padding-right: 1.75rem !important;
+  overflow: hidden;
+  &[readonly] {
+    text-overflow: ellipsis;
+  }
+  [dir="rtl"] & {
+    padding-right: unset !important;
+    padding-left: 1.75rem !important;
+  }
+}

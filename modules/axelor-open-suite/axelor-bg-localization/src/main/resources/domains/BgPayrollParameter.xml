@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Скаларни параметри за заплати (ставки, прагове) с период на действие. -->
+  <entity name="BgPayrollParameter">
+
+    <string name="code" title="Код на параметър" required="true"
+      selection="bg.payroll.parameter.code.select"/>
+    <decimal name="paramValue" title="Стойност" precision="15" scale="4" required="true"/>
+    <string name="unit" title="Мерна единица" required="true"
+      selection="bg.parameter.unit.select"/>
+
+    <date name="validFrom" title="В сила от" required="true"/>
+    <date name="validTo" title="В сила до"/>
+
+    <!-- large=true, тоест TEXT, а не varchar(255). Колоната носи провенанса на реда: коя норма, кой
+      източник, какво е сверено и какво не. Двата здравни параметъра носят и спора по препратката — HAB-2026
+      е 560 знака, HULB-2026 е 1089. При varchar(255) App Install ОТХВЪРЛЯ целия ред с „value too long for
+      type character varying(255)“ и продължава със следващия, тоест таблицата би излязла с два реда
+      по-малко, без нито едно съобщение. Същата форма имат BgCompensationType.note и BgInsuranceContribution.bgNote;
+      файловият тест BgSeedColumnWidthTest мери всички seed стойности срещу декларираните дължини. -->
+    <string name="description" title="Описание" large="true"/>
+
+    <unique-constraint columns="code,validFrom"/>
+
+  </entity>
+
+</domain-models>

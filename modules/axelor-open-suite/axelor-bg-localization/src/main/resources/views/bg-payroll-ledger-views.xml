@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ РАЗЧЕТНО-ПЛАТЕЖНАТА ВЕДОМОСТ ============
+
+    ⚠️ НЕ ВИСИ НА ФИША, И ТОВА НЕ Е СЪЩОТО КАТО БУТОНА „Печат“ ТАМ. Фишът се печата от своя запис,
+    защото е документът НА ЛИЦЕТО; ведомостта е документът НА ПРЕДПРИЯТИЕТО и няма запис, на който
+    да виси — тя е изглед към ПЕРИОД. Закачена на фиша, тя щеше да се пуска от произволен ред и да
+    печата данни, които този ред не съдържа.
+
+    ⚠️ И ЕКРАНЪТ Е ПРЕХОДЕН: всяко отваряне е нова ведомост. Записана, тя щеше да остарява мълчаливо
+    — поправен фиш оставя стара ведомост, която изглежда точно като вярната. -->
+
+  <form name="bg-payroll-ledger-form" title="Разчетно-платежна ведомост"
+    model="com.axelor.apps.bglocalization.db.BgPayrollLedgerWizard" width="large"
+    onNew="action-bg-payroll-ledger-defaults">
+
+    <panel name="scopePanel" title="Обхват">
+      <field name="period" colSpan="6"
+        help="Ведомостта е месечен регистър: един период, един лист. Редовете са фишовете на този период — черновите също, защото ведомостта се сверява ИМЕННО преди потвърждаването; състоянието на всеки фиш стои в своя графа. Отказаните фишове не влизат: по тях нищо не се дължи."/>
+      <field name="company" colSpan="6"
+        help="⚠️ По избор. Фишът няма свое дружество — то се чете през договора (EmploymentContract.payCompany). Самоосигуряващото се лице няма договор, тоест попълнено дружество изключва ВСИЧКИ самоосигуряващи се (броят им излиза в преброяването отдолу). Празно поле значи целият период."/>
+      <field name="variantSelect" colSpan="6"
+        help="Петте разреза на образеца. Първите пет стойности са РАЗБИВАНЕ — всеки фиш влиза в точно една от тях; „Всички“ и „Аванси“ не са вид правоотношение, а „Аванси“ реже напречно на останалите."/>
+    </panel>
+
+    <panel name="actionPanel" title="Действие" colSpan="12">
+      <!-- ⚠️ ДВА БУТОНА, И РЕДЪТ ИМ Е СМИСЛОВ: преброяването отговаря на въпроса, който се задава
+        ПРЕДИ печата — кого този лист няма да покаже. -->
+      <button name="countBtn" title="Преброй периода"
+        onClick="action-bg-payroll-ledger-count" colSpan="4"/>
+      <button name="printBtn" title="Печатай ведомостта"
+        onClick="action-bg-payroll-ledger-print" colSpan="4"/>
+    </panel>
+
+    <!-- ⚠️ ЦЕЛИЯТ ТЕКСТ СЕ ПОКАЗВА — същият довод като при SEPA пробега. Преброяването по разрези и
+      поименният списък на несверените редове са единственото, което казва какво да се поправи. -->
+    <panel name="resultPanel" title="Преброяване и граници" colSpan="12">
+      <field name="resultSummary" showTitle="false" colSpan="12" height="14" readonly="true"/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Actions ============ -->
+
+  <action-record name="action-bg-payroll-ledger-defaults"
+    model="com.axelor.apps.bglocalization.db.BgPayrollLedgerWizard">
+    <field name="company" expr="eval:__user__.activeCompany"/>
+  </action-record>
+
+  <action-method name="action-bg-payroll-ledger-count">
+    <call class="com.axelor.apps.bglocalization.web.BgPayrollLedgerController" method="count"/>
+  </action-method>
+
+  <action-method name="action-bg-payroll-ledger-print">
+    <call class="com.axelor.apps.bglocalization.web.BgPayrollLedgerController" method="print"/>
+  </action-method>
+
+  <!-- ⚠️ Отваря се ПРЯКО във форма, без решетка: екранът е преходен и всяко отваряне е нова
+    ведомост. Изброяване на минали ведомости няма и не бива да има — самите фишове са регистърът. -->
+  <action-view name="bg.payroll.ledger" title="Разчетно-платежна ведомост"
+    model="com.axelor.apps.bglocalization.db.BgPayrollLedgerWizard">
+    <view type="form" name="bg-payroll-ledger-form"/>
+    <view-param name="popup" value="false"/>
+    <view-param name="show-toolbar" value="false"/>
+  </action-view>
+
+  <!-- ⚠️ 152, МЕЖДУ „Фишове“ (150) и плащането на нетата (155). Редът е редът на месеца: фишовете
+    се правят, ведомостта се сверява и подписва, чак после нетата тръгват към банката. -->
+  <menuitem name="nyxa-payroll-ledger" parent="nyxa-payroll"
+    title="Разчетно-платежна ведомост" action="bg.payroll.ledger" order="152"/>
+
+</object-views>

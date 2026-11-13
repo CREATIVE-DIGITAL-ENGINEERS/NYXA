@@ -1,0 +1,290 @@
+import com.axelor.gradle.tasks.CheckCredentialsInRptdesign
+import com.axelor.gradle.tasks.CheckXmlDomainsAttributes
+import com.axelor.gradle.tasks.CheckXmlImportsAttributes
+import com.axelor.gradle.tasks.CheckXmlViewsAttributes
+import com.axelor.gradle.tasks.GenerateAosChangelog
+import com.axelor.gradle.tasks.CheckEOLCharsInCsv
+import com.axelor.gradle.tasks.integrationtest.CheckIntegrationTestSelection
+import com.axelor.gradle.tasks.integrationtest.IntegrationTestSources
+
+plugins {
+  id 'com.axelor.app'
+}
+
+axelor {
+  title "Axelor ERP"
+  description "Axelor Entreprise Application"
+}
+
+apply from: 'modules/axelor-open-suite/version.gradle'
+
+allprojects {
+  apply plugin: 'idea'
+  apply plugin: 'eclipse'
+
+  group = 'com.axelor.apps'
+  version = rootProject.openSuiteVersion
+
+  java {
+    toolchain {
+      languageVersion = JavaLanguageVersion.of(11)
+    }
+  }
+
+  afterEvaluate {
+    if (!plugins.hasPlugin('java')) {
+      return
+    }
+
+    // Test logging for modules that bring no configuration of their own. Without one, logback starts
+    // at DEBUG for everything: axelor-account's ChartOnlyImportCountTest wrote a 1.5 GB JUnit XML
+    // (Hibernate DEBUG) and took 3.5 min; with WARN it is 1.4 MB and 1 min. A module that has its own
+    // logback(-test).xml in its test resources keeps it.
+    def ownTestLogging = sourceSets.test.resources.srcDirs.any { dir ->
+      ['logback-test.xml', 'logback-test.groovy', 'logback.xml', 'logback.groovy'].any {
+        new File(dir, it).exists()
+      }
+    }
+    if (!ownTestLogging) {
+      sourceSets.test.resources.srcDir rootProject.file('gradle/test-resources')
+    }
+
+    // integrationTest forks one JVM per class it is handed (forkEvery = 1 below), and the JUnit tag
+    // filter only runs inside that JVM. Handing it every test class meant ~440 JVMs in
+    // axelor-bg-localization that started only to find nothing to run: ~19 of its 40 minutes. So the
+    // tagged classes are picked from the sources here, and the check below compares that pick with
+    // the compiled classes (constants, meta-annotations, inherited tags) before either test task runs.
+    def integrationTestClasses = IntegrationTestSources.select(sourceSets.test.java.srcDirs, 'integration')
+    def checkIntegrationTestSelection = tasks.register('checkIntegrationTestSelection', CheckIntegrationTestSelection) {
+      group = 'verification'
+      description = 'Verifies that integrationTest selects exactly the classes tagged "integration".'
+      tag = 'integration'
+      selectedClasses = integrationTestClasses
+      classesDirs.from(sourceSets.test.output.classesDirs)
+      classpath.from(sourceSets.test.compileClasspath)
+      report = layout.buildDirectory.file('integrationTestSelection.txt')
+    }
+
+    test {
+      // Through `test`, so `gradlew build` (CI) checks the selection and `-x test` skips it with test.
+      dependsOn checkIntegrationTestSelection
+      // Content encoding must not follow the agent's locale: sources, i18n catalogues and many
+      // test names here are Bulgarian. (Filenames follow sun.jnu.encoding, which -D cannot set
+      // reliably on Java 11 — that is why CI also exports a UTF-8 LANG.)
+      defaultCharacterEncoding = 'UTF-8'
+      // Normal runs stay fast. Anything tagged 'integration' builds its own Guice injector over
+      // ~15 Axelor modules and generates an HSQLDB schema for the whole Open Suite entity model:
+      // ~25-30s per class, which is what made `gradlew test` take minutes while the assertions
+      // themselves accounted for seconds. Those tests run through `integrationTest` instead.
+      useJUnitPlatform {
+        excludeTags 'integration'
+      }
+      beforeTest { descriptor ->
+        logger.lifecycle('Running: ' + descriptor)
+      }
+    }
+
+    tasks.register('integrationTest', Test) {
+      defaultCharacterEncoding = 'UTF-8'
+      group = 'verification'
+      description = 'Runs the DB-backed tests tagged "integration". Slow; excluded from build.'
+      testClassesDirs = sourceSets.test.output.classesDirs
+      classpath = sourceSets.test.runtimeClasspath
+      useJUnitPlatform {
+        includeTags 'integration'
+      }
+      if (integrationTestClasses.isEmpty()) {
+        exclude '**/*'
+      } else {
+        integrationTestClasses.each { include it.replace('.', '/') + '.class' }
+      }
+      dependsOn checkIntegrationTestSelection
+      // One JVM per test class. Each class creates a Guice injector and a Hibernate
+      // SessionFactory, and closing the EntityManagerFactory afterwards does not release all of
+      // it, so the cost accumulates. Sharing a single JVM across every DB-backed class exhausted
+      // the default 512 MB test heap: the last two classes to initialise died with
+      // OutOfMemoryError before running a single assertion, which is what looked like a hang.
+      // Forking bounds the memory instead of guessing a heap size that happens to fit today.
+      forkEvery = 1
+      maxHeapSize = '1g'
+      // Gradle does not pass the invocation's -D switches into the forked test JVM, and these tests
+      // are steered entirely by them: -Dhibernate.hbm2ddl.auto=create to rebuild the scratch schema
+      // and -Dmicroinvest.* to point at the export files, which are client data and live outside
+      // the repository. -Dsaft.trial.* steers the manual-only SAF-T trial file (company, months,
+      // output folder and isolated database; BgSaftTrialFileIntegrationTest). Only those prefixes
+      // are forwarded, so the forked JVM stays predictable.
+      systemProperties System.properties.findAll { key, value ->
+        key.toString().startsWith('microinvest.') || key.toString().startsWith('hibernate.') ||
+          key.toString().startsWith('saft.trial.')
+      }
+      shouldRunAfter tasks.named('test')
+      beforeTest { descriptor ->
+        logger.lifecycle('Running: ' + descriptor)
+      }
+      // Deliberately NOT wired into `check` or `build`: rebuild.ps1 builds with `-x test`, which
+      // would not exclude a second test task, and a rebuild must never wait for the DB suite.
+    }
+  }
+
+  configurations {
+    runtimeClasspath.exclude group: "org.eclipse.birt.runtime.3_7_1", module: "org.apache.commons.codec"
+    runtimeClasspath.exclude group: "org.eclipse.birt.runtime.3_7_1", module: "com.lowagie.text"
+  }
+}
+
+tasks.withType(PublishToMavenRepository).configureEach { it.enabled = false }
+
+dependencies {
+  // Use the exact match for your core pac4j version
+  implementation "org.pac4j:pac4j-oidc:5.7.7"
+  implementation "org.pac4j:pac4j-http:5.7.7"
+
+  gradle.appModules.each { dir ->
+    // Skip composite builds - they manage their own dependencies
+    if (dir.name != "axelor-open-platform") {
+      implementation project(":modules:$dir.name")
+    }
+  }
+}
+
+apply from: 'gradle/style.gradle'
+
+task archiveReports(type: Zip) {
+  destinationDirectory = file("$buildDir/libs")
+  archiveClassifier = 'reports'
+  includeEmptyDirs = false
+}
+
+
+task generateChangelog(type: GenerateAosChangelog) {
+  group "Axelor application"
+  description "Generate change logs from unreleased entries."
+  files = fileTree(projectDir) {
+    include '**/changelogs/**/*.yml'
+    include '**/changelogs/**/*.yaml'
+  }
+}
+
+task checkCsvEOL(type: CheckEOLCharsInCsv) {
+  group "Axelor application"
+  description "Check end-of-line characters in CSV files."
+  files = fileTree(projectDir) {
+    exclude '**/build'
+    exclude '**/bin'
+    exclude '**/out'
+    include '**/*.csv'
+  }
+}
+
+task checkBirtCredentials(type: CheckCredentialsInRptdesign) {
+  group "Axelor application"
+  description "Check if .rptdesign files (BIRT) contain credentials."
+  files = fileTree(projectDir) {
+    exclude '**/build'
+    exclude '**/bin'
+    exclude '**/out'
+    include '**/*.rptdesign'
+  }
+}
+
+task checkXmlDomainsAttributes(type: CheckXmlDomainsAttributes) {
+  group "Axelor application"
+  description "Verify errors in XML domain files."
+  files = fileTree(projectDir) {
+    exclude '**/build'
+    exclude '**/bin'
+    exclude '**/out'
+    include '**/modules/**/src/main/resources/domains/*.xml'
+  }
+}
+
+task checkXmlViewsAttributes(type: CheckXmlViewsAttributes) {
+  group "Axelor application"
+  description "Verify errors in XML view files."
+  files = fileTree(projectDir) {
+    exclude '**/build'
+    exclude '**/bin'
+    exclude '**/out'
+    include '**/modules/**/src/main/resources/views/*.xml'
+  }
+}
+
+task checkXmlImportsAttributes(type: CheckXmlImportsAttributes) {
+  group "Axelor application"
+  description "Verify errors in XML import files."
+  files = fileTree(projectDir) {
+    exclude '**/build'
+    exclude '**/bin'
+    exclude '**/out'
+    include "**/modules/**/src/main/resources/apps/**/*.xml"
+    include "**/modules/**/src/main/resources/data-import/*.xml"
+    include "**/modules/**/src/main/resources/data-init/*.xml"
+    include '**/modules/**/src/main/resources/import-configs/*.xml'
+  }
+}
+
+task checkXml(dependsOn: ['checkXmlDomainsAttributes','checkXmlViewsAttributes', 'checkXmlImportsAttributes'])
+
+// LOCAL BUILDS ONLY: stamp the computed version into the deployed config so the About screen
+// ("Version" / "Build") shows the real build instead of the committed placeholders. A build server
+// that sets NYXA_VERSION owns both properties itself, so this deliberately does nothing then,
+// leaving its value untouched.
+if (!System.getenv('NYXA_VERSION')) {
+    tasks.named('processResources') {
+        // axelor-config.properties contains UTF-8 (em dashes). Filtering rewrites the file, and
+        // without this it would be written in the platform default charset and mangle them.
+        filteringCharset = 'UTF-8'
+        filesMatching('axelor-config.properties') {
+            filter { line ->
+                if (line.startsWith('application.version')) {
+                    return "application.version = ${project.version}"
+                }
+                if (line.startsWith('nyxa.image.version')) {
+                    return "nyxa.image.version = ${project.version}"
+                }
+                return line
+            }
+        }
+    }
+}
+
+tasks.named('copyWebapp') {
+    enabled = true
+}
+
+// Serve at the root context path ("/") for local `gradlew run`, matching the ROOT.war
+// deployment.
+tasks.named('war') {
+    archiveBaseName = ''
+
+    // The archive name is just the version, which carries a build timestamp, so no build ever
+    // overwrites the previous one and build/libs accumulates. A deployment that picks up
+    // `build/libs/*.war` would then pick a stale archive at random. Keep exactly one war here.
+    doFirst {
+        delete fileTree(dir: destinationDirectory.get().asFile, include: '*.war')
+    }
+}
+
+// The migrations the deployment runs: exactly the files listed in db/migration/automated.txt,
+// staged in build/db-migration next to the war. Built with the war, so a deployment always carries
+// the migrations of its own commit. A listed file that is missing fails the build rather than shipping a shorter list.
+def dbMigrationDir = file('modules/axelor-open-suite/axelor-bg-localization/src/main/resources/db/migration')
+def stageDbMigrations = tasks.register('stageDbMigrations', Sync) {
+    def listFile = new File(dbMigrationDir, 'automated.txt')
+    inputs.file(listFile)
+    def names = listFile.readLines('UTF-8')
+        .collect { it.trim() }
+        .findAll { it && !it.startsWith('#') }
+    names.each { name ->
+        if (!name.endsWith('.sql') || !new File(dbMigrationDir, name).isFile()) {
+            throw new GradleException("db/migration/automated.txt lists ${name}, which is not a .sql file in ${dbMigrationDir}")
+        }
+    }
+    from(dbMigrationDir) { include names }
+    into layout.buildDirectory.dir('db-migration')
+}
+tasks.named('war') {
+    dependsOn stageDbMigrations
+}
+
+build.finalizedBy archiveReports

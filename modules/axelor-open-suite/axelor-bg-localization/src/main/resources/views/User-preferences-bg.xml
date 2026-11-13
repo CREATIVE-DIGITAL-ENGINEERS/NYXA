@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- NEUTRALISED EXTENSION — it exists only so that a restore replaces what used to be here.
+
+    This file used to add a "Address map / Nominatim" panel to the stock Preferences dialog plus an
+    onLoad/onSave pair calling BgNominatimPreferencesController, so an admin could edit the shared
+    AppBgLocalization.nominatimUserAgent value. That never saved reliably, and because the onSave
+    hook ran on EVERY save of the dialog it could refuse ordinary preference changes (language,
+    theme, password) that have nothing to do with geocoding. The setting itself is gone: the
+    Nominatim User-Agent is now a compile-time constant in NominatimHttpClientImpl.
+
+    WHY THE FILE STAYS INSTEAD OF BEING DELETED. The form name and the extension id are unchanged,
+    so "Restore all views" REPLACES the stored extension row with this harmless one. Deleting the
+    file would instead rely on Axelor removing a MetaView whose source XML has vanished, which is
+    not something to bet a blocked Preferences dialog on.
+
+    WHY NOTHING TOUCHES onLoad/onSave. The computed view is rebuilt from the base view plus every
+    current extension, so simply not contributing the attributes is what removes them — nothing here
+    has to clear anything. Writing onLoad="" / onSave="" would be worse than useless: those are the
+    STOCK form's attributes, shared by every module, and an extension that blanks them could silently
+    drop an action another module contributes now or later. This extension therefore modifies no
+    attribute of the stock form at all.
+
+    WHY AN EMPTY HIDDEN PANEL. The schema requires an extension form to carry at least one <extend>,
+    and <extend> requires at least one of insert/replace/move/attribute. An insert of a hidden panel
+    with no fields and no actions is the smallest thing that is legal and does nothing: it renders
+    nothing, reads nothing and calls nothing. The old panel and its two actions are simply gone. -->
+  <form name="user-preferences-form" title="Preferences" id="bg-localization-user-preferences-form"
+    model="com.axelor.auth.db.User" extension="true">
+    <extend target="//panel[@title='User preferences']">
+      <insert position="after">
+        <panel name="bgNominatimPreferencesPanel" hidden="true"/>
+      </insert>
+    </extend>
+  </form>
+
+</object-views>

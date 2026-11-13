@@ -1,0 +1,59 @@
+.root {
+  max-width: 250px;
+  min-width: 100px;
+  margin: 0 0.25rem;
+}
+
+[data-tab-container-size="xs"] {
+  .root {
+    max-width: 100%;
+  }
+}
+
+.popperContent {
+  min-width: 480px;
+  z-index: 1;
+}
+
+.icon {
+  cursor: pointer;
+  margin-left: auto;
+}
+
+@media all and (max-width: 640px) {
+  .popperContent {
+    min-width: auto !important;
+  }
+  .filterList {
+    flex-direction: column;
+  }
+  .popper {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    box-shadow: none;
+    overflow-y: auto;
+    z-index: 1 !important;
+    transform: none !important;
+    background: var(--bs-body-bg);
+    & > * {
+      min-width: 0;
+      min-height: 0;
+      --bs-border-radius: 0;
+      border: none !important;
+    }
+  }
+}
+
+.searchInput {
+  padding-left: 0.5rem !important;
+  border: 1px solid var(--bs-border-color) !important;
+  border-radius: var(--bs-border-radius) !important;
+}
+
+.searchFiltersInput {
+  padding-left: 0.5rem !important;
+  border: 1px solid var(--bs-border-color) !important;
+  border-radius: var(--bs-border-radius) !important;
+}

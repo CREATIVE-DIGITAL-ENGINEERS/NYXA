@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="base" package="com.axelor.apps.base.db"/>
+
+  <!-- Additive extension of the stock Address for the BG safe-geocoding flow (see
+    BgAddressGeocodeService). Reuses the STOCK Address.latit/longit/isValidLatLong fields for the
+    actual coordinate — these are only metadata about where that coordinate came from and how much
+    to trust it, so a UI or report built against plain Address.latit/longit keeps working unchanged.
+    NOTHING existing is removed and Address.fullName/formattedFullName semantics are untouched. -->
+  <entity name="Address">
+
+    <!-- How the current Address.latit/longit were obtained, in decreasing trust order. NONE means
+      "not resolved" — latit/longit should be null in that case, never a guessed value. -->
+    <string name="bgGeocodeAccuracySelect" title="Geocode accuracy"
+      selection="bg.address.geocode.accuracy.select"/>
+    <!-- Free-text provenance, e.g. "nominatim" (structured full-address match) or "city-centroid"
+      (safe fallback to the selected City's trusted coordinate). Never the raw external response. -->
+    <string name="bgGeocodeProvider" title="Geocode provider"/>
+    <datetime name="bgGeocodedOn" title="Geocoded on"/>
+
+  </entity>
+
+</domain-models>

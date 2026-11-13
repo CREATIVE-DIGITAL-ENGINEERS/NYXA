@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- LOCAL SERIES — one row per request this application made.
+
+    Aggregates use inputTokens/outputTokens/totalTokens only. cachedInputTokens and reasoningTokens
+    are subsets of those and are deliberately never summed alongside their parents; a chart that did
+    would report tokens nobody was charged for. -->
+
+  <chart name="chart.ai.accountant.local.tokens.by.day" title="Tokens per day, by agent (local)">
+    <dataset type="sql">
+      <![CDATA[
+      SELECT SUM(s.total_tokens) AS tokens,
+             DATE_TRUNC('day', s.request_date_time) AS day,
+             COALESCE(s.agent_role, 'unknown') AS agent
+        FROM aiaccountant_ai_usage_stat s
+       WHERE s.request_date_time >= NOW() - INTERVAL '30 days'
+       GROUP BY DATE_TRUNC('day', s.request_date_time), s.agent_role
+       ORDER BY day
+      ]]>
+    </dataset>
+    <category key="day" type="date" title="Day"/>
+    <series key="tokens" groupBy="agent" type="bar" aggregate="sum" title="Total tokens"/>
+  </chart>
+
+  <chart name="chart.ai.accountant.local.requests.by.day" title="Requests per day, by agent (local)">
+    <dataset type="sql">
+      <![CDATA[
+      SELECT COUNT(*) AS requests,
+             DATE_TRUNC('day', s.request_date_time) AS day,
+             COALESCE(s.agent_role, 'unknown') AS agent
+        FROM aiaccountant_ai_usage_stat s
+       WHERE s.request_date_time >= NOW() - INTERVAL '30 days'
+       GROUP BY DATE_TRUNC('day', s.request_date_time), s.agent_role
+       ORDER BY day
+      ]]>
+    </dataset>
+    <category key="day" type="date" title="Day"/>
+    <series key="requests" groupBy="agent" type="bar" aggregate="sum" title="Requests"/>
+  </chart>
+
+  <!-- The question this whole table was built to answer: how much of the spend is not chat. -->
+  <chart name="chart.ai.accountant.local.tokens.by.caller" title="Tokens by caller (local, 30d)">
+    <dataset type="sql">
+      <![CDATA[
+      SELECT SUM(s.total_tokens) AS tokens,
+             COALESCE(s.caller, 'unknown') AS caller
+        FROM aiaccountant_ai_usage_stat s
+       WHERE s.request_date_time >= NOW() - INTERVAL '30 days'
+       GROUP BY s.caller
+       ORDER BY tokens DESC
+      ]]>
+    </dataset>
+    <category key="caller" type="text" title="Caller"/>
+    <series key="tokens" type="pie" title="Total tokens"/>
+  </chart>
+
+  <chart name="chart.ai.accountant.local.outcomes" title="Request outcomes (local, 30d)">
+    <dataset type="sql">
+      <![CDATA[
+      SELECT COUNT(*) AS requests,
+             COALESCE(s.outcome, 'unknown') AS outcome
+        FROM aiaccountant_ai_usage_stat s
+       WHERE s.request_date_time >= NOW() - INTERVAL '30 days'
+       GROUP BY s.outcome
+       ORDER BY requests DESC
+      ]]>
+    </dataset>
+    <category key="outcome" type="text" title="Outcome"/>
+    <series key="requests" type="pie" title="Requests"/>
+  </chart>
+
+  <chart name="chart.ai.accountant.local.tokens.by.company"
+    title="Tokens by company (local, 30d)">
+    <dataset type="sql">
+      <![CDATA[
+      SELECT SUM(s.total_tokens) AS tokens,
+             COALESCE(s.company_label, 'unattributed') AS company
+        FROM aiaccountant_ai_usage_stat s
+       WHERE s.request_date_time >= NOW() - INTERVAL '30 days'
+       GROUP BY s.company_label
+       ORDER BY tokens DESC
+      ]]>
+    </dataset>
+    <category key="company" type="text" title="Company"/>
+    <series key="tokens" type="bar" aggregate="sum" title="Total tokens"/>
+  </chart>
+
+  <!-- AZURE SERIES — the resource's own counters.
+
+    EVERY query below constrains interval_grain. The table holds an hourly series and a daily series,
+    and the daily buckets contain the same minutes as the hourly ones: selecting without the grain
+    would add each hour to the day that contains it and report roughly double. -->
+
+  <chart name="chart.ai.accountant.azure.tokens.last24h" title="Azure metrics, last 24 hours">
+    <dataset type="sql">
+      <![CDATA[
+      SELECT SUM(m.metric_value) AS value,
+             TO_CHAR(DATE_TRUNC('hour', m.bucket_timestamp), 'YYYY-MM-DD HH24:00') AS hour,
+             m.metric_name AS metric
+        FROM aiaccountant_ai_azure_metric_snapshot m
+       WHERE m.interval_grain = 'PT1H'
+         AND m.bucket_timestamp >= NOW() - INTERVAL '24 hours'
+       GROUP BY DATE_TRUNC('hour', m.bucket_timestamp), m.metric_name
+       ORDER BY DATE_TRUNC('hour', m.bucket_timestamp)
+      ]]>
+    </dataset>
+    <!-- A text label rather than a date category: the chart types on offer are date/month/year, none
+      of which is an hour, and an ISO-ish label sorts chronologically as text. -->
+    <category key="hour" type="text" title="Hour (UTC)"/>
+    <series key="value" groupBy="metric" type="line" aggregate="sum" title="Value"/>
+  </chart>
+
+  <chart name="chart.ai.accountant.azure.tokens.30d" title="Azure metrics, last 30 days">
+    <dataset type="sql">
+      <![CDATA[
+      SELECT SUM(m.metric_value) AS value,
+             DATE_TRUNC('day', m.bucket_timestamp) AS day,
+             m.metric_name AS metric
+        FROM aiaccountant_ai_azure_metric_snapshot m
+       WHERE m.interval_grain = 'P1D'
+         AND m.bucket_timestamp >= NOW() - INTERVAL '30 days'
+       GROUP BY DATE_TRUNC('day', m.bucket_timestamp), m.metric_name
+       ORDER BY day
+      ]]>
+    </dataset>
+    <category key="day" type="date" title="Day"/>
+    <series key="value" groupBy="metric" type="bar" aggregate="sum" title="Value"/>
+  </chart>
+
+  <chart name="chart.ai.accountant.azure.tokens.7d" title="Azure metrics, last 7 days">
+    <dataset type="sql">
+      <![CDATA[
+      SELECT SUM(m.metric_value) AS value,
+             DATE_TRUNC('day', m.bucket_timestamp) AS day,
+             m.metric_name AS metric
+        FROM aiaccountant_ai_azure_metric_snapshot m
+       WHERE m.interval_grain = 'P1D'
+         AND m.bucket_timestamp >= NOW() - INTERVAL '7 days'
+       GROUP BY DATE_TRUNC('day', m.bucket_timestamp), m.metric_name
+       ORDER BY day
+      ]]>
+    </dataset>
+    <category key="day" type="date" title="Day"/>
+    <series key="value" groupBy="metric" type="bar" aggregate="sum" title="Value"/>
+  </chart>
+
+  <!-- Per deployment, which is the dimension Azure does promise. Restricted to the token metrics so
+    request counts are not added to token counts in one bar. -->
+  <chart name="chart.ai.accountant.azure.tokens.by.deployment"
+    title="Azure tokens by deployment (30d)">
+    <dataset type="sql">
+      <![CDATA[
+      SELECT SUM(m.metric_value) AS value,
+             COALESCE(m.model_deployment_name, 'not reported') AS deployment,
+             m.metric_name AS metric
+        FROM aiaccountant_ai_azure_metric_snapshot m
+       WHERE m.interval_grain = 'P1D'
+         AND m.metric_name IN ('ProcessedPromptTokens', 'GeneratedTokens')
+         AND m.bucket_timestamp >= NOW() - INTERVAL '30 days'
+       GROUP BY m.model_deployment_name, m.metric_name
+       ORDER BY value DESC
+      ]]>
+    </dataset>
+    <category key="deployment" type="text" title="Deployment"/>
+    <series key="value" groupBy="metric" type="bar" aggregate="sum" title="Tokens"/>
+  </chart>
+
+</object-views>

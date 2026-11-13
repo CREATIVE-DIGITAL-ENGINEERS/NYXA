@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ ДДС ВЪЗЕЛЪТ Е ПОД „НАП“ ═══
+
+    Модулът няма собствен корен (виж Menu-payroll.xml): разделителят е органът, пред който се
+    отчита подаваното, а ДДС дневниците и справката-декларация се подават пред НАП — същия орган,
+    същия портал и същия 14-и срок като останалото тук.
+
+    ⚠️ ЗАГЛАВИЕТО Е САМО „ДДС“, без „/ NAP“ — иначе би се чело „НАП › ДДС / NAP“, органът, повторен
+    в собственото си дете.
+
+    Order 700 — след петте възела на транспорта към НАП (100–500) и след заплатните декларации
+    (600–650), тоест ДДС не се вклинява между Д1 и Д6.
+
+    ⚠️ groups="admins" — изрично ограничена публика. Пълният довод е при Д1 в
+    Menu-payroll.xml: `nap-root` е groups="admins" СЕГА, но собственият му коментар обещава
+    отваряне към ролите nap_*, а тогава дете без ограничения се вижда от всеки, стигнал до корена.
+    Атрибутът стои на ГРУПОВИЯ възел — четирите му деца се отрязват заедно с него
+    (MenuService#preChildVisit връща TERMINATE), затова те остават непроменени.
+  -->
+  <menuitem name="bg-compliance-vat" parent="nap-root" title="ДДС" order="700" groups="admins"/>
+
+  <!-- SAF-T, годишният файл и файлът при поискване: до ДДС, под „НАП“, не вътре в него — нито
+    активите, нито складът са ДДС. Годишният е за цялата година и се подава до 30.06 на следващата
+    (QA на НАП, версия 2, II.4.5); при поискване — по искане на органа по приходите (Прил. 3 v1.0.1).
+    Същият екран като месечния (saft-report-form); видът идва от действието. Ролите — от каталога на
+    nyxa-security (accounting.nap.*, под nap-root). -->
+  <menuitem name="bg-compliance-saft-annual" parent="nap-root"
+    title="SAF-T — годишен файл (активи)" order="750" action="action-saft-report-view-annual"/>
+  <menuitem name="bg-compliance-saft-on-demand" parent="nap-root"
+    title="SAF-T — файл при поискване (склад)" order="760"
+    action="action-saft-report-view-on-demand"/>
+
+  <!-- Настройките на модула (ЕИК на разработчика за Д1 поле 53, SAF-T софтуер, прагът по ЗКПО…) —
+    ЕДНАТА форма app-bg-localization-config-form, същата, която отваря „Конфигуриране“ на картата. -->
+  <menuitem name="bg-localization-settings" parent="nap-root"
+    title="Настройки — Българска локализация" order="900" groups="admins"
+    action="action-app-bg-localization-view"/>
+
+  <!-- „Генериране на ДДС дневници (NAP)“ няма екран: функцията е в „ДДС декларации (NAP)“.
+
+    ⚠️ РЕДЪТ ОСТАВА СКРИТ. Axelor не трие ред от meta_menu, махнат от XML, а в заварена база той
+    сочи действие към несъществуващ модел — администраторите (родителят е groups="admins")
+    биха виждали мъртво меню. Същото name без id: ViewLoader#importMenu намира заварения ред по
+    име и го обновява на място — hidden="true", а MenuService спира обхода на скрит възел. Без
+    action: празният атрибут не пипа заварената връзка, но скритото меню не се отваря. Ролите му се
+    снемат през nx_retired.csv, генераторът на каталога го изключва (HIDDEN_MENUS). -->
+  <menuitem name="bg-compliance-vat-export" parent="bg-compliance-vat"
+    title="Генериране на ДДС дневници" order="100" hidden="true"/>
+
+  <menuitem name="bg-compliance-vat-return" parent="bg-compliance-vat"
+    title="ДДС декларации (NAP)" order="200" action="action-bg-vat-return-view"/>
+
+  <!-- SAF-T, месечният файл: до ДДС декларациите — подава се пред същия орган, всеки месец,
+    и проверките му стъпват на същите дневници. Заменя старото „НАП › SAF-T справки“ (същото
+    действие), което е скрито в Menu-nap-hide.xml. -->
+  <menuitem name="bg-compliance-vat-saft" parent="bg-compliance-vat"
+    title="SAF-T — месечен файл" order="250" action="action-saft-report-view-all"/>
+
+  <menuitem name="bg-compliance-vat-coefficient" parent="bg-compliance-vat"
+    title="Коефициенти чл.73" order="300" action="action-bg-vat-coefficient-view"/>
+
+  <!-- Годишната корекция по чл. 79а/79б виси до коефициентите, не до активите: тя се прави в
+    последния данъчен период на годината (ал. 4) и излиза в дневника за покупките, тоест се чете
+    заедно с ДДС декларациите, а не с амортизационните планове. Родител има, тъй че видимостта се
+    наследява от bg-compliance-vat. -->
+  <menuitem name="bg-compliance-vat-annual-correction" parent="bg-compliance-vat"
+    title="Годишни корекции (чл. 79а/79б)" order="350"
+    action="action-bg-vat-annual-correction-view"/>
+
+  <!-- Авансовите фактури с ДДС без ДДС статия — издадени, преди авансите да влизат в дневниците.
+    Само справка. Под „Фактуриране › Справки“, не под „ДДС“: там фактурите вече са в
+    ролите на фактурирането, а под НАП менюто щеше да даде на accounting.nap.* писане по Invoice и
+    всичко, което сочи (129 нови права в каталога). -->
+  <menuitem name="bg-invoice-advances-without-vat-move" parent="invoice-root-report"
+    title="Авансови фактури без ДДС статия" order="1050"
+    action="action-bg-vat-advance-without-vat-move"/>
+
+  <menuitem name="bg-compliance-vat-settings" parent="bg-compliance-vat"
+    title="Декларатори" order="400" action="action-bg-declarant-view"/>
+
+  <!-- Складовите движения с ДДС сигнал (чл. 6 ал. 3 т. 1–2, чл. 79 ал. 1 ЗДДС) — кандидатите за
+    протокол. Само списък: протоколът е отделна задача. Виж BgStockVatSignals. -->
+  <menuitem name="bg-compliance-vat-stock-signals" parent="bg-compliance-vat"
+    title="Складови движения за ДДС протокол" order="360"
+    action="action-bg-stock-move-method-vat-signal-list"/>
+
+  <!-- ИЗП: политиката за изписване на материалните запаси — в настройките на склада, до правилата
+    за наличностите. По дружество и финансова година. -->
+  <menuitem name="bg-stock-costing-policy" parent="stock-root-conf"
+    title="Политика за изписване на МЗ" order="150" action="action-bg-stock-costing-policy-view"/>
+
+  <!-- ИЗП: неосчетоводеното изписване не спира движението, а влиза тук. Периодът не се
+    затваря, докато списъкът за него не е празен. До него — оценките и слоевете за проверка. -->
+  <menuitem name="bg-stock-valuation-task" parent="stock-root-conf"
+    title="Неосчетоводени изписвания" order="151" action="action-bg-stock-valuation-task-view"/>
+  <menuitem name="bg-stock-move-line-valuation" parent="stock-root-conf"
+    title="Оценка на складовите движения" order="152"
+    action="action-bg-stock-move-line-valuation-view"/>
+  <menuitem name="bg-stock-cost-layer" parent="stock-root-conf"
+    title="Слоеве на себестойността" order="153" action="action-bg-stock-cost-layer-view"/>
+
+  <!-- PDF bank-statement entry point in the Bank Statements area. Reuses the generic AI-OCR upload surface
+    + the whole OCR/normalization/chunking/background pipeline: a PDF classified as a bank statement (BgBankStatementOcrClassifier)
+    is auto-routed to a reviewable BankStatement instead of a Move (OcrBankStatementCreatorImpl). No separate
+    backend — just a discoverable entry point. -->
+  <menuitem name="bg-bank-statement-pdf-upload" parent="account-root-bank-statement"
+    title="Качване на извлечение (PDF/OCR)" order="150" action="action-ai-ocr-upload-view-client"/>
+
+  <!-- ═══ БГ АКТИВИ ═══
+    Регистърът на отписаните активи виси под стандартната област „Дълготрайни активи“
+    (account-root-asset-management): той се чете заедно с активите и с
+    амортизационните планове, не заедно с ДДС декларациите.
+
+    ⚠️ Родител има, тъй че менюто е ВИДИМО за всяка група — top-level меню без групи се вижда само
+    от админ, а с родител наследява видимостта му. Роли се дават единствено през
+    meta_metaMenu.csv, не с атрибут тук. -->
+  <menuitem name="bg-asset-write-off" parent="account-root-asset-management"
+    title="Отписани активи (чл. 60 / 66 ЗКПО)" order="150"
+    action="action-bg-fixed-asset-write-off-view"/>
+
+  <!-- Вдигането на прага е КОНФИГУРАЦИОННО събитие, но стои при активите, а не в настройките:
+    следствието му е върху данъчния амортизационен план и се чете заедно с отписванията. -->
+  <menuitem name="bg-asset-materiality-increase" parent="account-root-asset-management"
+    title="Вдигане на прага на същественост (чл. 60 ал. 3 т. 2)" order="160"
+    action="action-bg-asset-materiality-increase-view"/>
+
+  <!-- Admin-only settings screen for the automated monthly fixed-asset depreciation realization
+    job (BgFixedAssetRealizationJob). The MetaSchedule row it drives is a derived artifact of
+    this settings entity, not a second place to configure it — see
+    BgFixedAssetRealizationSettingsService. groups="admins" restricts just this leaf; the parent
+    "Fixed assets" area stays visible to everyone. -->
+  <menuitem name="bg-fixed-asset-realization-settings" parent="account-root-asset-management"
+    title="Depreciation Automation" order="170"
+    action="action-bg-fixed-asset-realization-settings-open" groups="admins"/>
+
+  <!-- ═══ „НСИ“ — ДО „НАП“ И „НОИ“ ═══
+
+    Разделителят на корените е органът, пред който се отчита (виж „НАП“ по-горе). Правата са на
+    счетоводството (accounting.read / .write — nyxa-security, AREAS в gen-catalogue.js), без
+    отделна роля: годишният отчет за дейността се съставя от счетоводния баланс и ОПР.
+
+    groups="admins" — както при „НАП“ и „НОИ“: записва намерението, достъпът идва от каталога.
+    Справката не подава нищо към НСИ: ИСБС приема отчета само чрез ръчно въвеждане. -->
+  <menuitem name="nsi-root" title="НСИ" order="230" icon="bar-chart-line-fill"
+    icon-background="#6a1b9a" groups="admins"/>
+
+  <menuitem name="nsi-god-report" parent="nsi-root" title="ГОД — баланс и ОПР" order="100"
+    action="action-bg-nsi-god-report-view"/>
+
+  <!-- ═══ „БНБ“ — СЛЕД „НСИ“ ═══
+
+    Същият разделител като при „НАП“, „НОИ“ и „НСИ“: органът, пред който се отчита. Правата са на
+    счетоводството (accounting.read / .write — AREAS в gen-catalogue.js), без отделна роля:
+    СПБ-6А/6Б се смята от главната книга. Старото място в „Счетоводство › Отчети“
+    (bg-bnb-spb6) е скрито с id + hidden="true" в BgBnbSpb6.xml, за да няма две.
+
+    groups="admins" — както при „НСИ“: записва намерението, достъпът идва от каталога.
+    Справката не подава нищо към БНБ. -->
+  <menuitem name="bnb-root" title="БНБ" order="240" icon="bank2"
+    icon-background="#8d6e00" groups="admins"/>
+
+  <menuitem name="bnb-spb6" parent="bnb-root" title="СПБ-6А/6Б" order="100"
+    action="action-bg-bnb-spb6-wizard"/>
+
+</object-views>

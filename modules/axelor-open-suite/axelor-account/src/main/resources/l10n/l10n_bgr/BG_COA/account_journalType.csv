@@ -1,0 +1,7 @@
+"importId";"code";"name";"isDisplayBalances";"accountTypeSet";"technicalTypeSelect"
+"61";"PCH";"Purchase";"false";"";"1"
+"62";"SAL";"Sale";"false";"";"2"
+"63";"REF";"Refund";"false";"";"3"
+"64";"TRS";"Treasury";"true";"cash";"4"
+"65";"OTH";"Other";"false";"";"5"
+"66";"PAY";"Заплати/Осигуровки";"false";"debt";"5"

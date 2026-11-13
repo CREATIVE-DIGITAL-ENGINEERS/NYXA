@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ЕДИНСТВЕНАТА ФОРМА ЗА НАСТРОЙКИТЕ НА МОДУЛА — два пътя към нея, една стойност.
+    1) „Конфигуриране“ на картата „BG Localization“ (Администрация › Управление на приложения).
+       axelor-studio 3.5.0, AppController#configure: чете "app" + Inflector.camelize(code) от
+       контекста на картата (appBgLocalization) и, ако не е null, търси MetaView type='form',
+       model=AppBgLocalization, name LIKE '%-config-form'. ⚠️ Името тук само по себе си не стига:
+       без обратната връзка App.appBgLocalization (domains/App.xml) картата казва „No
+       configuration required“.
+    2) Менюто „НАП › Настройки — Българска локализация“ (Menu.xml) → action-app-bg-localization-view. -->
+  <form name="app-bg-localization-config-form" title="Настройки — Българска локализация"
+    model="com.axelor.studio.db.AppBgLocalization" width="large">
+    <panel name="mainPanel" colSpan="12">
+      <field name="app" readonly="true"/>
+    </panel>
+    <panel name="bgAssetThresholdPanel" title="Праг за данъчен амортизируем актив (ЗКПО)"
+      colSpan="12">
+      <field name="bgAssetStatutoryThresholdEur" min="0"
+        help="Законовата сума от чл. 50 ал. 1 т. 2 и чл. 51 ал. 1 т. 1 б. „г“ бб) ЗКПО. И двата текста стоят в ЛЕВОВЕ, изписани с думи — „седемстотин лева“ — и Законът за въвеждане на еврото НЕ ги е превалутирал поименно: неговият § 36 изменя ЗКПО с тринайсет точки и нито една не пипа чл. 50 или чл. 51. Затова важи общото правило на ЗВЕРБ чл. 11 ал. 2 и стойността е ИЗЧИСЛЕНА: 700 ÷ 1.95583 = 357,9043… → по чл. 13 ал. 1 → 357,90 EUR. ⚠️ ДА СЕ ПОТВЪРДИ срещу консолидиран ЗКПО и указание на НАП — официална (кръгла) евро сума има превес пред изчислената, затова полето се мени оттук."/>
+    </panel>
+    <panel name="bgInvoiceLineDefaultsPanel" title="Редове на фактура" colSpan="12">
+      <field name="bgDefaultInvoiceLineUnit" canEdit="false" form-view="unit-form"
+        grid-view="unit-grid"
+        help="Мерната единица, с която се отваря нов РЪЧНО добавен ред във „Съдържание“ на фактура (обикновено „Брой“). Избира се РЕДЪТ, не името му: преименуване, превод или дубликат в номенклатурата не местят настройката. Изборът на продукт след това подменя единицата с тази на продукта, а потребителят може да избере друга на ръка. ⚠️ Празно поле НЕ значи „празна единица“: обикновен ред без мерна единица не се записва, тоест единственото, което се губи, е предварителното попълване."/>
+    </panel>
+
+    <!-- SAF-T S.H.5–S.H.7: на инсталацията, не на дружеството. Празно поле излиза празно във файла
+      и генерирането предупреждава — стойностите не се измислят в кода. -->
+    <panel name="bgSaftSoftwarePanel" title="SAF-T — софтуер, създал файла" colSpan="12">
+      <field name="saftSoftwareCompanyName"
+        help="S.H.5 SoftwareCompanyName — името на софтуерната компания, чийто продукт създава SAF-T файла."/>
+      <field name="saftSoftwareId"
+        help="S.H.6 SoftwareID — наименованието на софтуера. ⚠️ Да се потвърди."/>
+      <field name="saftSoftwareVersion"
+        help="S.H.7 SoftwareVersion — версията на софтуера (до 18 знака)."/>
+    </panel>
+    <!-- Д1 поле 53: на инсталацията, не на дружеството. Празно поле СПИРА генерирането на Д1. -->
+    <panel name="bgD1SoftwarePanel" title="Декларация обр. 1 — софтуер, създал файла" colSpan="12">
+      <field name="bgSoftwareDeveloperEik"
+        help="Поле 53 на EMPL2021.TXT („флаг за източник“): ЕИК по БУЛСТАТ или по Търговския регистър на РАЗРАБОТЧИКА на софтуера — 9, 10 или 13 цифри. Не е ЕИК-ът на осигурителя. Същата стойност е и „Флаг на източник“ (Source) на Прил. 9 към НОИ — единственият ѝ източник. ⚠️ Празно поле спира генерирането на Д1 и на Прил. 9 с назован отказ."/>
+    </panel>
+    <!-- Hidden, not deleted: the Nominatim User-Agent is a compile-time constant in
+      NominatimHttpClientImpl and nothing reads this column. The column itself stays (no schema
+      change), but the field must not be VISIBLE — a settings box that does nothing misleads.
+      Deleting the column, and this panel with it, is a separate decision. -->
+    <panel name="bgMapGeocodingPanel" title="Address map / geocoding (Nominatim)" colSpan="12"
+      hidden="true">
+      <field name="nominatimUserAgent" colSpan="12" readonly="true"
+        help="No longer used. The Nominatim User-Agent is hardcoded in NominatimHttpClientImpl; whatever is stored here is ignored."/>
+    </panel>
+  </form>
+
+  <!-- ⚠️ ИМЕТО Е СТАРОТО НАРОЧНО — СЪВМЕСТИМОСТ. Заварени бази и ръчно направени менюта могат да
+    сочат ТОВА име; със същото име и новата форма обновяването на модула ги пренасочва, без да се
+    пипа базата. Менюто в Menu.xml ползва същото действие — една форма, едно действие, една
+    стойност. -->
+  <action-view name="action-app-bg-localization-view" title="Настройки — Българска локализация"
+    model="com.axelor.studio.db.AppBgLocalization">
+    <view type="form" name="app-bg-localization-config-form"/>
+    <view-param name="forceEdit" value="true"/>
+    <context name="_showRecord" expr="eval: __repo__(AppBgLocalization).all().fetchOne()?.id"/>
+  </action-view>
+
+</object-views>

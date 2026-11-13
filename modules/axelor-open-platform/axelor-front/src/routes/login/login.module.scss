@@ -1,0 +1,23 @@
+.main {
+  max-width: 400px;
+}
+
+.paper {
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.logo {
+  max-height: 96px;
+  max-width: 368px;
+  margin-bottom: 1rem;
+}
+
+.socialButton:hover {
+  background-color: var(--bs-secondary-bg);
+}
+
+.socialLogo {
+  height: 18px;
+  width: auto;
+}

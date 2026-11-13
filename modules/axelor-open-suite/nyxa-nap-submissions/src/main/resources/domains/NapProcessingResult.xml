@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="napsubmissions" package="com.axelor.apps.napsubmissions.db"/>
+
+  <!-- A processing result fetched from НАП for a submission (Declarations result endpoint is async and
+    may return HTML or JSON). ALWAYS preserves the raw response as an immutable NapArtifact — never keep
+    only the interpreted status. Raw HTML must NOT be rendered directly: only its sanitized copy
+    (safeHtml) is shown. -->
+  <entity name="NapProcessingResult">
+
+    <many-to-one name="submission" title="Submission" ref="NapSubmission"
+      required="true"/>
+
+    <!-- The immutable raw response bytes exactly as НАП returned them. -->
+    <many-to-one name="rawResultArtifact" title="Raw result" ref="NapArtifact"
+      required="true"/>
+
+    <string name="resultFormatSelect" title="Format"
+      selection="nap.processing.result.format.select" default="unknown" readonly="true"/>
+    <!-- The outcome as interpreted by Nyxa (derived, never a substitute for the raw artifact). -->
+    <string name="derivedOutcomeSelect" title="Outcome"
+      selection="nap.processing.derived.outcome.select" default="unknown" readonly="true"/>
+
+    <datetime name="fetchedAt" title="Fetched at" readonly="true"/>
+    <string name="parserVersion" title="Parser version" readonly="true"/>
+    <!-- A safe, sanitized textual summary (no raw HTML). -->
+    <string name="safeSummary" title="Summary" large="true" multiline="true" readonly="true"/>
+    <!-- НАП's HTML result, CLEANED (NapResultHtmlSanitizer: jsoup allowlist — no scripts, styles,
+      event handlers, forms, frames or external images) so it can be shown on the result page. The
+      untouched bytes stay only in rawResultArtifact; this is a display copy, never evidence. -->
+    <string name="safeHtml" title="Result" large="true" readonly="true"/>
+
+    <string name="externalStatus" title="External status" readonly="true"/>
+    <string name="errorCode" title="Error code" readonly="true"/>
+    <string name="errorMessage" title="Error message" large="true" multiline="true"
+      readonly="true"/>
+
+    <extra-code><![CDATA[
+      // resultFormatSelect (keep in sync with nap.processing.result.format.select)
+      public static final String FORMAT_HTML = "html";
+      public static final String FORMAT_JSON = "json";
+      public static final String FORMAT_TEXT = "text";
+      public static final String FORMAT_BINARY = "binary";
+      public static final String FORMAT_UNKNOWN = "unknown";
+
+      // derivedOutcomeSelect (keep in sync with nap.processing.derived.outcome.select)
+      public static final String OUTCOME_ACCEPTED = "accepted";
+      public static final String OUTCOME_REJECTED = "rejected";
+      public static final String OUTCOME_PARTIALLY_ACCEPTED = "partially_accepted";
+      public static final String OUTCOME_PENDING = "pending";
+      public static final String OUTCOME_UNKNOWN = "unknown";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

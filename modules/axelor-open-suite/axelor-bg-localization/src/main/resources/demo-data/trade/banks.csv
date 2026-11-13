@@ -1,0 +1,4 @@
+code;label;iban;bic;bank;currency;default;account
+EUR;Разплащателна сметка EUR;BG94DEMO96611000000001;DEMOBGSF;Демо Банк АД;EUR;true;
+USD;Разплащателна сметка USD;BG76DEMO96611400000001;DEMOBGSF;Демо Банк АД;USD;false;504
+CHF;Разплащателна сметка CHF;BG49DEMO96611400000002;DEMOBGSF;Демо Банк АД;CHF;false;5042

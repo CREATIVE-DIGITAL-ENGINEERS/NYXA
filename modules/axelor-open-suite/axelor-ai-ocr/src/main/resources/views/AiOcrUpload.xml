@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Upload/job lifecycle status -->
+  <selection name="ai.ocr.upload.status.select">
+    <!-- Stored, but NOT runnable: the background dispatcher drains only 'queued', so a manual upload
+      sits here until the user presses Process / Extract archive (which enqueues it). -->
+    <option value="uploaded">Uploaded</option>
+    <option value="queued">Queued</option>
+    <option value="processing">Processing</option>
+    <option value="completed">Completed</option>
+    <option value="failed">Failed</option>
+    <option value="duplicate">Duplicate</option>
+    <option value="cancelled">Cancelled</option>
+    <option value="unsupported">Unsupported</option>
+    <option value="needsReview">Needs review</option>
+    <option value="deletedFromSupplInvoices" color="red">Deleted from Suppl. Invoices</option>
+    <option value="deletedFromMoves" color="red">Deleted from Moves</option>
+    <option value="deletedFromBankStatements" color="red">Deleted from bank statement</option>
+    <!-- Carrier-only (a record holding a ZIP) -->
+    <option value="extracting">Extracting</option>
+    <option value="completedWithIssues">Completed with issues</option>
+    <option value="archive">Archive</option>
+  </selection>
+
+  <!-- AI review status carried on the produced Invoice -->
+  <selection name="ai.ocr.review.status.select">
+    <option value="pending">Pending review</option>
+    <option value="accepted">Accepted</option>
+    <option value="rejected">Rejected</option>
+  </selection>
+
+  <!-- Carrier kind: how a "one input -> many documents" record was expanded. -->
+  <selection name="ai.ocr.carrier.kind.select">
+    <option value="zip">ZIP archive</option>
+    <option value="pdfSplit">Split PDF</option>
+    <option value="pdfBankStatement">Split PDF (bank statements)</option>
+  </selection>
+
+  <!-- Split child segment type: how a slice of a split PDF is routed. -->
+  <selection name="ai.ocr.segment.type.select">
+    <option value="invoice">Invoice</option>
+    <option value="move">Move (other document)</option>
+    <option value="review">Invoice (needs review)</option>
+    <option value="bankStatement">Bank statement</option>
+  </selection>
+
+  <grid name="ai-ocr-upload-grid" title="Uploaded invoices"
+    model="com.axelor.apps.aiocr.db.AiOcrUpload" orderBy="-createdOn" canArchive="false">
+    <!-- Temporary, read-only storage diagnostic (see OcrUploadStorageDiagnosticService). Admin-only:
+      this showIf mirrors AuthUtils.isAdmin (user.code == "admin" OR user.group.code == "admins") so
+      a client user never sees the button — but it is a UI hint only, not the control;
+      BgOcrUploadController.storageCheck re-checks AuthUtils.isAdmin itself before doing anything.
+      __user__ is a SERVER-SIDE (Groovy eval:) variable and is not defined in the browser's showIf/
+      hideIf/readonlyIf expression context (see axelor-front's createScriptContext, which only
+      exposes $user/$group among others) — using it here throws at evaluation time, which
+      parseExpression swallows and treats as false, so the button was silently hidden forever. $user
+      is the session's user login (== code for this account) and $group is the session's user group
+      code (both plain strings, not objects), which is why this is unqualified rather than $group?.code. -->
+    <toolbar>
+      <!-- Same smart-retry decision as the form's Retry button (BgOcrIntakeService#retryOne),
+        queued for every failed/needs-review record with its file still in storage. Never creates a
+        supplier and never touches queued/processing/clean-completed rows. -->
+      <button name="retryAllEligibleBtn" title="Retry all eligible" icon="fa-refresh"
+        prompt="Queue a smart retry for every failed or needs-review upload that still has its original file? Extraction failures may be re-sent to Azure; processing issues (including a missing supplier) reuse the saved extraction instead. Suppliers are never created automatically."
+        help="Extraction failures are sent to Azure again. Processing issues — including a missing supplier — reuse the saved extraction with no new Azure call. A missing supplier must be created manually first; this never creates one."
+        onClick="action-ai-ocr-upload-method-retry-all-eligible"/>
+      <button name="storageCheckBtn" title="Storage check"
+        showIf="$user == 'admin' || $group == 'admins'"
+        onClick="action-ai-ocr-upload-method-storage-check"/>
+      <!-- TEMPORARY, STRICTLY READ-ONLY — remove once the proven orphans are cleaned up. Same
+        admin-only showIf as Storage check, re-checked server-side in
+        BgOcrUploadController.orphanInventory. Lists exactly the candidate set
+        OcrOrphanFileCleanupService would act on, so the destructive "Clean orphan files" action
+        below can be inspected and approved before it is ever run. Never deletes/moves/writes. -->
+      <button name="orphanInventoryBtn" title="Orphan inventory"
+        showIf="$user == 'admin' || $group == 'admins'"
+        onClick="action-ai-ocr-upload-method-orphan-inventory"/>
+      <!-- TEMPORARY, STRICTLY READ-ONLY — opens a small popup to download ONE proven-orphan MetaFile
+        by id (never a path) through the platform's own authenticated MetaFile download endpoint.
+        See BgOcrUploadController.downloadOrphanFile / OcrOrphanInventoryService.authorizeDownload
+        for the re-check performed at download time, right before the file is served. -->
+      <button name="downloadOrphanFileBtn" title="Download orphan file"
+        showIf="$user == 'admin' || $group == 'admins'"
+        onClick="action-ai-ocr-upload-view-download-orphan-wizard"/>
+      <!-- TEMPORARY maintenance button — remove once the proven orphans are cleaned up. Same
+        admin-only showIf as Storage check, re-checked server-side in
+        BgOcrUploadController.cleanOrphanFiles. The prompt is the required irreversible-action
+        confirmation; the actual safety (fresh scan, per-file re-check, guarded quarantine delete)
+        lives in OcrOrphanFileCleanupService. -->
+      <button name="cleanOrphanFilesBtn" title="Clean orphan files"
+        showIf="$user == 'admin' || $group == 'admins'"
+        prompt="This permanently deletes the proven-orphan MetaFile rows found by a fresh scan (not the last Storage check). This cannot be undone. Continue?"
+        onClick="action-ai-ocr-upload-method-clean-orphan-files"/>
+    </toolbar>
+    <!-- The upload's own id, shown because it is the number every other module refers to this document
+      by ("Upload ID" on the invoice, the move and the bank statement) and the one the AI assistant
+      quotes back. Without it the user has to open the record to find out which upload a message means.
+      hidden="false" is required, not decoration: the @Id property is hidden by default in the entity
+      metadata, so a plain <field name="id"/> renders nothing at all. -->
+    <field name="id" title="Record ID" width="90" hidden="false"/>
+    <field name="statusSelect"/>
+    <field name="fileName"/>
+    <field name="createdOn"/>
+    <field name="processedOn"/>
+    <field name="confidence"/>
+    <field name="retryCount"/>
+  </grid>
+
+  <form name="ai-ocr-upload-form" title="Uploaded invoice"
+    model="com.axelor.apps.aiocr.db.AiOcrUpload" onNew="action-ai-ocr-upload-record-defaults"
+    onLoad="action-ai-ocr-upload-method-current-destination" width="large" canArchive="false">
+
+    <panel name="statusPanel" colSpan="12">
+      <field name="id" title="Record ID" readonly="true" hidden="false" colSpan="4"/>
+      <field name="statusSelect" readonly="true" showTitle="false" colSpan="4"
+        widget="single-select"/>
+      <!-- 'uploaded' OR 'queued': the new state is what a manual upload gets, while rows already in
+        the database are 'queued' and must not be stranded. The archiveFile term keeps a (legacy)
+        both-files row out of this button — for such a record the archive is the meaningful input. -->
+      <button name="processBtn" title="Process" icon="fa-cogs" colSpan="4" css="btn-primary"
+        showIf="(statusSelect == 'uploaded' || statusSelect == 'queued') &amp;&amp; originalFile != null &amp;&amp; archiveFile == null"
+        onClick="save,action-ai-ocr-upload-method-process"/>
+      <!-- Also covers 'needsReview' (e.g. a missing supplier): the smart-retry decision
+        (BgOcrIntakeService#decideRetryMode) reuses the saved OCR result for that case instead of
+        calling Azure again, once the supplier has been created manually — it is never created here. -->
+      <button name="retryBtn" title="Retry" icon="fa-refresh" colSpan="4"
+        showIf="statusSelect == 'failed' || statusSelect == 'needsReview'"
+        onClick="action-ai-ocr-upload-method-retry"
+        help="Extraction failures are sent to Azure again. Processing issues — including a missing supplier — reuse the saved extraction with no new Azure call. A missing supplier must be created manually first; Retry never creates one."/>
+      <!-- Only for an upload whose invoice/move was deleted from its module: re-run OCR into a fresh
+        draft/move from the still-stored original document. -->
+      <button name="reprocessBtn" title="Reprocess" icon="fa-recycle" colSpan="4"
+        css="btn-primary"
+        showIf="statusSelect == 'deletedFromSupplInvoices' || statusSelect == 'deletedFromMoves' || statusSelect == 'deletedFromBankStatements'"
+        onClick="action-ai-ocr-upload-method-reprocess"/>
+    </panel>
+
+
+    <!-- One record holds EXACTLY ONE input: a document OR a .zip. Each file field is readonly exactly
+      when the OTHER one holds the file, which is deliberate and not interchangeable with hideIf or a
+      panel-level readonlyIf: the binary-link widget wraps BOTH the Upload and the × Remove buttons in
+      {!readonly && ...}, so a readonly file field cannot be cleared at all. This way the field that
+      actually holds the file always keeps its ×, and only the empty one is locked.
+      x-accept is the picker hint (the real control is the onChange handlers + the repository guard);
+      x-clear-before-replace disables Upload while a value is present, because dataStore.save reuses
+      the existing MetaFile id and would otherwise replace the bytes server-side BEFORE the onChange
+      validation runs — destroying a valid file for a rejected one. It is opt-in per field, so every
+      other binary-link in the app keeps one-step replacement. -->
+    <panel name="filePanel" title="Document" colSpan="12">
+      <field name="originalFile" widget="binary-link" colSpan="6"
+        readonlyIf="archiveFile != null" x-accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff"
+        x-clear-before-replace="true"
+        onChange="action-ai-ocr-upload-method-on-file-change"/>
+      <field name="fileName" colSpan="6" readonlyIf="archiveFile != null"/>
+    </panel>
+
+    <panel name="archivePanel" title="Archive" colSpan="12">
+      <field name="archiveFile" widget="binary-link" colSpan="6"
+        readonlyIf="originalFile != null" x-accept=".zip" x-clear-before-replace="true"
+        onChange="action-ai-ocr-upload-method-on-archive-file-change"
+        help="Upload a .zip; extraction and OCR run in the background (nested folders and zips supported). You can leave the page; each file is OCR'd exactly like a single upload."/>
+      <!-- The status term is new: it admits 'uploaded' and, on purpose, also stops offering extraction
+        for a carrier left 'failed' BEFORE extraction began (extract() can call finishCarrier without
+        beginExtraction when the ZIP blob is missing, leaving extractionStartedOn null). Such a row is
+        not stranded — Retry shows for 'failed' and clears the extraction stamps back to 'queued'.
+        No archiveFile-only term here: a legacy both-files row keeps this button, so it is never left
+        with no button at all. -->
+      <button name="extractArchiveBtn" title="Extract archive" icon="fa-file-archive-o"
+        colSpan="4" css="btn-primary"
+        showIf="(statusSelect == 'uploaded' || statusSelect == 'queued') &amp;&amp; archiveFile != null &amp;&amp; extractionStartedOn == null"
+        onClick="save,action-ai-ocr-upload-method-extract-archive"/>
+    </panel>
+
+    <!-- Per-carrier progress (a ZIP archive OR a split multi-document PDF). Recomputed from child records
+      on Refresh; Axelor forms do not push, so the user clicks Refresh (same idea as the reload button). -->
+    <panel name="archiveProgressPanel" title="Extraction progress" colSpan="12"
+      showIf="archiveFile != null || carrierKind == 'pdfSplit' || statusSelect == 'processing' || statusSelect == 'extracting'">
+      <field name="carrierKind" readonly="true" colSpan="4" showIf="carrierKind"/>
+      <field name="statusSelect" readonly="true" colSpan="4" widget="single-select"/>
+      <field name="progressPercent" readonly="true" colSpan="4" widget="progress"/>
+      <button name="refreshProgressBtn" title="Refresh" icon="fa-refresh" colSpan="4"
+        onClick="action-ai-ocr-upload-method-refresh-progress"/>
+      <field name="extractionStartedOn" readonly="true" colSpan="6"/>
+      <field name="extractionFinishedOn" readonly="true" colSpan="6"/>
+    </panel>
+
+    <!-- 'uploaded' joins 'queued' here: nothing has run yet, so there is no result to show. -->
+    <panel name="resultPanel" title="Result" colSpan="12"
+      showIf="statusSelect != 'queued' &amp;&amp; statusSelect != 'uploaded'">
+      <field name="confidence" readonly="true" colSpan="4"/>
+      <field name="engineUsed" readonly="true" colSpan="4"/>
+      <field name="processedOn" readonly="true" colSpan="4"/>
+      <field name="segmentType" readonly="true" colSpan="4" showIf="segmentType"/>
+      <field name="invoice" readonly="true" colSpan="6" showIf="invoice != null"/>
+      <field name="move" readonly="true" colSpan="6" showIf="move != null"/>
+      <field name="retryCount" readonly="true" colSpan="6"/>
+      <field name="blobUrl" widget="url" readonly="true" colSpan="12" showIf="blobUrl"/>
+
+      <!-- Manual rerouting: when the automatic classification produced the wrong kind of record,
+        send THIS record (never its siblings) to an explicitly chosen destination. All four buttons
+        call the one BgOcrUploadController.reroute body → OcrRerouteService.reroute, which reuses
+        the saved extraction (no new Azure call), creates the new record through the SAME handler
+        ordinary intake uses, and only then removes the old automatically created draft.
+        $rerouteCurrentDestination is a "$"-prefixed DUMMY context value (never a stored field),
+        filled on form load by BgOcrUploadController.currentDestination — it is what lets each
+        button hide itself for the destination the record already has, including Bank Statement,
+        which is linked from the statement side and has no field on this record. It is a UI hint
+        only: the same rule (and the company scope, and every replacement-safety rule) is enforced
+        again server-side in OcrRerouteService.refusalReason. -->
+      <panel name="reroutePanel" title="Reroute (wrong document type)" colSpan="12"
+        showIf="(statusSelect == 'completed' || statusSelect == 'needsReview' || statusSelect == 'failed' || statusSelect == 'completedWithIssues') &amp;&amp; carrierKind == null &amp;&amp; archiveFile == null">
+        <field name="$rerouteCurrentDestinationLabel" title="Current destination" type="string"
+          readonly="true" colSpan="12"/>
+        <button name="rerouteToMoveBtn" title="Reroute to Move" icon="fa-exchange" colSpan="3"
+          hideIf="$rerouteCurrentDestination == 'move'"
+          prompt="Reroute this document to a draft accounting Move? The record it is routed to now is replaced: the Move is created first and the previous record removed only if it is still an automatically created editable draft. A posted move, a validated/ventilated invoice or an imported bank statement is refused and nothing is changed."
+          onClick="save,action-ai-ocr-upload-method-reroute-move"/>
+        <button name="rerouteToSupplierInvoiceBtn" title="Reroute to Supplier Invoice"
+          icon="fa-exchange" colSpan="3"
+          hideIf="$rerouteCurrentDestination == 'supplierInvoice'"
+          prompt="Reroute this document to a draft Supplier Invoice? The record it is routed to now is replaced: the invoice is created first and the previous record removed only if it is still an automatically created editable draft. The supplier is matched by EIK and is never created automatically."
+          onClick="save,action-ai-ocr-upload-method-reroute-supplier-invoice"/>
+        <button name="rerouteToCustomerInvoiceBtn" title="Reroute to Customer Invoice"
+          icon="fa-exchange" colSpan="3"
+          hideIf="$rerouteCurrentDestination == 'customerInvoice'"
+          prompt="Reroute this document to a draft Customer (sale) Invoice? The record it is routed to now is replaced. The customer is matched by EIK and is never created automatically, and the resulting draft is always left To review — verify the journal, the line accounts and the VAT treatment."
+          onClick="save,action-ai-ocr-upload-method-reroute-customer-invoice"/>
+        <button name="rerouteToBankStatementBtn" title="Reroute to Bank Statement"
+          icon="fa-exchange" colSpan="3"
+          hideIf="$rerouteCurrentDestination == 'bankStatement'"
+          prompt="Reroute this document to a Bank Statement? The record it is routed to now is replaced: the statement is created first and the previous record removed only if it is still an automatically created editable draft."
+          onClick="save,action-ai-ocr-upload-method-reroute-bank-statement"/>
+      </panel>
+
+      <field name="extractionErrors" readonly="true" colSpan="12" showIf="extractionErrors"/>
+      <field name="extractionInformation" readonly="true" colSpan="12"/>
+    </panel>
+
+  </form>
+
+  <!-- TEMPORARY — remove alongside the buttons above once the proven orphans are cleaned up.
+    A pure input wizard, hardened to be structurally incapable of saving/creating/updating a
+    MetaFile — NOT relying on popup-save/show-toolbar alone (axelor-front's own popup-save/
+    show-toolbar view-params only hide the popup's OK button / toolbar; they do NOT gate the
+    Ctrl+S shortcut or the toolbar Save button, both of which route through the same doSave/
+    Resource.save path independently of those params — see axelor-front views/form/form.tsx,
+    hasSave = hasButton("save") || canSaveNew). The actual, code-enforced guarantee is:
+      1. $orphanMetaFileId is a "$"-prefixed DUMMY context field, never a real MetaFile property
+         and never bound to the `id` field. axelor-front strips every "$"-prefixed key from the
+         JSON body before any request is ever serialized (services/client/client.ts:
+         `key.startsWith("$") ? undefined : value`), so this value can never appear in a posted
+         record payload even in the save-fires-anyway case below.
+      2. canSave="false" AND canNew="false" on this <form> make hasButton("save") and canSaveNew
+         BOTH structurally false (form.tsx useFormPerms reads the view's own canSave/canNew
+         attributes as literals, not permission-derived), which makes hasSave permanently false —
+         so the toolbar Save button never renders and the Ctrl+S shortcut is never wired
+         (`onSave: canSave ? handleSave : undefined`). canDelete/canArchive/canCopy="false" close
+         the sibling remove/archive/copy paths the same way.
+      3. No onClick anywhere in this view uses the literal action name "save" — the one remaining
+         bypass (actionHandler.setSaveHandler wires "save" unconditionally to doSave, reachable
+         from any onClick action list containing it) is never exercised because this wizard's only
+         button calls action-ai-ocr-upload-method-download-orphan-file, nothing else.
+    Server side, BgOcrUploadController.downloadOrphanFile only ever reads the $orphanMetaFileId
+    context value (BgOcrUploadController#parseOrphanMetaFileId) and never calls
+    request.getContext().asType(MetaFile.class) or anything that could turn a posted context into
+    an entity — see that method's tests. -->
+  <form name="ocr-orphan-download-wizard" title="Download orphan file"
+    model="com.axelor.meta.db.MetaFile" canNew="false" canSave="false" canDelete="false"
+    canArchive="false" canCopy="false">
+    <panel name="mainPanel">
+      <field name="$orphanMetaFileId" title="MetaFile ID" type="long"/>
+      <button name="downloadOrphanFileWizardBtn" title="Download"
+        readonlyIf="$orphanMetaFileId == null"
+        onClick="action-ai-ocr-upload-method-download-orphan-file"/>
+    </panel>
+  </form>
+
+  <!-- Defaults for a fresh upload: the owning user, and the active company as a HINT so the form shows
+    from the start where the document will be filed. Neither is authoritative — a client-supplied
+    company is a claim, not a fact, and when __user__.activeCompany is null this default silently
+    yields nothing at all. AiOcrUploadManagementRepository.save derives both server-side (and refuses
+    the save with an actionable message when there is no active company), which is what makes the row
+    reachable: the grid domain and every action guard test self.company = :_activeCompany. The status
+    is forced there too ('uploaded'), and the domain default is now 'uploaded' as well, so a record
+    that reaches the database before either runs still cannot be picked up by the dispatcher. -->
+  <action-record name="action-ai-ocr-upload-record-defaults"
+    model="com.axelor.apps.aiocr.db.AiOcrUpload">
+    <field name="uploadedBy" expr="eval:__user__"/>
+    <field name="company" expr="eval:__user__?.activeCompany"/>
+  </action-record>
+
+  <action-method name="action-ai-ocr-upload-method-on-file-change">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="onOriginalFileChange"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-upload-method-on-archive-file-change">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="onArchiveFileChange"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-upload-method-process">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="process"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-upload-method-retry">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="retry"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-upload-method-retry-all-eligible">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="retryAllEligible"/>
+  </action-method>
+
+  <!-- Manual rerouting. Four thin actions, ONE controller body and ONE service entry point
+    (OcrRerouteService.reroute) — the destination is the only difference between them. -->
+  <action-method name="action-ai-ocr-upload-method-reroute-move">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="rerouteToMove"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-upload-method-reroute-supplier-invoice">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController"
+      method="rerouteToSupplierInvoice"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-upload-method-reroute-customer-invoice">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController"
+      method="rerouteToCustomerInvoice"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-upload-method-reroute-bank-statement">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="rerouteToBankStatement"/>
+  </action-method>
+
+  <!-- Fills the two "$"-prefixed dummy context values the reroute panel hides its buttons by. -->
+  <action-method name="action-ai-ocr-upload-method-current-destination">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="currentDestination"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-upload-method-reprocess">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="reprocess"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-upload-method-extract-archive">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="extractArchive"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-upload-method-refresh-progress">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="refreshProgress"/>
+  </action-method>
+
+  <action-method name="action-ai-ocr-upload-method-storage-check">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="storageCheck"/>
+  </action-method>
+
+  <!-- TEMPORARY — remove alongside the button once the proven orphans are cleaned up. -->
+  <action-method name="action-ai-ocr-upload-method-clean-orphan-files">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="cleanOrphanFiles"/>
+  </action-method>
+
+  <!-- TEMPORARY, STRICTLY READ-ONLY — remove alongside the button once the proven orphans are
+    cleaned up. -->
+  <action-method name="action-ai-ocr-upload-method-orphan-inventory">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="orphanInventory"/>
+  </action-method>
+
+  <!-- TEMPORARY — the popup opener for the download wizard. popup-save="false" plus the wizard
+    button never calling save means opening/using this form persists nothing. -->
+  <action-view name="action-ai-ocr-upload-view-download-orphan-wizard" title="Download orphan file"
+    model="com.axelor.meta.db.MetaFile">
+    <view type="form" name="ocr-orphan-download-wizard"/>
+    <view-param name="popup" value="reload"/>
+    <view-param name="show-toolbar" value="false"/>
+    <view-param name="show-confirm" value="false"/>
+    <view-param name="popup-save" value="false"/>
+    <view-param name="width" value="500"/>
+  </action-view>
+
+  <!-- TEMPORARY, STRICTLY READ-ONLY (the file itself is streamed by the platform's own MetaFile
+    download endpoint, never by this controller) — remove alongside the buttons above once the
+    proven orphans are cleaned up. -->
+  <action-method name="action-ai-ocr-upload-method-download-orphan-file">
+    <call class="com.axelor.apps.aiocr.web.BgOcrUploadController" method="downloadOrphanFile"/>
+  </action-method>
+
+  <!-- Client-facing: the current user's own uploads and every record produced from them, at any depth.
+    Ownership is uploadedBy, NOT createdBy. createdBy is stamped by Axelor's auditing from the current
+    subject, and the extract/split workers run with no authenticated subject, so every pipeline-created
+    row has an empty one. Compensating with `OR self.importArchive.createdBy = :__user__` is not enough:
+    it reaches exactly ONE level: in the required ZIP -> PDF carrier -> invoice child shape the
+    grandchild has no createdBy of its own AND a parent with none either, so both arms missed it and a
+    completed invoice was simply absent from the list. uploadedBy has no such limit — it is copied from
+    the carrier onto every child the extractor and the splitter create (duplicates and failures included),
+    and AiOcrUploadManagementRepository.inheritUploaderFromCarrier re-anchors it to the parent on every
+    save, so it is an invariant at arbitrary nesting depth rather than a per-path convention. It is also
+    not a client claim: on a manual upload the repository derives it from AuthUtils.getUser(), and on a
+    pipeline-owned row it is overwritten with the carrier's uploader whatever a POST sent.
+    The company clause is ANDed around the ownership test as before. It is deliberately redundant with
+    the Permission condition in data-init — the permission is the real control (it also covers opening a
+    record by id and the REST endpoints), while this domain takes effect on the next "Restore all views"
+    without an RBAC re-import, and states the rule where a reader of the menu can see it.
+    self.company = :_activeCompany also excludes rows with NO company: a company-less upload belongs to
+    no company, so it stays invisible until it is properly associated. That is the intended fail-closed
+    behaviour, not an oversight — and so is the exclusion of folder-monitor imports, which are created
+    by the system with no uploader at all and have never appeared in this client list. -->
+  <action-view name="action-ai-ocr-upload-view-client" title="Upload Invoices"
+    model="com.axelor.apps.aiocr.db.AiOcrUpload">
+    <view type="grid" name="ai-ocr-upload-grid"/>
+    <view type="form" name="ai-ocr-upload-form"/>
+    <domain>self.company = :_activeCompany AND self.uploadedBy = :__user__</domain>
+    <context name="_activeCompany" expr="eval: __user__?.activeCompany"/>
+  </action-view>
+
+</object-views>

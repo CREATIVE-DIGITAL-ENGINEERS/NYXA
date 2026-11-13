@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="studio" package="com.axelor.studio.db"/>
+
+  <!-- Without this link, "Configure" on the "НАП Submissions" app card says "No configuration
+    required". axelor-studio AppController#configure reads "app" + Inflector.camelize(code) from the
+    card (appNapSubmissions for code "nap-submissions") and only then looks for a form of
+    com.axelor.studio.db.AppNapSubmissions named '%-config-form' (app-nap-submissions-config-form).
+    Same fix as axelor-bg-localization/domains/App.xml. Witness: NapAppConfigReachabilityTest. -->
+  <entity name="App" cacheable="true">
+    <one-to-one ref="com.axelor.studio.db.AppNapSubmissions" name="appNapSubmissions"
+      mappedBy="app"/>
+  </entity>
+
+</domain-models>

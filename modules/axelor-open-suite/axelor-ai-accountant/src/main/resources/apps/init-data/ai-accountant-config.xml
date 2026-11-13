@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<csv-inputs xmlns="http://axelor.com/xml/ns/data-import"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/data-import
+    http://axelor.com/xml/ns/data-import/data-import_7.4.xsd">
+
+  <!-- App board record (marker), same role as studio_appBgLocalization.csv / studio_appNapSubmissions.csv. -->
+  <input file="studio_appAiAccountant.csv" separator=";"
+    type="com.axelor.studio.db.AppAiAccountant" search="self.app.code = :code">
+    <bind to="app" column="code" search="self.code = :code"/>
+  </input>
+
+  <!-- The Azure pollers are active but inert until aiaccountant.azure.monitor.enabled is set, and now
+    also inert whenever the app itself is not installed/active: AiAzureMonitorCollector checks both before
+    doing anything. Imported here (moved from the generic data-init/, which only ever runs once, at initial
+    empty-DB creation) so that installing, uninstalling and reinstalling the app in Application Configuration
+    always leaves the schedule rows correctly in place, with no manual CSV import step. The search key is
+    an upsert, so reinstalling never duplicates them. -->
+  <input file="meta_schedule.csv" separator=";" type="com.axelor.meta.db.MetaSchedule"
+    search="self.name = :name"/>
+
+</csv-inputs>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ КОДЪТ ПО НАП ВЪРХУ МЕРНАТА ЕДИНИЦА ═══
+
+    Разширение на стоковите unit-form / unit-grid от axelor-base. Образецът е Account-bg.xml от кръг 2:
+    extension="true" + extend target, тоест чуждият файл остава непроменен.
+
+    ⚠️ ПОЛЕТО НЕ Е ИНЕРТНО И ТОВА ИСКА ДВЕ НЕЩА, НЕ ЕДНО. Самото bgUomCode е низ — оставено само,
+    то би искало от потребителя да помни, че „бройка“ е H87 измежду 2071 кода. Затова до него стои
+    избирач от номенклатурата ($bgUomPick, фиктивно поле по образеца на $stockConfig в
+    PartnerStockSettings.xml), чийто onChange преписва КОДА в същинското поле. Избирачът не се пази —
+    пази се кодът, тоест формата остава редактируема и на ръка, когато НАП добави код преди преписът
+    да е обновен. -->
+
+  <form name="unit-form" title="Unit" id="bg-localization-unit-form"
+    model="com.axelor.apps.base.db.Unit" extension="true">
+    <extend target="//panel[@name='mainPanel']/field[@name='unitTypeSelect']">
+      <insert position="after">
+        <field name="bgUomCode" colSpan="3"/>
+        <field name="$bgUomPick" colSpan="9" title="Избор от номенклатурата на НАП"
+          type="many-to-one" target="com.axelor.apps.bglocalization.db.BgNraUnitOfMeasure"
+          onChange="action-bg-unit-record-uom-code"
+          help="Търси по код или по наименование. Изборът САМО попълва кода отляво и не се запазва —
+            кодът е това, което излиза в SAF-T като UOMStandard."/>
+      </insert>
+    </extend>
+  </form>
+
+  <!-- В решетката до типа: кодът по НАП е това, по което се проверява дали една единица е готова
+    за SAF-T, тоест трябва да се вижда без отваряне на всеки ред. -->
+  <grid name="unit-grid" title="Units" id="bg-localization-unit-grid"
+    model="com.axelor.apps.base.db.Unit" extension="true">
+    <extend target="//field[@name='unitTypeSelect']">
+      <insert position="after">
+        <field name="bgUomCode"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <action-record name="action-bg-unit-record-uom-code" model="com.axelor.apps.base.db.Unit">
+    <field name="bgUomCode" expr="eval: $bgUomPick?.code" if="$bgUomPick != null"/>
+  </action-record>
+
+</object-views>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ДДС ПОЛЕТАТА НА РЕДА НА РАЗХОДНИЯ ОТЧЕТ СА СКРИТИ.
+
+    Редът носи дата на разхода, продукт и сума, но не и доставчик, номер на документа и ДДС номер на
+    доставчика. Без тях данъчен кредит не може да се ползва (ЗДДС чл. 71 т. 1 — фактура), тоест ДДС
+    на реда би бил данък без основание, осчетоводен по „Данъчна сметка за разходи“. Скрити са и тя
+    (AccountConfig-bg.xml), и полетата тук; редът се въвежда със сумата с ДДС, а разходът е цялата
+    сума.
+
+    Само екранът: колоните остават, стойностите на заварените редове не се пипат. -->
+
+  <grid name="expense-line-grid" title="Expense lines" id="bg-localization-expense-line-grid"
+    model="com.axelor.apps.hr.db.ExpenseLine" extension="true">
+    <extend target="//field[@name='totalTax']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+  </grid>
+
+  <grid name="expense-line-orphan-grid" title="Expense lines"
+    id="bg-localization-expense-line-orphan-grid" model="com.axelor.apps.hr.db.ExpenseLine"
+    extension="true">
+    <extend target="//field[@name='totalTax']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+  </grid>
+
+  <form name="expense-line-form" title="Expense line" id="bg-localization-expense-line-form"
+    model="com.axelor.apps.hr.db.ExpenseLine" extension="true">
+    <extend target="//field[@name='totalTax']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//field[@name='untaxedAmount']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+  </form>
+
+</object-views>

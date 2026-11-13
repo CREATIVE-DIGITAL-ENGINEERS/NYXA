@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Регистърът на отписаните активи по чл. 60 и чл. 66 ЗКПО. Пълни се сам при отписване
+    (BgFixedAssetDisposalServiceImpl); тук се преглежда и се обявява изключение по чл. 66 ал. 3,
+    ако има такова. Справката за ГДД върху него е отделна. -->
+
+  <grid name="bg-fixed-asset-write-off-grid" title="Отписани активи (чл. 60 / 66 ЗКПО)"
+    model="com.axelor.apps.bglocalization.db.BgFixedAssetWriteOff" orderBy="-writeOffDate">
+    <field name="writeOffDate" width="110"/>
+    <field name="taxYear" width="90"/>
+    <field name="fixedAsset" form-view="fixed-asset-form" grid-view="fixed-asset-grid"/>
+    <field name="reasonSelect" width="160"/>
+    <field name="assetDisposalReason" width="180"/>
+    <field name="vatTreatmentSelect" width="200"/>
+    <field name="saleInvoice" width="150" form-view="invoice-form" grid-view="invoice-grid"/>
+    <field name="accountingCarryingValue" width="150"/>
+    <field name="taxValue" width="150"/>
+    <field name="isArt66Applied" width="120"/>
+    <field name="art66ExceptionSelect" width="220"/>
+    <field name="company" width="150"
+      if="__config__.app.getApp('base')?.getEnableMultiCompany()"/>
+  </grid>
+
+  <form name="bg-fixed-asset-write-off-form" title="Отписан актив (чл. 60 / 66 ЗКПО)"
+    model="com.axelor.apps.bglocalization.db.BgFixedAssetWriteOff" width="large"
+    onSave="action-bg-fixed-asset-write-off-validate-sale-invoice">
+    <panel name="mainPanel" title="Актив и основание" colSpan="12">
+      <field name="fixedAsset" readonly="true" form-view="fixed-asset-form"
+        grid-view="fixed-asset-grid"/>
+      <field name="company" readonly="true"/>
+      <field name="writeOffDate" readonly="true"/>
+      <field name="taxYear" readonly="true"
+        help="Годината, в която преобразуването по чл. 66 влиза в годишната данъчна декларация. Извежда се от датата на счетоводното отписване."/>
+      <field name="reasonSelect" readonly="true"/>
+      <field name="assetDisposalReason" readonly="true"
+        help="Причината, избрана в съветника за отписване. Тя решава разходната сметка, предложеното третиране по ЗДДС и дали отписване изобщо се дължи."/>
+    </panel>
+
+    <panel name="documentPanel" title="Документ" colSpan="12">
+      <!-- Продажбата иска фактура по чл. 113 ЗДДС; останалите основания — протокол.
+        Продажбата за скрап също иска фактура: обратното начисляване мени КОЙ начислява
+        данъка (чл. 163а ал. 2), не дали доставката се документира. -->
+      <field name="saleInvoice" form-view="invoice-form" grid-view="invoice-grid"
+        domain="self.operationTypeSelect = 3 AND self.company = :company"
+        help="Клиентската фактура, с която е документирана продажбата (чл. 113 ЗДДС). Тя носи приходa и ДДС-то: Дт 411 / Кт 705 + Кт 4532. Отписването по-долу е отделна статия и НЕ съдържа приход."/>
+      <field name="documentNumber"
+        help="Протоколът за брак или липси, съответно документът за събитието при непреодолима сила."/>
+      <field name="documentDate"/>
+    </panel>
+
+    <panel name="vatPanel" title="ЗДДС — чл. 79 / чл. 80 / гл. 19а" colSpan="12">
+      <field name="vatTreatmentSelect"
+        onChange="action-bg-fixed-asset-write-off-attrs-vat-release-hint"
+        help="За брак, липси и непреодолима сила подразбирането е „подлежи на корекция“ — чл. 79 ал. 1 ЗДДС дължи данък при унищожаване, кражба, установяване на загуба или на липси или при бракуване. Свалянето на „не подлежи“ иска ЕДНОВРЕМЕННО обективно условие (непреодолима сила по чл. 80 ал. 2 т. 1 б. „а“ ИЛИ балансова стойност под 10% от отчетната по т. 3 б. „г“) И отметнато доказано унищожаване с посочен документ — инак записът се отказва. Пропуснатата корекция е скрит данъчен пасив, а излишната се вижда в дневника и се сваля. „Обратно начислен ДДС“ е за продажба на отпадък по Приложение № 2 (бракувана машина за скрап): доставката е облагаема, но данъкът е изискуем от ПОЛУЧАТЕЛЯ по чл. 163а ал. 2, тъй че фактурата излиза без начислен данък. Не се бърка с „не е стопанско събитие“, при което данъкът е НА фактурата."/>
+      <field name="vatGroundSelect"
+        help="Правното основание на обявеното третиране. Попълва се предложено от причината. Двете фамилии отговарят на различни въпроси: чл. 80 ал. 2 е ИЗКЛЮЧЕНИЕ ОТ КОРЕКЦИЯ и има смисъл само ако корекционно събитие по чл. 79 вече е настъпило, а чл. 163а ал. 2 е РЕЖИМ НА НАЧИСЛЯВАНЕ при доставка — там корекция изобщо не се поражда. Обхватът на ал. 2 е само чл. 79, дословно: „Корекции по чл. 79 не се извършват в случаите на:“ (ал. 1 покрива и 79а/79б). Затова продаден за скрап актив не се обосновава с т. 4 — т. 4 е за последователността „бракуване, после доставка с бракуваните стоки“."/>
+      <field name="isDestructionProven"
+        help="Всяко освобождаване по чл. 80 ал. 2 виси под условие в ОТВАРЯЩОТО изречение на точката: „доказано или потвърдено унищожаване …“. Отметката е вашето изрично твърдение, че такъв документ съществува — посочете го в полето „Документ №“."/>
+      <field name="vatProofNote" colSpan="12" readonly="true"
+        help="Какво точно трябва да е доказано за предложеното основание. Пренася се от причината."/>
+    </panel>
+
+    <!-- Изчисленото по чл. 79 ал. 3 (или приспадането по ал. 5) — РЕЗУЛТАТЪТ, не входът.
+
+      ⚠️ ВСИЧКО Е READONLY, ЗАЩОТО ВХОДОВЕТЕ СА НА АКТИВА. Число, поправено тук, би се разминало с
+      фактите, от които е излязло, и протоколът би станал непроверим. Грешната сума се поправя,
+      като се поправи активът и отписването се преизчисли.
+
+      ⚠️ ПРАЗНИ ПОЛЕТА ПРИ CORRECTION_DUE СА ЛИПСВАЩ ВХОД, не липсваща корекция: активът няма
+      класификация по чл. 79 ал. 3 или няма година на упражняване на кредита. Причината е изписана
+      в „Забележки“ и се сваля от панела „ДДС при придобиване“ на самия актив. -->
+    <panel name="vatCorrectionPanel" title="Корекция по чл. 79 — изчислено" colSpan="12"
+      showIf="vatCorrectionAmount || vatCorrectionGround">
+      <field name="vatCorrectionDirection" readonly="true"
+        help="Коя алинея носи сумата. „Дължим данък“ (ал. 3) влиза в дневника за ПРОДАЖБИТЕ; „Приспадане“ (ал. 5) — в дневника за ПОКУПКИТЕ. Законът нарича и двете „корекция“ (ППЗДДС чл. 66 ал. 4), затова посоката е маркер, а не знак пред сумата."/>
+      <field name="vatCorrectionAmount" readonly="true"
+        help="Размерът по ППЗДДС чл. 66 ал. 3 т. 10. ⚠️ НУЛАТА Е ОТГОВОР, не липса: изтекъл 20-/5-годишен срок дава нула с основание по чл. 80 ал. 1 т. 3/т. 4, и то е записано в „Основание“."/>
+      <field name="vatCorrectionGround" readonly="true" colSpan="12"
+        help="Основанието, изписано както го дава законът — точка × буква на ал. 3. Влиза дословно в описанието на протокола."/>
+      <field name="vatCorrectionYears" readonly="true"
+        help="БГ — броят на съответните години по ППЗДДС чл. 66 ал. 3 т. 7."/>
+      <field name="vatCorrectionPeriodYears" readonly="true"
+        help="Знаменателят n: 20 за недвижим имот (т. 1), 5 за движима вещ и за услуга (т. 2 и т. 3). Пази се записан, за да е проверимо коя точка е приложена дори ако класификацията на актива бъде сменена по-късно."/>
+      <field name="vatCorrectionStartYear" readonly="true"
+        help="Годината, от началото на която тече срокът: годината на упражняване на кредита или — само за имот — годината на фактическото използване."/>
+      <field name="vatCorrectionK0" readonly="true"
+        help="К₀, както е ПРИЛОЖЕН след чл. 79в, а не както е въведен на актива: т. 3 заковава 1 при изцяло приспаднат кредит, т. 5 — 0 при чл. 70. Разликата между въведено и приложено е точно това, което прави протокола проверим."/>
+      <field name="vatCorrectionProportion" readonly="true"
+        help="ПрНИД₀, както е приложен. Празно значи, че кредитът не е пропорционален по чл. 71а/71б."/>
+      <field name="vatCorrectionMove" readonly="true" colSpan="12"
+        form-view="move-form" grid-view="move-grid"
+        help="Протоколът по чл. 79 ал. 4 (съответно ал. 7 при приспадане). ⚠️ ПРАЗНО ЗНАЧИ „изчислено, но още НЕначислено“ — видим дълг: ал. 4 иска начисляването да стане в данъчния период, през който е възникнало обстоятелството."/>
+      <button name="art79ProtocolBtn" title="Състави протокол по чл. 79"
+        onClick="save,action-bg-fixed-asset-write-off-method-art79-protocol"
+        showIf="vatCorrectionAmount &amp;&amp; !vatCorrectionMove"
+        help="Съставя статията на протокола в журнала за ДДС протоколи и я закача тук. ⚠️ ОТДЕЛНА СТЪПКА ОТ ОТПИСВАНЕТО НАРОЧНО: създаването на статия хвърля при затворен период и връща цялата транзакция, а отписването по ЗКПО няма нищо общо с ДДС настройката. Повторно натискане не прави втори протокол."/>
+    </panel>
+
+    <panel name="art60Panel" title="Данъчен план — чл. 60" colSpan="12">
+      <field name="isArt60Al2Applied" readonly="true"
+        help="Чл. 60 ал. 2: активът се отписва от данъчния амортизационен план в началото на месеца, през който се отписва за счетоводни цели. Свалено значи, че се прилага изключението по ал. 3 т. 1 — активът е напълно амортизиран за счетоводни цели и остава в ДАП до пълно данъчно амортизиране (ал. 4 → ал. 1)."/>
+      <field name="taxPlanCutDate" readonly="true"
+        help="Последният ден на месеца ПРЕДИ месеца на счетоводното отписване — дотам са запазени данъчните редове. Празна, когато ал. 2 не се прилага."/>
+      <field name="taxAmortizableValue" readonly="true"
+        help="Данъчната амортизируема стойност по чл. 53 ал. 1 — историческата цена, намалена с включените в нея провизии и дарения. За разлика от счетоводната амортизируема стойност по СС 4 т. 2, тя НЕ приспада остатъчна стойност."/>
+      <field name="taxDepreciationCharged" readonly="true"
+        help="Сумата от годишните данъчни амортизации до отписването (чл. 53 ал. 3). Не може да превишава ДАС."/>
+    </panel>
+
+    <panel name="art66Panel" title="Преобразуване — чл. 66" colSpan="12">
+      <field name="accountingCarryingValue" readonly="true"
+        help="Чл. 66 ал. 1: с тази сума се УВЕЛИЧАВА счетоводният финансов резултат при определяне на данъчния."/>
+      <field name="taxValue" readonly="true"
+        help="Чл. 66 ал. 2: с тази сума се НАМАЛЯВА счетоводният финансов резултат. Определението е в чл. 53 ал. 4 — ДАС минус начислената данъчна амортизация. ⚠️ Дължи се в годината, в която активът се отписва от ДАНЪЧНИЯ план. Ако „Отписан от ДАП по чл. 60 ал. 2“ е свалено, активът ОСТАВА в данъчния план (чл. 60 ал. 3 т. 1) и намалението идва по-късно — при пълно данъчно амортизиране, не сега."/>
+      <field name="art66ExceptionSelect"
+        onChange="action-bg-fixed-asset-write-off-attrs-art66-applies"
+        help="Изключенията по чл. 66 ал. 3. Точки 1–3 важат САМО когато данъчната стойност превишава счетоводната балансова; точка 4 (преобразуване на дружества) е безусловна."/>
+      <field name="isArt66Applied" readonly="true"
+        help="Изчислява се от избраното изключение и от двете стойности при запис — не е независима отметка."/>
+      <field name="comments" colSpan="12"/>
+    </panel>
+
+    <panel name="movesPanel" title="Статии" colSpan="12">
+      <field name="disposalMove" readonly="true" form-view="move-form" grid-view="move-grid"
+        help="Отписването: Дт 241/242 (натрупана амортизация) + Дт 60908 при продажба или 60905 при бракуване (счетоводна балансова стойност) / Кт 20x–21x (отчетна стойност)."/>
+      <field name="saleMove" readonly="true" form-view="move-form" grid-view="move-grid"
+        help="Празно е нормалното за България: продажбата на дълготраен актив е облагаема доставка и се документира с фактура, която сама осчетоводява Дт 411 / Кт 705 + Кт 4532. Статия тук значи, че приходът е бил осчетоводен от модула за активи."/>
+    </panel>
+  </form>
+
+  <!-- Протоколът по чл. 79 ал. 4/ал. 7. Свое действие, а не част от записа: статията хвърля при
+    затворен период и при непозволен тип сметка, при това ПРИ ЗАПИС — вградена в отписването, тя
+    би върнала и верните ЗКПО редове. Виж BgArt79ProtocolService. -->
+  <action-method name="action-bg-fixed-asset-write-off-method-art79-protocol">
+    <call class="com.axelor.apps.bglocalization.web.BgFixedAssetWriteOffController"
+      method="generateArt79Protocol"/>
+  </action-method>
+
+  <!-- Показва веднага дали изключението изобщо се прилага, без да чака запис. Истинското
+    изчисление е в BgFixedAssetWriteOffManagementRepository.save() — тук е учтивостта. -->
+  <action-attrs name="action-bg-fixed-asset-write-off-attrs-art66-applies">
+    <attribute name="value" for="isArt66Applied" expr="eval: true"
+      if="art66ExceptionSelect == 'NONE' || art66ExceptionSelect == null"/>
+    <attribute name="value" for="isArt66Applied" expr="eval: false"
+      if="art66ExceptionSelect == 'REORGANISATION'"/>
+    <attribute name="value" for="isArt66Applied"
+      expr="eval: (taxValue ?: 0) &lt;= (accountingCarryingValue ?: 0)"
+      if="art66ExceptionSelect != null &amp;&amp; art66ExceptionSelect != 'NONE' &amp;&amp; art66ExceptionSelect != 'REORGANISATION'"/>
+  </action-attrs>
+
+  <!-- Предупреждение, не забрана: отписването често изпреварва издаването на фактурата, тъй че
+    блокиране би обърнало реда на работа. Празната фактура при продажба обаче е разкъсан поток —
+    приходът и ДДС-то ги няма никъде. -->
+  <action-validate name="action-bg-fixed-asset-write-off-validate-sale-invoice">
+    <alert
+      message="Отписването е с основание „продажба“, а фактура не е посочена. Продажбата на дълготраен актив е облагаема доставка и се документира с фактура по чл. 113 ЗДДС — тя носи приходa и ДДС-то (Дт 411 / Кт 705 + Кт 4532). Отписването само изважда актива от книгите. Ако фактурата още не е издадена, запишете и я посочете после."
+      if="reasonSelect == 'SALE' &amp;&amp; !saleInvoice"/>
+  </action-validate>
+
+  <!-- Показва веднага какво липсва за освобождаването, вместо да го научи човекът от отказ при
+    запис. Истинската проверка е в BgFixedAssetWriteOffManagementRepository. -->
+  <action-attrs name="action-bg-fixed-asset-write-off-attrs-vat-release-hint">
+    <attribute name="readonly" for="vatGroundSelect" expr="eval: false"/>
+    <attribute name="value" for="isDestructionProven" expr="eval: false"
+      if="vatTreatmentSelect != 'NOT_DUE'"/>
+  </action-attrs>
+
+  <action-view name="action-bg-fixed-asset-write-off-view"
+    title="Отписани активи (чл. 60 / 66 ЗКПО)"
+    model="com.axelor.apps.bglocalization.db.BgFixedAssetWriteOff">
+    <view type="grid" name="bg-fixed-asset-write-off-grid"/>
+    <view type="form" name="bg-fixed-asset-write-off-form"/>
+  </action-view>
+
+</object-views>

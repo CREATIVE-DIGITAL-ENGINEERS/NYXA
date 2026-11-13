@@ -1,0 +1,233 @@
+@use "sass:map";
+@use "colors";
+
+.ng-hide {
+  display: none !important;
+}
+
+.field-append {
+  display: flex;
+  align-items: center !important;
+  flex-direction: row !important;
+  gap: 0.25rem !important;
+  :first-child {
+    flex: 1;
+  }
+}
+
+/* legacy kanban-card style :: start*/
+
+.kanban-card h4 {
+  margin: 0 0 4px 0;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.kanban-card img {
+  width: 1.5rem;
+  height: 1.5rem;
+  position: absolute;
+  right: 0.25rem;
+  bottom: 0.25rem;
+  border-radius: 100%;
+}
+
+[dir="rtl"] .kanban-card img {
+  right: unset;
+  left: 0.25rem;
+}
+
+.rect-image .kanban-card img {
+  border-radius: 0;
+}
+
+.kanban-card .card-footer {
+  margin-top: 4px;
+  color: #777;
+  font-size: 12px;
+}
+
+/* legacy kanban-card style :: end*/
+
+.cards-view address {
+  margin-bottom: 0;
+}
+
+.cards-view p {
+  margin: 9px 0;
+}
+
+.cards-view .card-image {
+  position: relative;
+  text-align: center;
+}
+
+.cards-view .card-image img {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+
+.cards-view .card-image strong {
+  margin-top: 6px;
+  display: block;
+}
+
+.card-summary.popover {
+  display: none;
+}
+
+.tag-select .label {
+  @each $name, $value in colors.$colors {
+    &.#{$name} {
+      background: $value;
+    }
+  }
+  &.orange,
+  &.yellow,
+  &.white,
+  &.grey,
+  &.lightgreen,
+  &.lime,
+  &.amber,
+  &.olive {
+    color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+.dl-horizontal {
+  display: inherit;
+}
+
+.order-subtotal {
+  dl {
+    display: inline-grid;
+    grid-template-columns: 1.25fr 1fr;
+    float: right;
+  }
+
+  dt {
+    overflow: hidden;
+    text-align: right;
+    text-overflow: ellipsis;
+  }
+
+  dt,
+  dd {
+    margin: 0;
+    padding: 0.25rem 1rem;
+    white-space: nowrap;
+  }
+
+  dt {
+    font-weight: normal;
+  }
+  dd {
+    margin-left: 0;
+    text-align: right;
+  }
+
+  dd:empty {
+    height: 26px;
+  }
+
+  .order-subtotal-total {
+    border-top: 1px solid var(--bs-border-color);
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+.report-percent {
+  display: flex;
+  align-items: center;
+}
+
+[dir="rtl"] {
+  .report-percent {
+    float: left;
+  }
+  .order-subtotal {
+    dl {
+      float: left;
+    }
+  }
+}
+
+.report-box {
+  padding: 15px 20px 20px 20px;
+  overflow: hidden;
+}
+
+.report-box .report-tags {
+  position: absolute;
+  top: 0.75rem;
+  right: 3rem;
+  [dir="rtl"] & {
+    right: unset;
+    left: 3rem;
+  }
+}
+
+.report-box h1 {
+  margin-bottom: 0;
+}
+
+.report-box .report-icon {
+  position: absolute;
+  top: 65px;
+  font-size: 30px;
+  & + div {
+    margin-left: 42px;
+    [dir="rtl"] & {
+      margin-left: unset;
+      margin-right: 42px;
+    }
+  }
+}
+
+.report-box .report-data {
+  width: 100%;
+}
+
+i.fa-colored {
+  &.fa-folder {
+    color: #ffa726;
+  }
+
+  &.fa-file-o {
+    color: #767676;
+  }
+
+  &.fa-file-text-o {
+    color: #2185d0;
+  }
+
+  &.fa-file-word-o {
+    color: #2185d0;
+  }
+
+  &.fa-file-excel-o {
+    color: #21ba45;
+  }
+
+  &.fa-file-powerpoint-o {
+    color: #a33e03;
+  }
+
+  &.fa-file-pdf-o {
+    color: #db2828;
+  }
+
+  &.fa-file-image-o {
+    color: #6435c9;
+  }
+
+  &.fa-file-video-o {
+    color: #db2828;
+  }
+
+  &.fa-file-archive-o {
+    color: #a5673f;
+  }
+}

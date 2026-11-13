@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ═══ ОТЧЕТНА СМЕТКА В FATCA ОТЧЕТА (AccountReport) ═══
+
+    Данните за сметката: титуляр, номер на сметката, салдо към края на годината и
+    плащанията по вид. Въвеждат се ръчно — автоматично попълване от счетоводството няма.
+
+    ⚠️ ПАСИВНО НФЧП СЪС СЪЩЕСТВЕНИ АМЕРИКАНСКИ СОБСТВЕНИЦИ (FATCA102) изисква контролиращите лица
+    (SubstantialOwner). Те още не се поддържат, затова такава сметка СПИРА генерирането с назована
+    причина — непълен файл не се пише. -->
+  <entity name="BgFatcaAccount">
+
+    <many-to-one name="report" title="Отчет" required="true"
+      ref="com.axelor.apps.bglocalization.db.BgFatcaReport"/>
+
+    <string name="accountNumber" title="Номер на сметката" required="true"/>
+    <!-- Закрита или прехвърлена изцяло през годината → AccountClosed. Салдото тогава е
+      непосредствено ПРЕДИ закриването, а не 0: Споразумението с САЩ, чл. 2, т. 2, буква d)
+      (официален текст на home.treasury.gov, прегледан 29.10.2026). -->
+    <boolean name="closedAccount" title="Закрита през годината"/>
+
+    <!-- ═══ ТИТУЛЯРЯТ ═══ -->
+    <string name="holderTypeSelect" title="Титуляр" selection="bg.fatca.holder.type.select"
+      required="true"/>
+
+    <!-- Физическо лице. Рождената дата е задължителна, когато няма US TIN (съществуваща сметка без
+      данъчен номер; правното основание — да се потвърди срещу официалния текст на ДОПК). -->
+    <string name="firstName" title="Собствено име"/>
+    <string name="lastName" title="Фамилно име"/>
+    <date name="birthDate" title="Дата на раждане"/>
+
+    <!-- Юридическо лице. -->
+    <string name="organisationName" title="Наименование"/>
+    <string name="acctHolderTypeSelect" title="Вид титуляр (AcctHolderType)"
+      selection="bg.fatca.acct.holder.type.select"/>
+
+    <string name="usTin" title="US TIN"/>
+
+    <!-- Адресът: държавата е задължителна по схемата; градът или свободният адрес — поне едно. -->
+    <many-to-one name="country" title="Държава" ref="com.axelor.apps.base.db.Country"/>
+    <string name="city" title="Град"/>
+    <string name="addressFree" title="Адрес (свободен текст)"/>
+
+    <!-- ═══ САЛДО И ПЛАЩАНИЯ ═══ -->
+    <!-- Задължително: генерираният getter връща 0 вместо null, тоест незаписано салдо иначе би
+      излязло във файла като нула. -->
+    <decimal name="balance" title="Салдо към 31.12" precision="20" scale="2" required="true"/>
+    <many-to-one name="currency" title="Валута" ref="com.axelor.apps.base.db.Currency"/>
+
+    <!-- Плащанията по вид (FATCA501–504). Във файла влизат само ненулевите. -->
+    <decimal name="dividendsAmount" title="Дивиденти (FATCA501)" precision="20" scale="2"/>
+    <decimal name="interestAmount" title="Лихви (FATCA502)" precision="20" scale="2"/>
+    <decimal name="grossProceedsAmount" title="Брутни постъпления (FATCA503)" precision="20"
+      scale="2"/>
+    <decimal name="otherPaymentsAmount" title="Други (FATCA504)" precision="20" scale="2"/>
+
+    <!-- DocRefId на сметката в генерирания файл — нужен за бъдеща корекция. -->
+    <string name="docRefId" title="DocRefId" readonly="true"/>
+
+  </entity>
+
+</domain-models>

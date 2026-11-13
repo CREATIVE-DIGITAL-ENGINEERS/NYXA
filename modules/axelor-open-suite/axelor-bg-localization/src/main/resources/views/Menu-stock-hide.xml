@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ СКРИВАНЕ НА МЕНЮТА НА axelor-stock ═══
+
+    Механизмът е същият като в Menu-account-hide.xml: `id` ражда втори ред в meta_menu със същото
+    `name` и по-висок приоритет, а MenuService прекратява обхода при скрит възел. Пазачът е общ —
+    BgHiddenMenuTest. axelor-stock е преди нас по графа (bg-localization → ai-ocr → … →
+    supplychain → stock), тоест чуждият ред вече е в базата, когато се зарежда нашият.
+
+    „Управление на запасите › Доставки › Логистични формуляри“ (LogisticalForm) — френският опис на
+    пратката към превозвача (колети, тегла, пломби). Менюто се скрива; моделът,
+    изгледите и записите остават, правата на менюто са отнети през nx_retired.csv. -->
+  <menuitem id="bg-hide-stock-root-logistical-forms" name="stock-root-logistical-forms"
+    parent="stock-root-deliveries" title="Logistical forms" hidden="true"/>
+
+</object-views>

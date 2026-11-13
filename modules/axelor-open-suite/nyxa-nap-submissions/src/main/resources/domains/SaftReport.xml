@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="napsubmissions" package="com.axelor.apps.napsubmissions.db"/>
+
+  <!-- The prepared/approved SAF-T regulatory report. This is a BUSINESS concept, kept strictly separate
+    from NapSubmission (a single send attempt): one SaftReport may have many submission attempts. lifecycleStatus
+    (preparation/approval/signing) and readinessStatus (data completeness) are DELIBERATELY two distinct
+    fields; submission state lives only on NapSubmission. -->
+  <entity name="SaftReport" sequential="true">
+
+    <string name="name" title="Reference" namecolumn="true"/>
+
+    <!-- What is being reported -->
+    <many-to-one name="company" title="Company" ref="com.axelor.apps.base.db.Company"
+      required="true"/>
+    <many-to-one name="period" title="Reporting period"
+      ref="com.axelor.apps.base.db.Period"/>
+    <string name="reportTypeSelect" title="Report type"
+      selection="nap.saft.report.type.select" required="true" default="monthly"/>
+
+    <!-- T1: what the ANNUAL and ON-DEMAND files are for. The monthly file keeps `period` (a month of
+      the fiscal year). The annual file is a whole year (name ЕИК_YYYY, Прил. 3 v1.0.1 т. I.2; QA v2
+      II.4.5; calendar year per ЗКПО чл. 21 — lex.bg consolidation only, to be confirmed against ДВ),
+      not a Period. The on-demand file is the period a revenue officer asked for (Прил. 3 v1.0.1),
+      named by its two dates; one request may be answered with two files for two sub-periods (QA
+      с. 20–21), so the request number is the key of the filing lock, not the dates alone. The
+      columns come from db/migration/2026-10-21-saft-report-annual-ondemand.sql (the app does not
+      change the schema; SaftReportSchemaCheck stops the start without them). -->
+    <integer name="reportYear" title="Calendar year"/>
+    <date name="fromDate" title="Start of the requested period"/>
+    <date name="toDate" title="End of the requested period"/>
+    <string name="napRequestNumber" title="НАП request number"/>
+    <date name="napRequestDate" title="НАП request date"/>
+
+    <!-- Version bundle stored with the report so it is reproducible. -->
+    <string name="schemaVersion" title="Schema version"/>
+    <string name="reportingRulesVersion" title="Reporting rules version"/>
+    <string name="nomenclatureVersion" title="Nomenclature version"/>
+
+    <!-- Two distinct status axes: preparation lifecycle vs data readiness. NEVER user-editable; changed
+      only through SaftReportWorkflowService actions. -->
+    <string name="lifecycleStatusSelect" title="Lifecycle status"
+      selection="nap.saft.lifecycle.status.select" default="draft" readonly="true"/>
+    <string name="readinessStatusSelect" title="Readiness"
+      selection="nap.saft.readiness.status.select" default="not_checked" readonly="true"/>
+
+    <!-- Human approval / external signature trace (explicit human actions only). -->
+    <many-to-one name="approvedBy" title="Approved by" ref="com.axelor.auth.db.User"
+      readonly="true"/>
+    <datetime name="approvedOn" title="Approved on" readonly="true"/>
+    <many-to-one name="signedBy" title="Signed by" ref="com.axelor.auth.db.User"
+      readonly="true"/>
+    <datetime name="signedOn" title="Signed on" readonly="true"/>
+
+    <!-- Corrections: a correcting report supersedes an earlier one (full-replacement, not deltas). -->
+    <string name="correctionReason" title="Correction reason" large="true" multiline="true"/>
+    <many-to-one name="supersededReport" title="Supersedes" ref="SaftReport"/>
+
+    <!-- Validation problems (blocking + warnings) linked to source Axelor records. -->
+    <one-to-many name="validationIssueList" title="Validation issues"
+      ref="SaftValidationIssue" mappedBy="saftReport"/>
+
+    <!-- Generated/prepared/signed artifacts for this report (shared NapArtifact registry). -->
+    <one-to-many name="artifactList" title="Files" ref="NapArtifact"
+      mappedBy="saftReport"/>
+
+    <!-- Every send attempt for this report. -->
+    <one-to-many name="submissionList" title="Submission attempts" ref="NapSubmission"
+      mappedBy="saftReport"/>
+
+    <!-- THE FILE THAT IS FILED: the last NapArtifact the generator wrote for this report (G6b). Set ONLY
+      by SaftReportWorkflowService#generate, never by a client (SaftReportStatusGuard); "Download for the
+      portal" and "Record filing" use exactly this artifact. Earlier generations stay in artifactList and
+      are never deleted — a new generation is a new artifact. -->
+    <many-to-one name="generatedArtifact" title="Generated file" ref="NapArtifact"
+      readonly="true"/>
+
+    <!-- Transient UI inputs (not persisted) for the manual portal filing (G6b): the incoming number and
+      the date the portal gave it, the НАП protocol (errsaft XML) and a rejection reason. -->
+    <string name="incomingNumberInput" title="НАП incoming number" transient="true"/>
+    <date name="portalDateInput" title="Portal filing date" transient="true"/>
+    <many-to-one name="protocolFile" title="НАП protocol (errsaft XML)"
+      ref="com.axelor.meta.db.MetaFile" transient="true"/>
+    <string name="rejectionReasonInput" title="Rejection reason" transient="true"/>
+    <string name="correctionReasonInput" title="Correction reason" transient="true"/>
+
+    <extra-code><![CDATA[
+      // reportTypeSelect (keep in sync with nap.saft.report.type.select)
+      public static final String REPORT_TYPE_MONTHLY = "monthly";
+      public static final String REPORT_TYPE_ANNUAL = "annual";
+      public static final String REPORT_TYPE_ON_DEMAND = "on_demand";
+
+      // lifecycleStatusSelect (keep in sync with nap.saft.lifecycle.status.select)
+      public static final String LIFECYCLE_DRAFT = "draft";
+      public static final String LIFECYCLE_VALIDATING = "validating";
+      public static final String LIFECYCLE_READY = "ready";
+      // G6b: the file was generated after a passing check and stored as an immutable NapArtifact.
+      public static final String LIFECYCLE_GENERATED = "generated";
+      public static final String LIFECYCLE_APPROVED = "approved";
+      public static final String LIFECYCLE_SIGNED = "signed";
+      public static final String LIFECYCLE_FAILED = "failed";
+      public static final String LIFECYCLE_SUPERSEDED = "superseded";
+
+      // readinessStatusSelect (keep in sync with nap.saft.readiness.status.select)
+      public static final String READINESS_NOT_CHECKED = "not_checked";
+      public static final String READINESS_INCOMPLETE = "incomplete";
+      public static final String READINESS_READY = "ready";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

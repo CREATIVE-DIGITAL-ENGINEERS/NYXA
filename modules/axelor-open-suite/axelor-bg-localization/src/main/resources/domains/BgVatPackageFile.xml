@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- One immutable file inside a BgVatPackage: filename, the stored MetaFile (exact bytes), SHA-256,
+    byte size, record count, status and validation messages, plus a safe truncated text preview. Once written
+    it is never modified — the SHA-256 pins the exact content used for preview and submission. NOTE: importId
+    is inherited from com.axelor.db.Model — do NOT declare it. -->
+  <entity name="BgVatPackageFile">
+
+    <many-to-one name="bgVatPackage"
+      ref="com.axelor.apps.bglocalization.db.BgVatPackage" title="Пакет" required="true"/>
+
+    <string name="scope" title="Вид" readonly="true"/>
+    <string name="fileName" title="Файл" namecolumn="true" readonly="true"/>
+    <many-to-one name="metaFile" ref="com.axelor.meta.db.MetaFile" title="Съдържание"
+      readonly="true"/>
+
+    <string name="sha256" title="SHA-256" readonly="true"/>
+    <long name="byteSize" title="Размер (байтове)" readonly="true"/>
+    <integer name="recordCount" title="Брой записи" readonly="true"/>
+    <string name="fileStatusSelect" title="Статус"
+      selection="bg.vat.package.file.status.select" readonly="true"/>
+    <string name="validationMessages" title="Съобщения" large="true" readonly="true"/>
+    <string name="textPreview" title="Преглед (текст)" large="true" readonly="true"/>
+
+    <boolean name="finalized" title="Финализиран" default="true" readonly="true"/>
+
+    <extra-code><![CDATA[
+      // fileStatusSelect (keep in sync with bg.vat.package.file.status.select)
+      public static final String STATUS_OK = "ok";
+      public static final String STATUS_EMPTY = "empty";
+      public static final String STATUS_ERROR = "error";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

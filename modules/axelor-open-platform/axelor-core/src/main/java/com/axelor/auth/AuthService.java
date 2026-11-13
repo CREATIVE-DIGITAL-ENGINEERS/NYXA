@@ -1,0 +1,234 @@
+/*
+ * Axelor Business Solutions
+ *
+ * Copyright (C) 2005-2026 Axelor (<http://axelor.com>).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package com.axelor.auth;
+
+import com.axelor.app.AppSettings;
+import com.axelor.app.AvailableAppSettings;
+import com.axelor.auth.db.User;
+import com.axelor.db.mapper.Mapper;
+import com.axelor.db.mapper.Property;
+import com.axelor.i18n.I18n;
+import com.axelor.inject.Beans;
+import com.axelor.rpc.ActionRequest;
+import com.axelor.rpc.ActionResponse;
+import com.axelor.rpc.Context;
+import com.google.common.base.Preconditions;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.apache.shiro.authc.credential.DefaultPasswordService;
+import org.apache.shiro.crypto.hash.DefaultHashService;
+import org.apache.shiro.crypto.hash.format.ParsableHashFormat;
+import org.apache.shiro.crypto.hash.format.Shiro1CryptFormat;
+
+/**
+ * The {@link AuthService} class provides various utility services including password encryption,
+ * password match and saving user password in encrypted form.
+ *
+ * <p>The {@link AuthService} should not be manually instantiated but either injected or user {@link
+ * #getInstance()} method to get the instance of the service.
+ */
+@Singleton
+public class AuthService {
+
+  private static final String HASH_ALGORITHM = "SHA-512";
+  private static final int HASH_ITERATIONS = 500000;
+
+  private final DefaultPasswordService passwordService = new DefaultPasswordService();
+
+  private final DefaultHashService hashService = new DefaultHashService();
+
+  private final ParsableHashFormat hashFormat = new Shiro1CryptFormat();
+
+  private static final String PASSWORD_PATTERN;
+  private static final String PASSWORD_PATTERN_TITLE;
+
+  private static final Pattern passwordPattern;
+
+  static {
+    final AppSettings settings = AppSettings.get();
+    PASSWORD_PATTERN = settings.get(AvailableAppSettings.USER_PASSWORD_PATTERN, ".{4,}");
+    PASSWORD_PATTERN_TITLE =
+        settings.get(
+            AvailableAppSettings.USER_PASSWORD_PATTERN_TITLE,
+            AvailableAppSettings.USER_PASSWORD_PATTERN_TITLE);
+    passwordPattern = Pattern.compile(PASSWORD_PATTERN);
+  }
+
+  @Inject
+  public AuthService() {
+    this.hashService.setHashAlgorithmName(HASH_ALGORITHM);
+    this.hashService.setHashIterations(HASH_ITERATIONS);
+    this.hashService.setGeneratePublicSalt(true);
+    this.passwordService.setHashService(hashService);
+    this.passwordService.setHashFormat(hashFormat);
+  }
+
+  /**
+   * Get the instance of the {@link AuthService}.
+   *
+   * @throws IllegalStateException if AuthService is not initialized
+   * @return the {@link AuthService} instance
+   */
+  public static AuthService getInstance() {
+    try {
+      return Beans.get(AuthService.class);
+    } catch (Exception e) {
+      throw new IllegalStateException(
+          "AuthService is not initialized, did you forget to bind the AuthService?");
+    }
+  }
+
+  /**
+   * Encrypt the given password text if it's not encrypted yet.
+   *
+   * <p>The method tests the password for a special format to check if it is already encrypted, and
+   * In that case the password is returned as it is to avoid multiple encryption.
+   *
+   * @param password the password to encrypt
+   * @return encrypted password
+   */
+  public String encrypt(String password) {
+    try {
+      hashFormat.parse(password);
+      return password;
+    } catch (IllegalArgumentException e) {
+    }
+    return passwordService.encryptPassword(password);
+  }
+
+  /**
+   * Encrypt the password of the given user.
+   *
+   * @param user the user whose password needs to be encrypted
+   * @return the same user instance
+   */
+  public User encrypt(User user) {
+    user.setPassword(encrypt(user.getPassword()));
+    return user;
+  }
+
+  /**
+   * This is an adapter method to be used with data import.
+   *
+   * <p>This method can be used as <code>call="com.axelor.auth.AuthService:encrypt"</code> while
+   * importing user data to ensure user passwords are encrypted.
+   *
+   * @param user the object instance passed by data import engine
+   * @param context the data import context
+   * @return the same instance passed
+   */
+  public Object encrypt(Object user, @SuppressWarnings("rawtypes") Map context) {
+    if (user instanceof User) {
+      return encrypt((User) user);
+    }
+    return user;
+  }
+
+  /**
+   * Match the given plain and saved passwords.
+   *
+   * @param plain the plain password text
+   * @param saved the saved password text (hashed)
+   * @return true if they match
+   */
+  public boolean match(String plain, String saved) {
+    return passwordService.passwordsMatch(plain, saved);
+  }
+
+  /**
+   * Helper action to check user password.
+   *
+   * @param request the request with username and password as context or data
+   * @param response the response, with user details if password matched
+   */
+  public void checkPassword(ActionRequest request, ActionResponse response) {
+    final Context context = request.getContext();
+    final Map<String, Object> data = context == null ? request.getData() : context;
+
+    final String username = (String) data.getOrDefault("username", data.get("code"));
+    final String password = (String) data.getOrDefault("password", data.get("newPassword"));
+
+    final User user = AuthUtils.getUser(username);
+    if (user == null || !match(password, user.getPassword())) {
+      response.setStatus(ActionResponse.STATUS_FAILURE);
+      response.setError("No such user or password doesn't match.");
+      return;
+    }
+
+    final Mapper mapper = Mapper.of(User.class);
+    final Property name = mapper.getNameField();
+    response.setValue("id", user.getId());
+    response.setValue("name", name.get(user));
+    response.setValue("nameField", name.getName());
+    response.setValue("login", user.getCode());
+    response.setValue("lang", user.getLanguage());
+  }
+
+  /**
+   * Changes user password.
+   *
+   * @param user
+   * @param password
+   */
+  public void changePassword(User user, String password) {
+    Preconditions.checkArgument(passwordMatchesPattern(password), getPasswordPatternTitle());
+
+    user.setPassword(encrypt(password));
+    user.setPasswordUpdatedOn(LocalDateTime.now());
+
+    final User authUser = AuthUtils.getUser();
+
+    // Update login date in session so that user changing own password doesn't get logged out.
+    if (authUser != null && authUser.getId().equals(user.getId())) {
+      Beans.get(AuthSessionService.class).updateLoginDate();
+    }
+  }
+
+  /**
+   * Checks whether the password matches the configured pattern.
+   *
+   * @param password
+   * @return
+   */
+  public boolean passwordMatchesPattern(String password) {
+    return passwordPattern.matcher(Optional.ofNullable(password).orElse("")).matches();
+  }
+
+  /**
+   * Gets configured user password pattern.
+   *
+   * @return
+   */
+  public String getPasswordPattern() {
+    return PASSWORD_PATTERN;
+  }
+
+  /**
+   * Gets configured user password pattern description.
+   *
+   * @return
+   */
+  public String getPasswordPatternTitle() {
+    return I18n.get(PASSWORD_PATTERN_TITLE);
+  }
+}

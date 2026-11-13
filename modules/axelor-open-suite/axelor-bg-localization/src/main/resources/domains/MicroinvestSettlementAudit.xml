@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Трайният резултат на ЕДНО source равнение.
+
+    ⚠️ Защо изобщо съществува: самият импорт-визард е transient, а докладът му живее само в
+    отворената сесия. FY2016 остави 102 неразрешени равнения, чиито причини се загубиха при
+    презареждане на екрана. Решението на всяко равнение — и при успех, и при отказ — се записва тук
+    и оцелява рестарт, повторен опит и смяна на оператора.
+
+    ⚠️ НЕ е паралелен счетоводен регистър: самото равнение е стандартният Axelor Reconcile. Тук се
+    пази само КАК е взето решението и КОИ MoveLine записи са кандидатствали — одитна следа, не
+    счетоводен запис.
+
+    Един ред на source равнение (unique по компания + source база + sourceId): повторният опит
+    ПРЕЗАПИСВА реда, а не добавя нов, затова N пробега дават N реда по едно равнение, не N*103. -->
+  <entity name="MicroinvestSettlementAudit">
+
+    <many-to-one name="company" title="Компания" ref="com.axelor.apps.base.db.Company"
+      required="true"/>
+
+    <!-- Source координатата: същата, от която се гради Reconcile.importId. -->
+    <string name="sourceDatabase" title="Source база" required="true"/>
+    <integer name="sourceId" title="Source равнение" required="true"/>
+    <integer name="financialYear" title="Финансова година"/>
+
+    <integer name="paymentEntryId" title="Source проводка плащане"/>
+    <integer name="settledEntryId" title="Source проводка документ"/>
+    <integer name="documentId" title="Source документ"/>
+    <string name="accountNumber" title="Сметка"/>
+    <decimal name="amount" title="Сума" precision="30" scale="10"/>
+
+    <integer name="statusSelect" title="Състояние"
+      selection="bglocalization.microinvest.settlement.audit.status.select"/>
+
+    <!-- Кое правило е определило разпределението; празно при отказ. -->
+    <string name="rule" title="Правило"/>
+
+    <!-- Създадените двойки при успех, или кандидатите при отказ — с id-та и суми. -->
+    <string name="moveLinePairs" title="MoveLine двойки" large="true" multiline="true"/>
+
+    <!-- Точната причина при отказ: какво трябва да реши счетоводителят. -->
+    <string name="reason" title="Причина" large="true" multiline="true"/>
+
+    <datetime name="attemptedAt" title="Последен опит"/>
+
+    <unique-constraint columns="company,sourceDatabase,sourceId"/>
+
+    <extra-code><![CDATA[
+      // statusSelect (keep in sync with bglocalization.microinvest.settlement.audit.status.select)
+      public static final int STATUS_RECONCILED = 1;
+      public static final int STATUS_REUSED = 2;
+      public static final int STATUS_UNRESOLVED = 3;
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

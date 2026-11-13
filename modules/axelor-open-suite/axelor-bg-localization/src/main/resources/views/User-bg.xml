@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ПАРТНЬОРЪТ НА ПОТРЕБИТЕЛЯ Е СИСТЕМЕН: без дружество, само за
+    nyxa.admin, създаден сам с новия потребител (BgUserRepository → BgSystemPartner). Попъпът „нов“
+    и бутонът „Create Partner“ биха създали партньор на дружество (активното) и биха го закачили на
+    потребителя — затова ги няма. Полето е два пъти във формата (съветникът и обикновеният изглед). -->
+  <form name="user-form" title="User" id="bg-localization-user-form"
+    model="com.axelor.auth.db.User" extension="true">
+    <extend target="//panel[@name='stepContactPanel']//field[@name='partner']">
+      <attribute name="canNew" value="false"/>
+    </extend>
+    <extend target="//panel[@name='stepContactPanel']//button[@name='createPartnerBtn']">
+      <attribute name="showIf" value="false"/>
+    </extend>
+    <extend target="//panel-tabs[@name='mainPanelTab']//field[@name='partner']">
+      <attribute name="canNew" value="false"/>
+    </extend>
+    <extend target="//panel-tabs[@name='mainPanelTab']//button[@name='createPartnerBtn']">
+      <attribute name="showIf" value="false"/>
+    </extend>
+  </form>
+
+</object-views>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Сума на МОД за конкретна квалификационна група в рамките на един ред от Приложение №1. Липсваща
+    (bgMinInsuranceIncome × bgQualificationGroup) комбинация означава, че тя не е предвидена в ЗБДОО — това
+    НЕ е МРЗ fallback. ⚠️ ЗА ДАННИТЕ горното е вярно; за ИЗЧИСЛЕНИЕТО не бива да се чете като „няма праг“.
+    Липсата на ред не значи липса на праг — значи, че прагът идва от КСО чл. 6 ал. 3: минималната месечна
+    работна заплата за страната. Дословно: „…но върху не по-малко от минималния осигурителен доход по ал.
+    2, т. 3, а за лицата, за които не е определен минимален осигурителен доход — минималната месечна работна
+    заплата за страната…“. Тоест позиция без под няма. Данните не правят fallback; законът прави. -->
+  <entity name="BgMinInsuranceIncomeAmount">
+    <many-to-one name="bgMinInsuranceIncome" title="Ред по Приложение №1"
+      required="true" ref="com.axelor.apps.bglocalization.db.BgMinInsuranceIncome"/>
+    <integer name="bgQualificationGroup" title="Квалификационна група" required="true"
+      min="1" max="9"/>
+    <decimal name="amount" title="Мин. осигурителен доход (EUR)" required="true"
+      precision="10" scale="2"/>
+
+    <unique-constraint columns="bgMinInsuranceIncome,bgQualificationGroup"/>
+
+  </entity>
+
+</domain-models>

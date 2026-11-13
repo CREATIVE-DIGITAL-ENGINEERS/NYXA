@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="studio" package="com.axelor.studio.db"/>
+
+  <!-- ⚠️ БЕЗ ТАЗИ ВРЪЗКА „КОНФИГУРИРАНЕ“ НА КАРТАТА „BG Localization“ КАЗВА „No configuration required“.
+    axelor-studio 3.5.0, AppController#configure (декомпилирано): чете от контекста на картата полето
+    "app" + Inflector.camelize(code) — за code „bg-localization“ това е appBgLocalization — и САМО ако
+    то не е null търси MetaView type='form', model=com.axelor.studio.db.AppBgLocalization, name LIKE
+    '%-config-form'. Всеки модул на AOS добавя към App своята обратна връзка (axelor-account/domains/
+    App.xml: appAccount, appInvoice); този модул я нямаше, тоест формата app-bg-localization-config-form
+    беше вярна по име и недостижима. Свидетел: BgAppConfigReachabilityTest. -->
+  <entity name="App" cacheable="true">
+    <one-to-one ref="com.axelor.studio.db.AppBgLocalization" name="appBgLocalization"
+      mappedBy="app"/>
+  </entity>
+
+</domain-models>

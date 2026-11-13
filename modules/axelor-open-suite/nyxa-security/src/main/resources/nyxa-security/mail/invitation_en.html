@@ -1,0 +1,60 @@
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f4f5f7;margin:0;padding:24px 0;">
+  <tr>
+    <td align="center">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;background-color:#ffffff;border-radius:8px;border:1px solid #e3e5e8;">
+
+        <tr>
+          <td style="padding:32px 40px 8px 40px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+            <p style="margin:0;font-size:13px;line-height:20px;color:#6b7280;letter-spacing:0.04em;text-transform:uppercase;">Nyxa</p>
+            <h1 style="margin:8px 0 0 0;font-size:22px;line-height:30px;color:#111827;font-weight:600;">You have been given access</h1>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:16px 40px 0 40px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+            <p style="margin:0;font-size:15px;line-height:24px;color:#374151;">
+              Your account has been set up for <strong style="color:#111827;">{{CLIENT_ID}}</strong>.
+              Sign in with this email address:
+            </p>
+            <p style="margin:12px 0 0 0;font-size:15px;line-height:24px;color:#111827;font-weight:600;">{{USER_EMAIL}}</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:24px 40px 0 40px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <!-- Button as a padded table cell, not a styled <button> or <a>:
+                     the cell background is what actually renders in Outlook. -->
+                <td align="center" style="background-color:#111827;border-radius:6px;">
+                  <a href="{{LOGIN_URL}}" style="display:inline-block;padding:12px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;line-height:20px;color:#ffffff;text-decoration:none;">Sign in</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:24px 40px 0 40px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+            <p style="margin:0;font-size:13px;line-height:20px;color:#6b7280;">Your access level</p>
+            <p style="margin:4px 0 0 0;font-size:14px;line-height:22px;color:#374151;">{{ROLES}}</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:24px 40px 32px 40px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+            <p style="margin:0;padding-top:20px;border-top:1px solid #e3e5e8;font-size:13px;line-height:20px;color:#6b7280;">
+              The first time you sign in, choose <strong>&ldquo;No account? Create one&rdquo;</strong> and enter this same email address. You will be sent a one-time code to confirm it - there is no password to set up.
+              If you were not expecting this invitation, you can ignore this message.
+            </p>
+            <p style="margin:12px 0 0 0;font-size:13px;line-height:20px;color:#9ca3af;">
+              If the button does not work, open this link:<br>
+              <a href="{{LOGIN_URL}}" style="color:#6b7280;text-decoration:underline;word-break:break-all;">{{LOGIN_URL}}</a>
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>

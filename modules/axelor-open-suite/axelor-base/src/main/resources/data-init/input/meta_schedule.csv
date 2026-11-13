@@ -1,0 +1,2 @@
+"active";"name";"job";"cron"
+"true";"Курсове на ЕЦБ — работни дни, 17:30";"com.axelor.apps.base.job.CurrencyConversionJob";"0 30 17 ? * MON-FRI"

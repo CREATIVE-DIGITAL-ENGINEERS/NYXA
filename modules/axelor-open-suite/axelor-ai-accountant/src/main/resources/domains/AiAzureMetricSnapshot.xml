@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="aiaccountant" package="com.axelor.apps.aiaccountant.db"/>
+
+  <!-- A local copy of one Azure Monitor datapoint for the Foundry resource.
+
+    WHY IT EXISTS. Azure Monitor is the authority on what the resource actually served — it counts
+    every request, including anything that never went through this application at all — while
+    AiUsageStat is the only source for the breakdown Azure cannot give (which agent, which caller,
+    which company, which outcome). The Stats page shows both, side by side, and neither is derived
+    from the other. Copying the datapoints locally is what lets ordinary Axelor charts render them:
+    a <chart> reads JPQL, it cannot call a REST API, and embedding the portal's own charts was never
+    an option.
+
+    ONE CANONICAL SERIES PER GRAIN — WHY THE UNIQUE CONSTRAINT IS THE WHOLE DESIGN. The obvious
+    implementation, asking Azure for 24h and 7d and 30d on every poll and inserting what comes back,
+    silently triples every bucket that appears in more than one window and every chart built on it
+    reads high. So there are at most two series per metric — hourly for the recent view, daily for the
+    longer ones — each identified by (resource, metric, aggregation, grain, bucket, dimensions), and a
+    poll UPSERTS that identity rather than inserting. A dashboard window is then a WHERE clause over
+    one series, never a stored copy of its own. Charts must always constrain `intervalGrain`;
+    selecting across grains sums the same hour twice, once from each series.
+
+    WHY THE ROLLING RE-FETCH. Each poll re-reads its whole lookback window rather than only what is
+    new, because Azure revises recent buckets after the fact. Re-reading and overwriting is what makes
+    a late correction land; asking only for new buckets would freeze the first, incomplete figure.
+
+    WHY THE VALUE IS DECIMAL. Token and request counters are whole numbers, but latency, rates and
+    every Average aggregation are not. A long would silently truncate them.
+
+    WHY dimensionKey EXISTS BESIDE THE NAMED COLUMNS. Azure's dimension set differs per metric, so a
+    fixed column per dimension is either wrong for some metric or a schema change away from being
+    wrong. dimensionKey is a canonical, deterministically ordered encoding of the whole tuple and
+    exists so the unique identity is complete whatever the dimensions turn out to be;
+    modelDeploymentName and modelName are stored again, on their own, only so charts can group by them
+    without parsing a string. -->
+  <entity name="AiAzureMetricSnapshot">
+
+    <!-- The ARM resource id the datapoint was read from. Part of the identity so pointing the module
+      at a second Foundry resource cannot collide with what was already collected from the first. -->
+    <string name="resourceId" title="Resource ID" required="true" max="512"/>
+
+    <string name="metricName" title="Metric" required="true" max="128" index="true"/>
+
+    <!-- `Total`, `Average`, `Count`, … The same metric under two aggregations is two series, not one
+      value measured twice. -->
+    <string name="aggregation" title="Aggregation" required="true" max="32"/>
+
+    <!-- ISO 8601 duration: `PT1H` or `P1D`. Part of the identity, and the column every chart must
+      filter on. -->
+    <string name="intervalGrain" title="Grain" required="true" max="16" index="true"/>
+
+    <!-- Start of the bucket, UTC, as Azure reported it. -->
+    <datetime name="bucketTimestamp" title="Bucket" required="true" index="true"/>
+
+    <!-- Canonical encoding of the full dimension tuple, e.g.
+      `ModelDeploymentName=gpt-4o|ModelName=gpt-4o-2024-08-06`. Empty string, never null, when the
+      metric has no dimensions — a null here would make the unique constraint stop constraining,
+      since two nulls do not conflict in SQL. -->
+    <string name="dimensionKey" title="Dimensions" required="true" max="512" default=""/>
+
+    <string name="modelDeploymentName" title="Deployment" max="128"/>
+    <string name="modelName" title="Model" max="128"/>
+
+    <string name="unit" title="Unit" max="32"/>
+
+    <decimal name="metricValue" title="Value" precision="20" scale="6" default="0"/>
+
+    <!-- When this row was last written from Azure. Read by the Stats page to say how fresh the panel
+      is, which is the difference between "the assistant was quiet" and "the poll has been failing". -->
+    <datetime name="collectedDateTime" title="Collected"/>
+
+    <unique-constraint
+      columns="resourceId,metricName,aggregation,intervalGrain,bucketTimestamp,dimensionKey"/>
+
+  </entity>
+
+</domain-models>

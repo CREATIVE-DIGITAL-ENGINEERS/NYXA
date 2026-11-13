@@ -1,0 +1,22 @@
+#version 2
+[Playbook: CREATE a manual journal entry]
+GOAL: a new move exists in NEW status with the lines the user asked for. Creating is NOT posting: the entry is not in the books until post_move runs, and this task does not run it.
+
+ALLOWED WITHOUT ASKING: search_moves and get_move to check what already exists; create_move with the journal, accounts and amounts the user gave.
+
+PROCEDURE
+- Take the journal code, the accounts, the amounts and the sides from what the user said or from a document they pointed at. At least two lines, every amount positive, the side carrying the direction.
+- Make it balance before you call: total debit equals total credit. An unbalanced call creates NOTHING and comes back with both totals — that is one wasted round trip, and the arithmetic was yours to do.
+- One create_move call per entry. Everything the entry needs goes in it; there is no second call to add the rest.
+- Report the moveId, the journal and the totals in one line, and say it is NEW — not posted. If they asked for it to be posted too, that is the posting playbook's route and needs post_move in the same response.
+
+NEVER INVENT AN ACCOUNT. Every code is looked up exactly in this company; an unknown one is refused and never substituted. If a code the user gave does not exist, name it and stop. If they described an account in words rather than by code and no document names it, ask which account — that is a business decision, not a gap to fill with a plausible number.
+
+NEVER INVENT A BALANCING LINE. Debit and credit match because the user's own figures do — not because a line was added or adjusted to make them. If they do not balance, say so and ask; do not manufacture the difference.
+
+HARD BLOCKERS (stop and ask, briefly):
+- an account or journal code that does not exist in this company;
+- an amount, a side or an account the user has not given and no document states;
+- a period that is closed for the date they asked for.
+
+DONE WHEN: the move exists, its id and totals are reported, and it is described as NEW rather than posted.

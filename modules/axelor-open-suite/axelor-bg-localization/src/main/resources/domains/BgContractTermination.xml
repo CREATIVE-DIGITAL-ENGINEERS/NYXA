@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ПРЕКРАТЯВАНЕТО НА ТРУДОВИЯ ДОГОВОР КАТО СЪБИТИЕ — закачалката на ЕТЗ тип 3.
+
+    ═══ ЗАЩО ОТДЕЛЕН ЗАПИС ═══
+
+    „Един документ — едно подаване“ (NapFilingLock) заключва по relatedModel + relatedRecordId. ЕТЗ за
+    сключването е закачено за договора; закачено за договора и прекратяването, подаденото сключване
+    би го заключило. Затова прекратяването е свой ред и подаването му сочи него,
+    а NapFilingLock не се пипа.
+
+    ═══ ЕДНА ДАТА ЗА ВСИЧКО ═══
+
+    При създаването датата идва от BgCompensationResolver.terminationDateOf() — bgTerminationDate на
+    договора, а при срочен договор без нея — уговореният край — и се ЗАПИСВА в bgTerminationDate на
+    договора. Така ЕТЗ, Д1 и обезщетението по вид 27 четат една стойност. Оттук нататък датата се сменя
+    само през този запис (BgEmploymentContractManagementRepository отказва друг път), а след подаден
+    ЕТЗ за прекратяването — изобщо не (само с корекция).
+
+    ⚠️ ОСНОВАНИЕТО НЕ Е ТУК. То е EndOfContractReason на договора — същото, което чете и обезщетението;
+    не се дублира.
+
+    ⚠️ Т. 25 / 30 / 31 още не се изчисляват. Дотогава генерирането за прекратяване отказва открито.
+
+    Таблицата е от ddl=update, без SQL файл: нова таблица Hibernate прави сам. -->
+  <entity name="BgContractTermination">
+
+    <many-to-one name="employmentContract" title="Трудов договор" required="true"
+      ref="com.axelor.apps.hr.db.EmploymentContract"/>
+
+    <!-- т. 26 — датата на прекратяване. Единственият източник от създаването нататък. -->
+    <date name="terminationDate" title="Дата на прекратяване" required="true"/>
+
+    <!-- Датата е взета от уговорения край (endDate), а не от изрична дата на прекратяване. Панелът го
+      казва на глас, вместо да го премълчи. -->
+    <boolean name="fromAgreedEnd" title="Датата е уговореният край на срочния договор"
+      default="false"/>
+
+    <unique-constraint columns="employmentContract" name="uk_bg_contract_termination_contract"/>
+  </entity>
+
+</domain-models>

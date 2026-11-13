@@ -1,0 +1,46 @@
+.logo {
+  max-width: 175px;
+  max-height: 100px;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.notice {
+  font-size: small;
+  margin-bottom: 0.5rem;
+}
+
+// the logos are JPG artwork on white: keep the whole block on white in the dark theme too
+.funding {
+  background-color: #fff;
+  color: #212529;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.fundingLogos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.fundingProject {
+  font-size: small;
+  text-align: justify;
+  margin: 0.5rem 0;
+}
+
+.euEmblem {
+  height: 128px;
+  max-width: 100%;
+}
+
+// same height as the emblem: the logo is stacked with wide margins, so its mark stays smaller
+// than the EU flag
+.programmeLogo {
+  height: 128px;
+  max-width: 100%;
+  object-fit: contain;
+}

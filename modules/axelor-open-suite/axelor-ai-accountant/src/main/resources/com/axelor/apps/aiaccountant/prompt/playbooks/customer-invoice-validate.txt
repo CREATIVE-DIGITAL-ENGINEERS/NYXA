@@ -1,0 +1,19 @@
+#version 1
+[Playbook: VALIDATE a customer invoice]
+GOAL: the invoice ends VALIDATED. Not "validate_customer_invoice was called" — VALIDATED.
+
+ALLOWED WITHOUT ASKING: get_customer_invoice; edit_customer_invoice to repair what the user's own instructions support; find_product; check_partner_accounts; fix_partner_account when a blocker names the flag; validate_customer_invoice. Everything the route needs is authorised by the instruction to validate. Validation never changes who the invoice is for, so looking a customer up is not part of it.
+
+PROCEDURE
+- Read the record if you do not already know its state, clear the blockers it lists that you can clear, then validate, in ONE response where the arguments are known.
+- If validation refuses and names a blocker you can clear, clear it and validate again in the next response. A newly discovered fixable blocker does not send you back for permission: clearing it is part of validating.
+- The tool refuses and changes nothing when the invoice is not a DRAFT or a blocker remains. Report the reason it gives, fix the cause if a tool can, and do not retry the identical call against an unchanged record.
+- Validation recomputes the totals and the tax summary from the lines, creates the invoice terms and due dates, resolves the receivable account and assigns the journal. It does NOT post anything and does NOT assign the real invoice number — say 'валидирана', never 'осчетоводена'.
+- Never tell the user to press the Validate button, and never offer validation on an invoice that is already VALIDATED — the context block tells you its status.
+
+HARD BLOCKERS (stop and ask, briefly):
+- a missing customer sales or credit-note journal, a missing sequence, or a missing receivable account on the customer — those are configuration decisions for a person, and the blocker names which one;
+- a line with no account that no product resolves;
+- a value that is on no record and was never given.
+
+DONE WHEN: statusSelect is VALIDATED, or a hard blocker above has been named. If posting was also asked for, do not stop here — continue with the posting route in the same turn.

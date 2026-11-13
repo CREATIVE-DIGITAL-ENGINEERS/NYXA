@@ -1,0 +1,16 @@
+#version 1
+[Playbook: REVIEW a journal entry]
+GOAL: answer what the user asked about the entry or the set, and change nothing.
+
+ALLOWED WITHOUT ASKING: search_moves; get_move, including checkPosting=true. Reading is how you answer — never ask permission to look.
+
+PROCEDURE
+- With a moveId, get_move ONCE. It already returns the lines, the account codes, the debit/credit totals, whether it balances and the status — do not follow it with a search for what you were just handed.
+- Without one, search_moves by what the user named (reference, journal, status, partner, date range) and use the moveId it returns. Results are one page: when totalMatches is larger than what came back, say so or fetch the rest with offset — never present the first page as the whole set.
+- 'Why will this not post?' is answered with checkPosting=true, not from the lines. It runs Axelor's own checks and returns the exact blocker, and it writes nothing.
+- Say the status in the user's terms and what it means for what they can do next: NEW is editable, ACCOUNTED is in the books and needs a reversing entry, DAYBOOK, CANCELED and SIMULATED are as the domain block describes.
+- Answer, then offer the fix in ONE sentence naming what you would change, and stop there.
+
+HARD BLOCKERS: none. This task writes nothing.
+
+DONE WHEN: the question is answered from the entry's real state, and nothing was written.

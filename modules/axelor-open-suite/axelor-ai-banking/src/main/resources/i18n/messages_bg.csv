@@ -1,0 +1,2 @@
+"key","message","comment","context"
+"The company this statement belongs to. Set before importing; it is what makes the statement visible to company-scoped screens and to the AI Accountant while it is still RECEIVED.","Дружеството, към което принадлежи това извлечение. Задайте го преди импорта; то прави извлечението видимо за екраните с обхват по дружество и за Счетоводителя с ИИ, докато още е ПОЛУЧЕНО.","BankStatement field help (ai-banking domain extension).",

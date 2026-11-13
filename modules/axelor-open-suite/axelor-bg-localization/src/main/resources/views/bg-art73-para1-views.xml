@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ Справка по чл. 73, ал. 1 ЗДДФЛ — образец 5-2001 ============
+
+    Екранът следва ОБРАЗЕЦА: Част І (идентификация на платеца), после Част ІІ (данни за изплатените
+    доходи, колони 1–15). Номерата на колоните стоят в заглавията, защото те са единственото, по
+    което човек сверява екрана срещу хартията.
+
+    ⚠️ ГЕНЕРИРАНЕТО НЕ ПОДАВА НИЩО. „Закачи към НАП“ записва РЪЧНО подаване през портала —
+    справката получава място в одитната следа, а транспорт няма. -->
+
+  <grid name="bg-art73-para1-report-grid" title="Справки по чл. 73, ал. 1"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para1Report" orderBy="-taxYear">
+    <field name="taxYear" width="120"/>
+    <field name="company"/>
+    <field name="payerIdentifier" width="140"/>
+    <field name="payerName"/>
+    <field name="statusSelect" width="130"/>
+    <field name="generatedFile" width="160"/>
+    <field name="napSubmission"/>
+    <field name="napIncomingNumber" width="150"/>
+  </grid>
+
+  <form name="bg-art73-para1-report-form" title="Справка по чл. 73, ал. 1 (образец 5-2001)"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para1Report" width="large">
+
+    <panel name="mainPanel" title="Справка">
+      <field name="company" colSpan="6"/>
+      <field name="taxYear" colSpan="3"
+        help="ДАНЪЧНАТА година, за която се подава — не годината на подаване. Редовете влизат по годината на датата на изплащане (чл. 11)."/>
+      <field name="statusSelect" colSpan="3" readonly="true"/>
+    </panel>
+
+    <panel name="partOnePanel" title="Част І — идентификационни данни за платеца на дохода">
+      <field name="payerIdentifier" colSpan="4"
+        help="Т. 1 — ЕИК/Служебен № от регистъра на НАП. Замразява се при първото генериране: подадена справка трябва да показва данните, с които Е БИЛА подадена."/>
+      <field name="payerName" colSpan="8"
+        help="Т. 2 — наименование на предприятието/име на самоосигуряващото се лице."/>
+      <field name="contactPhone" colSpan="4" help="Т. 3.1 — телефон за контакт."/>
+      <field name="contactEmail" colSpan="8" help="Т. 3.2 — e-mail за контакт."/>
+      <!-- ⚠️ Т. 4 се попълва САМО когато платецът е юридическо лице (текст на образеца). При
+        самоосигуряващо се лице празното е отговор, а не пропуск. -->
+      <field name="representativeName" colSpan="8"
+        help="Т. 4.1 — попълва се САМО когато платецът е юридическо лице."/>
+      <field name="representativeIdentifier" colSpan="4"
+        help="Т. 4.2 — ЕГН/ЛН/ЛНЧ/Служебен № от регистъра на НАП на представляващия."/>
+    </panel>
+
+    <!-- ⚠️ ДВА БУТОНА ЗА ГЕНЕРИРАНЕ, А НЕ ЕДИН. Щом веднъж е произведен файл, редовете зад него са
+      раздадени — свалени, може и качени. Второ натискане на СЪЩИЯ бутон би ги презаписало мълчаливо
+      и екранът щеше да се разминава със свалèния файл. Затова пресъздаването е ИЗРИЧНО и се вижда
+      само когато справката е заключена. -->
+    <panel name="actionPanel" title="Действия" showIf="id != null">
+      <button name="generateBtn" title="Генерирай от регистъра"
+        onClick="action-bg-art73-para1-generate"
+        hideIf="generatedFile != null || statusSelect == 'SUBMITTED' || statusSelect == 'ACCEPTED' || statusSelect == 'REJECTED'"
+        help="Слива редовете на регистъра за годината по ЛИЦЕ + КОД НА ДОХОДА + КОД КОРЕКЦИЯ и произвежда файла."/>
+      <button name="regenerateBtn" title="Генерирай НАНОВО (обезсилва файла)"
+        onClick="action-bg-art73-para1-regenerate"
+        showIf="generatedFile != null || statusSelect == 'SUBMITTED' || statusSelect == 'ACCEPTED' || statusSelect == 'REJECTED'"
+        help="Строи справката наново и ОБЕЗСИЛВА стария файл. Указание т. 2 дава право на промени в данните за конкретно лице до 30 септември. Старото подаване и неговият файл остават в одитната следа."/>
+      <button name="downloadBtn" title="Изтегли файла"
+        onClick="action-bg-art73-para1-download" showIf="generatedFile != null"
+        help="Сваля ТОЧНО байтовете, които ще бъдат закачени към подаването. Провери ги, преди да ги качиш на портала — по чл. 82 ЗДДФЛ отговорността за верността е твоя."/>
+      <!-- ⚠️ НЕ иска наш файл: свидетелят е ВХОДЯЩИЯТ НОМЕР, а не файлът. Докато форматът не
+        дойде, човек подава със свой файл през портала и периодът пак трябва да има следа. -->
+      <button name="attachBtn" title="Отбележи ПОДАДЕНА (портал)"
+        onClick="action-bg-art73-para1-attach"
+        showIf="napSubmission == null || statusSelect == 'GENERATED'"
+        help="Иска входящ № и дата от портала (попълни ги по-долу). Ако Nyxa е генерирала файл, той се закача към подаването; ако не — подаването сочи файла, който ти си качил. НИЩО не се изпраща."/>
+      <field name="napSubmission" colSpan="6" readonly="true" showIf="napSubmission != null"/>
+    </panel>
+
+    <!-- ⚠️ ФАЙЛЪТ СЕ ВИЖДА ПРЕДИ ПОДАВАНЕТО, А НЕ СЛЕД НЕГО. Отпечатъкът стои до файла нарочно:
+      той е единственото, с което свалилият може да сравни какво държи срещу това, което екранът
+      твърди, че е генерирал. -->
+    <panel name="filePanel" title="Генериран файл" showIf="generatedFile != null">
+      <field name="generatedFile" colSpan="6" readonly="true"/>
+      <field name="fileGeneratedOn" colSpan="6" readonly="true"/>
+      <field name="fileRecordCount" colSpan="3" readonly="true"
+        help="Броят ЗАПИСИ във файла — НАП сверява точно това число."/>
+      <field name="fileSha256" colSpan="9" readonly="true"
+        help="Отпечатъкът на ТОЧНО тези байтове. Свали файла и го сравни — ако се разминава, свалèното не е генерираното."/>
+      <field name="generatedArtifact" colSpan="6" readonly="true"
+        help="Непроменимият артефакт на същите байтове. Подаването сочи него — втори артефакт за същото съдържание не се създава."/>
+    </panel>
+
+    <!-- ⚠️ РЪЧЕН ИЗХОД, ЗАЩОТО КАНАЛЪТ Е РЪЧЕН. manual_portal по устройство не извършва транспорт
+      и не може да върне отговор; без тази врата „Приета“ и „Отхвърлена“ остават състояния, които
+      селекцията обещава, а нищо не достига. -->
+    <!-- ⚠️ ПОЛЕТАТА СТОЯТ ОТВОРЕНИ ПРЕДИ ОТБЕЛЯЗВАНЕТО, не след него: входящият номер е ВХОД за
+      „Отбележи ПОДАДЕНА“, а не резултат от него. Скрити до създаването на подаването, те щяха да се
+      искат от бутон, който няма откъде да ги прочете. -->
+    <panel name="outcomePanel" title="Портал (ръчно)" showIf="id != null">
+      <field name="napIncomingNumber" colSpan="6"
+        help="Входящият номер или номерът на протокола, който порталът е върнал при качването."/>
+      <field name="napResponseDate" colSpan="6"
+        help="Датата от портала — не днешната. Срещу нея се чете „подадено ли е навреме“."/>
+      <field name="napResponseNote" colSpan="12" widget="text" height="4"/>
+      <button name="markAcceptedBtn" title="Отбележи ПРИЕТА"
+        onClick="action-bg-art73-para1-mark-accepted" colSpan="3"
+        showIf="napSubmission != null"/>
+      <button name="markRejectedBtn" title="Отбележи ОТХВЪРЛЕНА"
+        onClick="action-bg-art73-para1-mark-rejected" colSpan="3"
+        showIf="napSubmission != null"/>
+    </panel>
+
+    <panel-related name="recordPanel" field="recordList" title="Част ІІ — данни за изплатените доходи"
+      grid-view="bg-art73-para1-record-grid" form-view="bg-art73-para1-record-form"
+      colSpan="12"/>
+
+    <!-- ⚠️ ГРАНИЦИТЕ СЕ ЧЕТАТ ПРЕДИ ПОДАВАНЕ, НЕ СЛЕД ТОВА. Указание т. 6 към образеца: справка,
+      която не съдържа всички изискуеми данни, „не се счита за достоверна и не се приема“, а по
+      чл. 82 ЗДДФЛ за неверни или непълни данни се носи отговорност. Затова панелът е отворен. -->
+    <panel name="boundaryPanel" title="⚠️ Граници на изведеното — прочети преди подаване">
+      <field name="bgBoundaryReport" showTitle="false" colSpan="12" readonly="true"
+        widget="text" height="18"/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Част ІІ — един ред, колони 1 до 15 ============ -->
+
+  <grid name="bg-art73-para1-record-grid" title="Част ІІ — данни за изплатените доходи"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para1Record" editable="false">
+    <field name="correctionCode" width="110"/>
+    <field name="isForeign" width="90"/>
+    <field name="identifierType" width="110"/>
+    <field name="identifier" width="130"/>
+    <field name="birthDate" width="110"/>
+    <field name="firstName"/>
+    <field name="middleName"/>
+    <field name="lastName"/>
+    <field name="countryCode" width="90"/>
+    <field name="incomeType" width="120"/>
+    <field name="grossAmount" width="130"/>
+    <field name="insuranceAmount" width="120"/>
+    <field name="taxAmount" width="120"/>
+    <field name="personCount" width="90"/>
+    <field name="predecessorIdentifier" width="130"/>
+  </grid>
+
+  <form name="bg-art73-para1-record-form" title="Ред от Част ІІ"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para1Record" width="large">
+
+    <panel name="identityPanel" title="Идентификация (колони 1–9)">
+      <field name="correctionCode" colSpan="4"
+        help="Колона 1. „0“ основни, „1“ коригиращи, „8“ заличаващи. ⚠️ При заличаване се попълват САМО колони 1, 2, 3, 4 или 5, 6, 7, 8 и 10 — нито една сума."/>
+      <field name="isForeign" colSpan="4" help="Колона 2 — „1“ за чуждестранно физическо лице."/>
+      <field name="identifierType" colSpan="4"
+        help="Колона 3. При „3“ (чуждестранно лице без идентификатор) колона 4 НЕ се попълва, а се попълва датата на раждане в колона 5."/>
+      <field name="identifier" colSpan="4" hideIf="identifierType == '3'"/>
+      <field name="birthDate" colSpan="4" showIf="identifierType == '3'"/>
+      <field name="countryCode" colSpan="4" showIf="isForeign"
+        help="Колона 9 — попълва се САМО за чуждестранни физически лица."/>
+      <field name="firstName" colSpan="4"/>
+      <field name="middleName" colSpan="4"/>
+      <field name="lastName" colSpan="4"/>
+    </panel>
+
+    <panel name="incomePanel" title="Доход (колони 10–15)">
+      <field name="incomeType" colSpan="12"/>
+      <field name="grossAmount" colSpan="4"
+        help="Колона 11 — БРУТНИЯТ размер за годината, без приспаднати нормативни разходи и без направените удръжки (указание т. 8). Нормативните разходи и данъчната основа живеят в регистъра и НЯМАТ колона в тази справка."/>
+      <field name="insuranceAmount" colSpan="4"/>
+      <field name="taxAmount" colSpan="4"
+        help="Колона 13. Нула тук е ЗАКОНЕН отговор за необлагаемите доходи по Част ІV — чл. 73, ал. 1, т. 4 изрично иска да бъдат описани в справката."/>
+      <field name="personCount" colSpan="4"
+        help="Колона 14 — попълва се САМО за кодове 5031 и 8141 (указание т. 5). Код 820 е сборен ред БЕЗ брой лица."/>
+      <field name="predecessorIdentifier" colSpan="8"
+        help="Колона 15 — ЕИК на преобразуващото се предприятие, когато справката се подава от правоприемник. Не се попълва за кодове 5031, 8141 и 820."/>
+    </panel>
+
+    <panel name="tracePanel" title="Проследимост">
+      <field name="partner" colSpan="6" readonly="true"
+        help="⚠️ ПРАЗНО за сборните редове (5031, 8141, 820): такъв ред обединява всички лица и няма едно, към което да сочи — точно затова колони 2–9 не се попълват."/>
+      <field name="paymentCount" colSpan="6" readonly="true"
+        help="Колко реда на регистъра са слети тук. ⚠️ Различно от колона 14: там са ЛИЦА, тук са ПЛАЩАНИЯ."/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Actions ============ -->
+
+  <action-method name="action-bg-art73-para1-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgArt73Para1ReportController"
+      method="generate"/>
+  </action-method>
+
+  <action-method name="action-bg-art73-para1-regenerate">
+    <call class="com.axelor.apps.bglocalization.web.BgArt73Para1ReportController"
+      method="regenerate"/>
+  </action-method>
+
+  <action-method name="action-bg-art73-para1-download">
+    <call class="com.axelor.apps.bglocalization.web.BgArt73Para1ReportController"
+      method="downloadFile"/>
+  </action-method>
+
+  <action-method name="action-bg-art73-para1-attach">
+    <call class="com.axelor.apps.bglocalization.web.BgArt73Para1ReportController" method="attach"/>
+  </action-method>
+
+  <action-method name="action-bg-art73-para1-mark-accepted">
+    <call class="com.axelor.apps.bglocalization.web.BgArt73Para1ReportController"
+      method="markAccepted"/>
+  </action-method>
+
+  <action-method name="action-bg-art73-para1-mark-rejected">
+    <call class="com.axelor.apps.bglocalization.web.BgArt73Para1ReportController"
+      method="markRejected"/>
+  </action-method>
+
+  <action-view name="bg.art73.para1.report.all" title="Справка по чл. 73, ал. 1"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para1Report">
+    <view type="grid" name="bg-art73-para1-report-grid"/>
+    <view type="form" name="bg-art73-para1-report-form"/>
+  </action-view>
+
+  <!-- ⚠️ До регистъра, който я захранва — вече под „НАП“, където е и той. Справката се ПОДАВА, и
+    органът, срокът и форматът ѝ идват от НАП, не от ведомостта. -->
+  <menuitem name="nyxa-payroll-art73-para1" parent="nap-root" groups="admins"
+    title="Справка чл. 73, ал. 1 (ЗДДФЛ)" action="bg.art73.para1.report.all" order="630"/>
+
+</object-views>

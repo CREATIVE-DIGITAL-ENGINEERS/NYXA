@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="aiaccountant" package="com.axelor.apps.aiaccountant.db"/>
+
+  <!-- One bubble of the visible AI Accountant chat, exactly as the panel renders it.
+
+    WHY IT EXISTS. A transcript kept only in the browser's localStorage, under a key containing the
+    per-tab conversationId, vanishes whenever that key changes or that storage is cleared — after a
+    reload that mints a new conversationId, in a new tab, in another browser, after a bundle
+    upgrade. AiTurnMemory.historyJson holds the words too, but under a conversationId nobody can
+    reach any more. This table is the durable transcript: written on the server, read by the
+    server, and the only thing the panel displays.
+
+    SCOPE IS (user, company) — NOT the conversation. This is the deliberate difference from
+    AiTurnMemory, AiChatSession and AiWorkflowState, and the reason a second table exists rather
+    than a column on one of those. Those three are keyed by conversationId because the Azure chain
+    and, far more importantly, an authorised job MUST NOT cross from one browser tab to another: a
+    job authorised by a sentence typed in one tab may not be continued by «продължи» typed in
+    another. None of that reasoning applies to what the user is reading. A transcript is not an
+    authorisation and grants nothing — it is one person's chat about one set of books, and it has to
+    survive the very thing that invalidates a chain: a new tab, a new session, a new id. So the
+    conversation isolation above stays as it is, and the transcript is keyed one level
+    wider, by the two things that actually decide who may see these words.
+
+    conversationId is still stored, but only so a row can be correlated with the chain that produced
+    it when reading logs. NOTHING reads the transcript by conversationId, and it is not part of any
+    key.
+
+    ORDER AND DUPLICATES. `seq` is allocated per (user, company) and carries a unique constraint, so
+    the order the user saw is the order that comes back, and two tabs appending at the same instant
+    collide in the database rather than silently interleaving. `turnKey` is minted by the client per
+    send: a retried or replayed request finds its row already there and changes nothing, which is
+    what makes a refresh or a retry incapable of showing a message twice.
+
+    WHAT IS NOT HERE. No credentials, no tokens, no tool arguments, no record payloads, no prompt
+    or routing internals — only the text the panel displays and the tool-name list already shown
+    beneath an assistant bubble. See AiUsageStat for telemetry, which is separate and is the only
+    thing AiAccountantRetentionService prunes.
+
+    LIFETIME. Until the user presses "Delete conversation", and only then. No scheduler, no startup
+    task and no age bound removes a row here — deliberately, and AiAccountantRetentionServiceTest
+    pins it. -->
+  <entity name="AiChatMessage">
+
+    <!-- `column` is explicit because `user` is an SQL keyword and the generator refuses to derive a
+      column of that name. Same as AiTurnMemory, AiWorkflowState and AiChatSession. -->
+    <many-to-one name="user" ref="com.axelor.auth.db.User" title="User" required="true"
+      index="true" column="user_id"/>
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Company"
+      required="true" index="true"/>
+
+    <!-- Position in the transcript, allocated per (user, company), oldest first. The ordering
+      authority: createdOn is a timestamp and two rows written in the same millisecond would not be
+      separable by it, which is precisely the case a chat produces. -->
+    <long name="seq" title="Sequence" required="true"/>
+
+    <!-- Which bubble this is: 1 user, 2 assistant, 3 error — the same three the panel renders, and
+      no others. See AiChatTranscriptStore.Role, which is the only thing that writes it. No
+      selection is declared because this entity has no form and no grid: it is read by the chat
+      endpoint and by nothing else. -->
+    <integer name="roleSelect" title="Role" required="true"/>
+
+    <!-- What was said, verbatim, as the panel shows it. -->
+    <string name="content" title="Content" large="true"/>
+
+    <!-- The tool names already displayed under an assistant bubble, as a JSON array of strings.
+      Display metadata only: no arguments, no results, nothing the user is not already shown. -->
+    <string name="toolsJson" title="Tools"/>
+
+    <!-- The client's own id for the send this row belongs to. Together with roleSelect it makes an
+      append idempotent, so a retried POST or a replayed request cannot produce a second bubble. -->
+    <string name="turnKey" title="Turn key" index="true"/>
+
+    <!-- The chain this row was produced under. Correlation only — see the note above. -->
+    <string name="conversationId" title="Conversation" index="true"/>
+
+    <!-- Order integrity, enforced by the database rather than by the store's arithmetic: two
+      concurrent appends cannot both take the same position. -->
+    <unique-constraint columns="user,company,seq"/>
+    <!-- Idempotency, likewise. A replay of the same send is refused here, not deduplicated later. -->
+    <unique-constraint columns="user,company,turnKey,roleSelect"/>
+
+  </entity>
+
+</domain-models>

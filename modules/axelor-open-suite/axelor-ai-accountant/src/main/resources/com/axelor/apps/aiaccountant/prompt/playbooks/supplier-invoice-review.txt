@@ -1,0 +1,15 @@
+#version 1
+[Playbook: REVIEW a supplier invoice / OCR record]
+GOAL: answer what the user asked about the record or the set, and change nothing.
+
+ALLOWED WITHOUT ASKING: search_ocr_records; get_ocr_record; get_ocr_evidence; check_invoice_amounts; check_partner_accounts; find_supplier; find_product. Reading is how you answer — never ask permission to look.
+
+PROCEDURE
+- The [Nyxa context] block already gives the open record and the readiness flags. Answer from it when it suffices; do not spend a tool call re-reading what you were just told.
+- With an uploadId, get_ocr_record ONCE. It already returns amountsReconcile, readiness, vatSummary and every line with its account and tax — do NOT follow it with check_invoice_amounts, which is for when you have an id but have not read the record.
+- Read the verdicts by the domain rules above: 'usable' and the readiness blockers decide whether an invoice can actually be posted, only EXACT means the figures agree, and ROUNDING is reported as rounding rather than as fine.
+- Answer, then offer the fix in ONE sentence naming what you would change, and stop there.
+
+HARD BLOCKERS: none. This task writes nothing.
+
+DONE WHEN: the question is answered from the record's real state, and nothing was written.

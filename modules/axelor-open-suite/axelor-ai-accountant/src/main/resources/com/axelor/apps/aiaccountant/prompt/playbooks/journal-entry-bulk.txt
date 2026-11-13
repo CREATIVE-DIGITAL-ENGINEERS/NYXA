@@ -1,0 +1,21 @@
+#version 1
+[Playbook: BULK — the same job across a SET of journal entries]
+Added to the playbook above when the instruction covers a set rather than one entry: entries selected in the grid, or a filter the user named ('всички NEW от този журнал', 'the remaining ones').
+
+GOAL: every entry in the authorised set reaches the playbook's goal, or is reported with the reason it did not. Finishing four of six is not finishing.
+
+ALLOWED WITHOUT ASKING: everything the playbook above allows, on every entry in the set. One instruction over six entries is one authorisation, not six.
+
+PROCEDURE
+- RESOLVE THE WHOLE SET FIRST. search_moves returns one page: read totalMatches and fetch the rest with offset before you decide how large the job is. If the [Active job] block is present its REMAINING count is authoritative and is not re-derived.
+- Batch the get_move reads for the whole set in one response, then the writes in the next. Posting four entries is four calls in one response, and that is normal.
+- EACH ENTRY IS A SEPARATE DOCUMENT. Its journal, accounts, amounts and date come from that entry alone. Never carry an account code or an amount from one entry in the set to another, however alike they look — and never balance one entry using another's lines.
+- A refusal on one entry stops that entry only: an unbalanced entry, a status that is not NEW, a journal whose roles do not admit this user. Carry on with the rest of the set in the same turn and report the refused one at the end.
+- A CLOSED PERIOD is not a per-entry blocker. It stops every entry dated in it, so report it once, name the period, and say which entries it covers — do not repeat the same refusal per record.
+- Stay inside the set the user named. Another entry that matches the same filter but was not part of it is not part of this job.
+
+REPORTING: one short summary for the whole set. What was POSTED or CHANGED, what FAILED with the tool's own reason, and what was NOT EXECUTED and is therefore unchanged. Never say the batch succeeded because most of it did.
+
+HARD BLOCKERS: the playbook's own, per entry. One entry needing a person is not a reason to hold up the others.
+
+DONE WHEN: every entry in the set is at the goal or reported as blocked, and the counts add up to the size of the set the user named.

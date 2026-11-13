@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgIndividualIncomePayment — регистърът на изплатените доходи ============
+
+    ⚠️ ДВА ВХОДА. Тук се въвежда плащане НА РЪКА и се вижда как то се обла́га; същите редове ги
+    пише и авто-захранването („Заплати → Захранване на регистъра (ЗДДФЛ)“). Различават се по
+    „Документ (референция)“: ръчният ред е без нея и захранването не го намира — тоест не го
+    обновява и не го трие.
+
+    ⚠️ ТРУДОВИТЕ ДОХОДИ НЕ МИНАВАТ ОТТУК. Кодовете 101–111 отиват в справката по чл. 73 ал. 6 право
+    от фишовете. Изберат ли се тук, изчислението отказва с обяснение. -->
+
+  <grid name="bg-individual-income-payment-grid" title="Изплатени доходи на физически лица"
+    model="com.axelor.apps.bglocalization.db.BgIndividualIncomePayment"
+    orderBy="-paymentDate">
+    <field name="paymentDate" width="110"/>
+    <field name="company" width="150"/>
+    <field name="partner"/>
+    <field name="incomeType"/>
+    <!-- Колона 11 на справката — БРУТО, без приспаднати разходи и удръжки. -->
+    <field name="grossAmount" width="130"/>
+    <field name="expenseAmount" width="130"/>
+    <field name="taxableBase" width="130"/>
+    <field name="insuranceAmount" width="120"/>
+    <field name="taxAmount" width="120"/>
+    <field name="taxKind" width="130"/>
+    <field name="correctionCode" width="110"/>
+    <field name="source" width="110"/>
+  </grid>
+
+  <form name="bg-individual-income-payment-form" title="Изплатен доход на физическо лице"
+    model="com.axelor.apps.bglocalization.db.BgIndividualIncomePayment" width="large"
+    onNew="action-bg-income-payment-defaults,action-bg-income-payment-prepare">
+
+    <panel name="recipientPanel" title="Получател">
+      <!-- ⚠️ ПЛАТЕЦЪТ, не получателят — справката по чл. 73 ал. 1 се подава ОТ него и в Част І носи
+        неговия ЕИК. Попълва се по подразбиране с активното дружество; ред без платец НЕ се приписва
+        мълчаливо на подателя, а се брои и се назовава в границите на справката. -->
+      <field name="company" colSpan="6"
+        help="Дружеството-ПЛАТЕЦ на дохода. По него се събира справката по чл. 73, ал. 1 — редовете без платец остават извън нея и се съобщават в границите ѝ."/>
+      <field name="partner" colSpan="6"/>
+      <field name="paymentDate" colSpan="3" onChange="action-bg-income-payment-compute"
+        help="Датата на ПРИДОБИВАНЕ на дохода по чл. 11 — тя определя в коя годишна справка влиза редът. Изключение: дивидентите по чл. 38, ал. 1 влизат в справката за годината на РЕШЕНИЕТО за разпределяне."/>
+      <field name="period" colSpan="3"
+        help="Тримесечният период за декларацията по чл. 55. Справката по чл. 73 се групира по ГОДИНАТА на датата на изплащане, не по този период."/>
+      <field name="identifierType" colSpan="6"/>
+      <field name="isForeign" colSpan="3"/>
+      <field name="countryCode" colSpan="3" showIf="isForeign"
+        help="Колона 9 — попълва се САМО за чуждестранни физически лица."/>
+    </panel>
+
+    <panel name="incomePanel" title="Доход">
+      <field name="incomeType" colSpan="8" onChange="action-bg-income-payment-compute"
+        help="Кодът по номенклатурата към справката по чл. 73. Той носи шаблона на облагане, който избира формулата."/>
+      <!-- ⚠️ Шаблонът се ПОКАЗВА до кода и е нередактируем: човекът, който въвежда, трябва да
+        види ЗАЩО се е получило това число, без да отваря номенклатурата. -->
+      <field name="incomeType.taxPattern" colSpan="4" readonly="true"
+        title="Шаблон на облагане"/>
+      <field name="grossAmount" colSpan="4" onChange="action-bg-income-payment-compute"/>
+      <field name="insuranceAmount" colSpan="4" onChange="action-bg-income-payment-compute"
+        help="Колона 12 — удържаните задължителни осигурителни вноски. ⚠️ Влизат в основата САМО при шаблон A (чл. 43, ал. 1). При наем чл. 44, ал. 4 умножава облагаемия доход по чл. 31 БЕЗ да ги приспада."/>
+
+      <!-- ⚠️ Показва се само при шаблон A, защото само там има норма. Чл. 43, ал. 5 отменя ал. 4 на
+        СЪЩИЯ член, тоест обхватът му са доходите по чл. 29. Чл. 44 (наем) и чл. 44а (чл. 35) нямат
+        такава алинея — предложен там, чекбоксът щеше да кани към данък, неудържан без основание. -->
+      <field name="selfInsuredDeclared" colSpan="12"
+        showIf="incomeType.taxPattern == 'A'"
+        onChange="action-bg-income-payment-compute"
+        help="Чл. 43, ал. 5: авансовият данък НЕ се удържа от платеца, когато получателят е самоосигуряващо се лице по КСО и е декларирал това ПИСМЕНО. Данъкът се внася от лицето (ал. 6). Редът все пак се записва — доходът влиза в справката по чл. 73, ал. 1 с брутото в колона 11."/>
+    </panel>
+
+    <!-- ⚠️ Сумите са НЕРЕДАКТИРУЕМИ и това е решение, а не удобство: те са ИЗВЕДЕНИ от бруто и от
+      ставките на кода за датата. Ръчно надписана основа се разминава с данъка още при първия
+      преглед, а справката и декларацията по чл. 55 четат различни числа от един и същ ред.
+      Корекция се прави чрез вида доход или брутото — тоест през входа, не през изхода. -->
+    <panel name="taxPanel" title="Изчисление">
+      <field name="expenseAmount" colSpan="4" readonly="true"/>
+      <field name="taxableBase" colSpan="4" readonly="true"/>
+      <field name="taxAmount" colSpan="4" readonly="true"/>
+      <field name="taxKind" colSpan="4" readonly="true"
+        help="Нула данък има ТРИ различни причини — необлагаем доход (чл. 13), доход по чл. 33, който платецът не облага, и декларирало СОЛ по чл. 43, ал. 5. Затова видът данък е отделно поле, а не извод от сумата."/>
+    </panel>
+
+    <panel name="originPanel" title="Произход и корекция">
+      <field name="source" colSpan="4"/>
+      <field name="sourceRef" colSpan="4"/>
+      <field name="correctionCode" colSpan="4"
+        help="„0“ основни, „1“ коригиращи, „8“ заличаващи. При заличаване се попълват само колони 1, 2, 3, 4 или 5, 6, 7, 8 и 10."/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Actions ============ -->
+
+  <!-- ⚠️ Дружеството се слага ПРИ НОВ РЕД, а не при запис: сложено при запис, то би пренаписало
+    ръчния избор в инсталация с повече от едно дружество. -->
+  <action-record name="action-bg-income-payment-defaults"
+    model="com.axelor.apps.bglocalization.db.BgIndividualIncomePayment">
+    <field name="company" expr="eval:__user__.activeCompany"/>
+  </action-record>
+
+  <action-method name="action-bg-income-payment-prepare">
+    <call class="com.axelor.apps.bglocalization.web.BgIndividualIncomePaymentController"
+      method="prepare"/>
+  </action-method>
+
+  <action-method name="action-bg-income-payment-compute">
+    <call class="com.axelor.apps.bglocalization.web.BgIndividualIncomePaymentController"
+      method="compute"/>
+  </action-method>
+
+  <action-view name="bg.individual.income.payment.all" title="Изплатени доходи на физически лица"
+    model="com.axelor.apps.bglocalization.db.BgIndividualIncomePayment">
+    <view type="grid" name="bg-individual-income-payment-grid"/>
+    <view type="form" name="bg-individual-income-payment-form"/>
+  </action-view>
+
+  <!-- ⚠️ ПОД „НАП“, А НЕ ПОД „ЗАПЛАТИ“ ИЛИ „НОМЕНКЛАТУРИ“. Това е ДОКУМЕНТ, който се въвежда, а не
+    списък, който се сверява, и трите декларации, които този регистър захранва (чл. 73 ал. 1,
+    чл. 73 ал. 6 и чл. 55), стоят ДО него под същия орган.
+
+    ⚠️ ЗАХРАНВАНЕТО ОСТАВА ОТТАТЪК, под HR › Заплати, и това е нарочно. `bg.income.payment.feed`
+    чете фишове и фактури и ПИШЕ в този регистър — прогон по документи на работодателя, с пробен
+    режим; нищо в него не отива към НАП. Виж bg-income-payment-feed-views.xml. -->
+  <menuitem name="nyxa-payroll-income-payment" parent="nap-root" groups="admins"
+    title="Изплатени доходи (ЗДДФЛ)" action="bg.individual.income.payment.all" order="620"/>
+
+</object-views>

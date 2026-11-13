@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Append-only log entry for the VAT-package lifecycle (prepared / regenerated / stale detected /
+    previewed / downloaded / superseded). Mirrors the immutable NapAuditEvent pattern; kept VAT-local. Records
+    are only ever inserted, never edited. The actor/time are the inherited createdBy/createdOn audit columns.
+    NOTE: importId is inherited from com.axelor.db.Model — do NOT declare it. -->
+  <entity name="BgVatPackageEvent">
+
+    <many-to-one name="bgVatReturn" ref="com.axelor.apps.bglocalization.db.BgVatReturn"
+      title="ДДС декларация"/>
+    <many-to-one name="bgVatPackage"
+      ref="com.axelor.apps.bglocalization.db.BgVatPackage" title="Пакет"/>
+    <string name="eventTypeSelect" title="Събитие"
+      selection="bg.vat.package.event.type.select" readonly="true"/>
+    <string name="details" title="Детайли" large="true" readonly="true"/>
+
+    <extra-code><![CDATA[
+      // eventTypeSelect (keep in sync with bg.vat.package.event.type.select)
+      public static final String EVENT_PREPARED = "prepared";
+      public static final String EVENT_REGENERATED = "regenerated";
+      public static final String EVENT_STALE_DETECTED = "stale_detected";
+      public static final String EVENT_PREVIEWED = "previewed";
+      public static final String EVENT_DOWNLOADED = "downloaded";
+      public static final String EVENT_SUPERSEDED = "superseded";
+      // Local-mock submission lifecycle.
+      public static final String EVENT_SUBMITTED = "submitted";
+      public static final String EVENT_STATUS_CHECKED = "status_checked";
+      public static final String EVENT_ACCEPTED = "accepted";
+      public static final String EVENT_REJECTED = "rejected";
+      public static final String EVENT_DUPLICATE = "duplicate";
+      public static final String EVENT_OUTCOME_UNKNOWN = "outcome_unknown";
+      public static final String EVENT_SUBMISSION_ERROR = "submission_error";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

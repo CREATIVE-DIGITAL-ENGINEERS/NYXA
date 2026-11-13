@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ Справка по чл. 73, ал. 6 ЗДДФЛ — трудовите доходи ============
+
+    Екранът следва ОБРАЗЕЦА и се дели на две, точно както се дели самата Част ІІ:
+
+      • „Данни за дохода“ — редовете на т. 8 по код на дохода, колони 1, 2.1, 2.2, 3, 4, 5, 7 и 23;
+      • „Годишно преизчисляване по чл. 49“ — редове 8.1, 8.2, 8.3 и колони 6 и 8–22, по едно на
+        ЛИЦЕ и само за лицата с основно трудово правоотношение към 31 декември.
+
+    ⚠️ ВТОРИЯТ СПИСЪК Е ПО-КЪС ОТ ПЪРВИЯ И ТОВА НЕ Е ГРЕШКА — указание т. 7. Колко и защо, е
+    написано в „Граници на изведеното“ с ЧИСЛА.
+
+    ⚠️ ГЕНЕРИРАНЕТО НЕ ПОДАВА НИЩО. „Закачи към НАП“ записва РЪЧНО подаване през портала —
+    справката получава място в одитната следа, а транспорт няма: форматът се одобрява със своя
+    заповед на изпълнителния директор на НАП. -->
+
+  <grid name="bg-art73-para6-report-grid" title="Справки по чл. 73, ал. 6"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para6Report" orderBy="-taxYear">
+    <field name="taxYear" width="120"/>
+    <field name="company"/>
+    <field name="employerIdentifier" width="140"/>
+    <field name="employerName"/>
+    <field name="statusSelect" width="130"/>
+    <field name="napSubmission"/>
+  </grid>
+
+  <form name="bg-art73-para6-report-form" title="Справка по чл. 73, ал. 6 (трудови доходи)"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para6Report" width="large">
+
+    <panel name="mainPanel" title="Справка">
+      <field name="company" colSpan="6"/>
+      <field name="taxYear" colSpan="3"
+        help="ДАНЪЧНАТА година, за която се подава — не годината на подаване. Фишовете влизат по годината на ПЕРИОДА си."/>
+      <field name="statusSelect" colSpan="3" readonly="true"/>
+    </panel>
+
+    <panel name="partOnePanel" title="Част І — идентификационни данни за работодателя">
+      <field name="employerIdentifier" colSpan="4"
+        help="Т. 1 — ЕИК/Служебен № от регистъра на НАП. Замразява се при първото генериране: подадена справка трябва да показва данните, с които Е БИЛА подадена."/>
+      <field name="employerName" colSpan="8" help="Т. 2 — наименование на работодателя."/>
+      <field name="contactPhone" colSpan="4" help="Т. 3.1 — телефон за контакт."/>
+      <field name="contactEmail" colSpan="8" help="Т. 3.2 — e-mail за контакт."/>
+      <field name="representativeName" colSpan="8"
+        help="Т. 4.1 — попълва се САМО когато платецът е юридическо лице."/>
+      <field name="representativeIdentifier" colSpan="4"
+        help="Т. 4.2 — ЕГН/ЛН/ЛНЧ/Служебен № от регистъра на НАП на представляващия."/>
+    </panel>
+
+    <panel name="actionPanel" title="Действия" showIf="id != null">
+      <button name="generateBtn" title="Генерирай от фишовете"
+        onClick="action-bg-art73-para6-generate"
+        hideIf="statusSelect == 'SUBMITTED' || statusSelect == 'ACCEPTED'"
+        help="Сумира фишовете на годината по ЛИЦЕ и КОД НА ДОХОДА и преизчислява по чл. 49 лицата с основно ТПО към 31 декември. ⚠️ Ръчно въведеното се ПАЗИ: колона 5, колона 23, признакът по чл. 49 ал. 4 и колони 9–14."/>
+      <button name="generateFileBtn" title="Запиши файл (SPR73_6.xml)"
+        onClick="action-bg-art73-para6-generate-file"
+        showIf="id != null &amp;&amp; statusSelect != 'SUBMITTED' &amp;&amp; statusSelect != 'ACCEPTED'"
+        help="Записва файла по схемата dec736, утвърдена със заповед № З-ЦУ-1877/05.12.2019 г. Файлът се валидира срещу схемата ВЪРХУ БАЙТОВЕТЕ, преди да бъде записан."/>
+      <button name="invalidateFileBtn" title="Обезсили файла"
+        onClick="action-bg-art73-para6-invalidate-file"
+        showIf="generatedFile != null &amp;&amp; statusSelect != 'SUBMITTED' &amp;&amp; statusSelect != 'ACCEPTED'"
+        help="Връща справката в „Чернова“. Артефактът НЕ се трие — той е непроменима следа."/>
+      <button name="attachBtn" title="Отбележи ПОДАДЕНА"
+        onClick="action-bg-art73-para6-attach"
+        hideIf="statusSelect == 'SUBMITTED' || statusSelect == 'ACCEPTED'"
+        help="Записва РЪЧНО подаване през портала със срок 28 февруари. НИЩО не се изпраща към НАП — иска се входящият номер, който порталът е върнал: той е свидетелят на подаването, не файлът."/>
+      <field name="napSubmission" colSpan="6" readonly="true" showIf="napSubmission != null"/>
+    </panel>
+
+    <panel name="filePanel" title="Файл за портала" showIf="id != null">
+      <field name="generatedFile" colSpan="6" readonly="true"/>
+      <field name="fileGeneratedOn" colSpan="6" readonly="true"/>
+      <field name="fileRecordCount" colSpan="3" readonly="true"
+        help="Броят ЛИЦА във файла — при ал. 6 записът на Част ІІ е ЛИЦЕ, а не ред доход. НАП сверява точно това число."/>
+      <field name="fileSha256" colSpan="9" readonly="true"
+        help="Отпечатъкът на ТОЧНО тези байтове. Свали файла и го сравни — ако се разминава, свалèното не е генерираното."/>
+      <field name="generatedArtifact" colSpan="6" readonly="true"
+        help="Непроменимият артефакт на същите байтове. Подаването сочи него — втори артефакт за същото съдържание не се създава."/>
+    </panel>
+
+    <panel name="submissionPanel" title="Ръчно подаване през портала" showIf="id != null">
+      <field name="napIncomingNumber" colSpan="6"
+        readonlyIf="statusSelect == 'SUBMITTED' || statusSelect == 'ACCEPTED'"
+        help="Входящият №/протокол, който порталът е върнал. ЗАДЪЛЖИТЕЛЕН: каналът не извършва транспорт, тоест номерът е единственото доказателство, че справката е подадена."/>
+      <field name="napResponseDate" colSpan="6" help="Датата на входящия номер."
+        readonlyIf="statusSelect == 'SUBMITTED' || statusSelect == 'ACCEPTED'"/>
+      <field name="withdrawReason" colSpan="8" showIf="statusSelect == 'SUBMITTED'"
+        help="Защо отметката „Подадена“ е грешна (напр. файлът не е стигнал до портала). Подаването не се трие — става „Отметката е отменена“ и остава в историята."/>
+      <button name="withdrawBtn" title="Оттегли отметката" colSpan="4"
+        onClick="action-bg-art73-para6-withdraw" showIf="statusSelect == 'SUBMITTED'"
+        help="Единственият път към нова версия на подадена справка в Nyxa: отметката се оттегля с причина, справката се връща в „Генерирана“ и може да се генерира и отбележи наново."/>
+    </panel>
+
+    <panel-related name="recordPanel" field="recordList"
+      title="Част ІІ, т. 8 — данни за дохода по код" grid-view="bg-art73-para6-record-grid"
+      form-view="bg-art73-para6-record-form" colSpan="12"/>
+
+    <panel-related name="annualPanel" field="annualList"
+      title="Годишно преизчисляване по чл. 49 — редове 8.1–8.3 и колони 6 и 8–22"
+      grid-view="bg-art73-para6-annual-grid" form-view="bg-art73-para6-annual-form" colSpan="12"/>
+
+    <!-- ⚠️ ГРАНИЦИТЕ СЕ ЧЕТАТ ПРЕДИ ПОДАВАНЕ, НЕ СЛЕД ТОВА. Указание т. 4 към образеца: справка,
+      която не съдържа всички изискуеми данни, „не се счита за достоверна и не се приема“, а по
+      чл. 82 ЗДДФЛ за неверни или непълни данни се носи отговорност. Затова панелът е отворен. -->
+    <panel name="boundaryPanel" title="⚠️ Граници на изведеното — прочети преди подаване">
+      <field name="bgBoundaryReport" showTitle="false" colSpan="12" readonly="true" widget="text"
+        height="20"/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Т. 8 — един ред по код на дохода ============ -->
+
+  <grid name="bg-art73-para6-record-grid" title="Т. 8 — данни за дохода"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para6Record" editable="false">
+    <field name="correctionCode" width="110"/>
+    <field name="identifierType" width="110"/>
+    <field name="identifier" width="130"/>
+    <field name="firstName"/>
+    <field name="middleName"/>
+    <field name="lastName"/>
+    <field name="isMainEmployer" width="110"/>
+    <field name="incomeType" width="110"/>
+    <field name="income" width="130"/>
+    <field name="insurance" width="130"/>
+    <field name="insuranceAbroad" width="130"/>
+    <field name="advanceTax" width="130"/>
+  </grid>
+
+  <form name="bg-art73-para6-record-form" title="Ред от т. 8"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para6Record" width="large">
+
+    <panel name="identityPanel" title="Идентификация (т. 1–7)">
+      <field name="correctionCode" colSpan="4"
+        help="Т. 1. „0“ основни, „1“ коригиращи, „8“ заличаващи. ⚠️ При заличаване се попълват САМО т. 1–6 — нито една сума."/>
+      <field name="identifierType" colSpan="4"
+        help="Т. 5. „0“ за лице с ЕГН, „1“ за ЛН, ЛНЧ или Сл. № от регистъра на НАП. ⚠️ Само две стойности — справката по ал. 1 познава четири."/>
+      <field name="identifier" colSpan="4"/>
+      <field name="firstName" colSpan="4"/>
+      <field name="middleName" colSpan="4"/>
+      <field name="lastName" colSpan="4"/>
+      <field name="isMainEmployer" colSpan="12" readonly="true"
+        help="Т. 7 — изведено от трудовия договор: основен договор на това дружество, действащ към 31 декември. ⚠️ От него зависи КОИ колони изобщо се попълват (указание т. 7)."/>
+    </panel>
+
+    <panel name="incomePanel" title="Доход (колони 1–7 и 23)">
+      <field name="incomeType" colSpan="6"/>
+      <field name="payerIdentifier" colSpan="3"
+        help="Колона 2.1 — платецът на дохода. Различен от подателя само за ред по служебна бележка по чл. 45 ал. 1 от ДРУГ работодател."/>
+      <field name="payerName" colSpan="3"/>
+      <field name="income" colSpan="4" help="Колона 3 — облагаемият доход по този код за годината."/>
+      <field name="insurance" colSpan="4"
+        help="Колона 4 — задължителните осигурителни вноски за сметка на лицето, удържани по реда на КСО и ЗЗО."/>
+      <field name="insuranceAbroad" colSpan="4"
+        help="Колона 5 — вноски, ВНЕСЕНИ В ЧУЖБИНА за сметка на лицето. ⚠️ РЪЧЕН вход по документ на чуждестранна осигурителна институция — фишът не го носи. ВЛИЗА в годишната основа по чл. 25 ал. 1 наравно с колона 4, затова се попълва ПРЕДИ генерирането. Повторното генериране НЕ го затрива."/>
+      <field name="advanceTax" colSpan="4"
+        help="Колона 7 — удържаният авансово данък по чл. 42 ЗДДФЛ. Чете се от перата на фиша, не от заглавната сума."/>
+      <field name="predecessorIdentifier" colSpan="8"
+        help="Колона 23 — ЕИК на преобразуващото се предприятие, когато справката се подава от правоприемник. РЪЧЕН вход, който повторното генериране НЕ затрива."/>
+    </panel>
+
+    <panel name="tracePanel" title="Проследимост">
+      <field name="employee" colSpan="6" readonly="true"/>
+      <field name="report" colSpan="6" readonly="true"/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Годишното преизчисляване по чл. 49 — едно лице ============ -->
+
+  <grid name="bg-art73-para6-annual-grid" title="Годишно преизчисляване по чл. 49"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para6Annual" editable="false">
+    <field name="employee"/>
+    <field name="baseArt49" width="130"/>
+    <field name="reliefTotal" width="130"/>
+    <field name="taxableBase" width="130"/>
+    <field name="annualTax" width="130"/>
+    <field name="settlement" width="120"/>
+    <field name="toWithhold" width="120"/>
+    <field name="toRefund" width="120"/>
+    <field name="totalWithheld" width="130"/>
+  </grid>
+
+  <form name="bg-art73-para6-annual-form" title="Годишно преизчисляване по чл. 49"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para6Annual" width="large">
+
+    <panel name="personPanel" title="Лице">
+      <field name="employee" colSpan="8" readonly="true"/>
+      <field name="report" colSpan="4" readonly="true"/>
+    </panel>
+
+    <panel name="basePanel" title="Годишна данъчна основа (колона 6 на редове 8.1, 8.2 и 8.3)">
+      <field name="baseArt25Para1" colSpan="4" readonly="true"
+        help="Ред 8.1 — сборът с код 101 в колона 3 минус сборът с код 101 в колони 4 и/или 5 (чл. 25 ал. 1)."/>
+      <field name="baseArt25Para3" colSpan="4" readonly="true"
+        help="Ред 8.2 — същото за код 103, СВИТО на 10 на сто по чл. 25 ал. 3. ⚠️ Десетте на сто са дял от ОСНОВАТА, не ставка: върху тях после ляга обикновената ставка и дава 1 на сто ефективно — точно чл. 42 ал. 4."/>
+      <field name="baseArt49" colSpan="4" readonly="true"
+        help="Ред 8.3 — сборът на 8.1 и 8.2. ⚠️ Доходът по код 102 НЕ влиза: чл. 49 ал. 8 го изключва изрично."/>
+    </panel>
+
+    <!-- ⚠️ ТРИ ОТ ДЕВЕТТЕ КОЛОНИ СА ИЗВЕДЕНИ, ШЕСТ СА РЪЧНИ, И РАЗЛИКАТА Е В ЧЛ. 49 АЛ. 3.
+      Ал. 3 т. 2 (чл. 18, 20, 22в, 22г) иска ДОКУМЕНТ, който има следа в картона на лицето; ал. 3
+      т. 1 (чл. 19 и чл. 22) иска сумите да са УДЪРЖАНИ ОТ РАБОТОДАТЕЛЯ, тоест иска перо на фиша,
+      каквото няма. Затова изведените са readonly, а ръчните се въвеждат тук и НЕ се затриват. -->
+    <panel name="reliefPanel" title="Данъчни облекчения по чл. 49 ал. 3 (колони 8–16)">
+      <field name="reliefDocumentsProvided" colSpan="12"
+        help="⚠️ ВРАТАТА КЪМ ЦЯЛАТА АЛ. 3. Чл. 49 ал. 4: намаленията се прилагат само когато лицето е предоставило документите в срок от 30 НОЕМВРИ до 31 ДЕКЕМВРИ на данъчната година. Без този признак всяка колона от 8 до 16 излиза нула — но колона 6 и колони 17–22 пак се смятат, защото ал. 1 не зависи от ал. 4."/>
+      <field name="reliefDisability" colSpan="4" readonly="true"
+        help="Колона 8 — ИЗВЕДЕНА от признака и срока на решението в картона на лицето. ⚠️ Годината на изтичане на решението брои ЦЯЛА (чл. 18 ал. 1)."/>
+      <field name="reliefChildren" colSpan="4" readonly="true"
+        help="Колона 15 — ИЗВЕДЕНА от децата в картона. ⚠️ СТЪПАЛО (при едно, при две, при три и повече), не „по толкова на дете“. Размерът за годината идва от § 3 от ПЗР на ЗДБРБ, не от чл. 22в ал. 1."/>
+      <field name="reliefDisabledChildren" colSpan="4" readonly="true"
+        help="Колона 16 — ИЗВЕДЕНА от децата с увреждания. ⚠️ Тук е НА ДЕТЕ, за разлика от чл. 22в, и възрастта се мери към 1 ЯНУАРИ (чл. 22г ал. 2 т. 2)."/>
+      <field name="reliefVoluntaryPension" colSpan="4"
+        help="Колона 9 — чл. 19: лични вноски за допълнително ДОБРОВОЛНО ОСИГУРЯВАНЕ. Таван 10 на сто от колона 6 на ред 8.3. ⚠️ Само ако сумите са УДЪРЖАНИ ОТ РАБОТОДАТЕЛЯ (чл. 49 ал. 3 т. 1)."/>
+      <field name="reliefVoluntaryHealthLife" colSpan="4"
+        help="Колона 10 — чл. 19: доброволно ЗДРАВНО осигуряване и застраховки „Живот“. ⚠️ ВТОРИ, ОТДЕЛЕН таван от 10 на сто, а не половината от общ."/>
+      <field name="reliefServiceYears" colSpan="4"
+        help="Колона 11 — чл. 20: внесените за сметка на лицето вноски по чл. 9а КСО (закупуване на осигурителен стаж при пенсиониране). Без процентен таван."/>
+      <field name="reliefDonationsCode01" colSpan="4"
+        help="Колона 12 — дарения в полза на лица с код 01. Таван 5 на сто от колона 6 на ред 8.3."/>
+      <field name="reliefDonationsCode02" colSpan="4"
+        help="Колона 13 — дарения за култура, код 02. Таван 15 на сто."/>
+      <field name="reliefDonationsCode03" colSpan="4"
+        help="Колона 14 — дарения код 03. Таван 50 на сто. ⚠️ И ЧЕТВЪРТИ, ОБЩ таван: сборът на 12, 13 и 14 не надхвърля 65 на сто — не 70, колкото е сборът на трите."/>
+      <field name="reliefTotal" colSpan="4" readonly="true"
+        help="Сборът от колони 8 до 16 — умалителят на колона 17. ⚠️ Записва се ПРИЛОЖЕНОТО след таваните, а не поисканото: само така колона 17 се връзва с колона 6."/>
+    </panel>
+
+    <panel name="taxPanel" title="Годишен данък и изравняване (колони 17–22)">
+      <field name="taxableBase" colSpan="4" readonly="true"
+        help="Колона 17 — колона 6 на ред 8.3 минус сборът от колони 8 до 16."/>
+      <field name="annualTax" colSpan="4" readonly="true"
+        help="Колона 18 — колона 17 по ставката. Ставката се чете от BgPayrollParameter.INCOME_TAX_RATE за годината, не е закована в кода."/>
+      <field name="settlement" colSpan="4" readonly="true"
+        help="Колона 19 — колона 18 минус сборът в колона 7 ЗА КОДОВЕ 101 И 103. ⚠️ ОТРЯЗАНА до цяла парична единица, не закръглена: указание т. 7 дава 1000,95 → 1000. Положителна значи довнасяне, отрицателна — възстановяване."/>
+      <field name="toWithhold" colSpan="4" readonly="true"
+        help="Колона 20 — удържа се от лицето до 31 януари (чл. 49 ал. 5)."/>
+      <field name="toRefund" colSpan="4" readonly="true"
+        help="Колона 21 — възстановява се на лицето до 31 януари (чл. 49 ал. 6). ⚠️ Работодателят я прихваща от СЛЕДВАЩИ вноски за данък върху трудови доходи на това или на други лица (ал. 7)."/>
+      <field name="totalWithheld" colSpan="4" readonly="true"
+        help="Колона 22 — сборът в колона 7 плюс колона 20 минус колона 21. ⚠️ ТУК сборът в колона 7 е БЕЗ ограничение по код, за разлика от колона 19."/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Actions ============ -->
+
+  <action-method name="action-bg-art73-para6-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgArt73Para6ReportController" method="generate"/>
+  </action-method>
+
+  <action-method name="action-bg-art73-para6-generate-file">
+    <call class="com.axelor.apps.bglocalization.web.BgArt73Para6ReportController"
+      method="generateFile"/>
+  </action-method>
+
+  <action-method name="action-bg-art73-para6-invalidate-file">
+    <call class="com.axelor.apps.bglocalization.web.BgArt73Para6ReportController"
+      method="invalidateFile"/>
+  </action-method>
+
+  <action-method name="action-bg-art73-para6-attach">
+    <call class="com.axelor.apps.bglocalization.web.BgArt73Para6ReportController" method="attach"/>
+  </action-method>
+
+  <action-method name="action-bg-art73-para6-withdraw">
+    <call class="com.axelor.apps.bglocalization.web.BgArt73Para6ReportController"
+      method="withdraw"/>
+  </action-method>
+
+  <action-view name="bg.art73.para6.report.all" title="Справка по чл. 73, ал. 6"
+    model="com.axelor.apps.bglocalization.db.BgArt73Para6Report">
+    <view type="grid" name="bg-art73-para6-report-grid"/>
+    <view type="form" name="bg-art73-para6-report-form"/>
+  </action-view>
+
+  <!-- ⚠️ До справката по ал. 1, която е неин близнак по устройство и различна по обхват: ал. 1 е за
+    ИЗВЪНТРУДОВИТЕ доходи, ал. 6 — за трудовите. Двете се местят заедно под „НАП“ и остават съседни.
+
+    ⚠️ 640, А НЕ 172. На 172 стои декларацията по чл. 55 — еднакъв (родител, order) прави реда
+    между двете нестабилен. -->
+  <menuitem name="nyxa-payroll-art73-para6" parent="nap-root" groups="admins"
+    title="Справка чл. 73, ал. 6 (трудови доходи)" action="bg.art73.para6.report.all"
+    order="640"/>
+
+</object-views>

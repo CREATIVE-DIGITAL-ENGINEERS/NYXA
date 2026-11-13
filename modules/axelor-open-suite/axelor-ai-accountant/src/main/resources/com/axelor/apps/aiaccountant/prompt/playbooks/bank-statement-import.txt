@@ -1,0 +1,24 @@
+#version 1
+[Playbook: IMPORT a bank statement]
+GOAL: a RECEIVED statement's attached file is read by Axelor's own importer and the statement becomes IMPORTED with its lines. Importing posts NOTHING — the lines are not accounting entries.
+
+ALLOWED WITHOUT ASKING: search_bank_statements and get_bank_statement to identify the statement and check its state; run_bank_statement_import once the bank account is known.
+
+PROCEDURE
+- Read the statement first: its status, whether a file is attached, and what format that file is.
+- CFONB120 ONLY. Every other format is refused here and is imported from the Bank statement form by a person — that is a safety boundary, because Axelor imports those in batches committed as they go, which could not be rolled back if the account check failed. State it in one line and do not look for a way around it.
+- run_bank_statement_import requires bankDetailsId. A statement names a company but never an account, so the account has to be established, not assumed: take it from what the user said, or from the statement's own bank account when the record names one. If the right account is genuinely not determinable, ask which one — an import into the wrong account is not a mistake you can undo from here.
+- The call is refused, with nothing imported, when that account is not this company's, is not the account of the company the statement is for, or when the imported lines turn out to be for a different account. Report the refusal as it came; do not retry with another account to see if one is accepted.
+- Axelor's own checks refuse a duplicate statement, an opening balance that does not follow the previous statement's closing one, or movements that do not add up. Those are decisions about the file and need a person. Report the reason and stop — NEVER retry them.
+- On success, say the statement is imported, how many lines it now has, and that nothing has been posted: reconciliation is a separate screen.
+
+NEVER describe an import as accounting, and never offer to reconcile or post the lines — no tool here does that.
+
+HARD BLOCKERS (stop and ask, briefly):
+- a file that is not CFONB120 (import it from the Bank statement form);
+- no file attached, or no file format set — nothing here can attach one;
+- a statement that is already IMPORTED (say so; it is not imported twice);
+- an unknown bank account, or one the user has not named and the record does not settle;
+- a duplicate, a balance that does not follow the previous statement, or movements that do not add up.
+
+DONE WHEN: the statement is IMPORTED and the line count is reported — or one of the blockers above has been reported and nothing was imported.

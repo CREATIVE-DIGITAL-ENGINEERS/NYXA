@@ -1,0 +1,128 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ═══ ПОЛИТИКАТА ЗА ИЗПИСВАНЕ НА МАТЕРИАЛНИТЕ ЗАПАСИ (ИЗП) ═══
+
+    Счетоводната политика на дружеството за изписването от склада — по ФИНАНСОВА ГОДИНА. Един ред
+    на дружество и година; историята на смените са самите редове.
+
+    ⚠️ ЗАЩО ПО ГОДИНА. Подходът „се прилага системно най-малко през един отчетен период“ (СС 2
+    т. 8.5). Затова методът влиза в сила от началото на финансовата година, а смяна в средата ѝ се
+    отказва: активираната политика не може да смени метода, обхвата, осчетоводяването или
+    изключенията по семейства (BgStockCostingRules.lockRefusal). Сметките се сменят по всяко време —
+    те не са метод, а адрес на статията.
+
+    ⚠️ ЗАЩО СВОЙ ОБЕКТ, А НЕ AccountConfig/StockConfig. Нито един от двата не пази история по
+    години, а и двата са чужди за ИЗП (StockConfig не е БГ, AccountConfig е за счетоводните
+    настройки изобщо). -->
+  <entity name="BgStockCostingPolicy">
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Дружество"
+      required="true"/>
+
+    <!-- Финансовата година (typeSelect = 1) на дружеството — от нейното начало методът влиза в сила. -->
+    <many-to-one name="year" ref="com.axelor.apps.base.db.Year" title="Финансова година"
+      required="true"/>
+
+    <!-- Методът по подразбиране за дружеството (СС 2 т. 9.1, 9.2, 10). -->
+    <string name="costingMethodSelect" title="Метод на изписване" required="true"
+      selection="bg.stock.costing.method.select" default="WAP_PERPETUAL"/>
+
+    <!-- Средната цена — по склад (правилото за WarehouseID от S0) или за цялото дружество. -->
+    <string name="averageScopeSelect" title="Средна цена" required="true"
+      selection="bg.stock.costing.scope.select" default="WAREHOUSE"/>
+
+    <!-- Кога се осчетоводява изписването. Периодичната средна иска обобщено — тя е известна чак в
+      края на месеца. -->
+    <string name="postingModeSelect" title="Осчетоводяване" required="true"
+      selection="bg.stock.costing.posting.select" default="CURRENT"/>
+
+    <!-- Валидирането на статията за изписване: по подразбиране
+      автоматично — черновите не влизат в салдата и в SAF-T, а сверката с 30x и BookValue стъпват
+      на осчетоводеното. Не е метод и не се заключва. -->
+    <string name="moveValidationSelect" title="Валидиране на статиите" required="true"
+      selection="bg.stock.costing.validation.select" default="AUTO"/>
+
+    <integer name="statusSelect" title="Статус" selection="bg.stock.costing.policy.status.select"
+      default="1" readonly="true"/>
+
+    <!-- Отпечатъкът на заключените полета при активиране — с него записът разпознава смяна на
+      метода, без да чете базата (заявката би изпразнила сесията с auto-flush преди сравнението). -->
+    <string name="lockedSignature" title="Заключено" readonly="true" hidden="true"/>
+
+    <one-to-many name="familyOverrideList"
+      ref="com.axelor.apps.bglocalization.db.BgStockCostingFamilyOverride" mappedBy="policy"
+      title="Различен метод по семейство"/>
+
+    <one-to-many name="accountRuleList"
+      ref="com.axelor.apps.bglocalization.db.BgStockCostingAccountRule" mappedBy="policy"
+      title="Сметки по код на движението"/>
+
+    <!-- Една година, една политика: две биха дали два отговора на един въпрос. -->
+    <unique-constraint columns="company,year"/>
+
+    <extra-code>
+      <![CDATA[
+      public static final int STATUS_DRAFT = 1;
+      public static final int STATUS_ACTIVE = 2;
+      ]]>
+    </extra-code>
+
+  </entity>
+
+  <!-- „Сходни запаси“ могат да имат различен метод от останалите групи (СС 2) — изключение за едно
+    семейство. Влиза в отпечатъка на политиката: и то не се сменя в средата на годината. -->
+  <entity name="BgStockCostingFamilyOverride">
+
+    <many-to-one name="policy" ref="com.axelor.apps.bglocalization.db.BgStockCostingPolicy"
+      title="Политика" required="true"/>
+
+    <many-to-one name="productFamily" ref="com.axelor.apps.base.db.ProductFamily"
+      title="Семейство" required="true"/>
+
+    <string name="costingMethodSelect" title="Метод на изписване" required="true"
+      selection="bg.stock.costing.method.select"/>
+
+    <unique-constraint columns="policy,productFamily"/>
+
+  </entity>
+
+  <!-- ═══ СМЕТКАТА ПО КОД НА ДВИЖЕНИЕТО И ВИД НА ЗАПАСА ═══
+
+    Едната страна на статията е винаги складовата сметка 30x на семейството (AccountManagement.
+    bgStockAccount, S0). Тук е ДРУГАТА: при изход тя е дебитът (Дт сметката / Кт 30x), при вход —
+    кредитът (Дт 30x / Кт сметката). Страната идва от посоката на кода (BgStockMovementCodes), не от
+    реда.
+
+    Празен вид на запаса значи „всеки вид“. Редът с точен вид бие реда без вид.
+
+    ⚠️ Nyxa предлага БГ стойностите по подразбиране (BgStockCostingDefaults), но не ги налага —
+    всяко дружество ги сменя. Липсващ ред за кода на движението е ERROR при осчетоводяване, не
+    мълчание. -->
+  <entity name="BgStockCostingAccountRule">
+
+    <many-to-one name="policy" ref="com.axelor.apps.bglocalization.db.BgStockCostingPolicy"
+      title="Политика" required="true"/>
+
+    <string name="movementCode" title="Код по „Stock movement“" required="true"
+      selection="bg.saft.stock.movement.select"/>
+
+    <string name="inventoryType" title="Вид на запаса (празно — всеки)"
+      selection="bg.saft.inventory.type.select"/>
+
+    <!-- Само за 120: липсата с виновно лице е вземане от него (Дт 442 „Вземания по липси и начети“ аналитично по лицето), без
+      лице — разход (60905). Лицето идва от причината „Липса с виновно лице“ (S0). -->
+    <boolean name="withResponsiblePartner" title="С виновно лице"/>
+
+    <many-to-one name="account" ref="com.axelor.apps.account.db.Account"
+      title="Насрещна сметка" required="true"/>
+
+    <unique-constraint columns="policy,movementCode,inventoryType,withResponsiblePartner"/>
+
+  </entity>
+
+</domain-models>

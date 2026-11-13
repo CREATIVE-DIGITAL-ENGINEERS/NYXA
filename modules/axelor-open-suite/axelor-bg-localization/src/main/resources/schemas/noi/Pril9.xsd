@@ -1,0 +1,991 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2013 (http://www.altova.com) by  () -->
+<xsd:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xsd:element name="BPril9">
+		<xsd:complexType>
+			<xsd:sequence>
+				<!--Флаг упълномощен за представяне по ел. път-->
+				<!--0 - Представяне от осигурител/самоосигуряващ се/осигурителна каса; 1 -Представяне чрез упълномощено лице-->
+				<xsd:element name="FlagDelegated" type="Code01"/>
+				<!--Тип на документите във файла-->
+				<!--0 - Удостоверения към болничен лист-->
+				<xsd:element name="TypeOfDocument">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:integer">
+							<xsd:enumeration value="0"/>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+				<xsd:element name="NSSI_RO_All">
+					<xsd:complexType>
+						<xsd:sequence>
+							<!--	ТП на НОИ - код-->
+							<xsd:element name="NSSI_RO">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:integer">
+										<xsd:minInclusive value="1"/>
+										<xsd:maxInclusive value="28"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<!--ТП на НОИ - текст-->
+							<xsd:element name="NSSI_RO_Name" type="Str15"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<!--Осигурител/дружество/самоосигуряващ се/осигурителна каса-->
+				<xsd:element name="Insurer">
+					<xsd:complexType>
+						<xsd:sequence>
+							<!--0 - Представяне от осигурител/дружество/самоосигуряващ се; 1 -Представяне чрез осигурителна каса-->
+							<xsd:element name="FlagKasa" type="Code01"/>
+							<!--ЕИК/ код по БУЛСТАТ на осигурител/дружество/самоосигуряващ се/ осигурителна каса-->
+							<xsd:element name="BULSTATKasa">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:minLength value="9"/>
+										<xsd:maxLength value="13"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<!--Наименование на осигурител/дружество/самоосигуряващ се/ осигурителна каса, който/което/която представя удостоверението-->
+							<xsd:element name="BulName">
+								<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="200"/>
+										<xsd:minLength value="1"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<!--ЕИК/ код по БУЛСТАТ на осигурител/дружество/самоосигуряващ се, член на осигурителна каса-->
+							<xsd:element name="BULSTAT">
+							<xsd:simpleType>
+									<xsd:restriction base="xsd:string">
+										<xsd:maxLength value="13"/>
+									</xsd:restriction>
+								</xsd:simpleType>
+							</xsd:element>
+							<!--Контактни данни за осигурител/ дружество/ самоосигуряващ се (член на осигурителна каса)-->
+							<xsd:element name="BulAddressFull">
+								<xsd:complexType>
+									<xsd:sequence>
+										<!--Област-->
+										<xsd:element name="BulRegion">
+											<xsd:simpleType>
+												<xsd:restriction base="xsd:string">
+													<xsd:maxLength value="30"/>
+													<xsd:minLength value="1"/>
+												</xsd:restriction>
+											</xsd:simpleType>
+										</xsd:element>
+										<!--Община-->
+										<xsd:element name="BulSubRegion" type="Str30"/>
+										<!--Населено място-->
+										<xsd:element name="BulCity">
+											<xsd:simpleType>
+												<xsd:restriction base="xsd:string">
+													<xsd:maxLength value="50"/>
+													<xsd:minLength value="1"/>
+												</xsd:restriction>
+											</xsd:simpleType>	
+										</xsd:element>									
+										<!--Пощенски код-->
+										<xsd:element name="BulPostalCode">
+											<xsd:simpleType>
+												<xsd:restriction base="xsd:string">
+													<xsd:maxLength value="4"/>
+												</xsd:restriction>
+											</xsd:simpleType>
+										</xsd:element>
+										<!--Адрес-->
+										<xsd:element name="BulAddress" type="Str100"/>
+										<!--Телефон-->
+										<xsd:element name="BulPhone" type="Str50"/>
+										<!--Мобилен телефон-->
+										<xsd:element name="BulCellPhoneNumber" type="Str50"/>
+										<!--Електронен адрес в Интернет-->
+										<xsd:element name="BulEMail" type="Str50"/>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<!--данни за всички документи-->
+				<xsd:element name="DocList">
+					<xsd:complexType>
+						<xsd:sequence>
+							<!--данни за един документ-->
+							<xsd:element name="NumberPril9" maxOccurs="unbounded">
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element name="Number">
+											<xsd:simpleType>
+												<xsd:restriction base="xsd:integer">
+													<xsd:minInclusive value="1"/>
+													<xsd:maxInclusive value="9999"/>
+												</xsd:restriction>
+											</xsd:simpleType>
+										</xsd:element>
+										<!--Код на операция -представяне/корекция/заличаване-->
+										<!--0 - представяне 1 - корекция 2 - заличаван-->
+										<xsd:element name="CodeOperation" type="Code012"/>
+										<!--№ на болничен лист-->
+										<xsd:element name="PatientsChartNumber">
+											<xsd:simpleType>
+												<xsd:restriction base="xsd:string">
+													<xsd:length value="12"/>
+												</xsd:restriction>
+											</xsd:simpleType>
+										</xsd:element>
+										<!--Дата на издаване на болничния лист-->
+										<xsd:element name="DateIssued" type="FullDateType"/>
+										<!--В отпуск от-->
+										<xsd:element name="SickLeaveStartDate" type="FullDateType"/>
+										<!--В отпуск до-->
+										<xsd:element name="SickLeaveEndDate" type="FullDateType"/>
+										<!--Осигурен/самоосигуряващ се:-->
+										<xsd:element name="Insured">
+											<xsd:complexType>
+												<xsd:sequence>
+													<!--Име-->
+													<xsd:element name="FirstName" type="Str21"/>
+													<!--Презиме-->
+													<xsd:element name="SurName" type="Str21"/>
+													<!--Фамилия-->
+													<xsd:element name="FamilyName">
+														<xsd:simpleType>
+															<xsd:restriction base="xsd:string">
+																<xsd:maxLength value="42"/>
+																<xsd:minLength value="1"/>
+															</xsd:restriction>
+														</xsd:simpleType>
+													</xsd:element>													
+													<!--ЕГН/ЛН/ЛНЧ/Служебен номер на осигуреното лице/самоосигуряващия се-->
+													<xsd:element name="EGN" type="CodeType10"/>
+													<!--Вид на личния идентификатор на лицето/самоосигуряващия се (ЕГН/ ЛН/ЛНЧ/СлН)-->
+													<!--0 - за ЕГН; 2 - за ЛНЧ, СлН, ЛН-->
+													<xsd:element name="FlagEGN">
+														<xsd:simpleType>
+															<xsd:restriction base="xsd:integer">
+																<xsd:enumeration value="0"/>
+																<xsd:enumeration value="2"/>
+															</xsd:restriction>
+														</xsd:simpleType>
+													</xsd:element>
+													<!--Контактни данни на осигуреното/самоосигуряващото се  лице-->
+													<xsd:element name="InsuredAddress">
+														<xsd:complexType>
+															<xsd:sequence>
+																<!--Област-->
+																<xsd:element name="EGNRegion">
+																	<xsd:simpleType>
+																		<xsd:restriction base="xsd:string">
+																			<xsd:maxLength value="30"/>
+																			<xsd:minLength value="1"/>
+																		</xsd:restriction>
+																	</xsd:simpleType>	
+																</xsd:element>															
+																<!--Община-->
+																<xsd:element name="EGNSubRegion" type="Str30"/>
+																<!--Населено място-->
+																<xsd:element name="EGNCity">
+																	<xsd:simpleType>
+																		<xsd:restriction base="xsd:string">
+																			<xsd:maxLength value="50"/>
+																			<xsd:minLength value="1"/>
+																		</xsd:restriction>
+																	</xsd:simpleType>
+																</xsd:element>																
+																<!--Пощенски код-->
+																<xsd:element name="EGNPostalCode">
+																	<xsd:simpleType>
+																		<xsd:restriction base="xsd:string">
+																			<xsd:maxLength value="4"/>
+																		</xsd:restriction>
+																	</xsd:simpleType>
+																</xsd:element>
+																<!--Адрес-->
+																<xsd:element name="EGNAddress" type="Str100"/>
+																<!--Телефон-->
+																<xsd:element name="EGNPhone" type="Str50"/>
+																<!--Мобилен телефон-->
+																<xsd:element name="EGNCellPhoneNumber" type="Str50"/>
+																<!--Електронен адрес в Интернет-->
+																<xsd:element name="EGNEMail" type="Str50"/>
+															</xsd:sequence>
+														</xsd:complexType>
+													</xsd:element>
+												</xsd:sequence>
+											</xsd:complexType>
+										</xsd:element>
+										<!--Флаг за удостоверени/ променени обстоятелства-->
+										<!--1 - попълнен раздел I. - удостоверени обстоятелства; 2 - попълнен раздел  II. - удостоверени промени в обстоятелствата; 3 - попълнени и двата раздела-->										
+										<xsd:element name="FlagCertificate">
+											<xsd:simpleType>
+												<xsd:restriction base="xsd:integer">
+													<xsd:enumeration value="1"/>
+													<xsd:enumeration value="2"/>
+													<xsd:enumeration value="3"/>
+												</xsd:restriction>
+											</xsd:simpleType>
+										</xsd:element>
+										<!--I. Удостоверени обстоятелства:-->
+										<xsd:element name="Certificates">
+											<xsd:complexType>
+												<xsd:sequence>
+													<!--1. Осигурен за съответния риск към деня на настъпване на временната неработоспособност,трудоустрояването или бременността и раждането-->
+													<!--0 - не е осигурен; 1 - осигурен; 9 - не е избрано-->
+													<xsd:element name="RiskInsured" type="Code019"/>
+													<!--1.1. Вид на правоотношението за осигурено лице-->
+													<!--0 - безсрочно; 1 - срочно; 9 - не е избрано-->
+													<xsd:element name="EmploymentType" type="Code019"/>
+													<!--при срочно правоотношение - дата на срок-->
+													<xsd:element name="EploymentDateExpire" type="BDateType"/>
+													<!--Вид на регистрацията като самоосигуряващо се лице-->
+													<!---0 - безсрочна 1 - срочна; 9 - не е избрано-->
+													<xsd:element name="SelfEmploymentType" type="Code019"/>
+													<!--при срочна регистрация - дата на срок-->
+													<xsd:element name="SelfEmploymentDateExpire" type="BDateType"/>
+													<!--2. Към деня на настъпване на временната неработоспособност/трудоустрояването лицето няма 6 месеца осигурителен стаж като осигурено за общо заболяване и майчинство-->
+													<!--0 -избрано (лицето няма 6 месеца стаж); 1 - не е избрано (приема се, че лицето има 6 месеца стаж); 9 -  т. 2 не е относима към осигурителния риск/попълва се при избран раздел II-->
+													<xsd:element name="SixMonthsInsurance" type="Code019"/>
+													<!--Дата на придобиване изискуемия 6 месеца стаж-->
+													<xsd:element name="DateOfAchievingInsuranceRigths" type="BDateType"/>
+													<!--3. Към деня на настъпване на бременността и раждането лицето няма 12 месеца осигурителен стаж като осигурено за общо заболяване и майчинство-->
+													<!--0 -избрано (лицето няма 12 месеца стаж); 1 - не е избрано (приема се, че лицето има 12 месеца стаж); 9 - 9 - т. 3 не е относима към осигурителния риск/попълва се при избран раздел II-->
+													<xsd:element name="InsuranceRigthsOZM"  type="Code019"/>
+													<!--Дата на придобиване на изискуемия 12 месеца стаж-->
+													<xsd:element name="DateOfAchievingInsuranceRigthsOZM" type="BDateType"/>
+													<!--4. Код за вид осигурен за правоотношението съгласно Декларация обр. 1  "Данни за осигуреното лице"-->
+													<xsd:element name="TypeOfInsured">
+														<xsd:simpleType>
+															<xsd:restriction base="xsd:string">
+																<xsd:enumeration value="0"/>
+																<xsd:enumeration value="01"/>
+																<xsd:enumeration value="02"/>
+																<xsd:enumeration value="03"/>
+																<xsd:enumeration value="04"/>
+																<xsd:enumeration value="05"/>
+																<xsd:enumeration value="06"/>
+																<xsd:enumeration value="07"/>
+																<xsd:enumeration value="08"/>
+																<xsd:enumeration value="09"/>
+																<xsd:enumeration value="10"/>
+																<xsd:enumeration value="11"/>
+																<xsd:enumeration value="12"/>
+																<xsd:enumeration value="13"/>
+																<xsd:enumeration value="16"/>
+																<xsd:enumeration value="17"/>
+																<xsd:enumeration value="21"/>
+																<xsd:enumeration value="24"/>
+																<xsd:enumeration value="25"/>
+																<xsd:enumeration value="26"/>
+																<xsd:enumeration value="29"/>
+																<xsd:enumeration value="71"/>
+																<xsd:enumeration value="72"/>
+																<xsd:enumeration value="82"/>
+																<xsd:enumeration value="83"/>
+																<xsd:enumeration value="92"/>
+																<xsd:enumeration value="93"/>
+																<xsd:enumeration value="94"/>
+																<xsd:enumeration value="95"/>
+																<xsd:enumeration value="96"/>
+																<xsd:enumeration value="97"/>
+																<xsd:enumeration value="99"/>
+																<!--По отделна номенклатура-->
+															</xsd:restriction>
+														</xsd:simpleType>
+													</xsd:element>
+													<!--5. Брой правоотношения/основания за осигуряване на лицето при осигурителя-->
+													<xsd:element name="EGNBulCountTOI" type="PositiveInteger2DigOrEmpty"/>
+													<!--6. Пореден номер на удостоверение, приложение № 9 за правоотношение на лицето при осигурителя-->
+													<xsd:element name="DocNumber" type="PositiveInteger2DigOrEmpty"/>
+													<!--7. Дата, считано от която правоотношението/осигуряването на лицето е прекратено-->
+													<xsd:element name="InsuranceTerminationDate" type="BDateType"/>
+													<!--8. Дата, считано от която осигуряването на лицето е прекъснато-->
+													<xsd:element name="InsuranceStopDate" type="BDateType"/>
+													<!--9. Работни дни или работни часове през периода по болничния лист с право на парично обезщетение и работни дни/часове, за които осигурителят изплаща възнаграждение-->
+													<xsd:element name="SickLeaveMonths">
+														<xsd:complexType>
+															<xsd:sequence>
+																<xsd:element name="BSickLeave" maxOccurs="unbounded">
+																	<xsd:complexType>
+																		<xsd:sequence>
+																			<!--Пореден номер на месец от периода-->
+																			<xsd:element name="SickNumber" type="PositiveInteger2DigOrEmpty"/>
+																			<xsd:element name="Month" type="MonthsOrEmpty"/>
+																			<xsd:element name="Year" type="YearsOrEmpty"/>
+																			<xsd:element name="FromDay" type="DaysOrEmpty"/>
+																			<xsd:element name="ToDay" type="DaysOrEmpty"/>
+																			<!--Брой работни дни в месеца с право на парично обезщетение и възнаграждение-->
+																			<xsd:element name="Days" type="DaysOrEmptyOr0"/>
+																			<!--Брой работни часове в месеца с право на парично обезщетение и възнаграждение-->
+																			<xsd:element name="Hours" type="HoursOrEmpty"/>
+																			<!--Дневно работно време по правоотношението на лицето за месеца в часове между 1 и 8 часа, освен в периодите след прекратяване на правоотношенията-->
+																			<xsd:element name="PersonalLegalWorkHours" type="LegalWorkHoursOrEmpty"/>
+																		</xsd:sequence>
+																	</xsd:complexType>
+																</xsd:element>
+															</xsd:sequence>
+														</xsd:complexType>
+													</xsd:element>
+													<!--Флаг дали лицето е трудоустроено-->
+													<xsd:element name="FlagJobTransfer" type="Code01"/>
+													<!--10. Лицето е трудоустроено-->
+													<xsd:element name="JobTransfer">
+														<xsd:complexType>
+															<xsd:sequence>
+																<!--Считано от дата:-->
+																<xsd:element name="DateOfJobTransfer" type="BDateType"/>
+																<!--Считано от дата:New-->
+																<xsd:element name="DateOfJobTransferEnd" type="BDateType"/>
+																<!--№ на заповед за трудоустрояването-->
+																<xsd:element name="OrderNumberOfJobTransfer" type="Str15"/>
+																<!--Дата на заповедта за трудоустрояването:-->
+																<xsd:element name="DateOfJobTransfer2" type="BDateType"/>
+																<!--10.1. Получено среднодневно/средночасово  брутно трудово възнаграждение от лицето за месеца, през който започва трудоустрояването-->
+																<!--0 - не е отбелязано 1 - отбелязано/избрано обстоятелство-->
+																<xsd:element name="Salary_Begin" type="Code01"/>
+																<!--Мярка на брутното възнаграждение за месеца, през който започва трудоустрояването-->
+																<!--1 - среднодневно 2 - средночасово; 9 - не е избрано-->
+																<xsd:element name="SalaryMeasureForJobTransfered" type="Code129"/>
+																<!--Среднодневно/средночасово брутно трудово възнаграждение за месеца, през който изтича трудоустрояването-->
+																<xsd:element name="SalaryForJobTransfered" type="moneyOrEmptyType"/>
+																<!--10.2. Получено среднодневно/средночасово брутно трудово възнаграждение от лицето за месеца, през който изтича трудоустрояването-->
+																<!--0 - не е отбелязано 1 - отбелязано/избрано обстоятелство-->
+																<xsd:element name="Salary_End" type="Code01"/>
+																<!--Мярка на брутното възнаграждение за месеца, през който изтича трудоустрояването-->
+																<!--1 - среднодневно 2 - средночасово; 9 - не е избрано-->
+																<xsd:element name="SalaryMeasureForJobTransferedEnd" type="Code129"/>
+																<!--Среднодневно/средночасово брутно трудово възнаграждение за месеца, през който изтича трудоустрояването-->
+																<xsd:element name="SalaryForJobTransferedEnd" type="moneyOrEmptyType"/>
+															</xsd:sequence>
+														</xsd:complexType>
+													</xsd:element>
+													<!--11. Анкетен лист-->
+													<xsd:element name="Anketa" type="Code01"/>
+													<!--Списък, който съдържа месеците от периода, за който/които е извършено нарушението-->
+													<xsd:element name="AnketaSickLeave" maxOccurs="unbounded">
+														<xsd:complexType>
+															<xsd:sequence>
+                                <xsd:element name="Months" maxOccurs="unbounded">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <!--Пореден номер на месец от периода-->
+                                      <xsd:element name="SickNumber" type="PositiveInteger2DigOrEmpty"/>
+                                      <xsd:element name="Month" type="MonthsOrEmpty"/>
+                                      <xsd:element name="Year" type="YearsOrEmpty"/>
+                                      <xsd:element name="FromDay" type="DaysOrEmpty"/>
+                                      <xsd:element name="ToDay" type="DaysOrEmpty"/>
+                                      <!--Брой работни дни в месеца, за които е извършено нарушението.-->
+                                      <xsd:element name="Days" type="DaysOrEmptyOr0"/>
+                                      <!--Брой работни часове в месеца, за които е извършено нарушението.-->
+                                      <xsd:element name="Hours" type="HoursOrEmpty"/>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>                                
+															</xsd:sequence>
+														</xsd:complexType>
+													</xsd:element>
+													<!--№ на анкетен лист-->
+													<xsd:element name="OrderNumberAnketa" type="Str15"/>
+													<!--Дата на съставяне на анкетен лист-->
+													<xsd:element name="DateAnketa" type="BDateType"/>
+													<!--Анкетен лист - Вид на нарушението - код -->
+													<xsd:element name="AnketaCode" type="xsd:string"/>
+													<!--12. Лицето ползва платен годишен отпуск-->
+													<!--0 - не е отбелязано 1 - отбелязано/избрано обстоятелство-->
+													<xsd:element name="LeaveWithPay" type="Code01"/>
+													<!--Списък, който съдържа месеците от периода, за който/които е разрешен платен годишен отпуск.-->
+													<xsd:element name="LeaveWithPaySickLeave" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="Months" maxOccurs="unbounded">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+																      <!--Пореден номер на месец от периода-->
+																      <xsd:element name="SickNumber" type="PositiveInteger2DigOrEmpty"/>
+																      <xsd:element name="Month" type="MonthsOrEmpty"/>
+																      <xsd:element name="Year" type="YearsOrEmpty"/>
+																      <xsd:element name="FromDay" type="DaysOrEmpty"/>
+																      <xsd:element name="ToDay" type="DaysOrEmpty"/>
+																      <!--Брой работни дни в месеца, за които е разрешен платен годишен отпуск.-->
+																      <xsd:element name="Days" type="DaysOrEmptyOr0"/>
+															      </xsd:sequence>
+														      </xsd:complexType>
+                                </xsd:element>
+                              </xsd:sequence>
+                            </xsd:complexType>
+													</xsd:element>
+													<!--№ на заповед за платен отпуск-->
+													<xsd:element name="OrderLeaveWithPay" type="Str15"/>
+													<!--Дата на заповедта за платен отпуск-->
+													<xsd:element name="DateOrderLeaveWithPay" type="BDateType"/>
+													<!--13. Данни за деца-->
+													<!--0 - не е отбелязано 1 - отбелязано/избрано обстоятелство-->
+													<xsd:element name="ChildDataFlag" type="Code01"/>
+													<!--Данни и обстоятелства за деца-->
+													<xsd:element name="ChildData">
+														<xsd:complexType>
+															<xsd:sequence>
+																<!--Данни за деца-->
+																<xsd:element name="BChildData">
+																	<xsd:complexType>
+																		<xsd:sequence minOccurs="0">
+																			<!--Данни за детето - повтаряема секция-->
+																			<xsd:element name="BChildDataClass" maxOccurs="unbounded">
+																				<xsd:complexType>
+																					<xsd:sequence>
+																						<!--Име на детето-->
+																						<xsd:element name="ChildFirstName" type="Str21"/>
+																						<!--Презиме на детето-->
+																						<xsd:element name="ChildSurName" type="Str21"/>
+																						<!--Фамилия на детето-->
+																						<xsd:element name="ChildFamilyName" type="Str42"/>
+																						<!--Дата на раждане на детето-->
+																						<xsd:element name="ChildBirthDate" type="BDateType"/>
+																						<!--ЕГН/ЛН/ЛНЧ/Служебен номер/Без идентификатор -->
+																						<xsd:element name="ChildEGN" type="CodeType10OrEmpty"/>
+																						<!--Вид на личния идентификатор на детето (ЕГН/ЛН/ЛНЧ/СлН/Без идентификатор)-->
+																						<xsd:element name="ChildFlagEGN" type="FlagEGNOrEmptyType"/>
+																						<!--Данни от удостоверение за раждане, когато детето не е с ЕГН-->
+																						<xsd:element name="ChildBirthDoc">
+																							<xsd:complexType>
+																								<xsd:sequence>
+																									<!--Номер на удостоверение за раждане -->
+																									<xsd:element name="ChildBirthDocNumber" type="Str15"/>
+																									<!--Дата на удостоверение за раждане -->
+																									<xsd:element name="ChildBirthDocDate" type="BDateType"/>
+																									<!--Данни за майката-->
+																									<xsd:element name="MotherData">
+																										<xsd:complexType>
+																											<xsd:sequence>
+																												<!--Име на майката-->
+																												<xsd:element name="FirstName" type="Str21"/>
+																												<!--Презиме на майката-->
+																												<xsd:element name="SurName" type="Str21"/>
+																												<!--Фамилия на майката-->
+																												<xsd:element name="FamilyName" type="Str42"/>
+																												<!--ЕГН/ЛН/ЛНЧ/Служебен номер/Без идентификатор на майката-->
+																												<xsd:element name="EGN" type="CodeType10OrEmpty"/>
+																												<!--Вид на личния идентификатор на майката (ЕГН/ЛН/ЛНЧ/СлН/Без идентификатор)-->
+																												<xsd:element name="FlagEGN" type="FlagEGNOrEmptyType"/>
+																											</xsd:sequence>
+																										</xsd:complexType>
+																									</xsd:element>
+																									<!--Данни за бащата-->
+																									<xsd:element name="FatherData">
+																										<xsd:complexType>
+																											<xsd:sequence>
+																												<!--Име на бащата-->
+																												<xsd:element name="FirstName" type="Str21"/>
+																												<!--Презиме на бащата-->
+																												<xsd:element name="SurName" type="Str21"/>
+																												<!--Фамилия на бащата-->
+																												<xsd:element name="FamilyName" type="Str42"/>
+																												<!--ЕГН/ЛН/ЛНЧ/Служебен номер/Без идентификатор на бащата-->
+																												<xsd:element name="EGN" type="CodeType10OrEmpty"/>
+																												<!--Вид на личния идентификатор на бащата (ЕГН/ЛН/ЛНЧ/СлН/Без идентификатор)-->
+																												<xsd:element name="FlagEGN" type="FlagEGNOrEmptyType"/>
+																											</xsd:sequence>
+																										</xsd:complexType>
+																									</xsd:element>
+																								</xsd:sequence>
+																							</xsd:complexType>
+																						</xsd:element>
+																					</xsd:sequence>
+																				</xsd:complexType>
+																			</xsd:element>
+																		</xsd:sequence>
+																	</xsd:complexType>
+																</xsd:element>
+																<!--14. Флаг за близнаци-->
+																<xsd:element name="FlagTwins" type="Code019"/>
+																<!--Брой на децата, когато са близнаци-->
+																<xsd:element name="CountTwins" type="ChildrenOrEmpty"/>
+																<!--15. Детето е живо-->
+																<xsd:element name="ChildFlagAlive" type="Code01"/>
+																<!--16. Детето не е дадено за осиновяване-->
+																<xsd:element name="ChildFlagAdopted" type="Code01"/>
+																<!--17. Детето не е настанено в детско заведение на пълна държавна издръжка -->
+																<xsd:element name="ChildFlagKindergarden" type="Code01"/>
+																<!--18. Детето не се отглежда от лице, наето по програми за подкрепа на майчинството-->
+																<xsd:element name="ChildFlagMotherhood" type="Code01"/>
+																<!--19. Детето не е настанено за отглеждане в семейство на роднини или близки или приемно семейство по реда на чл. 26 от Закона за закрила на детето-->
+																<xsd:element name="ChildFlagStepFamily" type="Code01"/>                             
+																<!--20. Лицето не е лишено от родителски права-->
+																<xsd:element name="FlagMissingParentsRights" type="Code01"/>
+																<!--21. Родителските права на лицето не са ограничени-->
+																<xsd:element name="FlagRestrictedParentsRights" type="Code01"/>
+																<!--22. Настойничеството не е прекратено от кмета на общината или от определеното от него длъжностно лице -->
+																<xsd:element name="FlagStepParent" type="Code01"/>
+																<!--23. Настаняването по реда на чл. 26 от Закона за закрила на детето не е прекратено-->
+																<xsd:element name="ChildFlagStepFamilyStopped" type="Code01"/>
+															</xsd:sequence>
+														</xsd:complexType>
+													</xsd:element>
+													<!--24. Други обстоятелства-->
+													<!--0 - не е отбелязано 1 - отбелязано/избрано обстоятелство-->
+													<xsd:element name="FlagOtherCircumstances" type="Code01"/>
+													<!-- Други обстоятелства - описание-->
+													<xsd:element name="OtherCircumstances" type="Str250"/>
+													<!--Считано от дата (други обстоятелства):-->
+													<xsd:element name="DateOtherCircumstances" type="BDateType"/>
+													<!--25. Входящ номер на представяне на болничния лист на осигурителя/дружеството-->
+													<xsd:element name="NumberInEmployerRegistry" type="Str15"/>
+													<!--Дата на представяне на болничния лист на осигурителя/дружеството-->
+													<xsd:element name="DateInEmployerRegistry" type="BDateType"/>
+													<!--26. Лицето декларира/има декларирана платежна сметка-->
+													<!--0 - декларира 1 - има декларирана в НОИ сметка; 9 - не е избрано-->
+													<xsd:element name="BankAccountDeclared" type="Code019"/>
+													<!--Флаг банкова сметка в чужда банка -->
+													<!--0 - банкова сметка в българска банка 1 - банкова сметка в чужда банка; 9 - не е избрано-->
+													<xsd:element name="FlagBankAccount" type="Code019"/>
+													<!--Номер на банкова сметка-->
+													<xsd:element name="IBAN" type="Str22"/>
+													<!--Данни за чужда банка-->
+													<xsd:element name="otherBankData">
+														<xsd:complexType>
+															<xsd:sequence>
+																<!--Номер на банкова сметка-->
+																<xsd:element name="IBAN" type="Str50" />
+																<!--Банков код-->
+																<xsd:element name="BIC" type="Str50" />
+																<!--При банка (наименование на банката)-->
+																<xsd:element name="BankName" type="Str100"/>
+																<!--Код на държава (номенклатура НОИ)-->
+																<xsd:element name="BankCountryCode">
+																	<xsd:simpleType>
+																		<xsd:restriction base="xsd:integer">
+																			<xsd:minInclusive value="0"/>
+																			<xsd:maxInclusive value="99"/>
+																		</xsd:restriction>
+																	</xsd:simpleType>
+																</xsd:element>
+																<!--Име на прикачен файл с неструктуриран документ за банкова сметка в чужда банка-->
+																<xsd:element name="DocName" type="Str100"/>
+																<!--Съдържание на файла за банка (кодирани по стандартен начин)-->
+																<xsd:element name="DocData" type="xsd:string"/>
+															</xsd:sequence>
+														</xsd:complexType>
+													</xsd:element>
+												</xsd:sequence>
+											</xsd:complexType>
+										</xsd:element>
+										<!--II. Удостоверени промени в обстоятелствата:-->
+										<xsd:element name="CertificateChanges">
+											<xsd:complexType>
+												<xsd:sequence>
+													<!--1. Лицето, на което се изплаща обезщетението е починало-->
+													<!--0 - не е отбелязано 1 - отбелязано/избрано обстоятелство-->
+													<xsd:element name="InsuredIsDead" type="Code01"/>
+													<!--Дата на смъртта на лицето, на което се изплаща обезщетението-->
+													<xsd:element name="InsuredDateDead" type="BDateType"/>
+													<!--2. Дата на прекратяване на правоотношението/осигуряването-->
+													<xsd:element name="A2InsuranceTerminationDate" type="BDateType"/>
+													<!--3. Лицето ползва платен годишен отпуск-->
+													<!--0 - не е отбелязано 1 - отбелязано/избрано обстоятелство-->
+													<xsd:element name="A2LeaveWithPay" type="Code01"/>
+													<!--Списък, който съдържа месеците от периода, за който/които е разрешен платен годишен отпуск-->
+													<xsd:element name="A2LeaveWithPaySickLeave" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="Months" maxOccurs="unbounded">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+																      <!--Пореден номер на месец от периода-->
+																      <xsd:element name="SickNumber" type="PositiveInteger2DigOrEmpty"/>
+																      <xsd:element name="Month" type="MonthsOrEmpty"/>
+																      <xsd:element name="Year" type="YearsOrEmpty"/>
+																      <xsd:element name="FromDay" type="DaysOrEmpty"/>
+																      <xsd:element name="ToDay" type="DaysOrEmpty"/>
+																      <!--Брой работни дни в месеца, за които е разрешен платен годишен отпуск-->
+																      <xsd:element name="Days" type="DaysOrEmptyOr0"/>
+															      </xsd:sequence>
+														      </xsd:complexType>
+													      </xsd:element>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+													<!--№ на заповед за платен отпуск-->
+													<xsd:element name="A2OrderLeaveWithPay" type="Str15"/>
+													<!--Дата на заповедта за платен отпуск-->
+													<xsd:element name="A2DateOrderLeaveWithPay" type="BDateType"/>
+													<!--4. Детето е починало-->
+													<!--0 - не е отбелязано 1 - отбелязано/избрано обстоятелство-->
+													<xsd:element name="ChildFlagAlive2" type="Code01"/>
+													<!--Дата на смъртта на детето-->
+													<xsd:element name="ChildDeathDate" type="BDateType"/>
+													<!--Дата, считано от която се променя обстоятелство (от изброените по-долу)-->
+													<xsd:element name="TerminationDateFromDeclaration" type="BDateType"/>
+													<!--5. Детето е дадено за осиновяване-->
+													<xsd:element name="A2ChildFlagAdopted" type="Code01"/>
+													<!--6. Детето е настанено в детско заведение на пълна държавна издръжка-->
+													<xsd:element name="A2ChildFlagKindergarden" type="Code01"/>
+													<!--7. Детето се отглежда от лице, наето по програми за подкрепа на майчинството-->
+													<xsd:element name="A2ChildFlagMotherhood" type="Code01"/>
+													<!--8. Детето е настанено за отглеждане в семейство на роднини или близки или в приемно семейство по реда на чл. 26 от Закона за закрила на детето-->
+													<xsd:element name="A2ChildFlagStepFamily" type="Code01"/>                        
+													<!--9. Лицето е лишено от родителски права-->
+													<xsd:element name="A2FlagMissingParentsRights" type="Code01"/>
+													<!--10. Родителските права на лицето са ограничени-->
+													<xsd:element name="A2FlagRestrictedParentsRights" type="Code01"/>
+													<!--11. Настойничеството е прекратено от кмета на общината или от определеното от него длъжностно лице-->
+													<xsd:element name="A2FlagStepParent" type="Code01"/>
+													<!--12. Настаняването по реда на чл. 26 от Закона за закрила на детето е прекратено-->
+													<xsd:element name="A2ChildFlagStepFamilyStopped" type="Code01"/>
+													<!--13. Болният член на семейството, за който се изплаща обезщетение по болничен лист с причини за временна неработоспособност 25, 26 или 27 е починал -->
+													<xsd:element name="FamilyMemberIsDead" type="Code01"/>
+													<!--Дата на смъртта на болния член на семейството-->
+													<xsd:element name="FamilyMemberDateDead" type="BDateType"/>
+													<!--14. Други обстоятелства-->
+													<!--0 - не е отбелязано 1 - отбелязано/избрано обстоятелство-->
+													<xsd:element name="A2FlagOtherCircumstances" type="Code01"/>
+													<!--Други обстоятелства - описание-->
+													<xsd:element name="A2OtherCircumstances" type="Str250"/>
+													<!--Считано от дата:-->
+													<xsd:element name="A2DateOtherCircumstances" type="BDateType"/>
+													<!--15. Входящ номер на представяне при осигурителя на декларация Приложение № 1 с данни за промяна на обстоятелствата, свързани с изплащане на паричното обезщетение-->
+													<xsd:element name="A2NumberInEmployerRegistry" type="Str15"/>
+													<!--Дата на представяне на декларация за промяна на обстоятелствата при осигурителя-->
+													<xsd:element name="A2DateInEmployerRegistry" type="BDateType"/>
+													<!--16. Лицето декларира промяна на платежна сметка-->
+													<!--0 - не е отбелязано 1 - отбелязано/избрано обстоятелство-->
+													<xsd:element name="BankAccountChanged" type="Code01"/>
+													<!--Флаг банкова сметка в чужда банка -->
+													<xsd:element name="FlagBankAccountChanged" type="Code019"/>
+													<!--Номер на банкова/платежна сметка-->
+													<xsd:element name="IBAN_Changed" type="Str22"/>
+													<!--Данни за чужда банка-->
+													<xsd:element name="otherBankData_Changed">
+														<xsd:complexType>
+															<xsd:sequence>
+																<!--Номер на банкова сметка-->
+																<xsd:element name="IBAN" type="Str50"/>
+																<!--Банков код-->
+																<xsd:element name="BIC" type="Str50"/>
+																<!--При банка (наименование на банката)-->
+																<xsd:element name="BankName" type="Str100"/>
+																<!--Код на държава (номенклатура НОИ)-->
+																<xsd:element name="BankCountryCode">
+																	<xsd:simpleType>
+																		<xsd:restriction base="xsd:integer">
+																			<xsd:minInclusive value="0"/>
+																			<xsd:maxInclusive value="99"/>
+																		</xsd:restriction>
+																	</xsd:simpleType>
+																</xsd:element>
+																<!--Име на прикачен файл с неструктуриран документ за банкова сметка в чужда банка-->
+																<xsd:element name="DocName" type="Str100"/>
+																<!--Съдържание на файла за банка (кодирани по стандартен начин)-->
+																<xsd:element name="DocData" type="xsd:string"/>
+															</xsd:sequence>
+														</xsd:complexType>
+													</xsd:element>
+												</xsd:sequence>
+											</xsd:complexType>
+										</xsd:element>
+										<!--Длъжностно лице-->
+										<xsd:element name="Representative">
+											<xsd:complexType>
+												<xsd:sequence>
+													<!--Име-->
+													<xsd:element name="FirstName" type="Str21"/>
+													<!--Презиме-->
+													<xsd:element name="SurName" type="Str21"/>
+													<!--Фамилия-->
+													<xsd:element name="FamilyName">
+														<xsd:simpleType>
+															<xsd:restriction base="xsd:string">
+																<xsd:maxLength value="42"/>
+																<xsd:minLength value="1"/>
+															</xsd:restriction>
+														</xsd:simpleType>
+													</xsd:element>																								
+													<!--Длъжност-->
+													<xsd:element name="Position">
+														<xsd:simpleType>
+															<xsd:restriction base="xsd:string">
+																<xsd:maxLength value="100"/>
+																<xsd:minLength value="2"/>
+															</xsd:restriction>
+														</xsd:simpleType>
+													</xsd:element>
+													<!--Населено място-->
+													<xsd:element name="City" type="Str50"/>
+												</xsd:sequence>
+											</xsd:complexType>
+										</xsd:element>
+										<!--Дата на удостоверението-->
+										<xsd:element name="DateCertificate" type="FullDateType"/>
+										<!--Дата на съхраняване на данните в локалната база-->
+										<xsd:element name="DateSaved">
+											<xsd:simpleType>
+												<xsd:restriction base="xsd:string">
+													<xsd:pattern value="\d{2}-\d{2}-\d{4}"/>
+												</xsd:restriction>
+											</xsd:simpleType>
+										</xsd:element>
+										<!--Час на съхраняване на данните в локалната база-->
+										<xsd:element name="TimeSaved">
+											<xsd:simpleType>
+												<xsd:restriction base="xsd:string">
+													<xsd:pattern value="\d{2}:\d{2}:\d{2}"/>
+												</xsd:restriction>
+											</xsd:simpleType>
+										</xsd:element>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<!--Начин на подаване-->
+				<!--1- Чрез файл 2- ON-line-->
+				<xsd:element name="Exported">
+					<xsd:simpleType>
+					<xsd:restriction base="xsd:integer">
+						<xsd:enumeration value="1"/>
+						<xsd:enumeration value="2"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+				</xsd:element>
+				<!--Дата на експорт на данните във файл/ към НОИ-->
+				<xsd:element name="DateExport" type="FullDateType"/>
+				<!--Флаг на източник-->
+				<!--БУЛСТАТ на разработчик на софтуера - 9, 11 или 13 цифри. При БУЛСТАТ, който е ЕГН или ЛН/ЛНЧ/СлН (11-цифрен номер), позиции от 1 до 10 съдържат ЕГН/ЛН/ЛНЧ/СлН, позиция 11 съдържа 0 – за ЕГН, 2 – за ЛН/ЛНЧ/СлН;-->
+				<xsd:element name="Source">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:minLength value="9"/>
+							<xsd:maxLength value="13"/>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:complexType name="BDateType">
+		<xsd:sequence>
+			<xsd:element name="Day" type="CodeType2OrEmpty"/>
+			<xsd:element name="Month" type="CodeType2OrEmpty"/>
+			<xsd:element name="Year" type="CodeType4OrEmpty"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="FullDateType">
+		<xsd:sequence>
+			<xsd:element name="Day" type="CodeType2"/>
+			<xsd:element name="Month" type="CodeType2"/>
+			<xsd:element name="Year" type="CodeType4"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:simpleType name="money">
+		<xsd:restriction base="xsd:decimal">
+			<xsd:minExclusive value="0"/>
+			<xsd:fractionDigits value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="moneyOrEmptyType">
+		<xsd:union memberTypes="money empty-string"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="empty-string">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value=""/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Str21">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="21"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Str15">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="15"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Str8">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="8"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Str22">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="22"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Str100">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="100"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Str30">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="30"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Str42">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="42"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Str50">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="50"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Str250">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="250"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="FlagEGNOrEmptyType">
+		<xsd:union memberTypes="empty-string">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:integer">
+					<xsd:enumeration value="0"/>
+					<xsd:enumeration value="2"/>
+					<xsd:enumeration value="3"/>
+					<xsd:enumeration value="9"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:union>
+	</xsd:simpleType>
+	<xsd:simpleType name="CodeType10">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="\d{10}"/>
+		</xsd:restriction>
+		<!-- десетцифрен код -->
+	</xsd:simpleType>
+    <xsd:simpleType name="CodeType2">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="\d{1,2}"/>
+        </xsd:restriction>
+        <!-- двуцифрен или едноцифрен код -->
+    </xsd:simpleType>
+	<xsd:simpleType name="CodeType4">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="\d{4}"/>
+		</xsd:restriction>
+		<!-- четирицифрен код -->
+	</xsd:simpleType>	
+	<xsd:simpleType name="CodeType2OrEmpty">
+		<xsd:union memberTypes="empty-string CodeType2"/>
+	</xsd:simpleType>	
+	<xsd:simpleType name="CodeType4OrEmpty">
+		<xsd:union memberTypes="empty-string CodeType4"/>
+	</xsd:simpleType>	
+	<xsd:simpleType name="CodeType10OrEmpty">
+		<xsd:union memberTypes="empty-string CodeType10"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="PositiveIntegerOrEmpty">
+		<xsd:union memberTypes="xsd:positiveInteger">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value=""/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:union>
+	</xsd:simpleType>
+	<!--0,1 или 9-->
+	<xsd:simpleType name="Code019">
+		<xsd:restriction base="xsd:integer">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>			
+			<xsd:enumeration value="9"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--1,2 или 9-->
+	<xsd:simpleType name="Code129">
+		<xsd:restriction base="xsd:integer">
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>			
+			<xsd:enumeration value="9"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="PositiveInteger2Dig">
+		<xsd:restriction base="xsd:integer">
+			<xsd:minInclusive value="1"/>
+			<xsd:maxInclusive value="99"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="PositiveInteger2DigOrEmpty">
+		<xsd:union memberTypes="empty-string PositiveInteger2Dig"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Days">
+		<xsd:restriction base="xsd:integer">
+			<xsd:minInclusive value="1"/>
+			<xsd:maxInclusive value="31"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="DaysOrEmpty">
+		<xsd:union memberTypes="empty-string Days"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Days0">
+		<xsd:restriction base="xsd:integer">
+			<xsd:minInclusive value="0"/>
+			<xsd:maxInclusive value="31"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="DaysOrEmptyOr0">
+		<xsd:union memberTypes="empty-string Days0"/>
+	</xsd:simpleType>		
+	<xsd:simpleType name="Months">
+		<xsd:restriction base="xsd:integer">
+			<xsd:minInclusive value="1"/>
+			<xsd:maxInclusive value="12"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="MonthsOrEmpty">
+		<xsd:union memberTypes="empty-string Months"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Years">
+		<xsd:restriction base="xsd:integer">
+			<xsd:minInclusive value="1950"/>
+			<xsd:maxInclusive value="9999"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="YearsOrEmpty">
+		<xsd:union memberTypes="empty-string Years"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Hours">
+		<xsd:restriction base="xsd:integer">
+			<xsd:minInclusive value="0"/>
+			<xsd:maxInclusive value="744"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="HoursOrEmpty">
+		<xsd:union memberTypes="empty-string Hours"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="LegalWorkHours">
+		<xsd:restriction base="xsd:integer">
+			<xsd:minInclusive value="1"/>
+			<xsd:maxInclusive value="8"/>
+		</xsd:restriction>
+	</xsd:simpleType>		
+	<xsd:simpleType name="LegalWorkHoursOrEmpty">
+		<xsd:union memberTypes="empty-string LegalWorkHours"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Children">
+		<xsd:restriction base="xsd:integer">
+			<xsd:minInclusive value="1"/>
+			<xsd:maxInclusive value="99"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="ChildrenOrEmpty">
+		<xsd:union memberTypes="empty-string Children"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Code01">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Code012">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="0"/>
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ЕДИН РЕД ОТ „ДНЕВНИКА НА БОЛНИЧНИТЕ“ — един болничен лист в един износ.
+
+    ═══ ЗАЩО СНИМКА, А НЕ ИЗГЛЕД ═══ Дневникът е ОПИС на подаденото, а не текущото състояние на
+    листовете. Построен като заявка върху BgApp9Declaration, той щеше да се променя всеки път,
+    когато някой поправи болничен — тоест описът на файл, подаден през септември, щеше да показва
+    октомврийските числа и да не се връзва с това, което НОИ е получил. Затова тук стоят преписани
+    стойности, а не изчисления.
+
+    ═══ ⚠️ И ЗАЩО ДНИТЕ СА ДВЕ КОЛОНИ, ДОКАТО ВЪВ ФАЙЛА СА ЕДНО ЧИСЛО ═══ Т. 9 на образеца НЕ дели
+    по платец: BSickLeave носи един брой „работни дни с право на парично обезщетение И
+    възнаграждение“. Разбивът осигурител/НОИ съществува само от НАШАТА страна (Ф0) и точно той
+    отговаря на въпроса, който човекът задава пред описа: „колко дни плащаме ние и колко ще плати
+    НОИ“. Във файла двете се СБИРАТ (BgApp9Point9); тук стоят поотделно, защото описът е за нас.
+
+    ═══ Броят на липсите се пази ═══ Лист, който НЕ Е влязъл във файла, остава в дневника с
+    причината — иначе описът щеше да твърди, че в прозореца е имало по-малко болнични, отколкото
+    наистина е имало. Тихо изпуснат лист е най-скъпият дефект тук: изглежда, че всичко е подадено.
+
+    Схема: НОВА таблица. -->
+  <entity name="BgApp9ExportLine">
+
+    <many-to-one name="bgApp9Export" title="Износ" required="true"
+      ref="com.axelor.apps.bglocalization.db.BgApp9Export"/>
+
+    <many-to-one name="bgApp9Declaration" title="Удостоверение"
+      ref="com.axelor.apps.bglocalization.db.BgApp9Declaration"/>
+
+    <many-to-one name="sickLeave" title="Болничен лист"
+      ref="com.axelor.apps.bglocalization.db.BgSickLeave"/>
+
+    <many-to-one name="employee" title="Лице" ref="com.axelor.apps.hr.db.Employee"/>
+
+    <!-- Дванайсетте знака, КАКТО СА ВЛЕЗЛИ във файла (серия + година + седем цифри). Преписани, а
+      не сглобени наново при четене: сглобяването зависи от три полета на листа, а те се менят. -->
+    <string name="bgChartNumber" title="№ на болничен лист" namecolumn="true"/>
+
+    <date name="bgLeaveFrom" title="В отпуск от"/>
+    <date name="bgLeaveTo" title="В отпуск до"/>
+
+    <integer name="bgEmployerDays" title="Дни осигурител"/>
+    <integer name="bgNoiDays" title="Дни НОИ"/>
+
+    <!-- Състоянието на удостоверението В МОМЕНТА на износа. -->
+    <string name="bgDeclarationStatus" title="Състояние на удостоверението"
+      selection="bg.app9.declaration.status.select"/>
+
+    <!-- ⚠️ Влязъл ли е листът във файла. boolean е безопасен тук по същия довод като при износа:
+      трето състояние няма, а FALSE при NULL е верният прочит („не е влязъл“). -->
+    <boolean name="bgIncluded" title="Във файла" default="false"/>
+
+    <integer name="bgGapCount" title="Липси"/>
+
+    <string name="bgNote" title="Забележка" large="true"/>
+
+  </entity>
+
+</domain-models>

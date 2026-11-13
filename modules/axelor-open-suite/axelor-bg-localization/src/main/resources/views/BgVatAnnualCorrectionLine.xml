@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="bg-vat-annual-correction-line-grid" title="Редове по актив"
+    model="com.axelor.apps.bglocalization.db.BgVatAnnualCorrectionLine">
+    <field name="fixedAsset"/>
+    <field name="carrierRegimeSelect"/>
+    <field name="subsequentCost"/>
+    <field name="assetKindSelect"/>
+    <field name="legalGround"/>
+    <field name="kx"/>
+    <field name="correctionAmount"/>
+    <field name="isSkippedUnderPara6"/>
+    <field name="isSuspendedYear"/>
+    <field name="correctionMove"/>
+    <field name="refusalReason"/>
+  </grid>
+
+  <form name="bg-vat-annual-correction-line-form" title="Ред по актив"
+    model="com.axelor.apps.bglocalization.db.BgVatAnnualCorrectionLine">
+
+    <panel name="assetPanel" title="Актив и придобиване" colSpan="12">
+      <field name="fixedAsset" colSpan="6" readonly="true"/>
+      <field name="carrierRegimeSelect" colSpan="6" readonly="true"
+        help="Кой начислен ДДС коригира редът. Един актив носи няколко: този при придобиването и по един на всяко подобрение. Чл. 79а ал. 9 казва дословно „се извършват ОТДЕЛНИ корекции“, а ППЗДДС чл. 66 ал. 5 иска скаларни реквизити — тоест всеки носител си има свой протокол."/>
+      <field name="subsequentCost" colSpan="6" readonly="true"
+        help="Последващият разход, чийто данък се коригира. Празно = носителят при придобиване."/>
+      <field name="remainingYears" colSpan="6" readonly="true"
+        help="R по ППЗДДС чл. 67 ал. 4 — остатъкът от срока на ЗАВАРЕНИЯ актив, броен от кредитната година на подобрението включително. ⚠️ Не е знаменател и не е брой коригиращи години: коригиращите са R − 1, защото чл. 79а ал. 1 иска годините СЛЕДВАЩИ кредитната."/>
+      <field name="assetKindSelect" colSpan="6" readonly="true"/>
+      <field name="creditTypeSelect" colSpan="6" readonly="true"
+        help="⚠️ БУКВИТЕ В ЕТИКЕТА СА НА ЧЛ. 79 АЛ. 3, НЕ НА ЧЛ. 79а. Чл. 79 ал. 3 има три букви и започва от „приспаднат изцяло“; чл. 79а ал. 3 има четири и започва от „НЕ е приспаднат на основание чл. 70“, тоест буквите са изместени с една. Меродавно е полето „Основание на корекцията“ по-долу — то се изписва от закона."/>
+      <field name="vatCharged" colSpan="6" readonly="true"
+        help="НДДС — брутният начислен ДДС при придобиване, НЕ ползваният данъчен кредит. К₀ и ПрНИД₀ влизат отделно във формулата."/>
+      <field name="periodYears" colSpan="4" readonly="true"
+        help="n от формулата: 20 за недвижим имот (чл. 79а ал. 3 т. 1), 5 за останалите стоки (т. 2) и за услугите (чл. 79б). ⚠️ ЗАКОНОВИЯТ период и за носителя по ППЗДДС чл. 67 ал. 4: тя мени прозореца („за остатъка от годините“), но изрично назовава срока, който остава 20-, съответно 5-годишен. Знаменател 1/R би бил нов, по-къс срок — точно забраненото от чл. 79а ал. 10."/>
+      <field name="termStartYear" colSpan="4" readonly="true"/>
+      <field name="k0" colSpan="4" readonly="true"/>
+      <field name="proportion0" colSpan="4" readonly="true"/>
+    </panel>
+
+    <panel name="yearPanel" title="Фактите за годината" colSpan="12">
+      <field name="isSuspendedYear" colSpan="12"
+        help="Чл. 79а ал. 8 / чл. 79б ал. 7: за година, през която активът НЕ се използва за дейностите по чл. 69 и 70, срокът СПИРА да тече и корекция не се извършва. Срокът се възобновява следващата година, в която активът отново се използва — тоест краят му се мести напред."/>
+      <field name="taxableUseSelect" colSpan="6"
+        help="Чл. 79в т. 1 и т. 2: при само облагаеми доставки Кх е 1, при само освободени — 0, и в двата случая коефициентът по чл. 73 не се взема предвид. Само при СМЕСЕНО използване се чете числото по-долу."/>
+      <field name="kx" colSpan="6"
+        help="Кх — ОКОНЧАТЕЛНИЯТ коефициент по чл. 73 ал. 6 за годината на изменението (преизчисленият по реалния оборот), а НЕ прогнозният по ал. 5, който пълни кл.33 през годината."/>
+      <field name="nidUseSelect" colSpan="6"
+        help="Чл. 79в т. 6 и т. 7. Ползва се само от чл. 79а буква „а“ и буква „г“; чл. 79б (услуги) няма ПрНИД в нито една от трите си точки."/>
+      <field name="proportionX" colSpan="6"/>
+    </panel>
+
+    <panel name="resultPanel" title="Изчисленото" colSpan="12">
+      <field name="legalGround" colSpan="6" readonly="true"/>
+      <field name="appliedKx" colSpan="3" readonly="true"
+        help="Кх, както чл. 79в го е заковал (1 при само облагаеми, 0 при само освободени). Това е реквизитът, който влиза в протокола по ППЗДДС чл. 66 ал. 5 т. 10."/>
+      <field name="appliedProportionX" colSpan="3" readonly="true"/>
+      <field name="correctionAmount" colSpan="6" readonly="true"
+        help="ИРПДК. Положително = увеличение на кредита, знак (+) по ал. 4 т. 1; отрицателно = намаление, знак (−) по т. 2. И двете отиват в к.11 на дневника за ПОКУПКИТЕ (ППЗДДС чл. 66 ал. 9)."/>
+      <field name="isSkippedUnderPara6" colSpan="12" showIf="correctionAmount &gt; 0"
+        help="Чл. 79а ал. 6 / чл. 79б ал. 5: корекцията МОЖЕ да не се извърши, когато е в посока увеличение. Намалението е задължително — за него отметката не се показва и не се зачита."/>
+      <field name="refusalReason" colSpan="12" readonly="true"/>
+      <field name="correctionMove" colSpan="6" readonly="true"/>
+      <field name="comments" colSpan="12"/>
+    </panel>
+
+  </form>
+
+</object-views>

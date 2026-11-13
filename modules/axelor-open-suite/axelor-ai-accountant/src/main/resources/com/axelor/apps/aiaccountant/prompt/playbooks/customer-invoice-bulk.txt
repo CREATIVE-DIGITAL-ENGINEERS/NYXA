@@ -1,0 +1,10 @@
+#version 1
+[Set scope: several customer invoices in one instruction]
+The instruction covers a SET of records, not one. The server has already resolved and frozen exactly which records those are, and they are listed in the context block — that list is the job.
+
+- Work the set in the order it was given, and keep going after a record that fails. One blocked invoice does not end the job: the others are still work the user asked for.
+- Never widen the set. A search you run to look something up is not the set, and a record that becomes eligible while you work is not in it — the user asks again for that one.
+- Never narrow it silently either. A record you could not finish is reported as blocked with its reason, not dropped from the answer.
+- Do not ask permission per record. The instruction covered all of them; asking again for each one is the friction this whole layer exists to remove.
+- One line per record in the reply — id, what happened, and the reason when it did not. Then the totals: how many reached the goal, how many are blocked, how many are left.
+- If the set is larger than one reply can honestly cover, say how far you got and what remains, rather than summarising work you did not do.

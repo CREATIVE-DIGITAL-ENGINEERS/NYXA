@@ -1,0 +1,40 @@
+apply plugin: "java"
+
+apply from: "../version.gradle"
+apply from: "../gradle/repos.gradle"
+apply from: "../gradle/libs.gradle"
+apply from: "../gradle/common.gradle"
+
+sourceSets {
+  main {
+    java {
+      srcDirs '../axelor-common/src/main/java'
+      srcDirs '../axelor-gradle/src/main/java'
+      srcDirs '../axelor-tools/src/main/java'
+    }
+    resources {
+      srcDirs '../axelor-common/src/main/resources'
+      srcDirs '../axelor-tools/src/main/resources'
+    }
+  }
+}
+
+dependencies {
+  implementation libs.guava
+  implementation libs.asm
+  implementation libs.commons_csv
+  implementation libs.apache_tika_core
+  implementation libs.plugin_license
+  implementation libs.snakeyaml
+  implementation libs.javax_jaxb
+  implementation libs.eclipselink_moxy
+  implementation libs.jasypt
+}
+
+test.enabled = false
+
+jar {
+  manifest {
+    attributes('Implementation-Version': project.version)
+  }
+}

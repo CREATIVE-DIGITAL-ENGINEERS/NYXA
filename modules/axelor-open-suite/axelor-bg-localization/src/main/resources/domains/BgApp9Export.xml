@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ИЗНОСЕН КОМПЛЕКТ КЪМ НОИ — един файл „Данни за паричните обезщетения“ и описът зад него.
+
+    ═══ ЗАЩО ОТДЕЛЕН ЗАПИС, А НЕ ПОЛЕТА ВЪРХУ УДОСТОВЕРЕНИЕТО ═══ Един файл носи МНОГО
+    удостоверения ({@code NumberPril9} е maxOccurs="unbounded"), а заглавната му част е ЕДНА:
+    ТП на НОИ, подателят, длъжностното лице, начинът на подаване, датата на износа. Разсипани по
+    удостоверенията, тези пет неща щяха да се въвеждат по веднъж на болничен лист и да се разминат
+    още при втория — а изискванията за прием отхвърлят целия файл, „ако не съдържа данни само с
+    един и същ ЕИК на осигурителя“.
+
+    ═══ ⚠️ ТП НА НОИ (1–28) СЕ ВЪВЕЖДА ТУК, ЗАЩОТО НЯМА НОСИТЕЛ НИКЪДЕ ДРУГАДЕ ═══ Контролът е
+    „задължително попълнена стойност от 1 до 28“, тоест празното връща ЦЕЛИЯ файл. Съответствието
+    между областите и териториалните поделения е номенклатура на НОИ, каквато репото не носи —
+    изведено „по адреса на дружеството“, то щеше да е догадка, представена като данни.
+
+    ═══ ⚠️ ОТПЕЧАТЪКЪТ НЕ СЕ ПАЗИ ТУК, И ТОВА Е РЕШЕНИЕ ═══ SHA-256 и байтовете живеят на
+    NapArtifact — общото ядро „институция“, което обслужва и НАП (Д1/Д6, ДДС, SAF-T), и НОИ.
+    Копиран тук „за удобство на грида“, отпечатъкът би бил ВТОРО число за същия файл, тоест
+    точно онова, което ядрото предотвратява. Гридът чете bgNoiArtifact.sha256.
+
+    ═══ НУЛА ПОДАВАНЕ ═══ Записът СПИРА на „генериран“. Подаването към портала на НОИ иска КЕП и
+    човек пред устройството; статусът „подаден“ съществува, за да може човекът да отбележи, че го е
+    направил, а не защото кодът го прави.
+
+    Схема: НОВА таблица, тоест required и unique върху нея са безопасни. -->
+  <entity name="BgApp9Export">
+
+    <string name="name" title="Износ" namecolumn="true"/>
+
+    <many-to-one name="company" title="Дружество" required="true"
+      ref="com.axelor.apps.base.db.Company"/>
+
+    <!-- ⚠️ ПРОЗОРЕЦЪТ Е ПО МЕСЕЦ ЗА ЕКСПОРТ, НЕ ПО ПЕРИОДА НА ЛИСТА. Ф0 въведе bgExportMonth точно
+      за това: „лист за юли, донесен през септември, се подава в септемврийския пакет — а периодът
+      му остава юлски“. Затова тук стоят две дати, а не Period: прозорецът се мени на ръка при
+      наваксване и не съвпада със заплатния месец. -->
+    <date name="bgPeriodFrom" title="Листове от"/>
+    <date name="bgPeriodTo" title="Листове до"/>
+
+    <string name="statusSelect" title="Състояние" selection="bg.app9.export.status.select"
+      default="DRAFT" required="true"/>
+
+    <!-- ═══════════ ЗАГЛАВНА ЧАСТ НА ФАЙЛА ═══════════ -->
+
+    <integer name="nssiRoCode" title="ТП на НОИ (код 1–28)"
+      help="Задължителен за прием на файла. Номенклатура NSSI_RO на НОИ."/>
+    <string name="nssiRoName" title="ТП на НОИ (текст)"/>
+
+    <!-- ⚠️ ТУК boolean Е ВЯРНОТО РЕШЕНИЕ, И ТОВА Е ОБРАТНОТО НА ОБСТОЯТЕЛСТВАТА В
+      BgApp9Declaration. Там всяко „да/не“ е низ, защото генерираният getter връща FALSE при NULL
+      колона и „резолверът изведе НЕ“ ставаше неразличимо от „не е питано“. Тук няма резолвер и
+      няма трето състояние: подаването е ИЛИ от осигурителя, ИЛИ чрез упълномощено лице, а
+      непопълненото значи първото — точно каквото FALSE ще даде. Схемата пише 0 и за двете. -->
+    <boolean name="bgIsDelegated" title="Подава се чрез упълномощено лице" default="false"/>
+    <boolean name="bgIsThroughKasa" title="Подава се чрез осигурителна каса" default="false"/>
+
+    <!-- ЕИК на члена на касата — попълва се САМО когато подаването е през каса (FlagKasa=1). -->
+    <string name="bgKasaMemberBulstat" title="ЕИК на члена на касата"/>
+
+    <!-- „Флаг на източник“ (Source) — КАКТО Е ИЗЛЯЗЪЛ във файла при последното успешно генериране,
+      само за показ. Генерирането НЕ го чете: единственият източник е настройката на инсталацията
+      AppBgLocalization.bgSoftwareDeveloperEik — ЕИК на РАЗРАБОТЧИКА по Приложение № 1 на НОИ, не на
+      осигурителя; празното НЕ се подменя с ЕИК-а на осигурителя. -->
+    <string name="bgSourceFlag" title="Флаг на източник (ЕИК)"/>
+
+    <!-- ДЕКЛАРАТОРЪТ НА ИЗНОСА — длъжностното лице във файла на Приложение № 9.
+      По подразбиране е този с isDefault на дружеството (НЕ първият по id) — попълва се при нов износ
+      и при генериране, ако е празен. Сменя се изрично. -->
+    <many-to-one name="bgDeclarant" ref="com.axelor.apps.bglocalization.db.BgDeclarant"
+      title="Декларатор"/>
+
+    <!-- Числото n в името Pril9_ddmmyyyy_n.xml — поредността на файла ЗА ДАТАТА. -->
+    <integer name="bgFileSequence" title="Пореден файл за деня" default="1"/>
+
+    <date name="bgCertificateDate" title="Дата на удостоверенията"/>
+    <date name="bgExportDate" title="Дата на износа"/>
+
+    <!-- ═══════════ ИЗХОДЪТ ═══════════ -->
+
+    <!-- Файлът, през общото ядро. ⚠️ NapArtifact е НЕИЗМЕНЯЕМ по построение: байтовете, дължината и
+      SHA-256 се смятат ВЕДНЪЖ при създаването. Името на ентитета още е „Nap“, защото таблицата му е
+      попълнена на живи инсталации — преименуването е миграция, не рефактор, и е записано като
+      отворен въпрос. Дискриминаторът institutionSelect казва, че редът е на НОИ. -->
+    <many-to-one name="bgNoiArtifact" title="Файл (неизменяем)"
+      ref="com.axelor.apps.napsubmissions.db.NapArtifact"/>
+
+    <datetime name="bgGeneratedOn" title="Генериран на" readonly="true"/>
+
+    <!-- Входовете на „Отбележи като подаден“ — transient, мястото им е NapSubmission (един файл =
+      един входящ номер от портала). Виж BgApp9SubmissionService. -->
+    <!-- ВХ. № И ДАТАТА НА ПОДАВАНЕТО — ИЗЧИСЛИМИ, четат се от АКТИВНОТО подаване на файла
+      (NapSubmission през NapSubmissionFile.payloadArtifact = файлът на износа), без втори запис.
+      Датата е referenceDate — датата от портала, пазена като ДАТА; submittedOn е datetime и се
+      показва като 03:00. Отменена отметка (withdrawn) не се брои. -->
+    <string name="bgNoiIncomingNumber" title="Вх. № от НОИ" formula="true"><![CDATA[
+      (SELECT s.nap_incoming_number FROM napsubmissions_nap_submission s
+        WHERE s.id = (SELECT MAX(f.submission) FROM napsubmissions_nap_submission_file f
+          JOIN napsubmissions_nap_submission x ON x.id = f.submission
+          WHERE f.payload_artifact = bg_noi_artifact
+            AND x.submission_status_select IN ('submitted', 'accepted', 'correction_required')))
+    ]]></string>
+    <date name="bgNoiSubmittedDate" title="Подадено в НОИ на" formula="true"><![CDATA[
+      (SELECT s.reference_date FROM napsubmissions_nap_submission s
+        WHERE s.id = (SELECT MAX(f.submission) FROM napsubmissions_nap_submission_file f
+          JOIN napsubmissions_nap_submission x ON x.id = f.submission
+          WHERE f.payload_artifact = bg_noi_artifact
+            AND x.submission_status_select IN ('submitted', 'accepted', 'correction_required')))
+    ]]></date>
+
+    <string name="bgPortalIncomingNumber" title="Входящ № от портала на НОИ" transient="true"/>
+    <date name="bgPortalSubmittedDate" title="Дата на подаване в портала" transient="true"/>
+
+    <!-- ⚠️ ДВА ОТЧЕТА, А НЕ ЕДИН, И ТЕ ОТГОВАРЯТ НА РАЗЛИЧНИ ВЪПРОСИ. „Какво липсва, за да тръгне
+      файлът“ се чете ПРЕДИ да има файл и адресатът му е операторът, който ще попълва. „Какво намери
+      проверката“ се чете СЛЕД като файлът вече съществува. Слети в едно поле, вторият отчет щеше да
+      трие първия при всеки опит и операторът щеше да губи списъка, по който работи. -->
+    <string name="bgEmissionGaps" title="Какво липсва, за да е валидна" large="true"
+      readonly="true"/>
+    <string name="bgValidationReport" title="Проверки (XSD и контроли)" large="true"
+      readonly="true"/>
+
+    <!-- ПОСЛЕДНИЯТ ОПИТ ЗА ГЕНЕРИРАНЕ — кога, кой, с какъв изход. Пише се при ВСЕКИ опит,
+      успешен или не, ОТДЕЛНО от файла: при отказ файл не се закача и полуготов износ не се записва.
+      Без него резултатът от неуспешен опит не се вижда — клиентът не презарежда формата след
+      грешка, и „Какво липсва“ може да показва отказ от предишен опит. -->
+    <string name="bgLastAttempt" title="Последен опит за генериране" large="true"
+      readonly="true"/>
+
+    <!-- ДНЕВНИКЪТ НА БОЛНИЧНИТЕ — описът на листовете в прозореца. Виж BgApp9ExportLine. -->
+    <one-to-many name="bgExportLineList" title="Дневник на болничните"
+      ref="com.axelor.apps.bglocalization.db.BgApp9ExportLine" mappedBy="bgApp9Export"
+      orphanRemoval="true"/>
+
+  </entity>
+
+</domain-models>

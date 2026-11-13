@@ -1,0 +1,95 @@
+/*
+ * Shared styling for the anonymous notice pages under /public/.
+ *
+ * Colours are taken from the "Modern" MetaTheme, the theme this deployment runs
+ * (application.theme), seeded in axelor-base/data-init/input/meta_theme.csv:
+ *
+ *   primary         #72C6A1   body_color   #5A5A7C
+ *   emphasis_color  #33325B   border       #DDDDFD
+ *   panel header bg #FBFBFF   body size    15px
+ *
+ * Light only, because the Modern theme has no dark variant and these pages should not
+ * invent one. `color-scheme: light` stops the browser darkening anything on its own.
+ */
+
+:root {
+  color-scheme: light;
+
+  --bg: #fbfbff;
+  --card: #ffffff;
+  --border: #ddddfd;
+  --fg: #5a5a7c;
+  --heading: #33325b;
+  --primary: #72c6a1;
+  --primary-soft: #b4dcc8;
+}
+
+html {
+  font-size: 15px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  line-height: 1.5;
+}
+
+main {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 26rem;
+  margin: 0 16px;
+  padding: 2rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  text-align: center;
+}
+
+.mark {
+  width: 2.75rem;
+  height: 0.25rem;
+  margin: 0 auto 1.25rem;
+  border-radius: 1rem;
+  background: var(--primary);
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+  color: var(--heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+p {
+  margin: 0 0 1.75rem;
+}
+
+a {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  border-radius: 1rem;
+  background: var(--primary);
+  /* The theme's emphasis colour rather than white: white on #72C6A1 is only 2.1:1,
+     while #33325B reaches 5.9:1 and stays inside the palette. */
+  color: var(--heading);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a:hover,
+a:focus-visible {
+  background: var(--primary-soft);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--heading);
+  outline-offset: 2px;
+}

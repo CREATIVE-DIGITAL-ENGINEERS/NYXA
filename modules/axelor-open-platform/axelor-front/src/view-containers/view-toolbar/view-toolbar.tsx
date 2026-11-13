@@ -1,0 +1,553 @@
+import { useAtom, useAtomValue } from "jotai";
+import { selectAtom, useAtomCallback } from "jotai/utils";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import {
+  Box,
+  CommandBar,
+  CommandItem,
+  CommandItemProps,
+  RenderCommandItemProps,
+} from "@axelor/ui";
+import { MaterialIconProps } from "@axelor/ui/icons/material-icon";
+
+import { dialogs } from "@/components/dialogs";
+import { useSession } from "@/hooks/use-session";
+import { DataContext, DataRecord } from "@/services/client/data.types";
+import { ViewData } from "@/services/client/meta";
+import { DataStore } from "@/services/client/data-store";
+import { toTitleCase } from "@/utils/names";
+
+import {
+  useSelectViewState,
+  useViewAction,
+  useViewConfirmDirty,
+  useViewDirtyAtom,
+  useViewSwitch,
+  useViewTab,
+} from "../views/scope";
+
+import { Icon } from "@/components/icon";
+import { createScriptContext } from "@/hooks/use-parser/context";
+import { parseExpression } from "@/hooks/use-parser/utils";
+import { useResizeDetector } from "@/hooks/use-resize-detector";
+import { useRoute } from "@/hooks/use-route";
+import { useNavShortcuts } from "@/hooks/use-shortcut";
+import { i18n } from "@/services/client/i18n.ts";
+import {
+  Button,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  Schema,
+} from "@/services/client/meta.types";
+import { FormAtom, RecordHandler } from "@/views/form/builder";
+import { fallbackFormAtom } from "@/views/form/builder/atoms";
+import { findVariant as findButtonVariant } from "@/views/form/widgets/button";
+
+import { ActionExecutor, ActionOptions } from "../action";
+
+import styles from "./view-toolbar.module.scss";
+
+export type ViewToolBarProps = {
+  actions: CommandItemProps[];
+  dataStore?: DataStore;
+  formAtom?: FormAtom;
+  actionExecutor?: ActionExecutor;
+  recordHandler?: RecordHandler;
+  getActionData?: () => ActionOptions["data"];
+  children?: React.ReactNode;
+  pagination?: {
+    text?: string | (() => JSX.Element);
+    canNext?: boolean;
+    canPrev?: boolean;
+    onNext: () => any;
+    onPrev: () => any;
+    actions?: CommandItemProps[];
+  };
+  meta: ViewData<any>;
+};
+
+const ViewIcons: Record<string, MaterialIconProps["icon"]> = {
+  grid: "list",
+  form: "article",
+  cards: "grid_view",
+  tree: "account_tree",
+  calendar: "calendar_month",
+  kanban: "view_kanban",
+  gantt: "calendar_month",
+  chart: "monitoring",
+  dashboard: "dashboard",
+};
+
+function ActionCommandItem({
+  formAtom = fallbackFormAtom,
+  recordHandler,
+  schema,
+  context,
+  ...props
+}: RenderCommandItemProps &
+  Pick<ViewToolBarProps, "formAtom" | "recordHandler"> & {
+    schema: Schema;
+    context?: DataContext;
+  }) {
+  const {
+    name,
+    hidden: hiddenBySchema,
+    readonly: readonlyBySchema,
+    showIf,
+    hideIf,
+    readonlyIf,
+  } = schema;
+  const [hidden, setHidden] = useState<boolean | undefined>();
+  const [readonly, setReadonly] = useState<boolean>();
+
+  const attrs = useAtomValue(
+    useMemo(
+      () => selectAtom(formAtom, (o) => o.statesByName[name!]?.attrs ?? {}),
+      [name, formAtom],
+    ),
+  );
+
+  useEffect(() => {
+    const hasExpr = showIf || hideIf || readonlyIf;
+    if (!hasExpr) return;
+    const updateAttrs = (record: DataRecord) => {
+      if (showIf || hideIf) {
+        setHidden((_hidden) => {
+          if (hideIf) {
+            _hidden = !!parseExpression(hideIf)(record);
+          }
+          if ((!_hidden || !hideIf) && showIf) {
+            _hidden = !parseExpression(showIf)(record);
+          }
+          return _hidden;
+        });
+      }
+      if (readonlyIf) {
+        setReadonly(parseExpression(readonlyIf)(record));
+      }
+    };
+
+    if (recordHandler) {
+      return recordHandler.subscribe(updateAttrs);
+    } else {
+      updateAttrs(createScriptContext(context ?? {}));
+    }
+  }, [showIf, hideIf, readonlyIf, recordHandler, context]);
+
+  return (
+    <CommandItem
+      {...props}
+      text={attrs?.title || props.text}
+      {...(schema.css && {
+        variant: findButtonVariant(schema),
+      })}
+      hidden={hidden ?? attrs?.hidden ?? hiddenBySchema}
+      {...((readonly ?? attrs?.readonly ?? readonlyBySchema) && {
+        onClick: undefined,
+        disabled: true,
+      })}
+    />
+  );
+}
+
+type ToolbarItem = Menu | MenuItem | MenuDivider | Button;
+
+function getTextFull(item: ToolbarItem) {
+  return item.showTitle !== false ? (item.title ?? "") : "";
+}
+
+function getTextResponsive(item: ToolbarItem) {
+  return item.title ?? toTitleCase(item.name ?? "");
+}
+
+export function ToolbarActions({
+  buttons,
+  menus,
+  formAtom,
+  getActionData,
+  recordHandler,
+  actionContext: _actionContext,
+  actionExecutor,
+  parentRef,
+  parentWidth,
+}: Pick<
+  ViewToolBarProps,
+  "formAtom" | "getActionData" | "actionExecutor" | "recordHandler"
+> & {
+  actionContext?: DataContext;
+  buttons?: Button[];
+  menus?: Menu[];
+  parentRef?: React.RefObject<HTMLDivElement>;
+  parentWidth?: number;
+}) {
+  const { action } = useViewTab();
+  const actionContext = _actionContext ?? action.context;
+
+  const innerRef = useRef<HTMLDivElement | null>(null);
+  const responsive = useMemo(() => {
+    // Compute total width of children, excluding responsive dropdown menu.
+    let width = innerRef.current?.offsetWidth ?? 0;
+    const children = (parentRef?.current?.children ?? []) as HTMLElement[];
+    for (let i = 1; i < children.length; ++i) {
+      width += children[i].offsetWidth;
+    }
+    return (
+      Math.ceil(parentWidth ?? parentRef?.current?.offsetWidth ?? 0) <
+      Math.ceil(width ?? 0)
+    );
+  }, [parentRef, innerRef, parentWidth]);
+
+  const getItems = useCallback(
+    (getText: (item: ToolbarItem) => string = getTextFull) => {
+      let ind = 0;
+      const mapItem = (item: ToolbarItem): CommandItemProps => {
+        const action = (item as Button).onClick || (item as MenuItem).action;
+        const text = getText(item);
+        const { icon, prompt, help } = item as Button;
+        const key = `action_${++ind}`;
+        const hasExpr = item.showIf || item.hideIf || item.readonlyIf;
+        return {
+          key,
+          text,
+          divider: item.type === "menu-item-divider",
+          description: help,
+          iconOnly: !text && icon,
+          showDownArrow: item.type === "menu",
+          ...(icon && {
+            icon: ({ className }: { className: string }) => (
+              <Icon icon={icon} className={className} />
+            ),
+          }),
+          ...(action && {
+            onClick: async () => {
+              if (prompt) {
+                const confirmed = await dialogs.confirm({
+                  content: prompt,
+                });
+                if (!confirmed) return;
+              }
+              actionExecutor?.execute(action, {
+                data: getActionData?.(),
+                context: {
+                  _signal: item.name,
+                  _source: item.name,
+                },
+              });
+            },
+          }),
+          ...((item as Menu).items && {
+            items: (item as Menu).items?.map(mapItem),
+          }),
+          ...(hasExpr || formAtom
+            ? {
+                render: (props) => (
+                  <ActionCommandItem
+                    {...props}
+                    context={actionContext}
+                    schema={item}
+                    formAtom={formAtom}
+                    recordHandler={recordHandler}
+                  />
+                ),
+              }
+            : {
+                hidden: item.hidden,
+                ...(item.readonly && {
+                  onClick: undefined,
+                  disabled: true,
+                }),
+              }),
+        } as CommandItemProps;
+      };
+
+      return [...(buttons || []), ...(menus || [])].map(mapItem);
+    },
+    [
+      buttons,
+      menus,
+      formAtom,
+      getActionData,
+      actionContext,
+      actionExecutor,
+      recordHandler,
+    ],
+  );
+
+  const [items, responsiveItems] = useMemo(
+    () => [getItems(), getItems(getTextResponsive)],
+    [getItems],
+  );
+
+  return (
+    <Box d="flex" textWrap={false} overflow="hidden">
+      {responsive && (
+        <CommandBar
+          items={[
+            {
+              key: "more",
+              iconOnly: true,
+              iconProps: {
+                icon: "settings",
+              },
+              items: responsiveItems,
+              showDownArrow: true,
+            } as CommandItemProps,
+          ]}
+        />
+      )}
+      <Box
+        ref={innerRef}
+        {...(responsive && {
+          style: {
+            visibility: "hidden",
+            left: "-1000%",
+            position: "absolute",
+          },
+        })}
+      >
+        <CommandBar items={items} />
+      </Box>
+    </Box>
+  );
+}
+
+export function ViewToolBar(props: ViewToolBarProps) {
+  const {
+    meta,
+    formAtom,
+    dataStore,
+    actions = [],
+    actionExecutor,
+    recordHandler,
+    getActionData,
+    children,
+    pagination: {
+      text: pageTextOrComp,
+      canNext,
+      canPrev,
+      onNext,
+      onPrev,
+      actions: paginationActions,
+    } = {},
+  } = props;
+  const { view } = meta;
+  const { toolbar, menubar, helpLink } = view;
+  const pageActions = onPrev || onNext || paginationActions;
+
+  const showConfirmDirty = useViewConfirmDirty();
+  const dirtyAtom = useViewDirtyAtom();
+  const [dirty = false, setDirty] = useAtom(dirtyAtom);
+
+  const { data: sessionInfo } = useSession();
+  const { actionId, views = [] } = useViewAction();
+  const viewType = useSelectViewState(useCallback((state) => state.type, []));
+  const viewTab = useViewTab();
+  const switchTo = useViewSwitch();
+  const { navigate } = useRoute();
+
+  const switchToView = useAtomCallback(
+    useCallback(
+      (get, set, type: string) => {
+        showConfirmDirty(
+          async () => dirty,
+          async () => {
+            const { props = {} } = get(viewTab.state);
+            const { selectedId } = props[viewType] ?? {};
+            if (type === "form") {
+              const id = selectedId ?? dataStore?.records?.[0]?.id;
+              if (id) {
+                switchTo(type, {
+                  route: { id: String(id) },
+                });
+              }
+            } else {
+              switchTo(type);
+            }
+            dirty && setDirty(false);
+          },
+        );
+      },
+      [
+        dirty,
+        switchTo,
+        viewTab.state,
+        viewType,
+        showConfirmDirty,
+        setDirty,
+        dataStore,
+      ],
+    ),
+  );
+
+  const handlePrev = useCallback(() => {
+    showConfirmDirty(
+      async () => dirty,
+      async () => onPrev?.(),
+    );
+  }, [dirty, onPrev, showConfirmDirty]);
+
+  const handleNext = useCallback(() => {
+    showConfirmDirty(
+      async () => dirty,
+      async () => onNext?.(),
+    );
+  }, [dirty, onNext, showConfirmDirty]);
+
+  useNavShortcuts({
+    viewType: view.type,
+    onPrev: canPrev ? handlePrev : undefined,
+    onNext: canNext ? handleNext : undefined,
+  });
+
+  const switchActions = useMemo(() => {
+    if (views.length === 1) return;
+    return views.map((item) => {
+      const key = item.type;
+      // view types are already extracted and translated into the core through the `view.type.selection` selection
+      const text = i18n.get(toTitleCase(item.type));
+      return {
+        key,
+        text,
+        description: text,
+        iconOnly: true,
+        disabled: viewType === key,
+        iconProps: {
+          icon: ViewIcons[key] ?? "table_view",
+        },
+        onClick: () => switchToView(key),
+      };
+    });
+  }, [views, viewType, switchToView]);
+
+  const farItems = useMemo(() => {
+    const items: CommandItemProps[] = [];
+    const view = meta.view;
+
+    if (view?.viewId) {
+      items.push({
+        key: "view",
+        text: i18n.get("View..."),
+        onClick: () => {
+          navigate(`/ds/form::com.axelor.meta.db.MetaView/edit/${view.viewId}`);
+        },
+      });
+    }
+
+    if (view?.modelId) {
+      items.push({
+        key: "model",
+        text: i18n.get("Model..."),
+        onClick: () => {
+          navigate(
+            `/ds/form::com.axelor.meta.db.MetaModel/edit/${view.modelId}`,
+          );
+        },
+      });
+    }
+
+    if (actionId) {
+      items.push({
+        key: "action",
+        text: i18n.get("Action..."),
+        onClick: () => {
+          navigate(`/ds/form::com.axelor.meta.db.MetaAction/edit/${actionId}`);
+        },
+      });
+    }
+
+    const command: CommandItemProps = {
+      key: "settings",
+      iconOnly: true,
+      description: i18n.get("Customize..."),
+      iconProps: {
+        icon: "settings",
+      },
+      items,
+    };
+
+    return [command];
+  }, [actionId, meta.view, navigate]);
+
+  const pageText =
+    typeof pageTextOrComp === "string" ? pageTextOrComp : undefined;
+  const PageComp =
+    typeof pageTextOrComp === "function" ? pageTextOrComp : undefined;
+
+  const { ref, width } = useResizeDetector();
+
+  return (
+    <Box className={styles.toolbar}>
+      <CommandBar className={styles.actions} iconOnly items={actions} />
+      <Box ref={ref} d="flex" className={styles.extra}>
+        {(toolbar?.length > 0 || menubar?.length > 0) && (
+          <ToolbarActions
+            buttons={toolbar}
+            menus={menubar}
+            formAtom={formAtom}
+            getActionData={getActionData}
+            actionExecutor={actionExecutor}
+            recordHandler={recordHandler}
+            parentRef={ref}
+            parentWidth={width}
+          />
+        )}
+        {children}
+      </Box>
+      {pageText && <Box className={styles.pageInfo}>{pageText}</Box>}
+      {PageComp && (
+        <Box className={styles.pageInfo}>
+          <PageComp />
+        </Box>
+      )}
+      {pageActions && (
+        <CommandBar
+          className={styles.pageActions}
+          items={[
+            {
+              key: "prev",
+              iconProps: {
+                icon: "chevron_backward",
+              },
+              disabled: !canPrev,
+              onClick: handlePrev,
+            },
+            {
+              key: "next",
+              iconSide: "end",
+              iconProps: {
+                icon: "chevron_forward",
+              },
+              disabled: !canNext,
+              onClick: handleNext,
+            },
+            ...(paginationActions || []),
+          ]}
+        />
+      )}
+      {switchActions && (
+        <CommandBar items={switchActions} className={styles.viewSwitch} />
+      )}
+      {sessionInfo?.user?.technical && (
+        <CommandBar items={farItems} className={styles.farItems} />
+      )}
+      {Boolean(helpLink) && (
+        <CommandBar
+          items={[
+            {
+              key: "helpLink",
+              description: i18n.get("Show help"),
+              iconProps: {
+                icon: "help",
+              },
+              onClick: () =>
+                window.open(helpLink, "_blank", "noopener,noreferrer"),
+            },
+          ]}
+          className={styles.helpLink}
+        />
+      )}
+    </Box>
+  );
+}

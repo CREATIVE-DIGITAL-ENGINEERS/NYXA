@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<xml-inputs xmlns="http://axelor.com/xml/ns/data-import"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/data-import https://axelor.com/xml/ns/data-import/data-import_7.4.xsd">
+
+  <input file="auth.xml" root="auth">
+
+    <bind node="group" type="com.axelor.auth.db.Group" update="true" search="self.code = :code">
+      <bind node="@code" to="code"/>
+      <bind node="@name" to="name"/>
+      <bind node="@technicalStaff" to="technicalStaff"/>
+    </bind>
+
+  </input>
+
+  <!-- ⚠️ ВИДОВЕТЕ ОТПУСК НА КЛИЕНТА НЕ СЕ ВНАСЯТ ОТТУК. Този конфиг тече на БООТ (DataLoader), а редовете
+    в bg_absence_type, към които сочат, ги създава App Install по-късно. Търсенето оттук не намира нищо,
+    а ненамерен m2o не гърми — редовете се записват с празна връзка и празен лог. Затова вносът е в модула,
+    СЛЕД речника: modules/axelor-open-suite/axelor-bg-localization/src/main/resources/apps/init-data/bg-localization-leave-reason-config.xml
+    ⚠️ И ЗАТОВА ТУК НЕ БИВА ДА СЕ ДОБАВЯ CSV ВХОД. DataLoader чете ТОЧНО ЕДИН data-init/input-config.xml
+    на модул и избира вносителя по КОРЕНОВИЯ ЕЛЕМЕНТ, при това CSV е ПЪРВИ: `if (isConfig(config, patCsv))
+    importCsv(...) else if (isConfig(config, patXml)) importXml(...)`. Тоест ред `<csv-inputs` в този файл
+    изключва XML вносителя ИЗЦЯЛО и групите на Keycloak отгоре спират да се внасят МЪЛЧАЛИВО. Отделен CSV
+    файл до този не помага: сканира се само input-config.xml, по име. CSV входовете искат СВОЙ модул. -->
+
+</xml-inputs>

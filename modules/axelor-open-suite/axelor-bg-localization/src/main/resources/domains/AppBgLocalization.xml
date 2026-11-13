@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="studio" package="com.axelor.studio.db"/>
+
+  <!-- Config app marker for the Bulgarian localization module. The former firm-default declarant fields
+    were removed — declarants are now per-company (BgDeclarant with isDefault). The orphan app_bg_localization.bg_declarant_*
+    columns stay in the DB (no DROP). -->
+  <entity name="AppBgLocalization" cacheable="true">
+
+    <one-to-one ref="com.axelor.studio.db.App" name="app" unique="true"/>
+
+    <!-- Законовата сума от чл. 50 ал. 1 т. 2 и чл. 51 ал. 1 т. 1 б. „г" бб) ЗКПО, превалутирана.
+
+      ⚠️ КОНФИГУРУЕМА, А НЕ КОНСТАНТА, И ТОВА НЕ Е ПРЕДПАЗЛИВОСТ. Двата текста стоят в ЛЕВОВЕ и то
+      изписани С ДУМИ — „седемстотин лева" — изменени с ДВ бр. 110 от 2007 г., в сила от 01.01.2008 г.
+      Законът за въвеждане на еврото ги е ОСТАВИЛ такива нарочно: неговият § 36 (в сила от
+      01.01.2026 г.) изменя ЗКПО с тринайсет точки и НИТО ЕДНА не пипа чл. 50 или чл. 51 — всичките
+      само махат „левовата равностойност на" от разпоредби, които вече носят суми в евро. Тоест
+      законодателят е минал през ЗКПО със списък и е подминал тези две суми, с което остава общото
+      правило на ЗВЕРБ чл. 11 ал. 2: левовата стойност СЕ СЧИТА за стойност в евро по чл. 12 и чл. 13.
+
+      Стойността по подразбиране е ИЗЧИСЛЕНА, не преписана: BgCurrencyConversion.toEur(700) =
+      700 ÷ 1.95583 = 357.9043168… → по чл. 13 ал. 1 → 357.90. (По специалното правило на чл. 45 ал. 1
+      щеше да е 357.91 — то важи само за възнаграждения и пенсии, не за прагове.)
+
+      ⚠️ ДА СЕ ПОТВЪРДИ СРЕЩУ КОНСОЛИДИРАН ЗКПО / УКАЗАНИЕ НА НАП. Ако омнибус ЗИД или НАП е дал
+      ОФИЦИАЛНА (кръгла) евро сума, тя има превес пред изчислената — затова полето се мени от конфига,
+      без ново издание на модула. -->
+    <decimal name="bgAssetStatutoryThresholdEur"
+      title="Законов праг за данъчен амортизируем актив (EUR)" precision="15" scale="2"
+      default="357.90"/>
+
+    <!-- Nominatim's usage policy (https://operations.osmfoundation.org/policies/nominatim/) requires
+      every automated client to identify itself with a real User-Agent (or Referer) naming the
+      application and a contact point; unattributed traffic can be throttled or blocked outright.
+      Deliberately NO default value: NominatimHttpClientImpl treats a blank field as "not
+      configured" and refuses to call Nominatim at all rather than send a generic/non-compliant
+      header — BG address geocoding falls back to the City-centroid tier (or a clear "could not be
+      resolved" error) until an admin sets this. Configurable here (not hardcoded) so that can
+      happen without a code change/redeploy. Sent as-is as the HTTP User-Agent header. -->
+    <!-- Мерната единица по подразбиране за нов РЪЧНО добавен ред на фактура (обикновено „Брой“).
+      Сочи се ОТТУК, а не се търси по име, и това не е вкус.
+
+      ⚠️ ВЪРХУ САМИЯ Unit НЯМА ЗА КАКВО ДА СЕ ХВАНЕ. Ето целия му домейн (axelor-base,
+      domains/Unit.xml): `name` — translatable, required, namecolumn; `labelToPrinting` —
+      translatable; `unitTypeSelect` — integer. Нито код, нито уникален ключ, нито технически
+      идентификатор. Тоест ИМЕТО е едновременно етикетът на екрана и единственият кандидат за
+      съвпадение — редактируемо от всеки с права върху номенклатурата и неуникално по конструкция
+      (нищо не пречи на два реда „Брой“). Търсене по него значи ТИХО СЧУПВАНЕ при преименуване и
+      ТИХ ИЗБОР МЕЖДУ ДВА РЕДА при дубликат.
+
+      ⚠️ И `importId` НЕ Е ИЗХОД, макар data-init/input-config.xml да търси точно по него. Проверено
+      в кода: `importId` не съществува като поле — нито в com.axelor.db.Model, нито в
+      AuditableModel, нито в генерирания Unit.java, а целият низ „importId“ не се среща никъде в
+      axelor-open-platform. Тоест номерът от base_unit.csv е колона В ЛИСТА и нищо повече; в базата
+      от него не остава следа, по която да се намери редът.
+
+      ⚠️ СТОКОВА НАСТРОЙКА ЗА „единица по подразбиране“ също няма: AppBase носи само unitDays,
+      unitHours и unitMinutes (времеви единици за отчитане на труд), AppProduction — cycleUnit.
+      Нищо общо с реда на фактурата.
+
+      Оттук нататък връзката е FK към самия ред: преименуването, превода и дубликатът я оставят
+      непокътната. Непопълнено поле значи БЕЗ стойност по подразбиране — редът тогава не може да се
+      запише празен (полето е задължително за обикновен ред), вместо да лепне произволна единица. -->
+    <many-to-one name="bgDefaultInvoiceLineUnit" ref="com.axelor.apps.base.db.Unit"
+      title="Мерна единица по подразбиране на ред от фактура"/>
+
+    <string name="nominatimUserAgent" title="Nominatim User-Agent"
+      help="REQUIRED for BG address map/geocoding to call OpenStreetMap Nominatim — left blank, geocoding falls back to the City's own approximate location (or reports it could not be resolved), it does not send an anonymous request. Set your own application name and a real contact email or URL, e.g. 'NyxaERP-YourCompany/1.0 (ops@yourcompany.com)', per Nominatim's usage policy."/>
+
+    <!-- ═══ SAF-T: КОЙ СОФТУЕР Е СЪЗДАЛ ФАЙЛА (S.H.5–S.H.7) ═══
+
+      На инсталацията, не на дружеството: софтуерът е един за всички. Трите са задължителни в
+      схемата, а стойностите им не се измислят в кода — без default; празно поле излиза празно във
+      файла и генерирането вдига предупреждение. SoftwareID в частност е „да се потвърди“. -->
+    <string name="saftSoftwareCompanyName" title="SAF-T: софтуерна компания" max="70"/>
+    <string name="saftSoftwareId" title="SAF-T: наименование на софтуера" max="256"/>
+    <string name="saftSoftwareVersion" title="SAF-T: версия на софтуера" max="18"/>
+    <!-- ═══ Д1, ПОЛЕ 53: „ФЛАГ ЗА ИЗТОЧНИК“ — ЕИК НА РАЗРАБОТЧИКА НА СОФТУЕРА ═══
+      Заповедта по чл. 8 ал. 5: „ЕИК по БУЛСТАТ или ЕИК по Търговския регистър на разработчика на
+      софтуер за подаване на данните“, Character = 9, 10 или 13. Приетите от НАП еталони носят там
+      ЕИК, различен от т. 4. На инсталацията, не на дружеството — софтуерът е един за всички. БЕЗ
+      default: празно поле СПИРА генерирането на Д1 поименно (BgD1SubmissionPlan#sourceFlagRefusal),
+      вместо да се подмени с ЕИК-а на осигурителя. -->
+    <string name="bgSoftwareDeveloperEik" title="ЕИК на разработчика на софтуера (Д1, поле 53)"
+      max="13"/>
+
+  </entity>
+
+</domain-models>

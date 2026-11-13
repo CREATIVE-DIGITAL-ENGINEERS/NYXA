@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Default a NEW address to Bulgaria so the city dropdown (filtered by country) shows the imported
+    BG settlements. Only applied when the stock onNew (active company address country) left it empty, so
+    an explicitly-set company country is still respected. -->
+  <action-record name="action-bg-address-default-country-bg"
+    model="com.axelor.apps.base.db.Address">
+    <field name="country" if="!country"
+      expr="eval: com.axelor.inject.Beans.get(com.axelor.apps.base.db.repo.CountryRepository.class).all().filter('upper(self.alpha2Code) = ?', 'BG').fetchOne()"/>
+  </action-record>
+
+  <form name="address-form" title="Address" id="bg-localization-address-form"
+    model="com.axelor.apps.base.db.Address" extension="true">
+    <extend target="/">
+      <attribute name="onNew"
+        value="action-group-base-address-onnnew,action-bg-address-default-country-bg"/>
+    </extend>
+  </form>
+
+  <form name="incl-address-main-panel-form" title="Address"
+    id="bg-localization-incl-address-form" model="com.axelor.apps.base.db.Address" extension="true">
+    <extend target="/">
+      <attribute name="onNew"
+        value="action-group-base-address-onnnew,action-bg-address-default-country-bg"/>
+    </extend>
+  </form>
+
+</object-views>

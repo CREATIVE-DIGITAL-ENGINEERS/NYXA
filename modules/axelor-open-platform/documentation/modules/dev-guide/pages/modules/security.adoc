@@ -1,0 +1,933 @@
+= Security
+:toc:
+:toc-title:
+
+:shiro: http://shiro.apache.org[Apache Shiro]
+:pac4j: http://www.pac4j.org[PAC4J security engine]
+:pac4j-clients: http://www.pac4j.org/docs/clients.html
+
+Authentication is the process of identity verification and authorization is the
+process of determining access rights to resources in an application.
+
+The authentication and authorization support in {page-component-title} is based on {shiro}, while the different kinds of authentications mechanisms are implemented with the {pac4j}.
+
+In the next few sections, we will see how authentication and authorization are
+supported in {page-component-title}.
+
+== Authentication
+
+Authentication is the process of identity verification, i.e. allowing users
+to log in into to the system to use it.
+
+{page-component-title} is a web application framework used to create web applications.
+So by default, it provides form-based user authentication.
+
+User information is backed by the application database and it's also possible
+to integrate LDAP backend.
+
+*User*
+
+The User object has various properties, most important of them are:
+
+* `code` - the user login name
+* `name` - the display name
+* `password` - the password (stored encrypted in database)
+* `blocked` - whether the user is blocked
+* `activateOn` - the time from when access should be activated
+* `expiresOn` - the time from when access should expire
+* `groups` - the groups assigned to the user
+* `roles` - the roles assigned to the user
+* `permissions` - explicit permissions granted to the user
+
+The `groups`, `roles`, and `permissions` are associated with authorization which
+we will see in next section.
+
+== Authorization
+
+Authorization, also called access control, is the process of determining access
+rights to resources in an application.
+
+Authorization is a critical element of any application, but it can quickly
+become very complex. Based on the simplicity of {shiro}, the {page-component-title} provides
+very simple yet powerful way to define authorization rules.
+
+IMPORTANT: Special user `admin` and members of group `admins` have
+full access to all the resources.
+
+*Features*
+
+* Role based permissions
+* Permission defines single access rule (finer granularity)
+* Groups are for organizational structure but also supports roles & permissions
+* Deny all, grant selectively (proven most secure as all permissions are denied by default)
+* Package level permission rules
+
+Authorization has four core elements permissions, roles, groups and users. They
+are represented by corresponding backing domain objects `Permission`, `Role`,
+`Group` and `User` respectively.
+
+*Objects*
+
+* `User` has one `Group`
+* `User` has many `Role`
+* `User` has many `Permission`
+* `Group` has many `Role`
+* `Group` has many `Permission`
+* `Role` has many `Permission`
+
+The relationship between the authorization objects allows to achieve finer level
+of granularity on access control.
+
+*Permission*
+
+The permission object defines the access rule. It has the following properties:
+
+* `name` - permission name
+* `object` - the object name (class name or wild card package name)
+* `canRead` - whether to grant read permission
+* `canWrite` - whether to grant update permission
+* `canCreate` - whether to grant create permission
+* `canRemove` - whether to grant delete permission
+* `canExport` - whether to grant export data permission
+* `condition` - permission condition (JPQL where clause with positional parameters)
+* `conditionParams` - comma-separated list of condition params (evaluates against current context)
+
+The `condition` is optional and the boolean flags are grant only, that is, `false`
+value doesn't mean deny.
+
+Some permission examples (pseudocode):
+
+-----
+name: perm.sale.read.all
+object: com.axelor.sale.db.*
+canRead: true
+-----
+
+-----
+name: perm.sale.create.all
+object: com.axelor.sale.db.*
+canCreate: true
+-----
+
+-----
+name: perm.sale.self
+object: com.axelor.sale.db.Order
+canRead: true
+canWrite: true
+canRemove: true
+canExport: true
+condition: self.createdBy = ?
+conditionParams: __user__
+-----
+
+The first rule grants readonly permission to all the objects under `com.axelor.sale.db` package.
+The second rule grants create permission to all the objects under `com.axelor.sale.db` package.
+The third rule grants read, write, delete, export permission on `com.axelor.sale.db.Order` to the creator user.
+
+The permission resolution is done in this order:
+
+* check for permissions assigned to the user object
+* check for permissions assigned to the roles of the user
+* check for the permissions assigned to the group of the user
+* check for the permissions assigned to the group's roles
+
+== View Access
+
+Similar to the object authorization, view access permissions can be used to
+control object view fields for users, groups and roles.
+
+The `Permission (fields)` defined on `User`, `Group` and `Role` objects can be
+used to define permission rules for view item.
+
+The permission rules are applied to all the views associated with the given
+object. The view items should have a name in order to define a rule for them.
+
+The rule also allows setting client side conditions (js expressions) to control
+readonly/visibility of the fields/items.
+
+Some examples (pseudo code):
+
+.Define a rule to hide total amount
+-----
+name: perm.sales.hide-total
+object: com.axelor.sale.db.Order
+rules:
+  field: totalAmount
+  canRead: false
+  canWrite: false
+  canExport: false
+-----
+
+.Define a rule to control customer field
+-----
+name: perm.sales.customer-change
+object: com.axelor.sale.db.Order
+rules:
+  field: customer
+  canRead: true
+  canWrite: true
+  canExport: true
+  readonlyIf: confirmed && __group__ == 'manager'
+  hideIf: __group__ == 'user'
+-----
+
+The first rule hides the `totalAmount` field from the views.
+The second rule defines how the `customer` field should behave depending on user group.
+
+Unlike the object permission rules, view permission rules follows `Grant all -> Deny Selectively` strategy.
+
+== Single Sign-On
+
+> 🏷️ Available in Axelor Enterprise edition
+
+=== Common Configuration
+
+:direct-vs-indirect-clients: https://www.pac4j.org/docs/clients.html#1-direct-vs-indirect-clients
+
+Single sign-on in {page-component-title} relies on the various clients from the {pac4j}. There are two kinds of clients: {direct-vs-indirect-clients}[direct and indirect clients].
+
+For indirect clients, the user is redirected to an external identity provider for login and then back to the application.
+If no callback URL is configured, it defaults to `application.base-url` + "/callback".
+
+.axelor-config.properties
+[source,properties]
+-----
+# Single sign-on common configuration
+#
+# callback URL for all indirect clients (defaults to application.base-url + "/callback")
+auth.callback-url = http://localhost:8080/open-platform-demo/callback
+-----
+
+You can define how users provided by central authentication should be dealt with. You can choose between `create` (create and update users), `link` (only update users), and `none` (do nothing). You can also specify the default group for new users. If you need anything more advanced, you may redefine `AuthPac4jUserService`.
+
+[[auth-user-provisioning]]
+.axelor-config.properties
+[source,properties]
+-----
+# user provisioning: create / link / none
+auth.user.provisioning = create
+# default group for created users
+auth.user.default-group = users
+-----
+
+You can define what logout URL to use when no `url` request parameter is provided to the logout endpoint.
+You can also define the logout URL pattern that the `url` parameter must match (only relative URLs are allowed by default).
+By default, only local logout is performed, but you may choose whether central logout should be performed as well (needs to be supported by the configured central authentication).
+
+.axelor-config.properties
+[source,properties]
+-----
+# logout URL
+auth.logout.default-url =
+# logout URL pattern
+auth.logout.url-pattern =
+# remove profiles from session
+auth.logout.local = true
+# call identity provider logout endpoint
+auth.logout.central = false
+-----
+
+Reflection is used to configure authentication clients. The syntax for the property keys is `auth.provider.<provider-name>.<setting-name>`. Kebab case and camel case are both supported for setting names. There are a few built-in providers described below with default settings that are overridable. For special needs, you can manually configure {pac4j-clients}[any other clients supported by pac4j] using your own custom provider name. You may even create and use your own custom authentication clients.
+
+An authentication provider usually consists of a client and its configuration. There are a few base settings common to all the providers. All non-base settings are passed to the client configuration or the client itself.
+
+Base authentication provider settings:
+
+[cols="3,7"]
+|===
+| Setting                 | Description
+| `client`                | client class name
+| `title`                 | title displayed on login page
+| `icon`                  | icon displayed on login page
+| `exclusive`             | if there is only one provider, specify whether it is exclusive, meaning we don’t show the default login page (defaults to false)
+|===
+
+Example custom configuration:
+
+.axelor-config.properties
+[source,properties]
+----
+auth.provider.my-provider.client = org.pac4j.oidc.client.GoogleOidcClient
+auth.provider.my-provider.title = My Google Provider
+auth.provider.my-provider.icon = img/signin/google.svg
+auth.provider.my-provider.exclusive = false
+auth.provider.my-provider.client-id = 127736102816-tc5mmsfaasa399jhqkfbv48nftoc55ft.apps.googleusercontent.com
+auth.provider.my-provider.secret = qySuozNl72zzM5SKW-0kczwV
+----
+
+Here, the client is `org.pac4j.oidc.client.GoogleOidcClient` and its configuration is `org.pac4j.oidc.config.OidcConfiguration` (automatically determined from the client).
+`client-id` and `secret` are set on the configuration if the properties exist. Otherwise, we try to set them on the client itself. That is done using Java reflection.
+
+Configuration via reflection supports setting strings, primitive/boxed types, class names, comma-separated lists of strings, and string-object maps.
+
+If configuration properties have either a `valueOf` or a `parse` method, they will also be tried to set the settings.
+
+.axelor-config.properties
+[source,properties]
+----
+# class name
+auth.provider.oidc.state-generator = com.axelor.myapp.MyStateGenerator
+
+# list of strings
+auth.provider.saml.supported-protocols = urn:oasis:names:tc:SAML:2.0:protocol, urn:oasis:names:tc:SAML:1.1:protocol
+
+# string-object map
+auth.provider.oidc.custom-params.display = popup
+auth.provider.oidc.custom-params.prompt = none
+
+# use ClientAuthenticationMethod#parse
+auth.provider.oidc.client-authentication-method = client_secret_basic
+
+# Set of ClientAuthenticationMethod objects using ClientAuthenticationMethod#parse
+auth.provider.oidc.supported-client-authentication-methods = client_secret_basic, private_key_jwt
+----
+
+If you need more flexibility, you may define your own client and do the configuration in Java:
+
+[source,java]
+-----
+public class MyOidcClient extends OidcClient {
+  public MyOidcClient() {
+    OidcConfiguration config = new OidcConfiguration();
+    config.setStateGenerator(new MyStateGenerator());
+    config.setCustomParams(Map.of("display", "popup", "prompt", "none"));
+    config.setClientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+    config.setSupportedClientAuthenticationMethods(
+        Set.of(
+            ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
+            ClientAuthenticationMethod.CLIENT_SECRET_JWT));
+    // etc.
+
+    setConfiguration(config);
+  }
+}
+-----
+
+=== Provider Order
+
+Each client needs to have a unique name. The provider names in the property keys are only used to group settings.
+If you want to use the same client for multiple providers, you have to make sure they have different names.
+
+Also, when you have several authentication providers, you can use the `auth.provider-order` property to specify the order in which they are displayed on the login page.
+
+.axelor-config.properties
+[source,properties]
+-----
+# My OIDC 1
+auth.provider.my-oidc1.client = org.pac4j.oidc.client.OidcClient
+# name defaults to client’s simple class name, ie. "OidcClient"
+auth.provider.my-oidc1.name = MyOidcClient1
+# ...
+
+# My OIDC 2
+auth.provider.my-oidc2.client = org.pac4j.oidc.client.OidcClient
+# name defaults to client’s simple class name, ie. "OidcClient"
+auth.provider.my-oidc2.name = MyOidcClient2
+# ...
+
+# comma-separated list of provider names
+auth.provider-order = my-oidc1, my-oidc2
+-----
+
+=== Default Provider
+
+Normally, form client is the default client used for authentication.
+When an authentication provider is defined as exclusive, form client is not loaded at all.
+
+However, with `auth.provider-default` configuration, you can specify another non-exclusive client as default.
+
+Example:
+
+.axelor-config.properties
+[source,properties]
+-----
+# google auth provider is used by default
+auth.provider-default = google
+-----
+
+You can specify another client via the `client_name` query parameter in login URL.
+
+Examples:
+[cols="7,3"]
+|===
+| URL                                                         | Description
+| \http://localhost:8080/open-platform-demo/                  | default client is used
+| \http://localhost:8080/open-platform-demo/?client_name=form | another client is specified
+|===
+
+NOTE: `auth.provider-default` is ignored if there is an exclusive provider configured.
+
+=== OpenID Connect
+
+The client ID and the client secret settings are required. Some providers may require more settings.
+
+==== Built-in OpenID Connect providers
+
+.axelor-config.properties
+[source,properties]
+-----
+# Keycloak OpenID Connect
+# Client: org.pac4j.oidc.client.KeycloakOidcClient
+#
+# Keycloak client ID
+auth.provider.keycloak.client-id = demo-app
+# Keycloak client secret
+auth.provider.keycloak.secret = 233d1690-4498-490c-a60d-5d12bb685557
+# provider authentication realm
+auth.provider.keycloak.realm = demo-app
+# Keycloak server base URI
+auth.provider.keycloak.base-uri = http://localhost:8083/auth
+
+# Google
+# Client: org.pac4j.oidc.client.GoogleOidcClient
+#
+# Google client ID
+auth.provider.google.client-id = 127736102816-tc5mmsfaasa399jhqkfbv48nftoc55ft.apps.googleusercontent.com
+# Google client secret
+auth.provider.google.secret = qySuozNl72zzM5SKW-0kczwV
+
+# Azure Active Directory
+# Client: org.pac4j.oidc.client.AzureAd2Client
+#
+# Azure Active Directory client ID
+auth.provider.azure.client-id = 53baf26b-526d-4f5c-e08a-dc207a808854
+# Azure Active Directory client secret
+auth.provider.azure.secret = NMubGVqkcDwwGs6fa01tBBqlkTisfUd4nCpYgcxxx=
+# Azure Active Directory tenant ID
+auth.provider.azure.tenant = 491caf37-da1b-774c-b91f-f428b77d5055
+
+# Apple
+# Client: org.pac4j.oidc.client.AppleClient
+#
+# Apple client ID
+auth.provider.apple.client-id =
+# Apple client secret
+auth.provider.apple.secret =
+-----
+
+==== Generic OpenID Connect provider
+
+You need to specify the discovery URI, ie. the URI to the document that provides details about the OpenID Connect provider's configuration.
+
+You can reinforce security by using the `nonce` parameter, which is a random value generated by your application that enables replay protection when present.
+
+You can define the flow you want to use by defining the response type and the response mode. For the response type, if the value is `code`, launches a Basic flow, requiring a `POST` to the token endpoint to obtain the tokens. If the value is `token id_token` or `id_token token`, launches an Implicit flow, requiring the use of JavaScript at the redirect URI to retrieve tokens from the URI `#fragment`. If response mode is set to `form_post`, Authorization Response parameters are encoded as HTML form values that are auto-submitted in the User Agent.
+
+You can customize the scope. In that case, the value must begin with the string `openid` and then include `profile`, `email`, and/or any other user details supported by your configured OpenID Connect client.
+
+.axelor-config.properties
+[source,properties]
+-----
+# Client: org.pac4j.oidc.client.OidcClient
+#
+# title
+auth.provider.oidc.title = My OpenID Connect
+# icon URL (a default one is used if not specified)
+auth.provider.oidc.icon = img/signin/openid.svg
+
+auth.provider.oidc.client-id = 788339d7-1c44-4732-97c9-134cb201f01f
+auth.provider.oidc.secret = we/31zi+JYa7zOugO4TbSw0hzn+hv2wmENO9AS3T84s=
+
+auth.provider.oidc.discovery-uri = https://login.microsoftonline.com/38c46e5a-21f0-46e5-940d-3ca06fd1a330/.well-known/openid-configuration
+#auth.provider.oidc.use-nonce = true
+#auth.provider.oidc.response-type = id_token
+#auth.provider.oidc.response-mode = form_post
+#auth.provider.oidc.scope = openid email profile phone
+-----
+
+==== Advanced OpenId Connect configuration
+
+Those advanced settings are available to all OpenID Connect providers.
+
+You can define how the client credentials (clientId and secret) are passed to the token endpoint:
+
+.axelor-config.properties
+[source,properties]
+-----
+# client_secret_basic / client_secret_post / private_key_jwt / none
+auth.provider.keycloak.client-authentication-method = client_secret_basic
+-----
+
+You can also use the `private_key_jwt` authentication method by providing the PrivateKeyJWTClientAuthnMethodConfig component:
+
+.axelor-config.properties
+[source,properties]
+-----
+# client authentication method
+auth.provider.keycloak.client-authentication-method = private_key_jwt
+
+# PrivateKeyJWTClientAuthnMethodConfig component
+auth.provider.keycloak.private-key-jwt-client-authn-method-config.jws-algorithm = RS256
+auth.provider.keycloak.private-key-jwt-client-authn-method-config.private-key.path = private-key.pem
+auth.provider.keycloak.private-key-jwt-client-authn-method-config.private-key.algorithm = RSA
+auth.provider.keycloak.private-key-jwt-client-authn-method-config.key-id = 12345
+-----
+
+NOTE: To set the `PrivateKeyJWTClientAuthnMethodConfig` component, a custom converter is used instead of reflection.
+You need to specify the setting names as mentioned in the example above.
+
+When validating the ID token in the login process, you can set a clock skew:
+
+.axelor-config.properties
+[source,properties]
+-----
+# 1 minute
+auth.provider.oidc.max-clock-skew = 60
+-----
+
+You can also choose your preferred algorithm to sign the JSON web tokens:
+
+.axelor-config.properties
+[source,properties]
+-----
+auth.provider.oidc.preferred-jws-algorithm = RS256
+-----
+
+You can set additional parameters by setting custom params:
+
+.axelor-config.properties
+[source,properties]
+-----
+# select display mode: page, popup, touch, and wap
+auth.provider.oidc.custom-params.display = popup
+# select prompt mode: none, consent, select_account
+auth.provider.oidc.custom-params.prompt = none
+-----
+
+Custom state values may be defined:
+
+.axelor-config.properties
+[source,properties]
+-----
+auth.provider.oidc.with-state = true
+
+# custom class that implements org.pac4j.core.util.generator.ValueGenerator
+auth.provider.oidc.state-generator = com.axelor.myapp.MyStateGenerator
+-----
+
+By default, the local session expires when the access token does, but this can be disabled using:
+
+.axelor-config.properties
+[source,properties]
+-----
+auth.provider.oidc.expire-session-with-token = false
+-----
+
+The additional param TokenExpirationAdvance allows to set the time in seconds, previous to the token expiration, in which the expiration is advanced. By default, it is 0 seconds.
+
+.axelor-config.properties
+[source,properties]
+-----
+auth.provider.oidc.token-expiration-advance = 10
+-----
+
+By default, ID tokens must be signed. The none algorithm for ID tokens (meaning no signature validation) can be explicitly accepted by using:
+
+.axelor-config.properties
+[source,properties]
+-----
+auth.provider.oidc.allow-unsigned-id-tokens = true
+-----
+
+=== OAuth
+
+==== Built-in OAuth providers
+
+The client key and the client secret settings are required. Some providers may require more settings.
+
+.axelor-config.properties
+[source,properties]
+-----
+# OAuth
+
+# Client: org.pac4j.oauth.client.FacebookClient
+#
+# Facebook client key
+auth.provider.facebook.key =
+# Facebook client secret
+auth.provider.facebook.secret =
+
+# Client: org.pac4j.oauth.client.GitHubClient
+#
+# GitHub client key
+auth.provider.oauth.github.key =
+# GitHub client secret
+auth.provider.oauth.github.secret =
+-----
+
+==== Generic OAuth 2.0 provider
+
+You may configure an authentication URL (where clients authenticate), a token URL (where clients obtain identity and access tokens), and a profile attribute mapper.
+
+.axelor-config.properties
+[source,properties]
+-----
+# Generic OAuth 2.0
+# Client: org.pac4j.oauth.client.GenericOAuth20Client
+#
+# title
+auth.provider.oauth.title = My OAuth 2.0
+# icon URL (a default one is used if not specified)
+auth.provider.oauth.icon = img/signin/oauth.svg
+
+# client key
+auth.provider.oauth.key =
+# client secret
+auth.provider.oauth.secret =
+
+# authentication URL
+auth.provider.oauth.auth-url =
+# token URL
+auth.provider.oauth.token-url =
+# profile attributes: map of key: type|tag
+# supported types: Integer, Boolean, Color, Gender, Locale, Long, URI, String (default)
+auth.provider.oauth.profile-attrs.age = Integer|age
+auth.provider.oauth.profile-attrs.is_admin = Boolean|is_admin
+-----
+
+=== SAML
+
+You can configure login with any SAML identity provider using the SAML v2.0 protocol. Basic configuration consists of the path to the keystore, the keystore password, the private key password, the path to the identity provider metadata, and the path to the service provider metadata. You must also specify full callback URL to the SAML client for proper SP metadata generation. This provider is exclusive by default.
+
+.axelor-config.properties
+[source,properties]
+-----
+# SAML
+# Client: org.pac4j.saml.client.SAML2Client
+
+# Basic configuration
+#
+# path to keystore
+auth.provider.saml.keystore-path = path/to/samlKeystore.jks
+# value of the -storepass option for the keystore
+auth.provider.saml.keystore-password = open-platform-demo-passwd
+# value of the -keypass option
+auth.provider.saml.private-key-password = open-platform-demo-passwd
+# path to IdP metadata
+auth.provider.saml.identity-provider-metadata-path = http://localhost:9012/simplesaml/saml2/idp/metadata.php
+# path to SP metadata
+auth.provider.saml.service-provider-metadata-path = path/to/sp-metadata.xml
+# full callback URL for proper SP metadata generation
+auth.provider.saml.callback-url = https://example.com/my-axelor-app/callback
+-----
+
+By default, the SAML client will accept assertions based on a previous authentication for one hour, but you can change that behavior.
+The service provider entity ID defaults to `auth.callback-url` + "?client_name=SAML2Client", but you can customize it.
+
+.axelor-config.properties
+[source,properties]
+-----
+# Additional configuration
+#
+# accept assertions based on a previous authentication for one hour by default
+auth.provider.saml.maximum-authentication-lifetime = 3600
+# custom SP entity ID
+auth.provider.saml.service-provider-entity-id = sp.test.pac4j
+-----
+
+You can control aspects of the authentication request such as forced and/or passive authentication.
+
+.axelor-config.properties
+[source,properties]
+-----
+# Advanced configuration
+#
+# forced authentication
+auth.provider.saml.force-auth = false
+# passive authentication
+auth.provider.saml.passive = false
+-----
+
+You can define the binding type for the authentication request.
+
+.axelor-config.properties
+[source,properties]
+-----
+# binding type for the authentication request: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" /
+# "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" / "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+auth.provider.saml.authn-request-binding-type = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+-----
+
+You can define the binding type for the authentication response.
+
+.axelor-config.properties
+[source,properties]
+-----
+# binding type for the authentication response: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" / "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
+auth.provider.saml.response-binding-type = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+-----
+
+By SAML specification, the authentication request must not contain a NameQualifier, if the SP entity is in the format nameid-format:entity. However, some IdP require that information to be present. You can force a NameQualifier in the request.
+
+.axelor-config.properties
+[source,properties]
+-----
+# force a NameQualifier in the request (defaults to false)
+auth.provider.saml.use-name-qualifier = true
+-----
+
+You can allow the authentication request sent to the identity provider to specify an attribute consuming index and an assertion consumer service index.
+
+.axelor-config.properties
+[source,properties]
+-----
+# attribute consuming index
+auth.provider.saml.attribute-consuming-service-index = -1
+# assertion consumer service index
+auth.provider.saml.assertion-consumer-service-index = -1
+-----
+
+You can configure the supported algorithms and digest methods for the initial authentication request.
+
+.axelor-config.properties
+[source,properties]
+-----
+# list of blacklisted signature signing algorithms
+auth.provider.saml.blacklisted-signature-signing-algorithms =
+# list of signature algorithms
+auth.provider.saml.signature-algorithms =
+# list of signature reference digest methods
+auth.provider.saml.signature-reference-digest-methods =
+# signature canonicalization algorithm
+auth.provider.saml.signature-canonicalization-algorithm =
+-----
+
+By default, assertions must be signed, but this may be disabled. You may also want to enable signing of the authentication and logout requests.
+
+.axelor-config.properties
+[source,properties]
+-----
+# whether assertions must be signed (defaults to true)
+auth.provider.saml.wants-assertions-signed = true
+# enable signing of authentication requests (defaults to false)
+auth.provider.saml.authn-request-signed = true
+# enable signing of logout requests sent to the IdP (defaults to false)
+auth.provider.saml.sp-logout-request-signed = true
+-----
+
+=== CAS
+
+To log in with a CAS server, you need to configure the CAS login URL and/or the CAS prefix URL (when different URLs are required). You can define the CAS protocol you want to support (CAS30 by default).
+
+This provider is exclusive by default.
+
+.axelor-config.properties
+[source,properties]
+-----
+# CAS
+# Client: org.pac4j.cas.client.CasClient
+
+# Application configuration
+#
+# login URL of CAS server
+auth.provider.cas.login-url = https://localhost:8443/cas/login
+# CAS prefix URL
+auth.provider.cas.prefix-url = https://localhost:8443/cas
+# CAS protocol: CAS10 / CAS20 / CAS20_PROXY / CAS30 (default) / CAS30_PROXY / SAML
+auth.provider.cas.protocol = CAS30
+-----
+
+Various parameters are available.
+
+.axelor-config.properties
+[source,properties]
+-----
+# Various parameters
+#
+# encoding used for parsing the CAS responses
+auth.provider.cas.encoding = UTF-8
+# whether the renew parameter will be used
+auth.provider.cas.renew = false
+# whether the gateway parameter will be used
+auth.provider.cas.gateway = false
+# time tolerance for the SAML ticket validation
+auth.provider.cas.time-tolerance = 1000
+# class name for specific UrlResolver
+auth.provider.cas.url-resolver =
+# class name for default TicketValidator
+auth.provider.cas.default-ticket-validator =
+-----
+
+You can enable proxy support.
+
+.axelor-config.properties
+[source,properties]
+-----
+# proxy support by specifying a CasProxyReceptor
+auth.provider.cas.proxy-receptor = org.pac4j.cas.client.CasProxyReceptor
+-----
+
+:logout-handler: https://github.com/pac4j/pac4j/blob/master/pac4j-core/src/main/java/org/pac4j/core/logout/handler/LogoutHandler.java[LogoutHandler]
+
+You can specify your own implementation of the {logout-handler} interface.
+
+.axelor-config.properties
+[source,properties]
+-----
+# class name for specific `LogoutHandler`
+auth.provider.cas.logout-handler =
+-----
+
+==== Other CAS clients
+
+Only `CasClient` support is built in. If you want to use another kind CAS client, you need to configure it manually:
+
+.axelor-config.properties
+[source,properties]
+-----
+auth.provider.direct-cas.client = org.pac4j.cas.client.direct.DirectCasClient
+auth.provider.direct-cas.login-url = https://localhost:8443/cas/login
+auth.provider.direct-cas.prefix-url = https://localhost:8443/cas
+-----
+
+== LDAP
+
+In order to enable LDAP authentication, you typically need at least this kind of configuration:
+
+.axelor-config.properties
+[source,properties]
+-----
+# LDAP
+
+# server URL (SSL is automatically enabled with ldaps protocol)
+auth.ldap.server.url = ldap://localhost:389
+
+# search base suffix for the users
+auth.ldap.user.base = ou=users,dc=example,dc=com
+
+# search base suffix for the groups
+auth.ldap.group.base = ou=groups,dc=example,dc=com
+-----
+
+You may tweak user and group search if needed for your LDAP server.
+
+.axelor-config.properties
+[source,properties]
+-----
+# template to search users by user identifier
+auth.ldap.user.filter = (uid={0})
+
+# define the user DN format
+auth.ldap.user.dn-format =
+
+# user identifier attribute: uid / cn (default to `uid`)
+auth.ldap.user.id-attribute = uid
+
+# define the username attribute (default to `uid`)
+auth.ldap.user.username-attribute = uid
+
+# Enable subtree search for users (true by default)
+auth.ldap.user.search.subtree = false
+
+# template to search groups by user identifier
+auth.ldap.group.filter = (uniqueMember=uid={0},ou=users,dc=example,dc=com)
+
+# Enable subtree search for groups (false by default)
+auth.ldap.group.search.subtree = false
+-----
+
+NOTE: Perform DN resolution for users by specifying either `auth.ldap.user.filter` _or_ `auth.ldap.user.dn-format`.
+If you specify neither, it will fall back to formatter built from `auth.ldap.user.id-attribute` and `auth.ldap.user.base`
+(e.g., `uid=%s,ou=users,dc=example,dc=com`) where `%s` will be assigned the user identifier value.
+Also, `auth.ldap.user.search.subtree` is applicable when using `auth.ldap.user.filter` only.
+
+:ldap-profile-service: https://github.com/pac4j/pac4j/blob/master/pac4j-ldap/src/main/java/org/pac4j/ldap/profile/service/LdapProfileService.java[LdapProfileService]
+
+If you configure the system user, the {ldap-profile-service} will be able to create, update, and remove profiles.
+
+.axelor-config.properties
+[source,properties]
+-----
+# system user
+auth.ldap.server.auth.user = uid=admin,ou=system
+# system password
+auth.ldap.server.auth.password = secret
+-----
+
+User creation/update on the application side is controlled by the xref:auth-user-provisioning[`auth.user.provisioning`] configuration. With the base implementation, the LDAP server is accessed as read-only. If you want to achieve full synchronization, you need to configure the system user and implement your own synchronization logic.
+
+Simple example updating user e-mail address:
+
+[source,java]
+-----
+public class MyUserRepository extends UserRepository {
+  @Inject private AxelorLdapProfileService axelorLdapProfileService;
+
+  @Override
+  public User save(User user) {
+    final LdapProfile profile = axelorLdapProfileService.findById(user.getCode());
+
+    if (profile != null) {
+      profile.addAttribute(AxelorLdapProfileDefinition.EMAIL, user.getEmail());
+      axelorLdapProfileService.update(profile, null);
+    }
+
+    return super.save(user);
+  }
+}
+-----
+
+
+You may configure the SASL mechanism and the connection security.
+
+.axelor-config.properties
+[source,properties]
+-----
+# SASL authentication type: simple (default) / CRAM-MD5 / DIGEST-MD5 / EXTERNAL / GSSAPI
+auth.ldap.server.auth.type = simple
+
+# use StartTLS (defaults to false)
+auth.ldap.server.starttls = true
+-----
+
+For SSL and startTLS configuration, you can configure either a truststore, a keystore, or trust certificates.
+
+.axelor-config.properties
+[source,properties]
+-----
+# truststore
+auth.ldap.server.ssl.trust-store.path =
+auth.ldap.server.ssl.trust-store.password =
+auth.ldap.server.ssl.trust-store.type =
+auth.ldap.server.ssl.trust-store.aliases =
+
+# keystore
+auth.ldap.server.ssl.key-store.path =
+auth.ldap.server.ssl.key-store.password =
+auth.ldap.server.ssl.key-store.type =
+auth.ldap.server.ssl.key-store.aliases =
+
+# trust certificates
+auth.ldap.server.ssl.cert.trust-path =
+# authentication certificate
+auth.ldap.server.ssl.cert.auth-path =
+# authentication key
+auth.ldap.server.ssl.cert.key-path =
+-----
+
+You may set the timeouts.
+
+.axelor-config.properties
+[source,properties]
+-----
+# time that connections will block in seconds
+auth.ldap.server.connect-timeout =
+# time to wait for responses in seconds
+auth.ldap.server.response-timeout =
+-----
+
+== Basic Authentication
+
+You can enable basic authentication, which is a method to provide username and password when making a request (disabled by default).
+There are two kinds of basic authentication: `indirect` and `direct`.
+
+* Indirect basic authentication: user has to provide username and password to the callback url before making further requests.
+When the user is done, they may call the logout endpoint.
+* Direct basic authentication: user has to provide username and password in each request.
+
+.axelor-config.properties
+[source,properties]
+-----
+# Basic authentication
+auth.local.basic-auth = indirect, direct
+-----

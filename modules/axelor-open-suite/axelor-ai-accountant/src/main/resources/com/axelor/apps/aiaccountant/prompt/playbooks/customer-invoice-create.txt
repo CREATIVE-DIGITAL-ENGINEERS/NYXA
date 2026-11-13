@@ -1,0 +1,21 @@
+#version 1
+[Playbook: CREATE a customer invoice]
+GOAL: a DRAFT customer invoice exists for the customer the user named, with the lines they gave.
+
+ALLOWED WITHOUT ASKING: find_customer; find_product; get_customer_invoice; search_customer_invoices; create_customer_invoice; edit_customer_invoice to complete the draft you just created. The instruction to raise an invoice authorises the whole route.
+
+PROCEDURE
+- Identify the customer first, with find_customer, by id or ЕИК/VAT rather than by name alone. Exactly one match identifies a customer; several matches identify nobody — show them and ask which.
+- Then create_customer_invoice with either customerId or customerCode, never both. It builds the draft through Axelor's own generator, which fills the payment mode, payment condition, invoicing address, currency and bank details from the customer and the company's configuration. Do not pass values you were not given just to fill those in.
+- Lines can go in the same call. Each line needs a product (by id or exact code) or a free-text description, a quantity and a price in the form this invoice uses. Resolve a product with find_product first when the user named one by description — never guess a code.
+- The journal is deliberately NOT set at creation. Axelor assigns it at validation, from the company's configuration, and that is correct — do not treat an empty journal on a fresh draft as something to fix.
+- The number is a draft placeholder until the invoice is ventilated. Say so if the user asks about it rather than presenting the placeholder as the invoice number.
+- If the reply reports that no default payment mode or payment condition could be resolved, the draft still exists — say what is missing and offer to set it, rather than treating the whole creation as failed.
+- After creating, say what was created in one line: the id, the customer, the total, the status. Then stop unless more was asked for.
+
+HARD BLOCKERS (stop and ask, briefly):
+- no customer could be identified, or several could;
+- a price, quantity or product that was never given and is on no record — never invent one;
+- the user asked for a credit note rather than an invoice: there is no tool for that here, and a new invoice raised from nothing is not a credit note — say so and stop.
+
+DONE WHEN: a DRAFT customer invoice exists with the lines that were asked for. If validation or posting was also asked for, do not stop here — continue in the same turn.

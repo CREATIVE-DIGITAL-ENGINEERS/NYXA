@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="account" package="com.axelor.apps.account.db"/>
+
+  <entity name="FixedAssetLine">
+    <integer name="bgMicroinvestSourceId" title="Microinvest source ID" readonly="true"/>
+    <integer name="bgMicroinvestSourcePlanId" title="Microinvest plan ID" readonly="true"/>
+    <integer name="bgMicroinvestYearPlanId" title="Microinvest year plan ID" readonly="true"/>
+    <integer name="bgSourceAccountingId" title="Microinvest AccountingID" readonly="true"/>
+    <many-to-one name="bgBookCurrency" ref="com.axelor.apps.base.db.Currency"
+      title="Счетоводна валута при импорт" readonly="true"/>
+    <decimal name="bgMicroinvestPercentage" title="Microinvest процент"
+      precision="30" scale="10" readonly="true"/>
+    <decimal name="bgMicroinvestYearPlanAmount" title="Microinvest годишна планова сума"
+      precision="30" scale="10" readonly="true"/>
+    <decimal name="bgMicroinvestRevaluationReserve" title="Microinvest преоценъчен резерв"
+      precision="30" scale="10" readonly="true"/>
+  </entity>
+
+</domain-models>

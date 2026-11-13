@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views https://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <selection name="select.language">
+    <option value="en">English</option>
+    <option value="fr">French</option>
+  </selection>
+
+  <grid name="user-grid" title="Users" model="com.axelor.auth.db.User">
+    <field name="name"/>
+    <field name="code"/>
+    <field name="email"/>
+    <field name="language"/>
+    <field name="group"/>
+  </grid>
+
+  <form name="user-form" title="User" model="com.axelor.auth.db.User">
+    <panel title="Overview">
+      <field name="name" placeholder="user name" onChange="action-condition-user-validName" validIf="name.length >= 2"/>
+      <field name="code" placeholder="login name" onChange="action-condition-user-validCode" validIf="code.length >= 2" readonlyIf="id &amp;&amp; code == 'admin'"/>
+      <field name="group" placeholder="user group"/>
+      <field name="email" widget="Email"/>
+      <field name="language"/>
+      <field name="theme" widget="theme-select"/>
+      <field name="homeAction" widget="ref-text" target="com.axelor.meta.db.MetaAction" target-name="name" domain="self.type = 'action-view' and self.home = true" />
+      <field name="singleTab" widget="inline-checkbox" />
+      <field name="noHelp" widget="inline-checkbox" />
+    </panel>
+    <panel title="Authorization">
+      <field name="activateOn" validIf="!activateOn || (activateOn &amp;&amp; !expiresOn) || (activateOn &amp;&amp; expiresOn &amp;&amp; $moment(expiresOn) >= $moment(activateOn))"/>
+      <field name="expiresOn" validIf="!expiresOn || (!activateOn &amp;&amp; expiresOn) || (activateOn &amp;&amp; expiresOn &amp;&amp; $moment(expiresOn) >= $moment(activateOn))"/>
+      <field name="blocked"/>
+      <field name="forcePasswordChange"/>
+      <field name="change" title="Change password?" showIf="id &amp;&amp; !$readonly()" widget="boolean" x-reset-state="true" />
+      <panel showIf="change || !id" colSpan="12" itemSpan="12">
+        <field name="oldPassword" title="Your current password" placeholder="your current password" help="Current password of the logged in user" widget="password" requiredIf="change || !id"  x-reset-state="true"/>
+        <panel itemSpan="12" showIf="id">
+          <field name="newPassword" title="New password" placeholder="new password" help="New password of the user" widget="password" requiredIf="change || !id" validIf="(!change &amp;&amp; id) || newPassword.length >= 4"
+            onChange="action-condition-user-password" x-reset-state="true"/>
+          <field name="chkPassword" title="Confirm new password" placeholder="confirm new password" help="Confirm new password of the user (must be identical to the new password)" widget="password" requiredIf="change || !id" validIf="chkPassword === newPassword"  x-reset-state="true"/>
+        </panel>
+        <panel itemSpan="12" hideIf="id">
+          <field name="newPassword" title="Password" placeholder="password" help="Password of the new user" widget="password" requiredIf="change || !id" validIf="(!change &amp;&amp; id) || newPassword.length >= 4"
+            onChange="action-condition-user-password" x-reset-state="true"/>
+          <field name="chkPassword" title="Confirm password" placeholder="confirm password" help="Confirm password of the new user (must be identical to the password)" widget="password" requiredIf="change || !id" validIf="chkPassword === newPassword" x-reset-state="true"/>
+        </panel>
+        <help>user.password.pattern-title</help>
+      </panel>
+    </panel>
+    <panel-tabs>
+      <panel-related field="roles" form-view="role-form" grid-view="role-grid"/>
+      <panel-related field="permissions" grid-view="simple-permission-grid" form-view="permission-form"/>
+      <panel-related field="metaPermissions"/>
+    </panel-tabs>
+  </form>
+
+  <form name="user-preferences-form" title="Preferences" model="com.axelor.auth.db.User">
+    <panel title="User preferences" itemSpan="12">
+      <field name="image" showTitle="false" />
+      <field name="email" widget="Email"/>
+      <field name="language"/>
+      <field name="theme" widget="theme-select"/>
+      <field name="singleTab" widget="inline-checkbox"/>
+      <field name="noHelp" widget="inline-checkbox" />
+      <field name="change" title="Change password?" widget="inline-checkbox"/>
+      <panel showIf="change" itemSpan="12">
+          <field name="oldPassword" title="Current password" placeholder="current password" help="Current password of the user" widget="password" requiredIf="change" />
+          <field name="newPassword" title="New password" placeholder="new password" help="New password of the user" widget="password" requiredIf="change" validIf="!change || newPassword.length >= 4"
+            onChange="action-condition-user-password"/>
+          <field name="chkPassword" title="Confirm new password" placeholder="confirm new password" help="Confirm new password of the user (must be identical to the new password)" widget="password" requiredIf="change" validIf="chkPassword === newPassword"/>
+          <help>user.password.pattern-title</help>
+      </panel>
+    </panel>
+  </form>
+
+  <action-condition name="action-condition-user-validCode">
+    <check error="Code length should be greater than 2." field="code" if="code?.length() &lt; 2"/>
+  </action-condition>
+
+  <action-condition name="action-condition-user-validName">
+    <check error="Name length should be greater than 2." field="name" if="name?.length() &lt; 2"/>
+  </action-condition>
+
+  <action-condition name="action-condition-user-password">
+    <check error="Password doesn't match configured pattern." field="newPassword"
+      if="!com.axelor.auth.AuthService.getInstance().passwordMatchesPattern(newPassword)" />
+  </action-condition>
+
+</object-views>

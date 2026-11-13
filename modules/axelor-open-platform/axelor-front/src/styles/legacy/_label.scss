@@ -1,0 +1,121 @@
+@use "sass:map";
+@use "colors";
+
+
+$label_colors: (
+  "red": map.get(colors.$colors, "red"),
+  "blue": map.get(colors.$colors, "blue"),
+  "green": map.get(colors.$colors, "green"),
+  "primary": map.get(colors.$colors, "primary"),
+  "success": map.get(colors.$colors, "success"),
+  "info": map.get(colors.$colors, "info"),
+  "warning": map.get(colors.$colors, "warning"),
+  "important": map.get(colors.$colors, "danger"),
+  "danger": map.get(colors.$colors, "danger"),
+  "inverse": map.get(colors.$colors, "secondary"),
+  "muted": #777,
+);
+
+$label_backgrounds: (
+  "primary": map.get(colors.$colors, "primary"),
+  "success": map.get(colors.$colors, "success"),
+  "info": map.get(colors.$colors, "info"),
+  "warning": map.get(colors.$colors, "warning"),
+  "important": map.get(colors.$colors, "danger"),
+  "danger": map.get(colors.$colors, "danger"),
+  "inverse": #333333,
+);
+
+$label_backgrounds_text: (
+  "primary": #fff,
+);
+
+label {
+  &.label-bold {
+    font-weight: 600 !important;
+  }
+
+  &.label-italic {
+    font-style: italic !important;
+  }
+
+  &.label-underline {
+    text-decoration: underline !important;
+  }
+
+  &.label-overline {
+    text-decoration: overline !important;
+  }
+
+  &.label-line-through {
+    text-decoration: line-through !important;
+  }
+
+  &.label-small {
+    font-size: 10px !important;
+  }
+
+  &.label-big {
+    font-size: 16px !important;
+  }
+
+  &.label-large {
+    font-size: 18px !important;
+  }
+
+  &.label-left {
+    text-align: left !important;
+  }
+
+  &.label-right {
+    text-align: right !important;
+  }
+
+  &.label-center {
+    text-align: center !important;
+  }
+
+  &.label-justify {
+    text-align: justify !important;
+  }
+}
+
+@each $name, $value in $label_colors {
+  .form-item label.label-#{$name},
+  .form-item-container.#{$name},
+  .form-item-container.#{$name} input:first-of-type,
+  .form-item-container.#{$name} input:first-of-type {
+    color: $value !important;
+  }
+
+  .label-#{$name} {
+    color: $value !important;
+  }
+}
+
+@each $name, $value in $label_backgrounds {
+  .label-bg-#{$name},
+  .form-item label.label-bg-#{$name},
+  .form-item-container.bg-#{$name},
+  .form-item-container.bg-#{$name} input:first-of-type,
+  .form-item-container.bg-#{$name} textarea:first-of-type {
+    color: map.get($label_backgrounds_text, $name);
+    background-color: $value !important;
+  }
+}
+
+.text-error {
+  color: map.get($label_colors, 'danger');
+}
+
+.text-success {
+  color: map.get($label_colors, 'success');
+}
+
+.text-info {
+  color: map.get($label_colors, 'info');
+}
+
+.text-warning {
+  color: map.get($label_colors, 'warning');
+}

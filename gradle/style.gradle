@@ -1,0 +1,103 @@
+buildscript {
+  repositories {
+    gradlePluginPortal()
+  }
+  dependencies {
+    classpath "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
+  }
+}
+File spotlessXmlFile = file("${projectDir}/gradle/spotless.xml.prefs")
+allprojects { p ->
+
+  // 'modules' directory is shown as a project : need to be excluded
+  if (!p.buildFile.exists()) {
+    return;
+  }
+
+  apply plugin: com.diffplug.gradle.spotless.SpotlessPlugin
+
+  spotless {
+    enforceCheck false
+
+    java {
+      target fileTree(projectDir) {
+        include 'src/*/java/**/*.java'
+        exclude '**/build/**'
+        exclude '**/bin/**'
+        exclude '**/out/**'
+      }
+      googleJavaFormat()
+    }
+    format 'misc', {
+      target fileTree(projectDir) {
+        include 'src/**/*.xml'
+        exclude '**/build/**'
+        exclude '**/bin/**'
+        exclude '**/.project/**'
+        exclude '**/.classpath/**'
+        exclude '**/.settings/**'
+        exclude '**/.metadata/**'
+        exclude '**/out/**'
+        exclude '**/.idea/**'
+        // ⚠️ ИЗГЛЕДИТЕ И ДОМЕЙНИТЕ НЕ СЕ ФОРМАТИРАТ — форматирането ИМ СМЕНЯ СЪДЪРЖАНИЕТО, не
+        // подредбата. eclipseWtp('xml') пренася на нов ред всичко над lineWidth (=100 в
+        // gradle/spotless.xml.prefs), включително ТЕКСТА МЕЖДУ таговете И ТЕКСТА В КОМЕНТАРИТЕ.
+        //
+        // ИЗГЛЕДИТЕ: там текстът между таговете е ЗАГЛАВИЕ, видимо от потребителя:
+        // <option value="01">01 — Работници ...</option> в bg.insured.type.select. Заглавието се
+        // свързва с JAXB @XmlValue (Selection.Option.title), а @XmlValue НЕ свива празното място —
+        // тоест новият ред и отстъпът влизат ДОСЛОВНО в meta_select_item.title и в ключа на
+        // I18n.get(title), с което преводът спира да се намира.
+        // Пази го BgInsuredTypeHomeFileTest: заглавие, по-дълго от 100 знака, се разминава със
+        // seed-а.
+        //
+        // ⚠️ ДОМЕЙНИТЕ: нямат текст между таговете, но имат ОБШИРНИ КОМЕНТАРИ, а eclipseWtp пренася
+        // и тях — всеки разделител ═══ РАЗДЕЛ ═══ и всеки празен ред се събират в ЕДИН абзац.
+        //
+        // Следствието не е козметично: всеки `clean build` би оставял десетки ЧУЖДИ domain файла
+        // променени в работното дърво (build зависи от spotlessApply долу), тоест всеки клон
+        // би трябвало да ги връща на ръка, за да не влязат в неговия diff. А коментарът в домейна е
+        // единственото място, където живее ОБОСНОВКАТА на полето — свит в абзац, той се чете като
+        // стена и структурата, която някой е сложил нарочно, изчезва.
+        //
+        // ⚠️ Изключването НЕ пипа генерирания код: домейн XML-ът се чете от generateCode, който не
+        // го форматира и не зависи от форматирането му.
+        exclude '**/resources/views/**/*.xml'
+        exclude '**/resources/domains/**/*.xml'
+
+        // ⚠️ СХЕМИТЕ И ЕТАЛОНИТЕ СА ЧУЖДИ ФАЙЛОВЕ И СЕ ПАЗЯТ БАЙТ ПО БАЙТ — форматирането ги
+        // ОБЕЗСМИСЛЯ, а не разкрасява.
+        //
+        // В resources/schemas/ живеят публикуваните от НАП/НОИ схеми и официалните примерни файлове,
+        // чиито SHA-256 са ЗАКОВАНИ в кода (BgSaftXsd, BgArt73Xsd, BgApp9Xsd, BgEtzXsd) и се сверяват
+        // от пин-тестовете. Самите .xsd не се хващат от `include 'src/**/*.xml'`, но ЕТАЛОНИТЕ се
+        // хващат — те са .xml.
+        //
+        // `spotlessApply` пренаписва официалните SAF-T еталони (CRLF → LF плюс преотстъп) и
+        // отпечатъците им се разминават. А `build` зависи от `spotlessApply` (долу), тоест това би
+        // се случвало при ВСЕКИ билд: еталонът, срещу който се мери валидаторът, би бил пренаписан
+        // от нас, а тестът би бил зелен — защото валидира пренаписаното. Точно обратното на това,
+        // за което еталон служи.
+        //
+        // ⚠️ `.gitattributes` НЕ спасява: той пази края на реда през индекса, а spotless пипа
+        // РАБОТНОТО КОПИЕ преди git изобщо да види файла.
+        exclude '**/resources/schemas/**'
+      }
+      eclipseWtp('xml').configFile(spotlessXmlFile)
+      trimTrailingWhitespace()
+    }
+  }
+
+  if (p.file('src/main/resources/domains').exists()) {
+    p.afterEvaluate {
+      p.spotlessJava.dependsOn(p.generateCode)
+    }
+  }
+
+  tasks.register('formatCode') {
+    description "Add license and format code."
+    group "Axelor"
+    dependsOn 'licenseFormat', 'spotlessApply'
+  }
+  build.dependsOn 'spotlessApply'
+}

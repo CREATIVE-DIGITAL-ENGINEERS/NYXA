@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views https://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="meta-schedule-grid" title="Schedules" model="com.axelor.meta.db.MetaSchedule" editable="true">
+    <toolbar>
+      <button name="btnRestart" showIf="isServiceEnable" title="Restart jobs" prompt="This may terminate any running jobs. Are you sure you want to continue?" onClick="com.axelor.meta.web.JobController:restart"/>
+      <button name="btnStop" showIf="isServiceEnable" title="Stop service" prompt="This may terminate any running jobs. Are you sure you want to continue?" onClick="com.axelor.meta.web.JobController:stop"/>
+    </toolbar>
+    <field name="name" />
+    <field name="job" />
+    <field name="cron" />
+    <field name="active" />
+  </grid>
+
+  <form name="meta-schedule-form" title="Schedule" model="com.axelor.meta.db.MetaSchedule">
+    <panel showIf="!isServiceEnable" hidden="true">
+      <static css="text-error"><![CDATA[
+      <>
+        <Box d="flex" alignItems="center">
+          <Icon icon={"exclamation-triangle"} />
+          <span>{_t("The scheduler service is disabled.")}</span>
+        </Box>
+      </>
+      ]]></static>
+    </panel>
+    <panel title="Overview">
+      <field name="name"/>
+      <field name="active"/>
+      <field name="description" colSpan="12"/>
+      <field name="job" colSpan="12"/>
+      <field name="cron" colSpan="12"/>
+      <button-group colSpan="4">
+        <button name="btnValidate" title="Validate" onClick="com.axelor.meta.web.JobController:validate"/>
+        <button name="btnUpdate" title="Update" showIf="isServiceEnable" prompt="This will update job with current settings. Are you sure you want to continue?" onClick="save,com.axelor.meta.web.JobController:update"/>
+      </button-group>
+    </panel>
+    <panel-related field="params" editable="true">
+      <field name="name"/>
+      <field name="value"/>
+    </panel-related>
+  </form>
+
+  <form name="meta-schedule-param-form" title="MetaScheduleParam" model="com.axelor.meta.db.MetaScheduleParam" css="mini-form">
+    <panel title="Overview">
+      <field name="name"/>
+      <field name="value"/>
+    </panel>
+  </form>
+
+</object-views>

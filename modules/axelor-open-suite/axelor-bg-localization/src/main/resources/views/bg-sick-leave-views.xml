@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgSickLeave — болничният лист като епизод ============ -->
+
+  <grid name="bg-sick-leave-grid" title="Болнични"
+    model="com.axelor.apps.bglocalization.db.BgSickLeave" orderBy="-fromDate">
+    <hilite color="success" if="statusSelect == 'VALIDATED'"/>
+    <hilite color="default" if="statusSelect == 'CANCELLED'"/>
+    <!-- Името на служителя, не името на договора — виж bg-payslip-grid. -->
+    <field name="employmentContract.employee.name" title="Служител"/>
+    <field name="bgAbsenceType"/>
+    <field name="fromDate"/>
+    <field name="toDate"/>
+    <!-- Продължението е В ГРИДА, а не скрито във формата: то е разликата между „работодателят плаща
+      два дни“ и „не плаща нищо“, тоест първото, което се проверява при спор за сумата. -->
+    <field name="bgIsContinuation"/>
+    <field name="bgDocumentNumber"/>
+    <field name="statusSelect"/>
+  </grid>
+
+  <form name="bg-sick-leave-form" title="Болничен лист"
+    model="com.axelor.apps.bglocalization.db.BgSickLeave"
+    onLoad="action-bg-sick-leave-method-point9-attrs">
+
+    <panel name="statusPanel" showTitle="false" colSpan="12">
+      <field name="statusSelect" widget="NavSelect" colSpan="12"/>
+    </panel>
+
+    <!-- ═══ ПЪТЯТ ДО УДОСТОВЕРЕНИЕТО Е ВИДИМ ═══ Единственият вход за създаване на удостоверение по
+      Приложение № 9 е от листа (обстоятелствата се извеждат ОТ него), а „Нов“ в „Удостоверения“
+      води до заключено поле „Болничен лист“. Затова бутонът не е в свит панел, а се вижда тук,
+      докато удостоверение НЯМА; създаде ли се, панелът по-долу се отваря. -->
+    <!-- Само за ВАЛИДИРАН лист: черновата не е документ. Същото правило пази и услугата
+      (BgApp9DeclarationService#createOrResolve) — изгледът само не подканва към отказ. -->
+    <panel name="app9CreatePanel" showTitle="false" colSpan="12"
+      showIf="!bgApp9Declaration &amp;&amp; statusSelect == 'VALIDATED'">
+      <button name="app9CreateBtn" title="Създай удостоверение (Прил. 9)" colSpan="4"
+        onClick="save,action-bg-app9-method-resolve,save"
+        help="Създава удостоверението по Приложение № 9 за този лист и извежда изводимите обстоятелства (т. 1–7, 13, 26). Ръчните точки се попълват после в панела „Обстоятелства (Приложение № 9)“. ⚠️ Нищо не се изпраща към НОИ."/>
+    </panel>
+
+    <!-- Т. 9 ЗА ЗАВАРЕН ЛИСТ. Панелът е СКРИТ и се показва от onLoad
+      (BgApp9Point9FromSlipController#attrs) само когато потребителят има hr.noi.write, т. 9 е празна,
+      листът е валидиран и за ВСЕКИ негов месец има потвърден фиш (или потвърдено коригиращо копие).
+      Услугата проверява всичко
+      наново — бутонът само не предлага невъзможното. -->
+    <panel name="point9FromSlipPanel" showTitle="false" colSpan="12" hidden="true">
+      <button name="point9FromSlipBtn" title="Изведи т. 9 от потвърдения фиш" colSpan="4"
+        onClick="save,action-bg-sick-leave-method-point9-derive"
+        prompt="Т. 9 ще се попълни от ЗАМРАЗЕНИТЕ дни на потвърдения фиш за всеки месец на листа (не се смятат наново). Действието се записва: кой, кога, от кой фиш. Продължаване?"
+        help="За листове, при които т. 9 не е записана. Дните по платец се вземат от потвърдения фиш (или коригиращото копие) за всеки месец; границите са тези на листа в месеца. Ако за някой месец няма потвърден фиш — отказ поименно. ⚠️ Нищо не се изпраща към НОИ."/>
+    </panel>
+
+    <panel name="documentPanel" title="Документ">
+      <!-- ⚠️ САМО ДОГОВОРИТЕ НА АКТИВНОТО ДРУЖЕСТВО. Без domain изборът
+        показва договорите на всички дружества (администраторът не минава през условията на
+        правата), а стандартният грид на AOS — с празни „Служител“ (без име на лицето) и „Вид“ (AOS
+        contractType, който в BG не се ползва). Изгледът само стеснява избора: записът с договор на
+        друго дружество го отказва BgSickLeaveManagementRepository#guardCompany. -->
+      <field name="employmentContract" canEdit="false"
+        grid-view="bg-employment-contract-select-grid"
+        domain="self.payCompany.id IN (SELECT u.activeCompany.id FROM User u WHERE u = :__user__)"/>
+      <field name="bgDocumentNumber"
+        help="Е-болничен: латинско E + година + 7 цифри, напр. E20260000001 (12 знака). Хартиен: серия + година + номер."/>
+      <!-- ⚠️ ИЗБОРЪТ = ДВЕТЕ УСЛОВИЯ ЗАЕДНО. Само видовете, които се удостоверяват с болничен лист:
+        изискват лист И се зачитат за стаж — второто изключва „Непредставен болничен“; записът го отказва
+        BgSickLeaveManagementRepository. Видовете „без право на обезщетение“ не се предлагат за
+        нови листове — правото се ИЗЧИСЛЯВА, видът е само твърдение; заварените листове ги пазят
+        (BgSickLeaveResolver.CODES_CLAIMING_NO_BENEFIT). Условието е дословно
+        BgSickLeaveTypeRules.PICKER_DOMAIN; BgSickLeaveTypePickerTrapTest и
+        BgSickLeaveNoBenefitPickerTrapTest пазят местата да не се разминат. -->
+      <field name="bgAbsenceType" canEdit="false"
+        domain="self.requiresSickNote = true AND self.countsAsInsuranceService = true AND self.code NOT IN ('sick_no_benefit_er','sick_no_benefit_doo')"/>
+      <!-- Платецът и процентът се ПОКАЗВАТ от речника и НЕ се копират върху записа: копирани, те
+        щяха да се разминат с речника при първата му промяна. Виж BgSickLeave.xml. -->
+      <field name="bgAbsenceType.payer" title="Платец" readonly="true"/>
+      <field name="bgAbsenceType.compensationPct" title="Обезщетение (%)" readonly="true"/>
+    </panel>
+
+    <!-- ⚠️ ОСЕМТЕ ПОЛЕТА ТУК НЯМАТ ЧИТАТЕЛ В КОДА — Приложение № 9 е Ф1. Стоят на екрана, за да се
+      събират от въвеждането нататък: набрани със задна дата от хартия, те струват повече от целия образец.
+      Панелът е СВИТ по подразбиране, защото при въвеждане на болничен за фиша нито едно от тях не е нужно
+      — задължителното за парите е горе. -->
+    <panel name="noiIdentityPanel" title="Данни за НОИ (Приложение № 9)" collapseIf="true"
+      canCollapse="true">
+      <field name="bgSeries"/>
+      <field name="bgYear"/>
+      <field name="bgIssueDate"
+        help="Датата, на която лечебното заведение е ИЗДАЛО листа. Различна от „От дата“: отпускът тече от настъпването, а листът се издава след прегледа."/>
+      <field name="bgIncapacityStartDate"
+        help="Денят на НАСТЪПВАНЕ на неработоспособността. Приложение № 9 брои от него обстоятелствата по т. 1 и т. 2, а той може да предхожда началото на отпуска по листа."/>
+      <field name="bgEmployerReceivedNo" title="Входящ № при осигурителя (т. 25)"/>
+      <field name="bgEmployerReceivedDate"/>
+      <!-- ⚠️ bgSubmittedDate (Предаден на) Е СКРИТ, колоната остава. „Подадено в НОИ“ е отметката с
+        входящ номер върху удостоверението (NapSubmission) — второ, ръчно поле за същия факт без нито
+        един читател щеше да твърди подаване, което никой не е отбелязал. -->
+      <field name="bgExportMonth"
+        help="Попълва се САМО когато листът се подава в друг месец, различен от периода си — закъснял лист за юли, донесен през септември. Празно значи „води се по периода на листа“. Месецът НЕ мени дните."/>
+    </panel>
+
+    <!-- ═══ СРОКЪТ ЗА ПРИЛОЖЕНИЕ № 9 ═══
+      Групата, срокът и надеждността се ПИШАТ от BgApp9DeadlineService при всеки запис — тук само се
+      показват. Обжалването (чл. 8 ал. 2 НПОПДОО) е единственият вход: докато обжалването не е
+      приключило, срокът не тече. -->
+    <panel name="app9DuePanel" title="Срок за Приложение № 9" collapseIf="true"
+      canCollapse="true">
+      <field name="bgNoiObligationSelect"/>
+      <field name="bgNoiDueDate"
+        help="До 10-о число на месеца след представянето (НПОПДОО чл. 12 т. 1); ако 10-о е почивен ден — първият следващ работен ден по производствения календар."/>
+      <field name="bgNoiDaysLeft"/>
+      <field name="bgNoiSubmissionState"/>
+      <field name="bgNoiDueWarning" colSpan="12" showIf="bgNoiDueWarning"/>
+      <field name="bgAppealedByEmployer"
+        help="Отметнете, ако осигурителят е обжалвал листа по чл. 112 от Закона за здравето. Удостоверението се подава СЛЕД приключване на обжалването (чл. 8 ал. 2 НПОПДОО) — дотогава срокът не тече."/>
+      <field name="bgAppealClosedDate" showIf="bgAppealedByEmployer"
+        help="Срокът тече от месеца на приключването: до 10-о число на следващия месец."/>
+      <field name="bgIsHistoricalImport" readonly="true" showIf="bgIsHistoricalImport"/>
+    </panel>
+
+    <!-- Редовете по т. 9 се ПИШАТ от пресмятането на фиша, не на ръка: те са изглед към разбива, който
+      BgSickLeaveResolver вече е направил. Редактирани тук, щяха да се разминат с фиша при следващото
+      пресмятане и никой нямаше да види кое от двете е вярно. -->
+    <panel name="periodLinePanel" title="Дни по месеци (Приложение № 9, т. 9)"
+      collapseIf="true" canCollapse="true">
+      <field name="bgPeriodLineList" colSpan="12" showTitle="false" readonly="true"
+        grid-view="bg-sick-leave-period-line-grid" form-view="bg-sick-leave-period-line-form"
+        help="Попълва се автоматично при пресмятане на фиша. Един ред на месец и платец: официалният ред на т. 9 за месеца е сборът на двата."/>
+      <field name="bgPoint9DerivedFrom" colSpan="12" showIf="bgPoint9DerivedOn"/>
+      <field name="bgPoint9DerivedBy" colSpan="6" showIf="bgPoint9DerivedOn"/>
+      <field name="bgPoint9DerivedOn" colSpan="6" showIf="bgPoint9DerivedOn"/>
+    </panel>
+
+    <panel name="periodPanel" title="Период">
+      <field name="fromDate"/>
+      <field name="toDate"/>
+      <!-- ⚠️ Помощта казва ПОСЛЕДИЦАТА, не определението: операторът решава по нея, а определението
+        „продължение на предходен болничен“ не му казва какво се променя в парите. -->
+      <!-- ВРЪЗКАТА е входът, отметката е производна (repository-то я вдига). Изборът е само
+        валидирани листове по СЪЩИЯ договор, започнали преди този; другото repository-то отказва. -->
+      <field name="bgContinuationOf" colSpan="8" canNew="false" canEdit="false"
+        domain="self.employmentContract = :employmentContract AND self.fromDate &lt; :fromDate AND self.statusSelect = 'VALIDATED'"
+        help="Попълнете САМО ако листът е издаден като продължение — изберете листа, който продължава. Продължението НЕ открива нов епизод: първите два работни дни по чл. 40 ал. 5 КСО и правото на обезщетение идват от началото на веригата, дори то да е в предходен месец."/>
+      <!-- Само за четене, ОСВЕН при заварен лист с отметка без връзка: тогава операторът или попълва
+        връзката, или маха отметката — repository-то отказва третия изход (отметка без връзка). -->
+      <field name="bgIsContinuation" colSpan="4"
+        readonlyIf="bgContinuationOf || !bgIsContinuation"/>
+    </panel>
+
+    <!-- ПРАВОТО НА ОБЕЗЩЕТЕНИЕ — ЗАМРАЗЕНАТА ПРИСЪДА. Изведените са само за четене: пише ги само
+      BgSickBenefitVerdictService. Новото определяне е изрично, с причина, и е зад гейт
+      (BgSickLeaveController#redetermineRight: NOI_WRITE + запис върху листа). ⚠️ БЕЗ save ОТПРЕД
+      на бутона: записът презарежда листа и губи входа за причината, който не се пази — същият довод
+      като при „Откажи“ на фиша. -->
+    <panel name="benefitVerdictPanel" title="Право на обезщетение" showIf="id">
+      <field name="bgBenefitVerdict" colSpan="4"/>
+      <field name="bgBenefitVerdictAsOf" colSpan="4"/>
+      <field name="bgBenefitVerdictServiceMonths" colSpan="4" showIf="bgBenefitVerdictServiceMonths"/>
+      <field name="bgBenefitVerdictWhy" colSpan="12" showIf="bgBenefitVerdict"/>
+      <field name="bgBenefitVerdictBy" colSpan="6" showIf="bgBenefitVerdict"/>
+      <field name="bgBenefitVerdictOn" colSpan="6" showIf="bgBenefitVerdict"/>
+      <field name="bgBenefitVerdictReason" colSpan="12" showIf="bgBenefitVerdictReason"/>
+      <field name="bgBenefitVerdictReasonInput" colSpan="8"
+        help="Защо правото се определя наново — остава на листа заедно с кой и кога."/>
+      <button name="redetermineRightBtn" title="Определи правото наново" colSpan="4"
+        onClick="action-bg-sick-leave-method-redetermine-right"
+        prompt="Правото ще се изчисли наново към датата на възникване и ще замени замразената присъда. Потвърдените фишове НЕ се променят. Продължаване?"
+        help="Изчислява правото по чл. 40 ал. 1 / чл. 48а КСО към началото на неработоспособността — от декларирания стаж и датата му плюс потвърдените фишове след нея. Иска причина."/>
+    </panel>
+
+    <!-- ═══════════ ОБСТОЯТЕЛСТВАТА ПО ПРИЛОЖЕНИЕ № 9 (Ф1) ═══════════
+      ⚠️ ПАНЕЛЪТ Е ТУК, НА БОЛНИЧНИЯ, А НЕ НА ФИША, И ТОВА Е ИЗИСКВАНЕ, НЕ УДОБСТВО.
+      Удостоверението се подава ЗА ВСЕКИ БОЛНИЧЕН ЛИСТ поотделно (чл. 8 ал. 1 НПОПДОО), тоест
+      обстоятелствата са свойство на листа, не на месеца. На фиша те щяха да се слеят по (договор ×
+      месец) — точно агрегатът, който губи кой лист е дал кои дни. Фишът
+      остава read-only огледало и НЕ се пипа от Ф1.
+
+      ⚠️ ИЗВЕДЕНИТЕ СА READONLY, РЪЧНИТЕ СА РЕДАКТИРУЕМИ, и разделението минава през ДВА панела,
+      а не през атрибут на всяко поле: оператор, който вижда двете смесени, не знае кое ще бъде
+      презаписано при следващото натискане на бутона. Изведените се презаписват ВСЕКИ ПЪТ,
+      включително с празно — второ извеждане след поправка на договора трябва да МАХНЕ стойност,
+      която вече не следва от данните.
+
+      ⚠️ РЕДАКЦИЯТА Е ПРЕЗ <editor> НА ВРЪЗКАТА one-to-one — вложените полета се записват заедно с
+      листа. Панелът се показва само когато удостоверението СЪЩЕСТВУВА: празният editor би създавал
+      удостоверение при всяко отваряне на болничен, а удостоверение се подава за листовете, за
+      които се иска обезщетение, не за всеки въведен лист. Дотогава стои само бутонът. -->
+    <!-- Свит, докато удостоверение няма (тогава пътят е бутонът горе), отворен, щом има. -->
+    <panel name="app9Panel" title="Обстоятелства (Приложение № 9)"
+      collapseIf="!bgApp9Declaration" canCollapse="true">
+
+      <button name="app9ResolveBtn" title="Изведи/опресни обстоятелствата" colSpan="12"
+        onClick="save,action-bg-app9-method-resolve,save"
+        help="Извежда изводимите точки (т. 1–7, 13, 26) от служителя, договора, листа и периода и записва ПРИСЪДА за всяка — включително назована причина за всеки отказ. Ръчните точки НЕ се пипат. Създава удостоверението, ако още го няма. ⚠️ Не изнася нищо към НОИ."/>
+
+      <field name="bgApp9Declaration" colSpan="12" showTitle="false"
+        showIf="bgApp9Declaration != null" form-view="bg-app9-declaration-form"
+        grid-view="bg-app9-declaration-grid">
+        <editor>
+
+          <panel name="app9StatusPanel" colSpan="12" itemSpan="6">
+            <field name="statusSelect" readonly="true"/>
+            <field name="bgSubmissionTypeSelect"
+              help="Кодът върху лицевата страна на образеца. ⚠️ Не се коригират т. 5 и т. 6 — при грешка в тях удостоверението се ЗАЛИЧАВА и се подава ново."/>
+          </panel>
+
+          <!-- ИЗВЕДЕНИТЕ — readonly с бележка. Поправката става в ИЗТОЧНИКА (договора, служителя
+            или листа), после се натиска бутонът; редактирани тук, стойностите щяха да противоречат
+            на присъдата, която стои под тях. -->
+          <panel name="app9DerivedPanel" title="Изведени (readonly — поправят се в източника)"
+            colSpan="12" itemSpan="6">
+            <field name="bgP1Insured" readonly="true"/>
+            <field name="bgP1TermTypeSelect" readonly="true"/>
+            <field name="bgP1TermEndDate" readonly="true"/>
+            <field name="bgP1SolRegTypeSelect" readonly="true"/>
+            <field name="bgP1SolRegEndDate" readonly="true"/>
+            <field name="bgP2SixMonthStaySelect" readonly="true"/>
+            <field name="bgP3TwelveMonthStaySelect" readonly="true"/>
+            <field name="bgP4InsuredTypeCode" readonly="true"/>
+            <field name="bgP5RelationshipCount" readonly="true"/>
+            <field name="certificateSeqNo" readonly="true"/>
+            <field name="bgP7TerminatedFrom" readonly="true"/>
+            <field name="benefitIban" readonly="true"/>
+            <field name="bgP26FirstSubmissionSelect" readonly="true"/>
+          </panel>
+
+          <!-- РЪЧНИТЕ — редактируеми тук, на болничния. -->
+          <panel name="app9ManualPanel" title="Ръчни обстоятелства" colSpan="12" itemSpan="6">
+            <field name="bgP8InterruptedFrom"/>
+            <field name="bgP12ConfirmedSelect"/>
+            <field name="bgP12LeaveOrderNo"/>
+            <field name="bgP12LeaveOrderDate"/>
+            <field name="bgP10RehabFrom"/>
+            <field name="bgP10RehabTo"/>
+            <field name="bgP10OrderNo"/>
+            <field name="bgP10OrderDate"/>
+            <field name="bgP10AvgPayAtStart"/>
+            <field name="bgP10BasisAtStartSelect"/>
+            <field name="bgP10AvgPayAtEnd"/>
+            <field name="bgP10BasisAtEndSelect"/>
+            <field name="bgP11SurveyNo"/>
+            <field name="bgP11SurveyDate"/>
+            <field name="bgP11FindingSelect" colSpan="12"/>
+            <field name="bgP24OtherCircumstances" colSpan="12"/>
+          </panel>
+
+          <!-- Т. 13–23 — цялата група е в отделен панел, защото се пълни само при майчинство
+            след 42-рия ден и по чл. 167 КТ (бележка ** на образеца). Пълният ѝ изглед е на
+            формата на удостоверението; тук стоят полетата, които се въвеждат най-често. -->
+          <panel name="app9ChildPanel" title="Т. 13–23 · Дете (само майчинство след 42-ия ден)"
+            colSpan="12" itemSpan="6">
+            <field name="bgP13Child" grid-view="bg-employee-child-grid"
+              form-view="bg-employee-child-form"/>
+            <field name="bgP14TwinCount"/>
+            <field name="bgP15ChildAlive"/>
+            <field name="bgP16NotForAdoption"/>
+          </panel>
+
+          <!-- ⚠️ ПРИСЪДИТЕ. Това поле е задължителната половина на резолвера: всяка точка носи
+            изречение — изведена стойност с довода за нея, обявена неотносимост, обявена ръчност
+            или ОТКАЗ с назована липса. Точка, останала празна заради отказ, НЕ значи, че
+            обстоятелството не е налице, и точно това го казва тук. -->
+          <!-- ⚠️ Само за администратор — виж verdictPanel в bg-app9-views.xml. -->
+          <panel name="app9VerdictPanel" title="Присъди на резолвера" colSpan="12"
+            if="__user__.code == 'admin' || __user__.group?.code == 'admins'">
+            <field name="bgResolvedAt" readonly="true"/>
+            <field name="resolverNotes" colSpan="12" showTitle="false" readonly="true"/>
+          </panel>
+
+        </editor>
+      </field>
+
+    </panel>
+
+    <panel name="notePanel" title="Забележка">
+      <field name="note" colSpan="12" showTitle="false"/>
+    </panel>
+
+    <!-- ═══════════ ПРИСТИГНАЛИЯТ ЛИСТ ЗА ВЕЧЕ ЗАТВОРЕН МЕСЕЦ ═══════════
+      ⚠️ ВРАТАТА Е ТУК, НА ЛИСТА, А НЕ НА ФИША, И ТОВА Е ИЗБОР. Човекът държи пристигналия
+      документ; той не знае наизуст кой месец е засегнат, а „Коригирай“ живее на фиша и иска
+      операторът сам да го намери. Тук листът намира фиша.
+
+      ⚠️ И ДВЕТЕ ДЕЙСТВИЯ СА ВЕРИЖНИ, НЕ ЕДНО. Първото показва ПЛАНА в модален диалог — кой месец
+      се коригира, коя заявка се отменя, къде отива разликата; второто изпълнява. Axelor спира
+      веригата при „Отказ“, тоест потвърждението е условието действието да се случи, а не украса.
+
+      ⚠️ Бутонът се показва само на ВАЛИДИРАН лист: черновата е нечие намерение, а ведомостта
+      също чете само валидирани. Услугата пак проверява всичко — бутонът само не предлага
+      невъзможното. -->
+    <panel name="arrivalPanel" showTitle="false" sidebar="true">
+      <button name="arrivalBtn" title="Отрази пристигнал болничен" colSpan="12"
+        showIf="statusSelect == 'VALIDATED'"
+        onClick="save,action-bg-sicknote-arrival-plan,action-bg-sicknote-arrival-apply"
+        help="Отразява листа върху вече ЗАТВОРЕН месец: отваря коригиращо копие на фиша, премества дните от „непредставен болничен“ към осигурител/ДОО по чл. 40 ал. 5 КСО, попълва редовете по т. 9 и отменя заменената заявка за отпуск. ⚠️ Копието НЕ се потвърждава само — разликата влиза в текущия фиш чак когато го потвърдите."/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Actions ============ -->
+
+  <action-method name="action-bg-sick-leave-method-point9-attrs">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9Point9FromSlipController"
+      method="attrs"/>
+  </action-method>
+
+  <action-method name="action-bg-sick-leave-method-point9-derive">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9Point9FromSlipController"
+      method="derive"/>
+  </action-method>
+
+  <action-method name="action-bg-sicknote-arrival-plan">
+    <call class="com.axelor.apps.bglocalization.web.BgSickLeaveController" method="planArrival"/>
+  </action-method>
+
+  <action-method name="action-bg-sicknote-arrival-apply">
+    <call class="com.axelor.apps.bglocalization.web.BgSickLeaveController" method="applyArrival"/>
+  </action-method>
+
+  <action-method name="action-bg-sick-leave-method-redetermine-right">
+    <call class="com.axelor.apps.bglocalization.web.BgSickLeaveController"
+      method="redetermineRight"/>
+  </action-method>
+
+  <!-- ============ BgSickLeavePeriodLine — един ред от т. 9 ============ -->
+
+  <grid name="bg-sick-leave-period-line-grid" title="Дни по месеци"
+    model="com.axelor.apps.bglocalization.db.BgSickLeavePeriodLine"
+    orderBy="periodYear,periodMonth,payer" canNew="false" canEdit="false" canDelete="false">
+    <field name="periodYear"/>
+    <field name="periodMonth"/>
+    <field name="fromDay"/>
+    <field name="toDay"/>
+    <field name="workDays"/>
+    <field name="workHours"/>
+    <field name="dailyHours"/>
+    <field name="payer"/>
+  </grid>
+
+  <form name="bg-sick-leave-period-line-form" title="Ред по т. 9"
+    model="com.axelor.apps.bglocalization.db.BgSickLeavePeriodLine">
+    <panel name="mainPanel" title="Ред от т. 9">
+      <field name="sickLeave" readonly="true"/>
+      <field name="periodYear" readonly="true"/>
+      <field name="periodMonth" readonly="true"/>
+      <field name="fromDay" readonly="true"/>
+      <field name="toDay" readonly="true"/>
+      <field name="workDays" readonly="true"/>
+      <!-- Празните часове при СИРВ не са пропуск: официалната колона иска часове ПО ГРАФИК, а график
+        модулът няма. Помощта го казва на екрана, за да не се търси дефект там, където има обявена липса. -->
+      <field name="workHours" readonly="true"
+        help="Попълва се само при подневно отчитане. При СИРВ остава празно: указанието към т. 9 иска часовете по ГРАФИКА на лицето, а график в модула няма."/>
+      <field name="dailyHours" readonly="true"/>
+      <field name="payer" readonly="true"/>
+    </panel>
+  </form>
+
+</object-views>

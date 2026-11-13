@@ -1,0 +1,14 @@
+---
+name: НАП Submissions
+code: nap-submissions
+typeSelect: standard
+installOrder: 2600
+description: |
+  Shared foundation for submissions to the Bulgarian tax authority (НАП),
+  with the SAF-T report lifecycle as the first isolated service.
+image: app-nap-submissions.png
+modules:
+  nyxa-nap-submissions
+dependsOn:
+  - base
+sequence: 210

@@ -1,0 +1,102 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Осигурителни вноски по вид осигурен (НАП), фонд, категория труд, режим УПФ и период на действие. -->
+  <entity name="BgInsuranceContribution">
+
+    <!-- Вид осигурен по номенклатурата на НАП ("01".."99", с водещи нули). -->
+    <string name="bgInsuredTypeCode" title="Вид осигурен (код НАП)" required="true"/>
+    <string name="bgInsuredTypeName" title="Вид осигурен (наименование)"/>
+
+    <!-- ⚠️ ДВА ЗАПИСА НА ЕДНО И СЪЩО, НАРОЧНО И ВРЕМЕННО. fundCode е низът, който изчислението чете
+      днес: BgContributionResolver сравнява точно него в пазачите си (DUPLICATE_FUND_ROWS, чл. 4в, MISSING_MANDATORY_FUND,
+      презаписването на ТЗПБ). bgContributionFund е същият фонд като FK към речника, който носи получателя,
+      закръглянето и полетата в Д1. Низът остава, докато FK-ът не се докаже — BgContributionFundConsistencyTest
+      твърди, че двете никога не се разминават за нито един ред. Махането на низа иска ръчен SQL, защото
+      App Install не изчиства стойности. -->
+    <string name="fundCode" title="Осигурителен фонд" required="true"
+      selection="bg.insurance.fund.select"/>
+    <many-to-one name="bgContributionFund" title="Фонд (речник)" required="true"
+      ref="com.axelor.apps.bglocalization.db.BgContributionFund"/>
+    <string name="laborCategory" title="Категория труд" required="true"
+      selection="bg.labor.category.select"/>
+
+    <decimal name="employerRate" title="За сметка на работодателя (%)" precision="6"
+      scale="3" required="true"/>
+    <decimal name="employeeRate" title="За сметка на осигуреното лице (%)" precision="6"
+      scale="3" required="true"/>
+
+    <!-- ⚠️ ДВЕ КОЛОНИ, А НЕ ЕДНА, И ТОВА Е ИЗМЕРЕНО, НЕ ПРЕДПОЛОЖЕНО. Видът е свойство на СТАВКАТА,
+      не на реда: 50 от 143-те заредени реда носят нула за единия платец и истинска ставка за другия (27 с
+      нула при работодателя, 23 с нула при лицето). Един ред × един вид би трябвало да опише и двете с една
+      стойност — тоест или би обявил истинската ставка за нула, или нулата за стойност. Забележи и че посоката
+      НЕ е свойство на фонда. ТЗПБ и ППФ са „за сметка на осигурителя“ по общото правило, но КСО чл. 6 ал.
+      6 и чл. 157 ал. 4 сами правят изключение за лицата по чл. 4а ал. 1 (морските лица, вид осигурен 92) и
+      там нулата е от страната на РАБОТОДАТЕЛЯ. Тоест дори „кой фонд“ не решава — решава редът, поотделно за
+      всяка ставка. ЗАЩО ИЗОБЩО. Нулата в decimal колона е една и съща за четящия, а значи три различни неща.
+      Генерираният getter връща BigDecimal.ZERO и никога null, тоест разликата НЕ може да живее в
+      стойността — виж BgDefaultedGetterTest. ⚠️ БЕЗ default. „Липсващият
+      вид“ НЕ бива да става VALUE мълчаливо — точно това е грешката, която колоната съществува да спре. Всеки
+      от 143-те seed реда носи вида ИЗРИЧНО, а BgRateKindSeedTest пада, ако някой ред остане без него. -->
+    <string name="bgEmployerRateKind" title="Вид на ставката (работодател)" required="true"
+      selection="bg.insurance.rate.kind.select"/>
+    <string name="bgEmployeeRateKind" title="Вид на ставката (лице)" required="true"
+      selection="bg.insurance.rate.kind.select"/>
+
+    <!-- Режим спрямо ДЗПО/УПФ. WITH_UPF = роден след 31.12.1959 (плаща УПФ); WITHOUT_UPF = роден преди
+      01.01.1960 (5-те % отиват във Фонд „Пенсии"). ANY = фондът не зависи от режима (ОЗМ, безработица, ЗОВ,
+      ППФ, УчПФ, ГВРС). required + заместител ANY, а НЕ NULL: NULL-овете са различни в PostgreSQL, затова не
+      пазят unique ключа, а и заявката не може да ги мачква надеждно. -->
+    <string name="bgUpfRegime" title="Режим ДЗПО (УПФ)" required="true"
+      selection="bg.insurance.upf.regime.select"/>
+
+    <!-- Обхват при самоосигуряване (вид осигурен код 12): ALL_RISKS = всички рискове; PENSION_ONLY =
+      само за пенсия; ANY = не зависи от обхвата (всичко останало). required + ANY по същата причина като bgUpfRegime.
+      ⚠️ И ЕДНА ЗАЕТА СТОЙНОСТ, КОЯТО НЕ Е СОЛ: ART4A_AL2. Морското лице (код 92) се осигурява за безработица
+      ПО СВОЙ ИЗБОР по чл. 4а ал. 2 КСО, а морското лице НЕ е самоосигуряващо се — тоест това е ЗАЕМАНЕ на
+      тази ос, не нейният смисъл. Заета е, защото прави точно едно нещо: ИЗКАРВА реда за безработица от
+      подразбиращия се набор. 'ANY' би значело 1 на сто на ВСЯКО морско лице,
+      включително на неизбралото — а неупражнената опция е неупражнена. Тоест стойността НЕ прави избора поддържан:
+      тя прави подразбирането вярно. Изборът си остава обявен за неподдържан в manifest/seafarers-2026.yml
+      и чака СОБСТВЕНА колона-дискриминатор. Който я добави, маха тази стойност оттук — тя е временна и го
+      пише. -->
+    <string name="bgSolScope" title="Обхват (СОЛ)" required="true"
+      selection="bg.insurance.sol.scope.select"/>
+
+    <!-- Учителска длъжност: TEACHER = редът важи само за учител (учителският фонд под вид осигурен 04);
+      NON_TEACHER = стойност на ЗАЯВКАТА, не на ред; ANY = не зависи (всичко останало). required + ANY по същата
+      причина като bgUpfRegime и bgSolScope. ЗАЩО ИЗОБЩО. Учител на втори или допълнителен трудов договор се
+      подава под КОД 04. Това е решение, а НЕ извод от норма — Указанията за Декларация 1 мълчат по приоритета между 04 и 08. Следствието е моделно: под 04 стоят и учители, и неучители,
+      тоест учителството вече не се изразява чрез вида осигурен и иска собствена ос. Код 08 остава непокътнат
+      — неговият ред за учителския фонд е ANY, защото там целият код е учителски. -->
+    <string name="bgTeacherScope" title="Учителски обхват" required="true" default="ANY"
+      selection="bg.insurance.teacher.scope.select"/>
+
+    <!-- Код на вида обезщетение от BgCompensationType.code (напр. comp_kt_222_1), или STANDARD когато
+      плащането не е обезщетение. Низ, не m2o — речниците са темпорални и коригираща Д1 за минал период ползва
+      кода, валиден тогава (същата причина като bgInsuredTypeCode и BgAbsenceType.d1Code). В ключа е, защото
+      код 27 има два реда с еднакъв (фонд×режим), различаващи се само по основанието. НЕ е legalBasis — той
+      е свободен текст за показване и е негоден за ключ. -->
+    <string name="bgCompensationTypeCode" title="Вид обезщетение (код)" required="true"
+      default="STANDARD"/>
+
+    <!-- large=true, тоест TEXT. Колоната носи ИЗТОЧНИКА на реда — откъде идват процентите и чие е потвърждението
+      — а 255 знака е произволен таван върху точно това. Колоната е със същата форма като
+      BgCompensationType.note, а редът за учителския фонд под код 04 е с 324 знака. При varchar(255)
+      вносителят ОТХВЪРЛЯ целия ред и продължава, тоест файлът има един ред повече от базата, а липсващият
+      е единственият с bgTeacherScope = TEACHER. -->
+    <string name="bgNote" title="Бележка" large="true"/>
+
+    <date name="validFrom" title="В сила от" required="true"/>
+    <date name="validTo" title="В сила до"/>
+
+    <unique-constraint
+      columns="bgInsuredTypeCode,laborCategory,fundCode,bgUpfRegime,bgSolScope,bgTeacherScope,bgCompensationTypeCode,validFrom"/>
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ FATCA ============
+
+    Статусът на дружеството и годишният FATCA отчет като файл FATCA XML v2.0.1 за
+    ръчно качване в портала на НАП с КЕП.
+
+    ⚠️ НИЩО НЕ СЕ ИЗПРАЩА. API на НАП за FATCA няма; „Отбележи подаден“ записва входящия номер. -->
+
+  <!-- ─────────── Статус на дружеството ─────────── -->
+
+  <grid name="bg-fatca-profile-grid" title="FATCA статус на компанията"
+    model="com.axelor.apps.bglocalization.db.BgFatcaProfile">
+    <field name="company"/>
+    <field name="statusSelect"/>
+    <field name="giin" width="180"/>
+  </grid>
+
+  <form name="bg-fatca-profile-form" title="FATCA статус на компанията"
+    model="com.axelor.apps.bglocalization.db.BgFatcaProfile"
+    onNew="action-bg-fatca-profile-default-company" onSave="action-bg-fatca-profile-validate">
+    <panel name="mainPanel" title="Статус">
+      <field name="company" colSpan="6"/>
+      <field name="statusSelect" colSpan="6"
+        help="Статусът, който компанията е декларирала пред банката (самосертификация; W-8BEN-E). Отчет към НАП подава само финансовата институция за отчитане."/>
+      <field name="giin" colSpan="6" showIf="statusSelect == 'REPORTING_FI'"
+        requiredIf="statusSelect == 'REPORTING_FI'"
+        help="GIIN от регистъра на IRS — XXXXXX.XXXXX.XX.XXX, 19 знака. Последните три цифри са кодът на държавата (България — 100)."/>
+      <field name="note" colSpan="12" widget="text" height="3"/>
+    </panel>
+  </form>
+
+  <!-- ─────────── Отчет ─────────── -->
+
+  <grid name="bg-fatca-report-grid" title="FATCA отчети"
+    model="com.axelor.apps.bglocalization.db.BgFatcaReport" orderBy="-reportYear">
+    <field name="reportYear" width="120"/>
+    <field name="company"/>
+    <field name="statusSelect" width="130"/>
+    <field name="testFile" width="120"/>
+    <field name="fileAccountCount" width="120"/>
+    <field name="napIncomingNumber" width="160"/>
+  </grid>
+
+  <form name="bg-fatca-report-form" title="FATCA отчет"
+    model="com.axelor.apps.bglocalization.db.BgFatcaReport" width="large"
+    onNew="action-bg-fatca-report-default-company" onSave="action-bg-fatca-report-check-company">
+
+    <panel name="mainPanel" title="Отчет">
+      <field name="company" colSpan="6" readonlyIf="statusSelect != 'DRAFT'"/>
+      <field name="reportYear" colSpan="3" readonlyIf="statusSelect != 'DRAFT'"
+        help="Отчетната година — салдата са към 31.12. Срок за подаване по страницата на НАП: до 30 юни на следващата година."/>
+      <field name="statusSelect" colSpan="3"/>
+      <field name="testFile" colSpan="6" readonlyIf="statusSelect != 'DRAFT'"
+        help="DocTypeIndic FATCA11 вместо FATCA1 — само за тестовата услуга на портала. Тестов файл не се отбелязва като подаден."/>
+    </panel>
+
+    <panel name="actionPanel" title="Действия" showIf="id != null">
+      <button name="generateBtn" title="Генерирай файла"
+        onClick="save,action-bg-fatca-report-generate" showIf="statusSelect == 'DRAFT'"
+        help="Проверява данните и схемата FATCA XML v2.0.1 и произвежда файла. Без сметки — нулев отчет (NilReport). При липсващи данни файл НЕ се създава и причините се изброяват."/>
+      <button name="downloadBtn" title="Изтегли файла"
+        onClick="action-bg-fatca-report-download" showIf="generatedFile != null"/>
+      <button name="returnToDraftBtn" title="Върни в чернова"
+        onClick="action-bg-fatca-report-return-to-draft" showIf="statusSelect == 'GENERATED'"
+        help="Забравя генерирания файл, за да се поправят сметките. Само преди подаване."/>
+    </panel>
+
+    <panel name="filePanel" title="Генериран файл" showIf="generatedFile != null">
+      <field name="generatedFile" colSpan="6"/>
+      <field name="fileGeneratedOn" colSpan="6"/>
+      <field name="fiName" colSpan="6"/>
+      <field name="fiGiin" colSpan="6"/>
+      <field name="fileAccountCount" colSpan="3"/>
+      <field name="fileSha256" colSpan="9"
+        help="Отпечатъкът на точно тези байтове — сравни го със сваления файл."/>
+      <field name="messageRefId" colSpan="12"/>
+      <field name="generatedArtifact" colSpan="6"/>
+    </panel>
+
+    <panel name="submitPanel" title="Подаване през портала на НАП (ръчно)"
+      showIf="statusSelect == 'GENERATED' || statusSelect == 'SUBMITTED'">
+      <field name="napIncomingNumber" colSpan="6" readonlyIf="statusSelect == 'SUBMITTED'"
+        help="Входящият номер, който НАП изпраща по имейл след качването с КЕП."/>
+      <field name="napIncomingDate" colSpan="6" readonlyIf="statusSelect == 'SUBMITTED'"/>
+      <button name="markSubmittedBtn" title="Отбележи подаден"
+        onClick="action-bg-fatca-report-mark-submitted" colSpan="4"
+        showIf="statusSelect == 'GENERATED' &amp;&amp; !testFile"/>
+      <field name="napSubmission" colSpan="8" showIf="napSubmission != null"/>
+    </panel>
+
+    <panel-related name="accountPanel" field="accountList" title="Отчетни сметки"
+      grid-view="bg-fatca-account-grid" form-view="bg-fatca-account-form" colSpan="12"
+      readonlyIf="statusSelect != 'DRAFT'"/>
+  </form>
+
+  <!-- ─────────── Сметка ─────────── -->
+
+  <grid name="bg-fatca-account-grid" title="Отчетни сметки"
+    model="com.axelor.apps.bglocalization.db.BgFatcaAccount">
+    <field name="accountNumber"/>
+    <field name="holderTypeSelect" width="130"/>
+    <field name="firstName"/>
+    <field name="lastName"/>
+    <field name="organisationName"/>
+    <field name="usTin" width="120"/>
+    <field name="country" width="120"/>
+    <field name="balance" width="130"/>
+    <field name="currency" width="80"/>
+    <field name="closedAccount" width="90"/>
+  </grid>
+
+  <form name="bg-fatca-account-form" title="Отчетна сметка"
+    model="com.axelor.apps.bglocalization.db.BgFatcaAccount" width="large">
+    <panel name="accountPanel" title="Сметка">
+      <field name="accountNumber" colSpan="6"/>
+      <field name="closedAccount" colSpan="6"
+        help="Закрита или прехвърлена изцяло през годината — във файла се пише AccountClosed. Салдото тогава е непосредствено ПРЕДИ закриването, не 0 (Споразумението с САЩ, чл. 2, т. 2, буква d))."/>
+    </panel>
+    <panel name="holderPanel" title="Титуляр">
+      <field name="holderTypeSelect" colSpan="6"/>
+      <field name="usTin" colSpan="6" help="US TIN — 9 цифри (напр. 000-00-0000)."/>
+      <field name="firstName" colSpan="4" showIf="holderTypeSelect == 'INDIVIDUAL'"/>
+      <field name="lastName" colSpan="4" showIf="holderTypeSelect == 'INDIVIDUAL'"/>
+      <field name="birthDate" colSpan="4" showIf="holderTypeSelect == 'INDIVIDUAL'"
+        help="Задължителна, ако няма US TIN."/>
+      <field name="organisationName" colSpan="6" showIf="holderTypeSelect == 'ORGANISATION'"/>
+      <field name="acctHolderTypeSelect" colSpan="6" showIf="holderTypeSelect == 'ORGANISATION'"
+        help="FATCA102 изисква контролиращите лица, които още не се поддържат — с такава сметка файлът не се генерира."/>
+      <field name="country" colSpan="4"/>
+      <field name="city" colSpan="4"/>
+      <field name="addressFree" colSpan="4"/>
+    </panel>
+    <panel name="amountPanel" title="Салдо и плащания">
+      <field name="balance" colSpan="4"
+        help="Към 31.12. За сметка, закрита през годината — непосредствено преди закриването (Споразумението с САЩ, чл. 2, т. 2, буква d))."/>
+      <field name="currency" colSpan="4"/>
+      <spacer colSpan="4"/>
+      <field name="dividendsAmount" colSpan="3"/>
+      <field name="interestAmount" colSpan="3"/>
+      <field name="grossProceedsAmount" colSpan="3"/>
+      <field name="otherPaymentsAmount" colSpan="3"/>
+      <field name="docRefId" colSpan="12" showIf="docRefId != null"/>
+    </panel>
+  </form>
+
+  <!-- ============ Actions ============ -->
+
+  <action-record name="action-bg-fatca-profile-default-company"
+    model="com.axelor.apps.bglocalization.db.BgFatcaProfile">
+    <field name="company" expr="eval: __user__.activeCompany"/>
+  </action-record>
+
+  <action-record name="action-bg-fatca-report-default-company"
+    model="com.axelor.apps.bglocalization.db.BgFatcaReport">
+    <field name="company" expr="eval: __user__.activeCompany"/>
+  </action-record>
+
+  <action-method name="action-bg-fatca-profile-validate">
+    <call class="com.axelor.apps.bglocalization.web.BgFatcaProfileController" method="validate"/>
+  </action-method>
+
+  <action-method name="action-bg-fatca-report-check-company">
+    <call class="com.axelor.apps.bglocalization.web.BgFatcaReportController"
+      method="checkCompany"/>
+  </action-method>
+
+  <action-method name="action-bg-fatca-report-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgFatcaReportController" method="generate"/>
+  </action-method>
+
+  <action-method name="action-bg-fatca-report-return-to-draft">
+    <call class="com.axelor.apps.bglocalization.web.BgFatcaReportController"
+      method="returnToDraft"/>
+  </action-method>
+
+  <action-method name="action-bg-fatca-report-download">
+    <call class="com.axelor.apps.bglocalization.web.BgFatcaReportController"
+      method="downloadFile"/>
+  </action-method>
+
+  <action-method name="action-bg-fatca-report-mark-submitted">
+    <call class="com.axelor.apps.bglocalization.web.BgFatcaReportController"
+      method="markSubmitted"/>
+  </action-method>
+
+  <action-view name="bg.fatca.profile.all" title="FATCA статус на компанията"
+    model="com.axelor.apps.bglocalization.db.BgFatcaProfile">
+    <view type="grid" name="bg-fatca-profile-grid"/>
+    <view type="form" name="bg-fatca-profile-form"/>
+  </action-view>
+
+  <action-view name="bg.fatca.report.all" title="FATCA отчети"
+    model="com.axelor.apps.bglocalization.db.BgFatcaReport">
+    <view type="grid" name="bg-fatca-report-grid"/>
+    <view type="form" name="bg-fatca-report-form"/>
+  </action-view>
+
+  <!-- Под „НАП“: отчетът се подава в НАП, по формат, одобрен от изпълнителния директор на НАП. -->
+  <menuitem name="nyxa-fatca" parent="nap-root" groups="admins"
+    title="FATCA — автоматичен обмен" order="660"/>
+  <menuitem name="nyxa-fatca-profile" parent="nyxa-fatca" groups="admins"
+    title="FATCA статус на компанията" action="bg.fatca.profile.all" order="100"/>
+  <menuitem name="nyxa-fatca-reports" parent="nyxa-fatca" groups="admins"
+    title="FATCA отчети" action="bg.fatca.report.all" order="200"/>
+
+</object-views>

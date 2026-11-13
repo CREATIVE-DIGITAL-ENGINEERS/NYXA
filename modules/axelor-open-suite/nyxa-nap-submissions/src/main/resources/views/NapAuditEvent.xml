@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Read-only audit trail. Records are written only by NapAuditService; the UI never edits them. -->
+  <grid name="nap-audit-event-grid" title="Audit trail" edit-icon="false"
+    model="com.axelor.apps.napsubmissions.db.NapAuditEvent" orderBy="-createdOn">
+    <field name="createdOn"/>
+    <field name="eventTypeSelect"/>
+    <field name="saftReport"/>
+    <field name="submission"/>
+    <field name="previousStatus"/>
+    <field name="newStatus"/>
+    <field name="actorTypeSelect"/>
+    <field name="actorUser"/>
+  </grid>
+
+  <form name="nap-audit-event-form" title="Audit event" readonlyIf="true"
+    model="com.axelor.apps.napsubmissions.db.NapAuditEvent" width="large">
+    <panel name="mainPanel" colSpan="12">
+      <field name="createdOn"/>
+      <field name="eventTypeSelect"/>
+      <field name="actorTypeSelect"/>
+      <field name="actorUser"/>
+      <field name="saftReport"/>
+      <field name="submission"/>
+      <field name="previousStatus"/>
+      <field name="newStatus"/>
+      <field name="targetModel"/>
+      <field name="targetRecordId"/>
+      <field name="details" colSpan="12"/>
+    </panel>
+  </form>
+
+</object-views>

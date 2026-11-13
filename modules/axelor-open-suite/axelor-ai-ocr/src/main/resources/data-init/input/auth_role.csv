@@ -1,0 +1,3 @@
+"name";"description"
+"AiOcrClient";"AI-OCR upload client (upload own invoices only)"
+"AiOcrInternal";"AI-OCR internal reviewer (OCR inbox, failed jobs, retry)"

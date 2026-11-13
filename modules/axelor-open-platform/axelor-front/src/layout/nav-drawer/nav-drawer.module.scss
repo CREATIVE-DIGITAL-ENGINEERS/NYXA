@@ -1,0 +1,50 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  padding: 0.25rem 0.5rem;
+  .toggleIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+}
+
+.appLogo {
+  user-select: none;
+  height: 32px !important;
+  svg,
+  img {
+    height: 100%;
+    vertical-align: middle;
+  }
+}
+
+.appLogoAction {
+  cursor: pointer;
+}
+
+.appIcon {
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  border-radius: 100%;
+  margin: 0 0.125rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  svg,
+  img {
+    width: 24px;
+    height: 24px;
+  }
+}

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Следата: ръчно въведените номера на издадени ДДС протоколи. Само за четене — редовете не се
+    редактират и не се трият. -->
+  <grid name="bg-vat-protocol-number-entry-grid" title="Въведени номера на ДДС протоколи"
+    model="com.axelor.apps.bglocalization.db.BgVatProtocolNumberEntry" canNew="false"
+    canEdit="false" canDelete="false" orderBy="-enteredOn">
+    <field name="move"/>
+    <field name="protocolNumber"/>
+    <field name="enteredBy"/>
+    <field name="enteredOn"/>
+    <field name="note"/>
+  </grid>
+
+  <!-- Диалогът от статията: номерът на РЕАЛНО ИЗДАДЕНИЯ протокол и откъде е. Стандартното записване е
+    изключено — пише само BgVatProtocolNumberController.record. -->
+  <form name="bg-vat-protocol-number-entry-form" title="Номер на издадения ДДС протокол"
+    model="com.axelor.apps.bglocalization.db.BgVatProtocolNumberEntry" canSave="false"
+    canNew="false" canCopy="false" canDelete="false" width="large">
+    <panel name="mainPanel" colSpan="12">
+      <static name="entryHelp" colSpan="12"><![CDATA[Въведете номера, под който протоколът е
+        реално издаден (ЗДДС чл. 117, ал. 2, т. 1). Номерът се записва само на тази статия и
+        повече не се мени (чл. 117а, ал. 1).]]></static>
+      <field name="protocolNumber" colSpan="6" readonlyIf="id"/>
+      <field name="note" colSpan="12" readonlyIf="id"/>
+      <field name="enteredBy" colSpan="6" showIf="id"/>
+      <field name="enteredOn" colSpan="6" showIf="id"/>
+      <button name="recordBtn" title="Запиши номера" colSpan="4" hideIf="id"
+        onClick="action-bg-vat-protocol-number-entry-record"/>
+    </panel>
+  </form>
+
+  <action-method name="action-bg-vat-protocol-number-entry-open">
+    <call class="com.axelor.apps.bglocalization.web.BgVatProtocolNumberController" method="open"/>
+  </action-method>
+
+  <action-method name="action-bg-vat-protocol-number-entry-record">
+    <call class="com.axelor.apps.bglocalization.web.BgVatProtocolNumberController"
+      method="record"/>
+  </action-method>
+
+  <action-view name="action-bg-vat-protocol-number-entries" title="Въведени номера"
+    model="com.axelor.apps.bglocalization.db.BgVatProtocolNumberEntry">
+    <view type="grid" name="bg-vat-protocol-number-entry-grid"/>
+    <view type="form" name="bg-vat-protocol-number-entry-form"/>
+    <domain>self.move.id = :id</domain>
+  </action-view>
+
+</object-views>

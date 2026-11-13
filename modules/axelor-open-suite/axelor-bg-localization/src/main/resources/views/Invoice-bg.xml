@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Adds the NAP document type field onto the standard Invoice form, and gives the generic
+    Validate/Cancel buttons a distinct, invoice-scoped title (see the comment block below the
+    invoice-client-form extension for why). -->
+  <form name="invoice-form" title="Invoice" id="bg-localization-invoice-form"
+    model="com.axelor.apps.account.db.Invoice" extension="true">
+    <extend target="/">
+      <insert position="inside">
+        <panel name="bgNapPanel" title="Българска локализация (NAP)" colSpan="12">
+          <field name="napDocumentTypeSelect"/>
+          <field name="bgVatSupplyType"/>
+          <!-- И на продажната фактура: при ВОД/услуга по чл. 21 ал. 2 от нея VIES извежда периода на
+            изискуемостта (ППЗДДС чл. 117 ал. 2 т. 11, BgVatViesPeriod). -->
+          <field name="bgVatTaxEventDate"/>
+          <!-- Периодът на отразяване по ЗДДС — само за четене; смяната е през диалог.
+            Видимо само когато е попълнено: празното = месецът на статията. -->
+          <field name="bgVatReportingPeriod" readonly="true"
+            showIf="bgVatReportingPeriod != null &amp;&amp; bgVatReportingPeriod != ''"/>
+        </panel>
+        <!-- Протоколът по чл. 117 ЗДДС от покупна фактура с обратно начисляване. Видимостта е
+          ориентир: кои фактури получават протокол, решава BgVatInvoiceProtocolService и казва защо
+          не. -->
+        <panel name="bgVatProtocolPanel" title="Протокол по чл. 117 ЗДДС" colSpan="12"
+          showIf="operationTypeSelect == 1 &amp;&amp; statusSelect == 3">
+          <field name="bgVatProtocolRequestedDate"/>
+          <button name="bgVatProtocolGenerateBtn" title="Състави протокол по чл. 117" colSpan="4"
+            onClick="save,action-bg-vat-invoice-protocol-generate"/>
+          <field name="bgVatProtocolMoveList" colSpan="12" canNew="false" canRemove="false"
+            canEdit="false" grid-view="move-grid" form-view="move-form"/>
+        </panel>
+      </insert>
+    </extend>
+    <!-- Авансите (схема А): окончателната приспада всяка закачена авансова с ДДС статия
+      с ред за приспадане (InvoiceLine.bgAdvanceDeduction + bgAdvanceInvoice; текстът е само за
+      печат). Без реда продажбата не се осчетоводява — виж BgVatAdvanceService. Покупката —
+      огледално, със сметка 402; без реда само предупреждение (документът на доставчика решава). -->
+    <extend target="//panel[@name='advancePaymentPanel']">
+      <insert position="inside">
+        <button name="bgVatAdvanceDeductBtn" title="Приспадни авансите" colSpan="4"
+          showIf="statusSelect == 1 &amp;&amp; (operationTypeSelect == 3 || operationTypeSelect == 1) &amp;&amp; operationSubTypeSelect != 2"
+          onClick="save,action-bg-vat-advance-deduct"/>
+      </insert>
+    </extend>
+    <extend target="//button[@name='validateBtn']">
+      <attribute name="title" value="Validate invoice"/>
+    </extend>
+    <extend target="//button[@name='validateAndVentilateBtn']">
+      <attribute name="title" value="Validate invoice"/>
+    </extend>
+    <extend target="//button[@name='cancelBtn']">
+      <attribute name="title" value="Cancel invoice"/>
+    </extend>
+  </form>
+
+  <!-- ═══ "VALIDATE"/"CANCEL" СА СПОДЕЛЕН ТЕКСТ, НЕ САМО НА ФАКТУРАТА ═══
+
+    axelor-account/Invoice.xml дава на validateBtn/validateAndVentilateBtn литералния title
+    "Validate" и на cancelBtn литералния title "Cancel" — И в invoice-form, И в
+    invoice-client-form. Same buttons, но "Validate"/"Cancel" се ползват като title и на десетки
+    несвързани бутони в цялото приложение (продажби, поръчки, ведомости, диалози) — MetaTranslation
+    превежда по буквалния низ, тоест смяна на превода на "Validate"/"Cancel" би преоблякла ВСИЧКИ
+    тях наведнъж. Одобреният български речник изрично забранява точно това: generic Cancel не бива
+    да стане „Анулирай“ навсякъде.
+
+    ⚠️ РЕШЕНИЕТО Е НОВ АНГЛИЙСКИ КЛЮЧ ЗА ФАКТУРНИТЕ БУТОНИ, ПО СЪЩИЯ ДОВОД КАТО account-root-move
+    В Menu-account-move-override.xml. И четирите бутона (validateBtn + validateAndVentilateBtn в
+    invoice-form, validateBtn в invoice-client-form → "Validate invoice"; cancelBtn в двете форми →
+    "Cancel invoice") споделят по един ключ, защото семантично са едно и също действие върху
+    фактура, само достъпно от два UI варианта на формата. Низовете са потвърдени с grep като
+    отсъстващи навсякъде другаде в репозиторито (както в title="..." на view XML, така и като key в
+    messages_en/fr/bg.csv) — единственото близко съвпадение, "Invoice canceled" (нотификационно
+    съобщение в AccountExceptionMessage, друг граматичен род и друг контекст), НЕ Е използвано тук
+    точно за да не се сблъска с него.
+
+    ⚠️ Само `title` атрибутът се сменя, през `<attribute name="title" .../>` — всички други
+    атрибути на бутона (onClick, showIf, prompt, css, icon, readonlyIf, hidden) остават непокътнати,
+    защото extend презаписва само изрично посочения атрибут, не целия елемент.
+
+    Преводите: "Validate invoice" → „Потвърди“, "Cancel invoice" → „Анулирай“ — в
+    axelor-bg-localization/src/main/resources/i18n/messages_bg.csv, заключени и в
+    src/test/resources/i18n-audit/glossary-bg.csv. Ventilate/"Осчетоводи" не се пипа. -->
+  <form name="invoice-client-form" title="Invoice" id="bg-localization-invoice-client-form"
+    model="com.axelor.apps.account.db.Invoice" extension="true">
+    <extend target="//button[@name='validateBtn']">
+      <attribute name="title" value="Validate invoice"/>
+    </extend>
+    <extend target="//button[@name='cancelBtn']">
+      <attribute name="title" value="Cancel invoice"/>
+    </extend>
+  </form>
+
+  <!-- Adds "Cancel selected invoices" to the Tools (wrench) menu of the supplier invoice/refund grids,
+    next to the stock validate/ventilate/pay/merge mass actions. -->
+  <grid name="invoice-supplier-grid" title="Invoices"
+    model="com.axelor.apps.account.db.Invoice" id="bg-localization-invoice-supplier-grid"
+    extension="true">
+    <extend target="//menu[@name='invoiceToolsMenu']">
+      <insert position="inside">
+        <item name="cancelSelectedInvoicesItem" title="Cancel selected invoices"
+          action="action-bg-invoice-method-mass-cancel"
+          prompt="Are you sure you want to cancel all selected invoices ?"/>
+        <!-- Протоколите по чл. 117 за избраните покупни фактури — всяка в своя транзакция. -->
+        <item name="bgVatProtocolsSelectedItem"
+          title="Състави протоколите по чл. 117 за избраните"
+          action="action-bg-vat-invoice-protocol-generate-selected"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <grid name="invoice-supplier-refund-grid" title="Invoices"
+    model="com.axelor.apps.account.db.Invoice" id="bg-localization-invoice-supplier-refund-grid"
+    extension="true">
+    <extend target="//menu[@name='invoiceToolsMenu']">
+      <insert position="inside">
+        <item name="cancelSelectedInvoicesItem" title="Cancel selected invoices"
+          action="action-bg-invoice-method-mass-cancel"
+          prompt="Are you sure you want to cancel all selected invoices ?"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <action-method name="action-bg-vat-invoice-protocol-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgVatInvoiceProtocolController"
+      method="generate"/>
+  </action-method>
+
+  <action-method name="action-bg-vat-invoice-protocol-generate-selected">
+    <call class="com.axelor.apps.bglocalization.web.BgVatInvoiceProtocolController"
+      method="generateSelected"/>
+  </action-method>
+
+  <action-method name="action-bg-vat-advance-deduct">
+    <call class="com.axelor.apps.bglocalization.web.BgVatAdvanceController" method="deduct"/>
+  </action-method>
+
+  <!-- Справката „Авансови фактури без ДДС статия“: издадени, преди авансите да влизат в
+    дневниците. Само справка — ретроактивна статия би сменила подадени периоди. Условието е BgVatAdvanceService.WITHOUT_VAT_MOVE. -->
+  <action-view name="action-bg-vat-advance-without-vat-move"
+    title="Авансови фактури без ДДС статия" model="com.axelor.apps.account.db.Invoice">
+    <view type="grid" name="invoice-grid"/>
+    <view type="form" name="invoice-form"/>
+    <domain>self.company = :_company AND self.operationSubTypeSelect = 2 AND self.operationTypeSelect IN (1, 2, 3, 4) AND self.statusSelect = 2 AND self.companyTaxTotal != 0 AND NOT EXISTS (SELECT m.id FROM Move m WHERE m.invoice = self AND m.statusSelect != 4)</domain>
+    <context name="_company" expr="eval: __user__.activeCompany"/>
+  </action-view>
+
+  <action-method name="action-bg-invoice-method-mass-cancel">
+    <call class="com.axelor.apps.bglocalization.web.BgInvoiceMassController"
+      method="cancelSelected"/>
+  </action-method>
+
+</object-views>

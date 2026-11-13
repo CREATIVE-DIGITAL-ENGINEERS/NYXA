@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bank-payment" package="com.axelor.apps.bankpayment.db"/>
+
+  <!-- Bulgarian Postbank XLSX statement import: a BG-specific import status + a human-readable row-level
+    report. The stock statusSelect only has Received/Imported, so these carry the richer Imported / Validation
+    Failed / Manual Edit Required outcome. Merged into com.axelor.apps.bankpayment.db.BankStatement by the
+    code generator. -->
+  <entity name="BankStatement">
+    <integer name="bgImportStatusSelect" title="BG import status"
+      selection="bg.bank.statement.import.status.select" readonly="true"/>
+    <string name="bgImportReport" title="BG import report" large="true" multiline="true"
+      readonly="true"/>
+    <!-- IBAN parsed from the imported Postbank XLSX; kept so the "auto create Bank Details" action can
+      create/link the matching BankDetails without re-reading the file. -->
+    <string name="bgStatementIban" title="BG statement IBAN" readonly="true"/>
+    <!-- SHA-256 of the imported XLSX bytes; used to reject re-importing the exact same file. -->
+    <string name="bgStatementHash" title="BG statement file hash" readonly="true"
+      index="true"/>
+    <!-- The AI-OCR upload this statement was generated from (PDF/OCR path). Lets deleting the upload
+      cascade to its statements, and deleting a statement flip the upload to "Deleted from bank statement"
+      (reprocessable). Null for a manually-created / XLSX-imported statement. -->
+    <many-to-one name="aiOcrUpload" ref="com.axelor.apps.aiocr.db.AiOcrUpload"
+      title="AI OCR upload" readonly="true"/>
+  </entity>
+
+</domain-models>

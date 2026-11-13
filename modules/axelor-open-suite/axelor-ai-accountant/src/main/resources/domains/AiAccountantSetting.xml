@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="aiaccountant" package="com.axelor.apps.aiaccountant.db"/>
+
+  <!-- Operational toggles an administrator may change without a redeploy.
+
+    WHY IT EXISTS. Env vars and AppSettings alone mean a container restart to turn the assistant
+    off, to stop it writing, or to promote the router. Those three are exactly the switches somebody
+    needs during an incident, when a redeploy is the last thing they want to be waiting for.
+
+    WHAT IS DELIBERATELY NOT HERE. Endpoints, tenant id, client id and the client secret. Those are
+    infrastructure credentials: they belong in the container's environment, not in a table that a
+    form view can render. Nothing in this entity is a secret, and nothing that is a secret may be
+    added to it.
+
+    TRI-STATE, NOT BOOLEAN. Each toggle is a selection whose default is INHERIT rather than a boolean
+    defaulting to false. A boolean cannot distinguish "the administrator turned this off" from "no
+    administrator has ever touched this", so the moment the row existed every toggle would read as
+    off and the deployment's own configuration would be silently overridden. INHERIT falls through to
+    the existing env -> AppSettings -> default chain, unchanged.
+
+    SINGLETON. One row, enforced by the unique `singletonKey` rather than by convention: stock
+    Axelor's own AppBase relies on data-init seeding exactly one row and nothing stops a second, which
+    is a reasonable risk for a config nobody writes to twice and an unreasonable one for a row that
+    decides whether the assistant may write to the books. The row is created only when an
+    administrator first opens the Settings screen — never by a config read; see
+    AiAccountantSettingOverrideService. -->
+  <entity name="AiAccountantSetting">
+
+    <!-- The whole point of this column is its unique constraint. Its value is always "default". -->
+    <string name="singletonKey" title="Key" required="true" unique="true" max="32"
+      default="default"/>
+
+    <integer name="enabledSelect" title="Assistant enabled"
+      selection="aiaccountant.override.tristate.select" default="0"/>
+
+    <integer name="routerEnabledSelect" title="Router enabled"
+      selection="aiaccountant.override.tristate.select" default="0"/>
+
+    <integer name="routerModeSelect" title="Router mode"
+      selection="aiaccountant.override.router.mode.select" default="0"/>
+
+    <!-- A guard flag beside the value rather than a nullable Integer: `default="false"` means "do not
+      override", which is the safe reading of an untouched field, and it avoids depending on whether
+      the generator boxes a bare <integer>. -->
+    <boolean name="overrideMaxToolIterations" title="Override max tool iterations" default="false"/>
+
+    <integer name="maxToolIterations" title="Max tool iterations"/>
+
+    <!-- Stores the chosen preset code (see AiConversationMemoryPreset), never a token count — the
+      Settings screen never lets anyone type one in. Deliberately no SQL-level column default: an
+      existing database gets NULL for this new column, and AiConversationMemoryPreset.fromStored
+      reads that (and any value it does not recognise) as MEDIUM, so no migration is needed. The
+      `default="3"` below only seeds a brand-new row's Java object (opened for the first time),
+      so a fresh Settings screen shows "Medium" selected instead of a blank field. -->
+    <integer name="memoryPresetSelect" title="Conversation memory"
+      selection="aiaccountant.memory.preset.select" default="3"/>
+
+  </entity>
+
+</domain-models>

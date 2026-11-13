@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Manually mirrors ai.ocr.upload.status.select (AiOcrUpload.xml), plus one audit-only addition:
+    'deleted' — the AiOcrUpload row itself was permanently removed. Keep the two lists in sync by hand
+    if the source list ever changes. -->
+  <selection name="ai.ocr.upload.audit.status.select">
+    <option value="uploaded">Uploaded</option>
+    <option value="queued">Queued</option>
+    <option value="processing">Processing</option>
+    <option value="completed">Completed</option>
+    <option value="failed">Failed</option>
+    <option value="duplicate">Duplicate</option>
+    <option value="cancelled">Cancelled</option>
+    <option value="unsupported">Unsupported</option>
+    <option value="needsReview">Needs review</option>
+    <option value="deletedFromSupplInvoices" color="red">Deleted from Suppl. Invoices</option>
+    <option value="deletedFromMoves" color="red">Deleted from Moves</option>
+    <option value="deletedFromBankStatements" color="red">Deleted from bank statement</option>
+    <option value="extracting">Extracting</option>
+    <option value="completedWithIssues">Completed with issues</option>
+    <option value="archive">Archive</option>
+    <!-- Audit-only: the AiOcrUpload row itself is gone (permanently deleted), not just its destination. -->
+    <option value="deleted" color="red">Deleted</option>
+  </selection>
+
+  <!-- Fully read-only: no New/Edit/Save/Delete anywhere, no toolbar, no menubar, no buttons. Every
+    field is a plain scalar snapshot (see the domain) — nothing here is a link to the live upload, its
+    files or its destination record, since the whole point is to survive their deletion. -->
+  <grid name="ai-ocr-upload-audit-grid" title="Upload Audit"
+    model="com.axelor.apps.aiocr.db.AiOcrUploadAudit" orderBy="-id"
+    canNew="false" canEdit="false" canDelete="false" canArchive="false">
+    <field name="id" title="Audit ID" width="90"/>
+    <field name="uploadId" title="Upload ID" width="90"/>
+    <field name="fileName"/>
+    <field name="uploaderUserId" title="Uploader ID" width="100"/>
+    <field name="uploaderDisplayName" title="Uploader"/>
+    <field name="companyId" title="Company ID" width="100"/>
+    <field name="companyName" title="Company"/>
+    <field name="uploadedOn"/>
+    <field name="processedOn"/>
+    <field name="retryCount"/>
+    <field name="statusSelect"/>
+  </grid>
+
+  <form name="ai-ocr-upload-audit-form" title="Upload Audit"
+    model="com.axelor.apps.aiocr.db.AiOcrUploadAudit"
+    canNew="false" canSave="false" canDelete="false" canCopy="false" canArchive="false"
+    readonlyIf="true">
+    <panel name="mainPanel" colSpan="12">
+      <field name="id" title="Audit ID" colSpan="4"/>
+      <field name="uploadId" title="Upload ID" colSpan="4"/>
+      <field name="fileName" colSpan="4"/>
+      <field name="uploaderUserId" title="Uploader ID" colSpan="4"/>
+      <field name="uploaderDisplayName" title="Uploader" colSpan="4"/>
+      <field name="companyId" title="Company ID" colSpan="4"/>
+      <field name="companyName" title="Company" colSpan="4"/>
+      <field name="uploadedOn" colSpan="4"/>
+      <field name="processedOn" colSpan="4"/>
+      <field name="retryCount" colSpan="4"/>
+      <field name="statusSelect" colSpan="4" widget="single-select"/>
+    </panel>
+  </form>
+
+  <action-view name="action-ai-ocr-upload-audit-view" title="Upload Audit"
+    model="com.axelor.apps.aiocr.db.AiOcrUploadAudit">
+    <view type="grid" name="ai-ocr-upload-audit-grid"/>
+    <view type="form" name="ai-ocr-upload-audit-form"/>
+  </action-view>
+
+</object-views>

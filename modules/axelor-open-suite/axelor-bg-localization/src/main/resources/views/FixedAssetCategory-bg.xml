@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Данъчните полета по чл. 55 ЗКПО върху стандартната категория дълготрайни активи.
+
+    ⚠️ extension="true" ИСКА И id. Разширение без id не се различава от базовия изглед, който
+    разширява: и двата идват с едно и също name, Axelor вижда дубликат и изхвърля разширението
+    ИЗЦЯЛО. Резултатът не е разкривен панел, а липсващ панел, при
+    зелен билд. Конвенцията за id-то е bg-localization-<име-на-изгледа>. -->
+
+  <grid name="fixed-asset-category-grid" title="Fixed asset categories"
+    id="bg-localization-fixed-asset-category-grid"
+    model="com.axelor.apps.account.db.FixedAssetCategory" extension="true">
+    <!-- Нормата влиза в грида, защото тъкмо тя е разграничителят между два реда с еднакво име:
+      „Машини и оборудване“ с 30% и същите с 50% по чл. 55 ал. 3 се различават само по нея. -->
+    <extend target="field[@name='computationMethodSelect']">
+      <insert position="after">
+        <field name="bgTaxCategorySelect"/>
+        <field name="bgTaxDepreciationRate"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <form name="fixed-asset-category-form" title="Fixed asset category"
+    id="bg-localization-fixed-asset-category-form"
+    model="com.axelor.apps.account.db.FixedAssetCategory" extension="true">
+
+    <!-- onSave се сменя през <extend target="/">, а не с атрибут върху разширението — там просто
+      се пренебрегва. И БАЗОВОТО действие се повтаря ПЪРВО: атрибутът ЗАМЕСТВА стойността, а не я
+      допълва, тъй че пропуснато ли е, action-fixed-asset-category-record-compute-duration изчезва
+      и „Срок в месеци“ спира да се изчислява при запис. -->
+    <extend target="/">
+      <attribute name="onSave"
+        value="action-fixed-asset-category-record-compute-duration,action-bg-fixed-asset-category-validate-tax-rate-ceiling"/>
+    </extend>
+
+    <!-- Целта е panel-scoped и се резолвва до ЕДИН възел (BgViewExtendTargetTest го пази):
+      periodicityParametersPanel се среща веднъж в базовия fixed-asset-category-form.
+
+      Панелът повтаря showIf-а на съседа си (fixedAssetType.technicalTypeSelect > 1) нарочно:
+      братята НЕ наследяват условието на панела до тях, а данъчна норма няма смисъл за актив в
+      процес на изграждане (technicalTypeSelect == 1). Скритото поле
+      fixedAssetType.technicalTypeSelect вече е обявено в базовия mainPanel. -->
+    <extend target="//panel[@name='periodicityParametersPanel']">
+      <insert position="after">
+        <panel name="bgTaxDepreciationPanel" title="Данъчна амортизация (ЗКПО)" colSpan="12"
+          showIf="fixedAssetType.technicalTypeSelect &gt; 1">
+          <field name="bgTaxCategorySelect"
+            help="Категория по чл. 55 ал. 1 ЗКПО. Групираща ос за данъчния амортизационен план и за ГДД — нормата се въвежда отделно, защото за кат. II и IV законът дава завишени тавани по ал. 3 и ал. 7."/>
+          <field name="bgTaxDepreciationRate" min="0" max="100"
+            help="Годишна данъчна амортизационна норма (ГДАН) по чл. 55 ал. 2 ЗКПО, в проценти. Това е ТАВАН — по-висока норма не се признава за данъчни цели. Оставена празна, категорията не строи данъчен план: така се описва неамортизируем данъчен актив по чл. 50 (напр. земя). Данъчният план се води по МЕСЕЦИ и броят им излиза от нормата (1200/ГДАН): 4% = 300, 10% = 120, 15% = 80, 25% = 48, 30% = 40, 50% = 24, 100% = 12 месеца. Полетата „Брой амортизации“ и „Срок в месеци“ отгоре хранят СЧЕТОВОДНИЯ план и по подразбиране носят същия брой месеци — оттам идва равенството на двата плана и нулата временни разлики."/>
+        </panel>
+        <panel name="bgMicroinvestMappingPanel" title="Microinvest импорт" colSpan="12">
+          <field name="bgMicroinvestSourceCategory"
+            help="Точното име на категорията от Microinvest. Импортът не съпоставя приблизително по име."/>
+          <field name="bgMicroinvestSupplier"
+            help="Изрично избран доставчик за импортираните стандартни FixedAsset записи. Не се попълва автоматично."/>
+        </panel>
+      </insert>
+    </extend>
+  </form>
+
+  <!-- Учтивост към човека пред екрана, не правилото. Категории се създават и през импорта на
+    сметкоплана, и през REST — тъй че seed-ът си има свой пазач
+    (BgFixedAssetCategorySeedTest.нормите_не_надхвърлят_тавана_по_чл_55). Тук проверката хваща
+    ръчното вписване, докато полето е още на екрана.
+
+    Таванът е АБСОЛЮТНИЯТ, тоест с включените завишения по ал. 3 (кат. II до 50%) и ал. 7
+    (кат. IV до 100%) — условията им са факти за АКТИВА, не за категорията, тъй че проверка срещу
+    30% и 50% би отричала две законни норми. Виж BgTaxDepreciation.ceilingForCategory. -->
+  <action-validate name="action-bg-fixed-asset-category-validate-tax-rate-ceiling">
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория I (4%). По-висока норма не се признава за данъчни цели."
+      if="bgTaxCategorySelect == 'I' &amp;&amp; bgTaxDepreciationRate &gt; 4"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория II (30% по ал. 2, до 50% по ал. 3 за фабрично нови машини, част от първоначална инвестиция)."
+      if="bgTaxCategorySelect == 'II' &amp;&amp; bgTaxDepreciationRate &gt; 50"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория III (10%). По-висока норма не се признава за данъчни цели."
+      if="bgTaxCategorySelect == 'III' &amp;&amp; bgTaxDepreciationRate &gt; 10"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория IV (50% по ал. 2, 100% по ал. 7 за софтуер СУПТО по чл. 118 ал. 16 ЗДДС)."
+      if="bgTaxCategorySelect == 'IV' &amp;&amp; bgTaxDepreciationRate &gt; 100"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория V (25% по ал. 2, до 50% по ал. 8 за електрически автомобили)."
+      if="bgTaxCategorySelect == 'V' &amp;&amp; bgTaxDepreciationRate &gt; 50"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ал. 2 ЗКПО за категория VI (дефинирана в ал. 1 т. 6): 100 / години на правното ограничение, като годишната норма не може да превишава 33 1/3."
+      if="bgTaxCategorySelect == 'VI' &amp;&amp; bgTaxDepreciationRate &gt; 33.34"/>
+    <error
+      message="Нормата надхвърля тавана по чл. 55 ЗКПО за категория VII (15%). По-висока норма не се признава за данъчни цели."
+      if="bgTaxCategorySelect == 'VII' &amp;&amp; bgTaxDepreciationRate &gt; 15"/>
+  </action-validate>
+
+</object-views>

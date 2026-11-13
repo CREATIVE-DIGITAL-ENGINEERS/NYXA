@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Третото меню: „Подаване Д1/Д6 към НАП“. Преходен екран (BgNapFilingWizard) — събира избора и
+    създава ЗАКЛЮЧЕНА чернова NapSubmission. Не подписва и не подава. -->
+  <form name="bg-nap-filing-form" title="File D1/D6 with NAP"
+    model="com.axelor.apps.bglocalization.db.BgNapFilingWizard" width="large"
+    onNew="action-bg-nap-filing-defaults">
+
+    <panel name="introPanel" colSpan="12">
+      <label name="introLabel" colSpan="12"
+        title="Select the GENERATED D1/D6 and create a locked draft for filing. This screen does NOT sign and does NOT file: signing (with your own QES) and filing happen in the NAP portal, and the incoming number is entered afterwards on the submission (“Manual portal”)."/>
+    </panel>
+
+    <panel name="companyPanel" title="Employer and period" colSpan="12">
+      <field name="company" colSpan="6"
+        onChange="action-bg-nap-filing-company-change"/>
+      <field name="companyEik" colSpan="6" readonly="true"/>
+      <field name="periodYear" colSpan="4"/>
+      <field name="periodFromMonth" colSpan="4" min="1" max="12"/>
+      <field name="periodToMonth" colSpan="4" min="1" max="12"/>
+    </panel>
+
+    <panel name="basisPanel" title="Grounds for filing" colSpan="12">
+      <field name="noBasisD1" colSpan="6"/>
+      <field name="noBasisD6" colSpan="6"/>
+    </panel>
+
+    <panel name="d1Panel" title="Form 1 declaration" colSpan="12">
+      <field name="d1Declaration" colSpan="12"
+        readonlyIf="noBasisD1"
+        domain="self.company = :company AND self.statusSelect = 'generated' AND (self.bgIsHistoricalImport IS NULL OR self.bgIsHistoricalImport = false)"/>
+      <label name="d1FileLabel" colSpan="12" showIf="d1Declaration != null"
+        title="File: EMPL2021.TXT (the exact bytes of the records of the selected D1)."/>
+      <field name="d1Declaration.bgDataPeriod" title="Data period" readonly="true"
+        colSpan="4" showIf="d1Declaration != null"/>
+      <field name="d1Declaration.statusSelect" title="Status" readonly="true"
+        colSpan="4" showIf="d1Declaration != null"/>
+      <field name="d1Declaration.napEntryNumber" title="NAP incoming no." readonly="true"
+        colSpan="4" showIf="d1Declaration != null"/>
+      <field name="d1Declaration.updatedOn" title="Last change" readonly="true"
+        colSpan="6" showIf="d1Declaration != null"/>
+      <field name="d1Declaration.updatedBy" title="Last changed by" readonly="true"
+        colSpan="6" showIf="d1Declaration != null"/>
+    </panel>
+
+    <panel name="d6Panel" title="Form 6 declaration" colSpan="12">
+      <field name="d6Declaration" colSpan="12"
+        readonlyIf="noBasisD6"
+        domain="self.company = :company AND self.statusSelect = 'generated' AND (self.bgIsHistoricalImport IS NULL OR self.bgIsHistoricalImport = false)"/>
+      <label name="d6FileLabel" colSpan="12" showIf="d6Declaration != null"
+        title="File: DEC6.TXT (one aggregated record for the company and the month)."/>
+      <field name="d6Declaration.bgPeriod" title="Period (month)" readonly="true"
+        colSpan="4" showIf="d6Declaration != null"/>
+      <field name="d6Declaration.statusSelect" title="Status" readonly="true"
+        colSpan="4" showIf="d6Declaration != null"/>
+      <field name="d6Declaration.napEntryNumber" title="NAP incoming no." readonly="true"
+        colSpan="4" showIf="d6Declaration != null"/>
+      <field name="d6Declaration.updatedOn" title="Last change" readonly="true"
+        colSpan="6" showIf="d6Declaration != null"/>
+      <field name="d6Declaration.updatedBy" title="Last changed by" readonly="true"
+        colSpan="6" showIf="d6Declaration != null"/>
+    </panel>
+
+    <panel name="actionPanel" colSpan="12">
+      <button name="createLockBtn" title="Create and lock draft" icon="fa-lock"
+        css="btn-primary" colSpan="4"
+        onClick="action-bg-nap-filing-method-create-lock"/>
+    </panel>
+
+  </form>
+
+  <action-method name="action-bg-nap-filing-defaults">
+    <call class="com.axelor.apps.bglocalization.web.BgNapFilingController" method="onNew"/>
+  </action-method>
+
+  <action-method name="action-bg-nap-filing-company-change">
+    <call class="com.axelor.apps.bglocalization.web.BgNapFilingController"
+      method="onCompanyChange"/>
+  </action-method>
+
+  <action-method name="action-bg-nap-filing-method-create-lock">
+    <call class="com.axelor.apps.bglocalization.web.BgNapFilingController"
+      method="createAndLock"/>
+  </action-method>
+
+  <action-view name="bg.nap.filing.open" title="File D1/D6 with NAP"
+    model="com.axelor.apps.bglocalization.db.BgNapFilingWizard">
+    <view type="form" name="bg-nap-filing-form"/>
+    <view-param name="forceEdit" value="true"/>
+  </action-view>
+
+</object-views>

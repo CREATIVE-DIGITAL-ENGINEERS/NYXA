@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <form name="company-form" title="Company" id="bg-localization-company-form"
+    model="com.axelor.apps.base.db.Company" extension="true">
+    <extend target="/">
+      <insert position="inside">
+        <panel name="bgLocalizationPanel" title="Българска локализация" colSpan="12">
+          <field name="bgNkid"/>
+          <field name="bgEnergyBrokerSubject" showIf="bgNkid.code == '35.40'"
+            requiredIf="bgNkid.code == '35.40'"/>
+          <field name="bgMinIncomeRowCodeOverride"
+            help="Ръчен МОД ред при двусмислен КИД (напр. 35.40). Взима приоритет над реда от НКИД. Свободен текст — валидация в следваща фаза."/>
+          <field name="bgIsDisabilityEnterprise"/>
+        </panel>
+        <!-- Праговете от СЧЕТОВОДНАТА ПОЛИТИКА — първата от двете стойности по чл. 50 ал. 1 и
+          чл. 51 ал. 1 т. 1 б. „г“. Отделен панел, защото това не е регистрационен реквизит, а избор
+          по счетоводна политика, и се сверява с друг документ. -->
+        <!-- ИЗП: приложимата счетоводна база. Решава дали LIFO е допустим за изписването. -->
+        <!-- ДЕМО ДАННИ — само за технически администратор (контролерът отказва на всеки друг).
+          Измислен набор в НОВО ПРАЗНО дружество със сметкоплана BG_COA; в непразно — отказ.
+          Стандартният „Import demo data“ на Axelor (френски данни) е скрит. -->
+        <panel name="bgDemoDataPanel" title="Демо данни" colSpan="12"
+          if="__user__.code == 'admin' || __user__.group?.code == 'admins'">
+          <button name="bgDemoTradeBtn" title="Налей демо данни: „Демо Търговия“ ООД (НСС)"
+            colSpan="6" onClick="save,action-bg-company-method-demo-data"
+            prompt="Наливат се измислени данни за 01.01–31.10 на текущата година. Дружеството трябва да е ново и празно, със сметкоплан BG_COA. Продължаване?"/>
+          <button name="bgDemoHoldingBtn" title="Налей демо данни: „Демо Холдинг“ АД (МСФО)"
+            colSpan="6" onClick="save,action-bg-company-method-demo-data"
+            prompt="Наливат се измислени данни за 01.01–31.10 на текущата година. Дружеството трябва да е ново и празно, със сметкоплан BG_COA. Продължаване?"/>
+          <button name="bgDemoPayrollBtn" title="Налей само ТРЗ на „Демо Търговия“ ООД"
+            colSpan="6" onClick="save,action-bg-company-method-demo-data"
+            prompt="Наливат се 5 измислени служители, трудови договори и фишове 01–10 с Д1/Д6 (генерирани, не подадени). Само в дружество с вече налято „Демо Търговия“ и без ТРЗ. Продължаване?"/>
+        </panel>
+        <panel name="bgAccountingFrameworkPanel" title="Счетоводна база" colSpan="12">
+          <field name="bgAccountingFramework"
+            help="НСС или МСФО. Решава кои методи за изписване на материалните запаси са допустими: LIFO е само при НСС (СС 2 т. 10), МСС 2 не го допуска. Празно — LIFO се отказва."/>
+        </panel>
+        <panel name="bgAssetMaterialityPanel"
+          title="Праг на същественост за данъчен амортизируем актив" colSpan="12">
+          <field name="bgTangibleAssetMaterialityEur" min="0"
+            help="Стойностният праг на същественост за дълготраен МАТЕРИАЛЕН актив по вашата счетоводна политика (чл. 50 ал. 1 т. 1 ЗКПО). Решаващата стойност е ПО-НИСКАТА от този праг и законовата сума — тоест по-висок праг тук НЕ вдига летвата над законовата. Празно значи, че политиката не обявява праг и решава само законовата сума."/>
+          <field name="bgIntangibleAssetMaterialityEur" min="0"
+            help="Същото за дълготраен НЕМАТЕРИАЛЕН актив (чл. 51 ал. 1 т. 1 б. „г“ аа). Законът различава двата прага и допуска да са различни, затова са две полета."/>
+        </panel>
+        <!-- SAF-T: реквизитите на Header-а, които нямат друг източник. Контактът е декларантът по
+          подразбиране (по-долу), телефонът и имейлът — от партньора на дружеството. -->
+        <panel name="bgSaftPanel" title="SAF-T" colSpan="12">
+          <field name="bgSaftTaxAccountingBasis"
+            help="H.2 TaxAccountingBasis. Празно значи A — търговско предприятие."/>
+          <field name="bgSaftIsPartOfGroup"
+            help="S.O.1 IsPartOfGroup. Празно значи 5 — „Не“. При 1, 2 и 5 данните за предприятието майка във файла са „00“ и полетата по-долу не се четат."/>
+          <field name="bgSaftUltimateOwnerNameBg" showIf="bgSaftIsPartOfGroup == '3' || bgSaftIsPartOfGroup == '4'"
+            help="S.O.7. Българско крайно предприятие майка. Ако майката е чуждестранна, оставете празно — във файла ще излезе „00“."/>
+          <field name="bgSaftUltimateOwnerEikBg" showIf="bgSaftIsPartOfGroup == '3' || bgSaftIsPartOfGroup == '4'"
+            help="S.O.8. ЕИК на българското предприятие майка."/>
+          <field name="bgSaftUltimateOwnerNameForeignCyr"
+            showIf="bgSaftIsPartOfGroup == '3' || bgSaftIsPartOfGroup == '4'"
+            help="S.O.9. Чуждестранно предприятие майка, на кирилица. Ако майката е българска, оставете празно."/>
+          <field name="bgSaftUltimateOwnerNameForeignLat"
+            showIf="bgSaftIsPartOfGroup == '3' || bgSaftIsPartOfGroup == '4'"
+            help="S.O.10. Чуждестранно предприятие майка, на латиница."/>
+          <field name="bgSaftUltimateOwnerCountry"
+            showIf="bgSaftIsPartOfGroup == '3' || bgSaftIsPartOfGroup == '4'"
+            help="S.O.11. Държава на регистрация на чуждестранното предприятие майка — двубуквен ISO код (DE, IT…)."/>
+        </panel>
+        <!-- Адресът за кореспонденция за ДДС — празно значи „Адрес“ на дружеството. -->
+        <panel name="bgVatAddressPanel" title="ДДС · адрес за кореспонденция" colSpan="12">
+          <field name="bgVatCorrespondenceAddress" canNew="true" colSpan="12"
+            form-view="address-form" grid-view="address-grid"
+            help="Попълва се САМО ако адресът за кореспонденция е различен от „Адрес“ на дружеството. Празно = „Адрес“. Влиза в справка-декларацията по ЗДДС (секция А) и във VIES (ред VTR, до 200 знака); партньорът на дружеството не се чете (ППЗДДС чл. 117, ал. 2, т. 1)."/>
+        </panel>
+        <!-- Касова отчетност по ДДС (глава 17а ЗДДС) — периодът на режима за SAF-T. -->
+        <panel name="bgVatCashAccountingPanel" title="ДДС · касова отчетност (глава 17а ЗДДС)"
+          colSpan="12">
+          <field name="bgVatCashAccountingFrom"
+            help="Първият ден, в който дружеството прилага специалния режим за касова отчетност: първият ден на месеца след месеца на получаване на разрешението (чл. 151б, ал. 1 ЗДДС). Празно = дружеството не е по режима."/>
+          <field name="bgVatCashAccountingTo" validIf="!bgVatCashAccountingTo || (bgVatCashAccountingFrom &amp;&amp; bgVatCashAccountingTo &gt;= bgVatCashAccountingFrom)"
+            help="Последният ден на режима — денят на връчване на акта за прекратяване; режимът се прекратява от следващия ден (чл. 151б, ал. 9 ЗДДС). Празно = режимът продължава."/>
+        </panel>
+        <!-- Границата на напомнянето за Приложение № 9 — само напред, по дружество. -->
+        <panel name="bgApp9Panel" title="НОИ · Приложение № 9" colSpan="12">
+          <field name="bgApp9TrackFrom"
+            help="Листовете, представени от тази дата нататък, влизат в „НОИ › Прил. 9 за подаване“ и в брояча. ПРАЗНО = напомнянето е изключено за дружеството. След промяна отворете списъка или натиснете „Опресни сроковете“."/>
+        </panel>
+        <panel-related name="bgDeclarantListPanel" field="bgDeclarantList"
+          title="Декларатори" colSpan="12" editable="true" form-view="bg-declarant-form"
+          grid-view="bg-declarant-grid"
+          onChange="action-bg-company-method-clear-other-declarant-defaults">
+          <field name="declarantNames"/>
+          <field name="declarantEgn" onChange="action-bg-declarant-validate-egn"/>
+          <field name="declarantCity"/>
+          <field name="declarantPostCode" onChange="action-bg-declarant-validate-postcode"/>
+          <field name="declarantCapacity"/>
+          <field name="declarantPosition"/>
+          <field name="isDefault"
+            help="Само ЕДИН декларатор може да е по подразбиране за дружеството. Вдигнете ли втори, останалите се свалят сами — тук и през формата на самия декларатор. Останат ли по изключение два вдигнати, записът се отказва и казва кои редове пречат."/>
+        </panel-related>
+      </insert>
+    </extend>
+    <!-- ПАРТНЬОРЪТ НА ДРУЖЕСТВОТО Е В САМОТО ДРУЖЕСТВО. Попъпът „нов“
+      записва партньора ПРЕДИ дружеството и без него — в чуждо (активното) дружество, а на чиста
+      инсталация без активно дружество получава отказ. Затова: нов от тук няма; при създаването на
+      дружеството партньорът му се създава сам, в него (BgCompanyManagementRepository). Изборът е
+      само сред партньорите на дружеството. -->
+    <extend target="//field[@name='partner']">
+      <attribute name="canNew" value="false"/>
+      <attribute name="domain" value="self.isContact = false AND self.company.id = :id"/>
+    </extend>
+  </form>
+
+  <!-- ⚠️ onChange НА ПОЛЕТО, А НЕ НА ОТМЕТКАТА В РЕДА. Действие, закачено на поле ВЪТРЕ в реда,
+    вижда _parent, но отговорът му се нанася само върху собствения запис на реда (axelor-front,
+    views/form/builder/scope.ts: updateFormAtom е formState.parent само при JSON scope) — оттам
+    чуждите редове са недостижими. Това действие се изпълнява в контекста на Дружеството и се
+    задейства и при редакция в реда, защото решетката подава changed = true при всяко потвърдено
+    редактиране.
+
+    ⚠️ И ТО НЕ ЗАМЕСТВА ОТКАЗА ПРИ ЗАПИСА. Екранът няма да е единственият вход към данните: REST,
+    внос и партиден запис минават покрай него. Тук се свалят другите, докато се знае кой е новият;
+    там се отказва, когато вече не се знае. -->
+  <action-method name="action-bg-company-method-demo-data">
+    <call class="com.axelor.apps.bglocalization.web.BgDemoDataController" method="load"/>
+  </action-method>
+
+  <action-method name="action-bg-company-method-clear-other-declarant-defaults">
+    <call class="com.axelor.apps.bglocalization.web.BgCompanyController"
+      method="clearOtherDeclarantDefaults"/>
+  </action-method>
+
+</object-views>

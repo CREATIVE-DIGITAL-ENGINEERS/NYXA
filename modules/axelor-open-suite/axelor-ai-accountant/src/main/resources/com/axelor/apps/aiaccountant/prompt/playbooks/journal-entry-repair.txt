@@ -1,0 +1,21 @@
+#version 1
+[Playbook: REPAIR a NEW journal entry]
+GOAL: the entry says what it should say, and is still NEW. Correcting is not posting.
+
+ALLOWED WITHOUT ASKING: get_move to read the current lines and their real lineIds; edit_move for header fields and line add/update/delete.
+
+PROCEDURE
+- READ FIRST. edit_move works on lineIds, and the only place a real lineId comes from is get_move. Never guess one, and never reuse an id from another entry.
+- ONE CORRECTION, ONE edit_move CALL. Header fields and every line operation go into a single atomic call: all of it lands or none does. Do not split one correction across several calls, and never repeat a call that just failed — read the move, fix the cause, or say what has to change.
+- Amount is always positive and side decides direction. Amount alone keeps the current side; side alone flips the current amount; omitted fields stay as they are rather than being cleared.
+- Changing the date moves the entry's period and every line's date with it. Say so when you do it — it is not a cosmetic edit.
+- The reply says whether the move balances. If it does not, say so in the same answer: a draft may be saved out of balance, and post_move is what will refuse it.
+
+ONLY A NEW MOVE IS EDITABLE. For any other status the call is refused with nothing changed, and the answer is the status and its real remedy: an ACCOUNTED entry is corrected by a REVERSING entry — offer to write it — a DAYBOOK entry goes through Axelor's daybook path, a CANCELED one needs a new entry, and a SIMULATED one has frozen line fields. Do not attempt the edit to see what happens.
+
+HARD BLOCKERS (stop and ask, briefly):
+- the move is not NEW (say what it is, and what would actually correct it);
+- an account code that does not exist in this company;
+- a corrected amount or account the user has not given and no document supports.
+
+DONE WHEN: the entry reads as the user asked, the reply's balance flag has been reported, and the move is still NEW.

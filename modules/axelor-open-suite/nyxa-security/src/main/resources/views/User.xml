@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- "My access" on the Preferences dialog: the user's own group and roles, read-only, for
+    troubleshooting ("why can't I see X?").
+
+    An EXTENSION, not another override: four modules already contribute to user-preferences-form,
+    and an extension is merged into whichever variant is selected. It touches no attribute of the
+    form (no onLoad/onSave), only inserts a panel.
+
+    Reading these values needs READ on Group and Role, which the Staff Baseline grants for the
+    user's own group and roles only (nx.baseline.group.own.r / nx.baseline.role.own.r). Saving the
+    dialog is unaffected: the web client sends only changed fields, and these can't change. Any
+    attempt to change them anyway is refused by UserSelfEditListener. -->
+  <form name="user-preferences-form" title="Preferences" id="nyxa-security-user-preferences-form"
+    model="com.axelor.auth.db.User" extension="true">
+    <extend target="//panel[@name='userPreferencesPanel']">
+      <insert position="after">
+        <panel name="nxAccessPanel" title="My access" itemSpan="12" readonly="true">
+          <field name="group" readonly="true" canNew="false" canEdit="false" canView="false"/>
+          <field name="roles" readonly="true" widget="TagSelect" canNew="false"
+            canEdit="false" canView="false"/>
+        </panel>
+      </insert>
+    </extend>
+    <!-- The email comes from the identity provider (UserSelfEditPolicy.IDENTITY_PROVIDER_OWNED):
+      shown, never edited. The listener refuses a change anyway. -->
+    <extend target="//field[@name='email']">
+      <attribute name="readonly" value="true"/>
+    </extend>
+  </form>
+
+  <!-- Same for Open Suite's user form (Administration › Users, technical admins), where the field
+    is twice: in the creation wizard and in the normal view. -->
+  <form name="user-form" title="User" id="nyxa-security-user-form"
+    model="com.axelor.auth.db.User" extension="true">
+    <extend target="//panel[@name='stepOverviewPanel']//field[@name='email']">
+      <attribute name="readonly" value="true"/>
+    </extend>
+    <extend target="//panel[@name='overviewPanel']//field[@name='email']">
+      <attribute name="readonly" value="true"/>
+    </extend>
+  </form>
+
+</object-views>

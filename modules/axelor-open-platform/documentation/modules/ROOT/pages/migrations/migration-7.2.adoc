@@ -1,0 +1,137 @@
+= 7.2 Migration Guide
+:toc:
+:toc-title:
+
+:product-version-changelog: https://github.com/axelor/axelor-open-platform/blob/7.2/CHANGELOG.md
+
+In this document, we will see the major steps to migrate from 7.1 to 7.2.
+
+NOTE: Please check the {product-version-changelog}[change log] for detailed list of fixes, changes and improvements
+introduced in 7.2
+
+== Region support added on translations
+
+Similar to the current translation behavior, you can now provide translation per region : `fr-FR`, `fr-CA`, ...
+
+To add more languages, you need to enrich the `select.language` selection. Then you can provide translations files per
+region : `messages_fr-FR.csv`, `messages_fr-CA.csv`, ...
+
+NOTE: Translations in CSV without values are not loaded anymore.
+
+There is a translation fallback mechanism that ensures that if an exact match for a translation is not found, the
+translation for the primary language is used instead. This is particularly useful for avoiding duplicate translation
+effort for languages with regional variations, as well as for maintaining a consistent user experience even when some
+translations are missing.
+
+For example, if a user selects `fr-CA` (Canadian French) as their language and a specific translation is not available
+in `messages_fr-CA.csv`, the translation will fall back to `messages_fr.csv` (French). If the translation is still not
+found, original translation key is used, which is typically the message for the default language, `en` (English).
+
+== User email now has unique constraint
+
+There is now a unique constraint on the `User` `email` field. You may execute this SQL statement for migration:
+
+[source,sql]
+----
+UPDATE auth_user SET email = lower(email);
+ALTER TABLE auth_user ADD CONSTRAINT uk_auth_user_email UNIQUE (email);
+----
+
+== Password reset flow
+
+Users have now ability to reset their password through the "Forgot password" flow available on the login page.
+
+You need execute this SQL statement for migration :
+
+[source,sql]
+----
+create table auth_password_reset_token (
+    id         bigint       not null primary key,
+    archived   boolean,
+    version    integer,
+    created_on timestamp,
+    updated_on timestamp,
+    consumed   boolean,
+    expire_at  timestamp    not null,
+    token      varchar(255) not null constraint uk_btb4g1e6nvrwsmphnw0k43icg unique,
+    created_by bigint constraint fk_g21jxbwc75y8f79lf94qu1lmx references auth_user,
+    updated_by bigint constraint fk_n5d2audpih6fy2eruodkcu2ib references auth_user,
+    user_id    bigint       not null constraint fk_4i2jo1snnd87krhdt4kt5j09h references auth_user
+);
+
+create index auth_password_reset_token_user_id_idx on auth_password_reset_token (user_id);
+
+create sequence auth_password_reset_token_seq;
+----
+
+== Add support to track custom fields
+
+This adds support to track custom fields. On each custom field, you can specify if the field should be tracked, but
+also the associated event and track condition.
+
+You need execute this SQL statement for migration :
+
+[source,sql]
+----
+ALTER TABLE meta_json_field ADD tracked boolean;
+ALTER TABLE meta_json_field ADD track_condition varchar(255);
+ALTER TABLE meta_json_field ADD track_event varchar(255);
+UPDATE meta_json_field SET tracked = false;
+
+ALTER TABLE meta_json_model ADD panel_mail_display integer;
+UPDATE meta_json_model SET panel_mail_display = 0;
+----
+
+== String pattern validation set to be case-sensitive
+
+String pattern validation, through the attribute `pattern`, is now case-sensitive. To manage case-insensitive, it
+should be managed in regex expression itself.
+
+Example :
+
+- `^Foo`      : it matches string starts with `Foo`.
+- `^(F|f)oo`  : it matches string starts with `foo` or `Foo`.
+
+Note that it doesn't match the entire value but any subset. In order to match the entire value, add `^` at the start of
+the pattern and a `$` at the end.
+
+If coming from an older version (< v7),  `x-pattern` attribute was commonly used (due to historical reasons). This is
+no more recommended and this attribute has no more effect. Migrate from `x-pattern` to `pattern` and adjust your regex
+according. Note that `x-pattern` was matching the entire value whereas `pattern` don't.
+
+== Hibernate search support removed
+
+We removed Hibernate search support (Full text search). The implementation was very basic and haven't
+been followed and improved since the initial implementation.
+
+Following properties aren't used anymore and can be deleted from properties file :
+
+* `hibernate.search.default.directory_provider`
+* `hibernate.search.default.indexBase`
+
+We are actively working on a new integration that will provide much more power and a better integration in daily usage.
+Stay updated for the announcement in a future version.
+
+There is no replacement. Advance search feature can be used in order to achieve same goal.
+
+== Deprecated icons
+
+Two libraries are used to provides icons : Material Symbols and Bootstrap Icons. It first tries to first use Material
+Symbols if the icon exist, then fallback to Bootstrap icons.
+
+As part of our upgrades, Material Symbols icons has been removed or renamed. In order to maintain compatibility and
+smooth migrations, icons that don't exist anymore has been mapped with their equivalency. Here is the list :
+`arrow_back_ios_new`, `done`, `expand_less`, `expand_more`, `file_download_done`, `navigate_before`, `navigate_next`,
+`cut`, `emoji_flags`, `feed`, `monetization_on`, `wifi_calling_1`, `wifi_calling_2`, `wifi_calling_3`,
+`airplanemode_active`, `clear_night`, `device_reset`, `flightsmode`, `lens`, `panorama_fish_eye`, `quiet_time`,
+`quiet_time_active`, `restaurant_menu`, `ev_charger`. Deprecated icons will be logged in console in non production
+mode. This mapping is susceptible to change over upgrades, we strongly encourage you to update them.
+
+== Dependencies upgrade
+
+Some dependencies have been upgraded to newer versions. Check the {product-version-changelog}[change log] for detailed
+list.
+
+== Other Notable Changes
+
+- Some layout changes in the login page as part of customizations (xref:dev-guide:application/config.adoc#custom-login-page[doc])

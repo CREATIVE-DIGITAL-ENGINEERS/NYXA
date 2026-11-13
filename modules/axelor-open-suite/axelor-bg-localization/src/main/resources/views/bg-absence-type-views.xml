@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="bg-absence-type-grid" title="Видове отсъствия"
+    model="com.axelor.apps.bglocalization.db.BgAbsenceType" orderBy="sequence">
+    <field name="code"/>
+    <field name="name"/>
+    <field name="category"/>
+    <field name="isPaid"/>
+    <field name="bgPaidUnderArt177"/>
+    <field name="payer"/>
+    <field name="compensationPct"/>
+    <field name="healthContributionRule"/>
+  </grid>
+
+  <form name="bg-absence-type-form" title="Вид отсъствие"
+    model="com.axelor.apps.bglocalization.db.BgAbsenceType">
+    <panel name="mainPanel" title="Основни" colSpan="12">
+      <field name="code"/>
+      <field name="sequence"/>
+      <field name="name" colSpan="12"/>
+      <field name="category"/>
+      <field name="legalBasis"/>
+    </panel>
+    <panel name="insurancePanel" title="Осигуряване" colSpan="12">
+      <field name="isPaid"/>
+      <!-- ⚠️ ДО „Платено“, А НЕ В ПАНЕЛА „Стаж“, И ТОВА Е ЦЯЛАТА МУ ПОЛЗА. Двете отмятания се четат
+        заедно или изобщо: „платено“ казва ДАЛИ се дължи възнаграждение, това — ПО КОЙ РАЗМЕР. Шест
+        вида платен отпуск се заплащат по ТРИ режима (чл. 177 ал. 1 и чл. 159 ал. 2 са по чл. 177;
+        чл. 161 и чл. 169–171 не са), тоест второто НЕ се извежда от първото. Дотук полето нямаше
+        екран: четяха го четири места в кода, а човек не можеше нито да го види, нито да го смени —
+        режимът на плащане на отпуска се мени с редакция на seed-а. -->
+      <field name="bgPaidUnderArt177"/>
+      <field name="payer"/>
+      <field name="compensationPct"/>
+      <field name="isFixedBenefit"/>
+      <field name="socialContributionsDue"/>
+      <field name="healthContributionRule"/>
+    </panel>
+    <panel name="servicePanel" title="Стаж" colSpan="12">
+      <field name="countsAsLaborService"/>
+      <field name="countsAsInsuranceService"/>
+      <field name="reducesWorkNorm"/>
+    </panel>
+    <panel name="adminPanel" title="Административни" colSpan="12">
+      <field name="sicknessReasonCode"/>
+      <field name="requiresSickNote"/>
+      <field name="d1Code" help="Попълва се в WS-4 (Декларация 1)."/>
+      <field name="active"/>
+    </panel>
+  </form>
+
+  <action-view name="bg.absence.type.all" title="Видове отсъствия"
+    model="com.axelor.apps.bglocalization.db.BgAbsenceType">
+    <view type="grid" name="bg-absence-type-grid"/>
+    <view type="form" name="bg-absence-type-form"/>
+  </action-view>
+
+  <menuitem name="nyxa-payroll-absence-type" parent="nyxa-payroll-parameters"
+    title="Видове отсъствия" action="bg.absence.type.all" order="500"/>
+
+</object-views>

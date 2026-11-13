@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Demo data is not offered anywhere (decision 2026-10-26: never, for everyone, development
+    included). nyxa-security removes "Import demo data" from these two forms (views/App.xml) and
+    refuses it on the server (NxAppController); AppBaseServiceImpl's DemoDataGate stays as a second
+    check.
+
+    WHY THESE EXTENSIONS STILL EXIST. They used to replace the button and the checkbox with versions
+    shown only when nyxa.environment = dev. With nyxa-security removing both, they had nothing left
+    to replace and logged "extend target not found" on every computation of the form. Deleting them
+    would not help: the view loader never deletes rows it has imported, so databases that already
+    have them would keep them. Keeping the ids, each now inserts an empty hidden panel, the
+    smallest legal extension (as User-preferences-bg.xml does), which a re-import writes over the
+    old rows. -->
+
+  <form name="app-form" title="App" id="base-app-form-demo-data" model="com.axelor.studio.db.App"
+    extension="true">
+    <extend target="//panel[@name='mainPanel']">
+      <insert position="after">
+        <panel name="baseDemoDataRetiredPanel" hidden="true"/>
+      </insert>
+    </extend>
+  </form>
+
+  <form name="bulk-install-app-form" title="Bulk install" id="base-bulk-install-app-form-demo-data"
+    model="com.axelor.studio.db.App" extension="true">
+    <extend target="//panel[@name='mainPanel']">
+      <insert position="after">
+        <panel name="baseBulkDemoDataRetiredPanel" hidden="true"/>
+      </insert>
+    </extend>
+  </form>
+
+</object-views>

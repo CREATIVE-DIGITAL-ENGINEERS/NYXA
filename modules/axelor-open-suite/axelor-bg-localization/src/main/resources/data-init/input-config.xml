@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<csv-inputs xmlns="http://axelor.com/xml/ns/data-import"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/data-import
+    http://axelor.com/xml/ns/data-import/data-import_7.4.xsd">
+
+  <!-- Object-permission grant for the Bulgarian localization models, mirroring the axelor-account pattern
+    (perm.account.all -> role "Admin"). The "Admin" role is provided by axelor-base's data-init, which imports
+    first (base is a transitive dependency), so it exists when this runs. The NAP menu itself is intentionally
+    NOT role-restricted (no meta_metaMenu here), so it stays visible by default. Non-admin access control
+    is deferred to a later WS. -->
+  <input file="auth_permission.csv" separator=";" type="com.axelor.auth.db.Permission"
+    search="self.name = :name" call="com.axelor.csv.script.ImportPermission:importPermissionToRole">
+    <bind to="canRead" eval="can_read == 'x' ? 'true' : 'false'"/>
+    <bind to="canWrite" eval="can_write == 'x' ? 'true' : 'false'"/>
+    <bind to="canCreate" eval="can_create == 'x' ? 'true' : 'false'"/>
+    <bind to="canRemove" eval="can_remove == 'x' ? 'true' : 'false'"/>
+    <bind to="canExport" eval="can_export == 'x' ? 'true' : 'false'"/>
+  </input>
+
+  <!-- Bulgarian units of measure and their conversion rules, recreated after the CTO's DB cleanup wiped
+    the manually-entered units. Loaded unconditionally via data-init (unlike stock axelor-base's demo-data
+    units, which are locale-gated and never made it into this deployment), so they appear regardless of the
+    selected UI language. -->
+  <input file="base_unit.csv" separator=";" type="com.axelor.apps.base.db.Unit"
+    search="self.importId = :importId"/>
+
+  <input file="base_unitConversion.csv" separator=";"
+    type="com.axelor.apps.base.db.UnitConversion" search="self.importId = :importId"/>
+
+</csv-inputs>

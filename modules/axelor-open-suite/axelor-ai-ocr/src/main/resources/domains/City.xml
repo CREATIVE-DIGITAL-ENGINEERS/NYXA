@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="base" package="com.axelor.apps.base.db"/>
+
+  <!-- Additive extension of the stock City for the Bulgarian settlement dataset (imported once from
+    resources/postal-codes/bgplaces.csv). Adds the English name, region (област) + municipality (община,
+    both plain text — the dataset has no region/municipality CODE and City has no direct Region FK), and
+    the EKATTE code (the official unique settlement id). The postal code is stored in the stock City.zip.
+    NOTHING existing is removed — only columns are added and fullName is overridden to disambiguate duplicate
+    names. -->
+  <entity name="City">
+
+    <string name="nameEn" title="Name (EN)"/>
+    <string name="region" title="Region (област)"/>
+    <string name="regionEn" title="Region (EN)"/>
+    <string name="municipality" title="Municipality (община)"/>
+    <string name="municipalityEn" title="Municipality (EN)"/>
+    <!-- Official unique Bulgarian settlement identifier (5-char string, leading zeroes preserved). Used
+      as the dataset import identity; NOT expected on invoices. Indexed. -->
+    <string name="ekatte" title="EKATTE code" index="true"/>
+    <!-- Version of the bundled dataset this row was imported from. When the importer's DATASET_VERSION
+      is bumped, existing rows no longer match → the dev reset reloads (see BgCityImportService). -->
+    <string name="bgDatasetVersion" title="BG dataset version" index="true"/>
+
+    <!-- Override the namecolumn so duplicate settlement names are distinguishable everywhere the city
+      is shown, e.g. "Слатина — Ябланица — Ловеч — 5768". Each segment is appended only when present; degrades
+      to the stock "name - zip" for cities without a region (all non-BG and pre-existing rows), so existing
+      labels are unchanged. -->
+    <string name="fullName" namecolumn="true" title="Concatenation of city name and zip code"
+      search="name,zip">
+      <![CDATA[
+            String fn = (name != null) ? name : "";
+            boolean hasRegion = region != null && !region.trim().isEmpty();
+            if (municipality != null && !municipality.trim().isEmpty()) { fn += " — " + municipality; }
+            if (hasRegion) { fn += " — " + region; }
+            if (zip != null && !zip.trim().isEmpty()) { fn += (hasRegion ? " — " : " - ") + zip; }
+            return fn;
+       ]]>
+    </string>
+
+  </entity>
+
+</domain-models>

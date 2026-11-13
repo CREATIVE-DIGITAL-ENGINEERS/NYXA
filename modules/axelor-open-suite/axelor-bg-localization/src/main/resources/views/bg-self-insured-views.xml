@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ BgSelfInsuredRegistration — регистрацията на СОЛ ============ -->
+
+  <grid name="bg-self-insured-registration-grid" title="Самоосигуряващи се лица"
+    model="com.axelor.apps.bglocalization.db.BgSelfInsuredRegistration"
+    orderBy="-bgScopeYear,employee">
+    <!-- ⚠️ Недействащата регистрация ТРЯБВА да се различава в списъка: тя остава видима за одит и
+      за коригираща декларация за минал период, но НЕ ражда нов фиш. Без цвят двата случая изглеждат
+      еднакво и операторът търси защо фишът не се създава. -->
+    <hilite color="default" if="!bgIsSelfInsured"/>
+    <field name="employee"/>
+    <field name="bgInsuredTypeCode"/>
+    <field name="bgActivityGround"/>
+    <field name="bgSolScope"/>
+    <field name="bgScopeYear"/>
+    <field name="bgSelectedIncome"/>
+    <field name="bgIsSelfInsured" title="Действаща" width="110"/>
+  </grid>
+
+  <form name="bg-self-insured-registration-form" title="Регистрация на самоосигуряващо се лице"
+    model="com.axelor.apps.bglocalization.db.BgSelfInsuredRegistration">
+
+    <panel name="mainPanel" title="Лице и основание">
+      <field name="employee" canEdit="false"
+        help="Самоосигуряващият се НЯМА трудов договор. Записът стои на Employee, защото датата на раждане, изборът по ДЗПО, признакът „пенсионер“ и решението за намалена работоспособност вече живеят там."/>
+      <field name="bgIsSelfInsured"
+        help="Прекратената регистрация остава видима за одит и за коригираща декларация за минал период, но НЕ ражда нов фиш."/>
+      <field name="bgInsuredTypeCode"/>
+      <field name="bgActivityGround"
+        help="НЕ е дубликат на вида осигурен: под код 12 стоят и чл. 4 ал. 3 т. 1, и т. 2, а нормата ги различава на три места — чл. 6 ал. 8 (авансов режим), чл. 6 ал. 10 (годишно изравняване) и чл. 4 ал. 4 (избор за ОЗМ)."/>
+      <field name="bgObligedPersonCode"/>
+    </panel>
+
+    <panel name="scopePanel" title="Обхват и осигурителен доход">
+      <field name="bgSolScope"
+        help="КСО чл. 4 ал. 4: лицата по ал. 3 т. 1, 2 и 4 ПО СВОЙ ИЗБОР могат да се осигуряват и за общо заболяване и майчинство. Неупражненият избор значи „само за инвалидност, старост и смърт“."/>
+      <field name="bgScopeYear"
+        help="Изборът за ОЗМ е ГОДИШЕН — чл. 6 ал. 9 определя окончателния размер „за съответната година“."/>
+      <field name="bgSelectedIncome"
+        help="КСО чл. 6 ал. 8: месечен осигурителен доход МЕЖДУ минималния и максималния по ЗБДОО. За 2026 г. границите се сменят по средата на годината: минимум 550,66 € до 31.07 и 620,20 € от 01.08; таван 2111,64 € до 31.07 и 2300 € от 01.08. Границите се налагат при смятането, а не тук."/>
+      <field name="bgVoluntaryPensioner"
+        help="КСО чл. 4 ал. 6: лицата по ал. 3 т. 1, 2, 4–6, на които е отпусната пенсия, се осигуряват ПО СВОЕ ЖЕЛАНИЕ."/>
+    </panel>
+
+    <panel name="periodsPanel" title="Периоди на дейност" colSpan="12">
+      <field name="bgActivityPeriodList" colSpan="12" showTitle="false"
+        grid-view="bg-self-insured-activity-period-grid"
+        form-view="bg-self-insured-activity-period-form"/>
+    </panel>
+
+    <panel name="notePanel" title="Забележки">
+      <field name="note" colSpan="12"/>
+    </panel>
+
+  </form>
+
+  <!-- ============ BgSelfInsuredActivityPeriod — един интервал В осигуряване ============ -->
+
+  <grid name="bg-self-insured-activity-period-grid" title="Периоди на дейност"
+    model="com.axelor.apps.bglocalization.db.BgSelfInsuredActivityPeriod" orderBy="fromDate">
+    <field name="fromDate"/>
+    <field name="toDate"/>
+    <field name="note"/>
+  </grid>
+
+  <form name="bg-self-insured-activity-period-form" title="Период на дейност"
+    model="com.axelor.apps.bglocalization.db.BgSelfInsuredActivityPeriod">
+    <panel name="mainPanel" colSpan="12">
+      <field name="fromDate"
+        help="Ден, от който осигуряването е възникнало или е ВЪЗОБНОВЕНО — т. 14 на декларация обр. 1."/>
+      <field name="toDate"
+        help="Последен ден в осигуряване при прекъсване или прекратяване — т. 15. ПРАЗНОТО значи „все още тече“, а не „един ден“."/>
+      <field name="note" colSpan="12"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-self-insured-registration" title="Самоосигуряващи се лица"
+    model="com.axelor.apps.bglocalization.db.BgSelfInsuredRegistration">
+    <view type="grid" name="bg-self-insured-registration-grid"/>
+    <view type="form" name="bg-self-insured-registration-form"/>
+  </action-view>
+
+  <menuitem name="nyxa-payroll-self-insured" parent="nyxa-payroll"
+    title="Самоосигуряващи се лица" action="action-bg-self-insured-registration" order="160"/>
+
+</object-views>

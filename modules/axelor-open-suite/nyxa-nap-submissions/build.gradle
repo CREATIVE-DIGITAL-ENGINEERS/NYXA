@@ -1,0 +1,42 @@
+plugins {
+	id 'com.axelor.app'
+}
+
+apply from: "../libs.gradle"
+apply from: "../version.gradle"
+
+apply {
+	// Bumped independently of the suite so the view XML redeploys without wiping the DB — same trick
+	// as axelor-ai-ocr. .2 = една секция с един бутон „Подпиши и изпрати“ (USB КЕП или Evrotrust);
+	// старите бутони „Подпиши“ / „Обнови подписването“ / отделното USB действие са премахнати.
+	// .3 = идентичността на подписващия се събира на СЪЩИЯ екран (#335); менюто „QES signing profiles"
+	// е скрито; „Не е избран метод" при повторно натискане е поправено.
+	// .5 = сертификатът на подписващия се пази за резултата; изгледи за резултата от НАП (почистен
+	// HTML).
+	version = "${openSuiteVersion}.5"
+}
+
+axelor {
+	title "Nyxa НАП Submissions"
+	description "Shared foundation for submissions to the Bulgarian tax authority (НАП), with the SAF-T report lifecycle as the first isolated service"
+}
+
+dependencies {
+	// Only axelor-base is needed this phase: Company/Partner/Period/MetaFile live there.
+	// axelor-account (Move/Invoice) is added only when the SAF-T extraction/generation phase reads
+	// accounting data — not now.
+	api project(":modules:axelor-base")
+	// Capability gates for state-changing actions.
+	api project(":modules:nyxa-security")
+
+	// BouncyCastle is PRODUCTION here: the submit path cryptographically verifies the transient
+	// detached PKCS#7 over the exact locked bytes (DetachedPkcs7Verifier) before anything reaches the
+	// network — not a SHA-256 compare of stored artifacts. The same library lets the TEST-ONLY signer
+	// produce a genuine detached PKCS#7 + throwaway X.509 cert in tests. The signer itself stays in
+	// src/test, so a test signature can never travel a production code path.
+	implementation libs.bcpkix_jdk18on
+	implementation libs.bcprov_jdk18on
+	// Cleans НАП's HTML result into a display copy (NapResultHtmlSanitizer); the raw bytes stay as
+	// evidence.
+	implementation libs.jsoup
+}

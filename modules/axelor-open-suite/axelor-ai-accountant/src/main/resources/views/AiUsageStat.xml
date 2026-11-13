@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- The rows behind the charts, for when a chart raises a question it cannot answer. Read-only
+    throughout: these are measurements, and an editable measurement is not one.
+
+    `userLabel`/`companyLabel` are shown rather than a relation because these columns hold ids, not
+    foreign keys — telemetry must not stop somebody deleting a user, so the name is captured when the
+    row is written and stays readable afterwards. -->
+  <grid name="ai-usage-stat-grid" title="AI usage" model="com.axelor.apps.aiaccountant.db.AiUsageStat"
+    canNew="false" canEdit="false" canDelete="false" orderBy="-requestDateTime">
+    <field name="requestDateTime"/>
+    <field name="agentRole"/>
+    <field name="caller"/>
+    <field name="outcome"/>
+    <field name="model"/>
+    <field name="userLabel"/>
+    <field name="companyLabel"/>
+    <field name="inputTokens"/>
+    <field name="cachedInputTokens"/>
+    <field name="outputTokens"/>
+    <field name="totalTokens"/>
+    <field name="durationMs"/>
+    <field name="chained" hidden="true"/>
+    <field name="agentVersion" hidden="true"/>
+    <field name="reasoningTokens" hidden="true"/>
+  </grid>
+
+  <form name="ai-usage-stat-form" title="AI usage"
+    model="com.axelor.apps.aiaccountant.db.AiUsageStat" canNew="false" canEdit="false"
+    canDelete="false" readonlyIf="true">
+    <panel title="Request" colSpan="12">
+      <field name="requestDateTime"/>
+      <field name="agentRole"/>
+      <field name="caller"/>
+      <field name="outcome"/>
+      <field name="chained"/>
+      <field name="durationMs"/>
+      <field name="model"/>
+      <field name="agentVersion"/>
+    </panel>
+    <panel title="Attribution" colSpan="12">
+      <field name="userLabel"/>
+      <field name="userId"/>
+      <field name="companyLabel"/>
+      <field name="companyId"/>
+    </panel>
+    <!-- Cached is part of input and reasoning is part of output. They are shown next to their parents
+      rather than in a list of five equals, so nobody reads them as five separate quantities and adds
+      them up. -->
+    <panel title="Tokens as the provider reported them" colSpan="12">
+      <field name="inputTokens"/>
+      <field name="cachedInputTokens" title="of which served from cache"/>
+      <field name="outputTokens"/>
+      <field name="reasoningTokens" title="of which reasoning"/>
+      <field name="totalTokens"/>
+    </panel>
+  </form>
+
+  <action-view title="AI usage" name="ai-usage-stat-view"
+    model="com.axelor.apps.aiaccountant.db.AiUsageStat">
+    <view type="grid" name="ai-usage-stat-grid"/>
+    <view type="form" name="ai-usage-stat-form"/>
+  </action-view>
+
+</object-views>

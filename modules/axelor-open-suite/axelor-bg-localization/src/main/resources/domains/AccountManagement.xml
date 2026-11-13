@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="account" package="com.axelor.apps.account.db"/>
+
+  <!-- СКЛАДОВАТА СМЕТКА 30x, слята в com.axelor.apps.account.db.AccountManagement.
+
+    Axelor няма поле „складова сметка“ никъде. Редът AccountManagement за семейство (typeSelect = 1)
+    вече е по дружество и идва от BG_COA (importId 2000–2007), затова сметката стои тук, а не на
+    глобалното семейство. Ред на ниво продукт дава override наготово.
+
+    ⚠️ НЕ Е purchaseAccount. При PROD покупната сметка е 60101 и остава: продукцията не се купува, а
+    складовата ѝ сметка е 303. AccountID в StockMovementLine (SD.MG.19) и изписването (ИЗП) четат
+    това поле. -->
+  <entity name="AccountManagement">
+    <many-to-one name="bgStockAccount" ref="com.axelor.apps.account.db.Account"
+      title="Складова сметка (30x)"/>
+  </entity>
+
+</domain-models>

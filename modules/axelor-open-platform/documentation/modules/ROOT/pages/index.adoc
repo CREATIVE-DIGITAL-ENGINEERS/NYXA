@@ -1,0 +1,21 @@
+= {page-component-title} {page-component-version} Documentation
+:toc:
+:toc-title:
+:url-apidoc: http://docs.axelor.com/{page-component-name}/{page-component-version}/javadoc
+
+Welcome to the {page-component-title} Documentation. Here you will find information
+and resources to help you learn about {page-component-title}.
+
+xref:news.adoc[What's New]::
+  Describes what is new in {page-component-title}.
+xref:migrations.adoc[Migration Guide]::
+  Describes the steps to migrate to newer versions.
+xref:getting-started:index.adoc[Getting Started]::
+  These topics describe how to get started with {page-component-title} as a developer.
+xref:tutorial:index.adoc[Quick Tutorial]::
+  This tutorial will quickly introduce you to the {page-component-title} and guide you
+  to create your first application.
+xref:dev-guide:index.adoc[Developer Guide]::
+  These topics describe how to use {page-component-title} as a developer.
+{url-apidoc}[API Documentation]::
+The {page-component-title} {page-component-version} javadoc API documentation.

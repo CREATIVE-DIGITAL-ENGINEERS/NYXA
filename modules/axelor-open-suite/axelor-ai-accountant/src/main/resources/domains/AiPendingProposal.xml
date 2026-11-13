@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="aiaccountant" package="com.axelor.apps.aiaccountant.db"/>
+
+  <!-- A single, structured write proposal a TRUSTED READ TOOL derived from stored evidence — never
+    from assistant prose — and offered to the user in this exact chat panel.
+
+    WHY IT EXISTS. AiWorkflowIntent.isContinuation deliberately does not recognise a bare
+    affirmation ("да", "yes") as authorising anything: an approval carries no destination of its own,
+    and what it must confirm is a specific proposed action neither stated in the current message nor
+    derivable from it. Before this row existed there was nowhere to keep that specific action between
+    turns, so a plain "да, създай го" the turn after the assistant named an exact canonical target had
+    nothing to attach to and was refused as "no job on record to continue" — even when a trusted tool
+    had, moments before, read the exact fact (an OCR upload's own extracted ЕИК) that authorises it.
+
+    WHAT IT IS NOT. Not an authorisation by itself, and not a second target-registry: promoting it
+    into a new job's frozen authorisedTargets still goes through AiWorkflowController.open exactly as
+    an explicit instruction would, and every write still runs the full AiWriteAuthorisation chain,
+    including AiTargetRegistry.relatedTarget against the canonical target it names. This row only lets
+    a following bare confirmation be RECOGNISED as confirming one specific, previously-read proposal —
+    it never lets the model's own words supply or widen what that proposal is.
+
+    SCOPE. At most one row per (user, company, conversation) — the same key AiWorkflowState,
+    AiTurnMemory and AiChatSession use, and for the same reason: one person, one set of books, one
+    chat panel. Recording a new proposal replaces whatever was pending, so only the most recently read
+    fact can ever be confirmed. Consumed (deleted) the moment it is promoted into a job — on success,
+    on refusal, and on supersession alike — so a stale proposal can never be confirmed twice, and by
+    "Clear chat" / "Delete conversation", exactly as AiWorkflowState is. -->
+  <entity name="AiPendingProposal">
+
+    <!-- `column` is explicit because `user` is an SQL keyword. Same as AiWorkflowState,
+      AiTurnMemory and AiChatSession. -->
+    <many-to-one name="user" ref="com.axelor.auth.db.User" title="User" required="true"
+      index="true" column="user_id"/>
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Company"
+      required="true" index="true"/>
+
+    <!-- Which chat panel read the fact this proposes to act on. -->
+    <string name="conversationId" title="Conversation" required="true" index="true"/>
+
+    <!-- The exact canonical target a confirmation may authorise, e.g.
+      "PartnerCreate:2:831257890" — the same synthetic reference AiTargetIdentity resolvers and
+      AiWriteAuthorisation.checkTargets already speak. Never a raw tool argument: only a resolver
+      that itself proves the reference from stored evidence may set this field. -->
+    <string name="canonicalTarget" title="Canonical target" required="true"/>
+
+    <!-- The stored-evidence record the target was read from, e.g. "Upload#18" — carried so a
+      confirmation can be shown, and checked, against the document it actually came from. -->
+    <string name="sourceRef" title="Source record" required="true"/>
+
+    <!-- The AiTask name the promoted job should open under, so the workflow a confirmation opens
+      carries the same task a fresh explicit instruction for this target would have. -->
+    <string name="task" title="Task"/>
+
+    <datetime name="createdOn" title="Read on"/>
+
+  </entity>
+
+</domain-models>

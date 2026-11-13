@@ -1,0 +1,8 @@
+# Аналитично разпределение: ос „разходни центрове“ и ос „профит центрове“
+kind;code;name;axis
+AXIS;COST;Разходни центрове;
+AXIS;PROFIT;Профит центрове;
+ACCOUNT;ADM;Администрация;COST
+ACCOUNT;SAL;Продажби;COST
+ACCOUNT;SRV;Услуги;PROFIT
+ACCOUNT;GDS;Стоки;PROFIT

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ СТАТУСЪТ НА ФАКТУРАТА ПОЛУЧАВА СОБСТВЕН ТЕКСТ ЗА "VALIDATED"/"CANCELED" ═══
+
+    axelor-account/Selects.xml (iaccount.invoice.status.select) ползва самия текст на <option> като
+    ключ за превод — за разлика от menuitem/button title, тук НЯМА отделен `title` атрибут, самият
+    надпис Е ключът. "Validated" и "Canceled" се повтарят буквално в други, несвързани селекции
+    (напр. iaccount.reimbursement.status.select в същия файл, и вероятно другаде) — един и същ
+    буквален текст носи ЕДИН И СЪЩ превод навсякъде, тоест смяна на превода тук би преоблякла и тях.
+
+    ⚠️ МЕХАНИЗЪМЪТ Е ДРУГ ОТ menuitem/button title. ViewLoader#importSelection създава ВТОРИ ред
+    MetaSelect със СЪЩОТО `name`, НОВ `id` (xmlId) и по-висок приоритет (other.getPriority() + 1) —
+    същият принцип като при menuitem override (Menu-account-hide.xml, Menu-account-move-override.xml).
+    Разликата е как се четат опциите по-късно: MetaStore#buildSelectionMap (MetaStore.java) взима
+    ВСИЧКИ MetaSelectItem редове с select.name = "iaccount.invoice.status.select", подредени по
+    select.priority ВЪЗХОДЯЩО, и ги слива в Map<value, Option> — по-късно обработен ред ПРЕЗАПИСВА
+    по-рано обработения за СЪЩАТА value. Затова override-ът тук НЕ повтаря целия списък: стига да
+    съдържа само опциите с value="2" (Validated) и value="4" (Canceled) с нов текст — те просто
+    ще презапишат тези две стойности, докато value="1" (Draft) и value="3" (Ventilated) остават
+    непокътнати, поети от базовия ред с по-нисък приоритет.
+
+    ⚠️ НОВИЯТ ТЕКСТ Е РАЗЛИЧЕН И ОТ "Validated"/"Canceled", И ОТ "Invoice canceled" (съществуващ
+    ключ на съобщение в AccountExceptionMessage, друг контекст) — потвърдено с grep. Одобрените
+    преводи, женски род съгласуван с „фактура“: "Validated invoice" → „Потвърдена“, "Canceled
+    invoice" → „Анулирана“, заключени в messages_bg.csv и glossary-bg.csv. Мъжкият род „Потвърден“
+    (глосарий, enforce=no, domain ui) остава непроменен за generic/checkbox контекст. -->
+  <selection name="iaccount.invoice.status.select" id="bg-override-iaccount-invoice-status-select">
+    <!-- `order` е зададен изрично и съвпада с позицията в оригиналната селекция (Draft=0,
+      Validated=1, Ventilated=2, Canceled=3), за да не се разбърка подредбата в падащото меню:
+      без него нашите два реда биха взели поред order 0 и 1 по подразбиране. -->
+    <option value="2" color="green" order="1">Validated invoice</option>
+    <option value="4" color="red" order="3">Canceled invoice</option>
+  </selection>
+
+</object-views>

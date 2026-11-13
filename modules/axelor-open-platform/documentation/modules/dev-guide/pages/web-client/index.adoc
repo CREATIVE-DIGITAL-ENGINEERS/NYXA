@@ -1,0 +1,14 @@
+= Web Client
+:toc:
+:toc-title:
+
+The web client is developed using the following web technologies:
+
+. react - modern JavaScript framework
+. bootstrap - CSS framework
+
+The {page-component-title} web is the only and official frontend application included with
+the {page-component-title}.
+
+The web app is generic enough to cover most needs.
+Most of the time, developers only need to work on XML views, actions, and server-side Java code.

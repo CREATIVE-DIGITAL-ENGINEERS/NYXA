@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="app-nap-submissions-grid" title="NAP submissions settings"
+    model="com.axelor.studio.db.AppNapSubmissions">
+    <field name="environmentSelect"/>
+  </grid>
+
+  <form name="app-nap-submissions-config-form" title="NAP submissions settings"
+    model="com.axelor.studio.db.AppNapSubmissions" width="large">
+    <panel name="apiPanel" title="API environment" colSpan="12">
+      <field name="environmentSelect" colSpan="6"/>
+      <field name="apiSubmissionEnabled" colSpan="6"/>
+      <field name="allowEndpointOverride" colSpan="6"/>
+      <field name="submitEndpointOverride" colSpan="12" showIf="allowEndpointOverride"/>
+      <field name="resultEndpointOverride" colSpan="12" showIf="allowEndpointOverride"/>
+      <label name="apiHint" colSpan="12"
+        title="The API key is not entered here: it comes only from the server environment (variable NYXA_NAP_API_KEY). Official TEST/PRODUCTION endpoints are used by default; overrides apply only when explicitly enabled."/>
+    </panel>
+  </form>
+
+  <action-view name="action-app-nap-submissions-view" title="NAP submissions settings"
+    model="com.axelor.studio.db.AppNapSubmissions">
+    <view type="grid" name="app-nap-submissions-grid"/>
+    <view type="form" name="app-nap-submissions-config-form"/>
+  </action-view>
+
+</object-views>

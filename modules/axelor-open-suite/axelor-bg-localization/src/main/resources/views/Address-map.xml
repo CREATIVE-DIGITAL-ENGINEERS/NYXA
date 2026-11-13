@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <selection name="bg.address.geocode.accuracy.select">
+    <option value="exact">Exact (building)</option>
+    <option value="street">Street / neighborhood</option>
+    <option value="city">City centroid (approximate)</option>
+    <option value="none">Not resolved</option>
+  </selection>
+
+  <!-- Overrides the STOCK action-base-address-method-view-map (same action name, its own unique
+    id) so every place the Map button already exists (Purchases -> Suppliers included) routes
+    through the new safe BG flow, without editing stock Address.xml/AddressController. This is the
+    same "redefine by name, distinct id, module-load-order wins" mechanism axelor-account already
+    uses for action-period-group-close — NOT the extension="true"/&lt;extend&gt; mechanism, which does
+    not apply to action-* elements. BgAddressMapController.viewMap falls through to the exact stock
+    behavior for any non-BG address, so nothing changes for other countries. -->
+  <action-method name="action-base-address-method-view-map"
+    id="bg-localization-action-address-view-map">
+    <call class="com.axelor.apps.bglocalization.web.BgAddressMapController" method="viewMap"/>
+  </action-method>
+
+  <action-method name="action-bg-localization-address-method-refresh-map">
+    <call class="com.axelor.apps.bglocalization.web.BgAddressMapController" method="refreshMap"/>
+  </action-method>
+
+  <!-- Overrides the STOCK action-partner-method-show-on-map the same way, for the same reason:
+    the Supplier/Partner header "Map" button opens osm-objs/index.html, which calls GET
+    /ws/map/partner/{id} (MapRest.getPartner) — an endpoint that only ever returns addresses whose
+    Address.isValidLatLong is already true and never geocodes anything itself. For a Bulgarian
+    partner whose addresses were never resolved through BgAddressGeocodeService that call returns
+    an empty array and the stock map falls back to its hardcoded Carignano, Italy view.
+    BgPartnerMapController.showPartnerOnMap resolves uncached BG addresses first and refuses to
+    open the map at all if none resolves safely. -->
+  <action-method name="action-partner-method-show-on-map"
+    id="bg-localization-action-partner-show-on-map">
+    <call class="com.axelor.apps.bglocalization.web.BgPartnerMapController"
+      method="showPartnerOnMap"/>
+  </action-method>
+
+  <!-- Admin-only "Refresh map location": discards whatever is cached (including the CITY-tier
+    fallback) and resolves again. showIf is a UI hint only — BgAddressMapController.refreshMap
+    re-checks AuthUtils.isAdmin itself before doing anything, so this is not a real access control
+    boundary on its own. Mirrors mapBtnPanel's own popup/non-popup split so it is reachable both
+    from the full Address form and from the popup opened out of Partner's Addresses panel (the
+    normal path from Purchases -> Suppliers). -->
+  <form name="address-form" title="Address" id="bg-localization-address-map-form"
+    model="com.axelor.apps.base.db.Address" extension="true">
+    <extend target="//panel[@name='mapBtnPanel']">
+      <insert position="after">
+        <panel name="bgRefreshMapBtnPanel" colSpan="12">
+          <button name="refreshMapBtn" title="Refresh map location" icon="fa-refresh"
+            showIf="($user == 'admin' || $group == 'admins') &amp;&amp; !$popup()"
+            readonlyIf="!id" onClick="action-bg-localization-address-method-refresh-map"/>
+          <button name="refreshMapBtnPopup" title="Refresh map location" icon="fa-refresh"
+            showIf="($user == 'admin' || $group == 'admins') &amp;&amp; $popup()"
+            readonlyIf="!id" onClick="action-bg-localization-address-method-refresh-map"/>
+        </panel>
+      </insert>
+    </extend>
+  </form>
+
+</object-views>

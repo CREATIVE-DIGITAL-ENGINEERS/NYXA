@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ „Прил. 9 за подаване“ — болничните листове и срокът им ============
+    Отваря се от BgApp9DueController#openDueList с домейна на BgApp9DueScope (фирмите на
+    потребителя + видимите групи). Срокът, началото на лентата „до 3 работни дни“ и групата са
+    ЗАПИСАНИ върху листа от BgApp9DeadlineService; тук оцветяването само СРАВНЯВА днешната дата с
+    двете дати — второ броене на работни дни няма.
+
+    ⚠️ ПЪРВИЯТ съвпаднал hilite печели, затова редът е: подадено → просрочено → днес е срокът → до 3
+    работни дни → групите без течащ срок. Датите се сравняват като ISO низове („2026-11-10“) —
+    без часове и без часови зони. -->
+  <grid name="bg-app9-due-grid" title="Прил. 9 за подаване"
+    model="com.axelor.apps.bglocalization.db.BgSickLeave" orderBy="bgNoiDueDate" canNew="false"
+    canDelete="false">
+    <toolbar>
+      <button name="refreshDeadlinesBtn" title="Опресни сроковете"
+        onClick="action-bg-app9-due-method-refresh"
+        help="Смята наново групата и срока на всички листове на вашите фирми — например след като календарът за новата година е зареден или границата на дружеството е сменена."/>
+    </toolbar>
+    <hilite color="success" if="bgNoiSubmissionState == 3 || bgNoiSubmissionState == 4"/>
+    <hilite background="danger" strong="true"
+      if="bgNoiObligationSelect == 'OWES' &amp;&amp; bgNoiDueDate &amp;&amp; $moment().format('YYYY-MM-DD') &gt; bgNoiDueDate"/>
+    <hilite background="warning" color="danger" strong="true"
+      if="bgNoiObligationSelect == 'OWES' &amp;&amp; bgNoiDueDate == $moment().format('YYYY-MM-DD')"/>
+    <hilite color="warning" strong="true"
+      if="bgNoiObligationSelect == 'OWES' &amp;&amp; bgNoiDueSoonFrom &amp;&amp; $moment().format('YYYY-MM-DD') &gt;= bgNoiDueSoonFrom"/>
+    <hilite color="info" if="bgNoiObligationSelect != 'OWES'"/>
+    <field name="employmentContract.payCompany" title="Фирма"/>
+    <field name="employmentContract" title="Служител"/>
+    <field name="bgDocumentNumber"/>
+    <field name="bgAbsenceType"/>
+    <field name="bgEmployerReceivedDate" title="Представен на"/>
+    <field name="bgNoiObligationSelect"/>
+    <field name="bgNoiDueDate"/>
+    <field name="bgNoiDaysLeft"/>
+    <field name="bgNoiSubmissionState"/>
+    <field name="bgNoiDueWarning"/>
+    <field name="bgNoiDueSoonFrom" hidden="true"/>
+  </grid>
+
+  <action-method name="action-bg-app9-due-method-refresh">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9DueController"
+      method="refreshDeadlines"/>
+  </action-method>
+
+  <!-- ============ „Подавания към НОИ“ — отметките с входящия номер ============
+    NapSubmission с услуга noi_app9. Свой изглед, а не общият nap-submission-form: онзи носи
+    преходите на НАП (API, „прието“, „отхвърлено“), а тук действието е едно — отмяна на отметката,
+    само с причина. Записът се създава САМО от бутона „Отбележи като подадено в НОИ“. -->
+  <grid name="bg-noi-submission-grid" title="Подавания към НОИ"
+    model="com.axelor.apps.napsubmissions.db.NapSubmission" orderBy="-submittedOn"
+    canNew="false" canDelete="false">
+    <hilite color="default" if="submissionStatusSelect == 'withdrawn'"/>
+    <field name="company"/>
+    <field name="name"/>
+    <field name="napIncomingNumber" title="Вх. № от НОИ"/>
+    <!-- referenceDate (дата), а не submittedOn (datetime → 03:00 в браузъра). -->
+    <field name="referenceDate" title="Подадено на"/>
+    <field name="submittedBy" title="Отбелязано от"/>
+    <field name="submissionStatusSelect"/>
+    <field name="previousSubmission" title="Заменя"/>
+  </grid>
+
+  <form name="bg-noi-submission-form" title="Подаване към НОИ"
+    model="com.axelor.apps.napsubmissions.db.NapSubmission" canNew="false" canDelete="false"
+    canCopy="false">
+    <panel name="mainPanel" title="Подаването">
+      <field name="submissionStatusSelect" readonly="true"/>
+      <field name="company" readonly="true"/>
+      <field name="name" readonly="true" colSpan="12"/>
+      <field name="napIncomingNumber" title="Вх. № от НОИ" readonly="true"/>
+      <field name="referenceDate" title="Подадено на (дата от портала)" readonly="true"/>
+      <field name="submittedBy" title="Отбелязано от" readonly="true"/>
+      <field name="createdOn" title="Отбелязано на" readonly="true"/>
+      <field name="previousSubmission" title="Заменя" readonly="true"
+        showIf="previousSubmission != null"/>
+      <field name="correctionReason" readonly="true" showIf="correctionReason"/>
+    </panel>
+    <panel-related name="filesPanel" field="submissionFileList" title="Файлът"
+      readonly="true" colSpan="12">
+      <field name="submittedFileName"/>
+      <field name="payloadArtifact"/>
+      <field name="payloadArtifact.sha256" title="SHA-256"/>
+      <field name="numRecords" title="Удостоверения"/>
+    </panel-related>
+    <panel name="withdrawPanel" title="Отмяна на отметката" colSpan="12"
+      showIf="submissionStatusSelect == 'submitted' || submissionStatusSelect == 'accepted' || submissionStatusSelect == 'correction_required'">
+      <static name="withdrawNote" colSpan="12">
+        <![CDATA[<><Alert variant="warning">Отмяната НЕ трие подаването: статусът става „Отметката е отменена“, а причината, потребителят и моментът остават в одита. Удостоверенията се връщат в „генерирано“ и срокът им се показва отново.</Alert></>]]>
+      </static>
+      <field name="actionReason" title="Причина за отмяната" colSpan="8"/>
+      <button name="withdrawBtn" title="Отмени отметката" colSpan="4"
+        onClick="action-bg-noi-submission-method-withdraw"/>
+    </panel>
+  </form>
+
+  <action-method name="action-bg-noi-submission-method-withdraw">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9DueController"
+      method="withdrawSubmission"/>
+  </action-method>
+
+</object-views>

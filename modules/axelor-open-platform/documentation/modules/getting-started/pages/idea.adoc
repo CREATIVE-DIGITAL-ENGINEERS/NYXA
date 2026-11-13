@@ -1,0 +1,16 @@
+= IntelliJ IDEA
+:toc:
+:toc-title:
+
+:url-idea: https://www.jetbrains.com/idea/
+
+The application project can be imported in {url-idea}[IntelliJ IDEA] as gradle project.
+
+From the startup dialog, click on btn:[Import Project] and select the project directory. From next dialog,
+select btn:[Import project from external model] and select btn:[Gradle]. From next dialog, click on finish button.
+
+[IMPORTANT]
+====
+* repeat `./gradlew generateCode` whenever you add/change any domain model definitions
+* repeat `./gradlew copyWebapp` if you run gradle clean task or delete build directory
+====

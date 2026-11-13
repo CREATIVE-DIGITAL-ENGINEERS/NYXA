@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- The move's own id and the OCR upload(s) it came from. "Reference" is the journal reference, not a
+    Nyxa id, so the list had no id to match against an upload id (~900) or an assistant's "move 602". -->
+  <grid name="move-grid" title="Account moves" id="bg-localization-move-grid"
+    model="com.axelor.apps.account.db.Move" extension="true">
+    <extend target="//field[@name='reference']">
+      <insert position="before">
+        <!-- hidden="false" is required: the @Id property is hidden by default in the entity
+          metadata, so a plain <field name="id"/> renders nothing. -->
+        <field name="id" title="Record ID" width="90" hidden="false"/>
+      </insert>
+    </extend>
+    <extend target="//field[@name='invoice']">
+      <insert position="after">
+        <field name="ocrUploadIds" width="110"/>
+      </insert>
+    </extend>
+  </grid>
+
+  <!-- Adds the NAP document type field onto the standard Move form (documents without an invoice). -->
+  <form name="move-form" title="Account move" id="bg-localization-move-form"
+    model="com.axelor.apps.account.db.Move" extension="true">
+    <!-- Kept out of the NAP panel below: these two are not a localization setting, they are the ids the
+      document is referred to by everywhere else, so they belong at the top of the form. -->
+    <extend target="//panel[@name='mainPanel']">
+      <insert position="after">
+        <panel name="bgOcrIdPanel" title="Nyxa ID" colSpan="12">
+          <field name="id" title="Record ID" readonly="true" hidden="false" colSpan="3"
+            showIf="id"/>
+          <field name="ocrUploadIds" readonly="true" colSpan="3" showIf="ocrUploadIds"/>
+          <button name="openOcrUploadBtn" title="Open Upload(s)" icon="fa-external-link"
+            colSpan="3" showIf="ocrUploadIds"
+            onClick="action-bg-localization-open-upload-for-move"/>
+        </panel>
+      </insert>
+    </extend>
+    <extend target="/">
+      <insert position="inside">
+        <panel name="bgNapPanel" title="Българска локализация (NAP)" colSpan="12">
+          <field name="napDocumentTypeSelect"/>
+          <field name="bgVatSupplyType"/>
+        </panel>
+        <panel name="bgVatOperationPanel" title="ДДС операция (ръчен запис)" colSpan="12">
+          <field name="bgVatMoveVatOperation"/>
+          <field name="bgVatMoveVatRate"
+            showIf="['VOP','SERVICE_EU','SERVICE_NONEU','ART163A','IMPORT_167A'].indexOf(bgVatMoveVatOperation) &gt;= 0"/>
+          <field name="bgVatProtocolNumber" showIf="bgVatProtocolNumber"/>
+          <!-- Протокол по чл. 117 от фактура: връзката, изричната основа и основанието. Основата се
+            попълва и на ръчен протокол — тогава колекторът не я смята обратно от данъка. -->
+          <field name="bgVatSourceInvoice" showIf="bgVatSourceInvoice"/>
+          <field name="bgVatProtocolBase"
+            showIf="['VOP','SERVICE_EU','SERVICE_NONEU','ART163A','IMPORT_167A'].indexOf(bgVatMoveVatOperation) &gt;= 0"
+            readonlyIf="bgVatSourceInvoice || statusSelect == 3"/>
+          <!-- Датата на издаване на закъснял протокол (ППЗДДС чл. 81 ал. 5): статията е с датата на
+            изискуемостта, а дневникът показва тази. Ръчният протокол я въвежда сам. -->
+          <field name="bgVatProtocolDate"
+            showIf="['VOP','SERVICE_EU','SERVICE_NONEU','ART163A','IMPORT_167A'].indexOf(bgVatMoveVatOperation) &gt;= 0"
+            readonlyIf="bgVatSourceInvoice || statusSelect == 3"/>
+          <field name="bgVatProtocolBasis" showIf="bgVatProtocolBasis"/>
+          <!-- Заварен осчетоводен протокол без номер: номерът на РЕАЛНО ИЗДАДЕНИЯ протокол се въвежда
+            ръчно, с одит. Видимостта е ориентир — правилото е в BgVatProtocolNumbering.entryRefusal. -->
+          <button name="bgVatProtocolNumberEntryBtn" title="Въведи номера на издадения протокол"
+            colSpan="4"
+            showIf="statusSelect == 3 &amp;&amp; !bgVatProtocolNumber &amp;&amp; ['VOP','SERVICE_EU','SERVICE_NONEU','ART163A','IMPORT_167A','CORRECTION_79','DEDUCTION_79','ANNUAL_79A'].indexOf(bgVatMoveVatOperation) &gt;= 0"
+            onClick="action-bg-vat-protocol-number-entry-open"/>
+          <!-- Печатният протокол по чл. 117 ЗДДС — само за осчетоводен протокол с номер: номерът и
+            сумите на листа са тези на дневниците (BgVatProtocolPrintBuilder). -->
+          <button name="bgVatProtocolPrintBtn" title="Печат на протокола (чл. 117 ЗДДС)" colSpan="4"
+            showIf="statusSelect == 3 &amp;&amp; bgVatProtocolNumber &amp;&amp; ['VOP','SERVICE_EU','SERVICE_NONEU','ART163A','IMPORT_167A'].indexOf(bgVatMoveVatOperation) &gt;= 0"
+            onClick="action-bg-vat-protocol-print"/>
+          <panel-dashlet name="bgVatProtocolNumberEntriesDashlet" colSpan="12" height="150"
+            action="action-bg-vat-protocol-number-entries" showIf="bgVatProtocolNumber"/>
+        </panel>
+      </insert>
+    </extend>
+  </form>
+
+  <!-- Opens the upload(s) this move came from, as a grid because there can be more than one and because
+    two different links lead here: an upload booked straight to a Move, and an upload whose invoice was
+    later posted into this Move. Same two routes the ocrUploadIds formula reads.
+
+    The second hop is a SUBQUERY, not the path self.invoice.move.id. That path would make Hibernate
+    join through Invoice for the whole condition, and an upload has EITHER a move OR an invoice, never
+    both — so the join would drop every direct-move upload and the OR would return nothing at all.
+    The subquery leaves the outer row untouched: self.invoice is null for a direct upload, `null IN
+    (...)` is simply false, and the first branch still matches.
+
+    Company is ANDed over the whole OR, never over just its last branch. -->
+  <action-view name="action-bg-localization-open-upload-for-move" title="OCR Upload"
+    model="com.axelor.apps.aiocr.db.AiOcrUpload">
+    <view type="grid" name="ai-ocr-upload-grid"/>
+    <view type="form" name="ai-ocr-upload-form"/>
+    <domain>self.company = :company AND (self.move.id = :id
+      OR self.invoice.id IN (SELECT inv.id FROM Invoice inv WHERE inv.move.id = :id
+        AND inv.company = :company))</domain>
+  </action-view>
+
+  <action-method name="action-bg-vat-protocol-print">
+    <call class="com.axelor.apps.bglocalization.web.BgVatProtocolPrintController" method="print"/>
+  </action-method>
+
+</object-views>

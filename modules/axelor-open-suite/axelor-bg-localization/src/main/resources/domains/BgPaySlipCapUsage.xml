@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ═══ ИЗПОЛЗВАНОТО ОТ ТАВАНА НА СОЦИАЛЕН РАЗХОД — ЗАМРАЗЕНО НА ФИША, ПО ВИД ТАВАН ═══
+
+    По един ред за всеки таван (BgSocialExpenseCap), към който сочи поне едно перо от 2xx на фиша.
+    Пише се при „Преизчисли“ на РЕДОВЕН фиш (BgSocialExpenseService#freeze) и се НАСЛЕДЯВА от
+    коригиращото и заличаващото копие (BgPaySlipService#retroCopyOf).
+
+    ⚠️ ДВЕ ЧИСЛА, ДВА ЧИТАТЕЛЯ.
+      • bgUsedBefore — колко от тавана е използвано ПРЕДИ този фиш. Чете го ДЕЛЕНЕТО на този фиш:
+        редовният го сверява с живата заявка при потвърждаване, а ретро-копието го ползва вместо нея —
+        коригира се ОНЗИ месец, а по-късните корекции на по-ранни месеци не бива да го местят тихо.
+      • bgExempt — колко от тавана използва ТОЗИ фиш (освободената част). Чете го ЗАЯВКАТА на
+        следващите фишове: броят се освободените части, не въведените пълни суми, и то от тук, а не
+        от перата — днес перото „в рамките“ на ДДО и на ваучерите носи цялото начислено, тоест сума
+        от перата щеше да брои и превишението.
+
+    ⚠️ ЗАЩО РЕД, А НЕ ПОЛЕ НА ФИША. Таваните са няколко и резолверът не познава нито един код
+    (BgSocialExpenseCapResolver): три фиксирани колони щяха да искат комит при четвърти таван.
+
+    ⚠️ САМОПРОВЕРЯВАЩ СЕ. Ръчно пипнат ред (REST, внос) не минава: потвърждаването сверява и двете
+    числа с прясната сметка (BgSocialExpenseService#usageRefusal). -->
+  <entity name="BgPaySlipCapUsage">
+
+    <many-to-one name="paySlip" title="Фиш" required="true"
+      ref="com.axelor.apps.bglocalization.db.BgPaySlip"/>
+
+    <many-to-one name="bgSocialExpenseCap" title="Таван" required="true"
+      ref="com.axelor.apps.bglocalization.db.BgSocialExpenseCap"/>
+
+    <decimal name="bgUsedBefore" title="Използвано преди този фиш" precision="20" scale="2"
+      readonly="true" nullable="true"/>
+
+    <!-- NULLABLE НАРОЧНО — и двете (nullable="true": инак генерираният getter връща нула и празното
+      е неразличимо). Празно bgUsedBefore значи „не е замразено“; празно bgExempt — „делението на
+      този фиш е отказано“, а не „нищо не е освободено“. Отказан фиш не се потвърждава, тоест
+      празното никога не стига до заявката като потвърдено. -->
+    <decimal name="bgExempt" title="Освободено с този фиш" precision="20" scale="2"
+      readonly="true" nullable="true"/>
+
+  </entity>
+
+</domain-models>

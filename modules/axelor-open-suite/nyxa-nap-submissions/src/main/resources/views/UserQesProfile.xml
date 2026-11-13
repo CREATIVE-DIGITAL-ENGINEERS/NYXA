@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Идентификаторът на подписващия е ЛИЧНИ ДАННИ (обикновено ЕГН): не е грид колона. -->
+  <grid name="user-qes-profile-grid" title="QES signing profiles"
+    model="com.axelor.apps.napsubmissions.db.UserQesProfile">
+    <field name="user"/>
+    <field name="signerPinTypeSelect"/>
+    <field name="enabled"/>
+  </grid>
+
+  <!-- Проста настройка: Nyxa потребител + неговото ЕГН, записани веднъж (ЕГН е криптирано в покой).
+    Подаването не събира идентичност — всеки подписва САМО със собствения си профил. Доставчик и
+    референция при доставчика НЕ се въвеждат: USB не ги ползва, а за Evrotrust референцията се
+    извежда от ЕГН и серийният номер се взима автоматично от /user/certificate/get. Видът се показва
+    само когато не е ЕГН (ЛНЧ и др.). -->
+  <form name="user-qes-profile-form" title="QES signing profile"
+    model="com.axelor.apps.napsubmissions.db.UserQesProfile" width="large"
+    onNew="action-user-qes-profile-record-defaults" onSave="action-user-qes-profile-record-defaults">
+    <panel name="mainPanel" title="NAP signing profile" colSpan="12">
+      <field name="user" required="true"/>
+      <field name="enabled"/>
+      <field name="signerPin" title="Signer's EGN" required="true"/>
+      <field name="$notEgn" type="boolean" title="Not an EGN (LNCh / other type)"
+        showIf="!signerPinTypeSelect || signerPinTypeSelect == 'IND_EGN'"/>
+      <field name="signerPinTypeSelect"
+        showIf="$notEgn || (signerPinTypeSelect &amp;&amp; signerPinTypeSelect != 'IND_EGN')"/>
+      <label name="pinNote" colSpan="12"
+        title="EGN/LNCh of the person whose QES signs — sent in NAP's userPin field. The PIN that unlocks the QES/USB token is entered only on the device and is NEVER entered or stored here."/>
+    </panel>
+    <!-- System-written, never operator input: readonly here and on the domain field. Refreshed by
+      QesSigningService when the signer's certificate is renewed. -->
+    <panel name="certPanel" title="Certificate metadata (non-secret)" colSpan="12">
+      <field name="certificateMetadata" colSpan="12" readonly="true"/>
+    </panel>
+  </form>
+
+  <!-- Default a new profile to the current user, so a signer can create their own without picking
+    themselves from a list. -->
+  <action-record name="action-user-qes-profile-record-defaults"
+    model="com.axelor.apps.napsubmissions.db.UserQesProfile">
+    <field name="user" expr="eval: __user__" if="user == null"/>
+    <field name="enabled" expr="eval: true" if="enabled == null"/>
+    <field name="signerPinTypeSelect" expr="eval: 'IND_EGN'" if="!signerPinTypeSelect"/>
+  </action-record>
+
+  <action-view name="action-user-qes-profile-view-all" title="QES signing profiles"
+    model="com.axelor.apps.napsubmissions.db.UserQesProfile">
+    <view type="grid" name="user-qes-profile-grid"/>
+    <view type="form" name="user-qes-profile-form"/>
+  </action-view>
+
+</object-views>

@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="human-resource" package="com.axelor.apps.hr.db"/>
+
+  <!-- Основанието за прекратяване по КТ виси на СТАНДАРДНИЯ речник EndOfContractReason, а не на договора.
+    EmploymentContract вече носи endOfContractReason (m2o към този речник) — нов избор на договора щеше да
+    е втори източник на истина за едно и също нещо. Речникът е конфигурируем от потребителя (единственото
+    му поле е reason, свободен текст), затова тук се добавя ЗАКОВАНАТА стойност: членът от КТ. Така редът
+    в речника може да се нарича както си иска операторът, а автоматичното предлагане на обезщетения чете
+    основанието, не наименованието. -->
+  <entity name="EndOfContractReason">
+
+    <!-- Основанието е ДВЕ части: акт и член. Номерата на членовете се повтарят между актовете — КТ чл.
+      71 и ЗДСл чл. 71 са различни основания със същата цифра — тоест членът сам по себе си не идентифицира
+      нищо. Затова съпоставянето срещу BgCompensationType иска И двете: legalFamily да съвпада с bgLegalFamily,
+      И членът да е в triggerGrounds. Сблъсък между актове става невъзможен по конструкция, а не по внимание.
+      Ползва се СЪЩАТА селекция като BgCompensationType.legalFamily — един речник, не два, иначе двете страни
+      на сравнението биха могли да се разминат. ⚠️ Подразбирането KT важи само за НОВИ записи (то е инициализатор
+      на java полето, не DEFAULT на колоната). Заварените редове остават с NULL и никога няма да съвпаднат
+      с нищо — виж миграцията db/migration/2026-08-11-end-of-contract-reason-legal-family.sql. -->
+    <string name="bgLegalFamily" title="Нормативен акт" selection="bg.legal.family.select"
+      default="KT"
+      help="Актът, по който се прекратява. Заедно с основанието определя кои обезщетения се предлагат."/>
+
+    <string name="bgTerminationGround" title="Основание (член)"
+      selection="bg.termination.ground.select"
+      help="Членът от акта. Стойностите са голи номера — актът се носи от съседното поле, затова един и същ номер може да значи различно при различни актове."/>
+
+  </entity>
+
+</domain-models>

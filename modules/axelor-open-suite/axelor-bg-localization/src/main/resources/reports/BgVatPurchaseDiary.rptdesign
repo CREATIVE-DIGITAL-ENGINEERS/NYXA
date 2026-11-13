@@ -1,0 +1,1032 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Nyxa BG localization (WS-D)</property>
+    <property name="units">in</property>
+    <parameters>
+        <!-- ⚠️ БЕЗ ЕДНО `isRequired=false` ПРАЗНИЯТ НИЗ ПОВАЛЯ ЦЕЛИЯ ОТЧЕТ. BIRT смята скаларния
+            параметър за ЗАДЪЛЖИТЕЛЕН по подразбиране (ROM 4.4.2: <Default>true</Default>) и хвърля
+            ParameterValidationException („Required parameter … is blank“) още преди първата
+            заявка — тоест не се отпечатва празна клетка, а не се отпечатва НИЩО.
+
+            А празното тук е НОРМАЛНО състояние, не повреда: адресът на регистрираното лице се
+            снима само при onChange на дружество/период и само ако партньорът вече има mainAddress;
+            името и качеството на декларатора са празни, докато декларацията не е генерирана;
+            четирите параметъра за връзка с базата са ЗАВАРЕНИ (наборите данни ползват
+            PASS_IN_CONNECTION, а odaURL по-долу е закован), а db.default.password е празен на
+            всяка инсталация с trust/peer автентикация.
+
+            Същата поправка вече стои в BgPaySlip.rptdesign и BgPayrollLedger.rptdesign — трите
+            ДДС образеца са по-стари и не бяха досвирени.
+
+            ⚠️ BgVatReturnId и GenDate НАРОЧНО остават задължителни. Те се изчисляват на всяко
+            извикване и липсата им не е „непопълнени данни“, а счупен извикващ: декларация без
+            номер на запис би се отпечатала ПРАЗНА, но валидна на вид. По-добре да падне. -->
+        <scalar-parameter name="BgVatReturnId" id="1000">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">decimal</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="CompanyName" id="1001">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="CompanyVatNumber" id="1002">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="CompanyIdNumber" id="1003">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="CompanyAddress" id="1004">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="PeriodLabel" id="1005">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="DeclarantNames" id="1006">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="DeclarantCapacity" id="1007">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="DeclarantPosition" id="1397">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="GenDate" id="1008">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="DBName" id="1009">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="UserName" id="1010">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="Password" id="1011">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="DefaultDriver" id="1012">
+            <property name="hidden">true</property>
+            <property name="isRequired">false</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">org.postgresql.Driver</value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <oda-data-source extensionID="org.eclipse.birt.report.data.oda.jdbc" name="Data Source" id="23">
+            <property name="odaDriverClass">org.postgresql.Driver</property>
+            <property name="odaURL">jdbc:postgresql://localhost:5432/</property>
+        </oda-data-source>
+    </data-sources>
+    <data-sets>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.JdbcSelectDataSet" name="Data Set" id="24">
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">param_1</property>
+                    <property name="paramName">BgVatReturnId</property>
+                    <property name="nativeName"></property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">2</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <property name="dataSource">Data Source</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">seq</property>
+                    <property name="nativeName">seq</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">branch</property>
+                    <property name="nativeName">branch</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">nap_document_type</property>
+                    <property name="nativeName">nap_document_type</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">document_number</property>
+                    <property name="nativeName">document_number</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">document_date</property>
+                    <property name="nativeName">document_date</property>
+                    <property name="dataType">date</property>
+                    <property name="nativeDataType">91</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">counterparty_vat_number</property>
+                    <property name="nativeName">counterparty_vat_number</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">counterparty_name</property>
+                    <property name="nativeName">counterparty_name</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">subject</property>
+                    <property name="nativeName">subject</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">9</property>
+                    <property name="name">supply_type_art163a</property>
+                    <property name="nativeName">supply_type_art163a</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">10</property>
+                    <property name="name">col09</property>
+                    <property name="nativeName">col09</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">11</property>
+                    <property name="name">col10</property>
+                    <property name="nativeName">col10</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">12</property>
+                    <property name="name">col11</property>
+                    <property name="nativeName">col11</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">13</property>
+                    <property name="name">col12</property>
+                    <property name="nativeName">col12</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">14</property>
+                    <property name="name">col13</property>
+                    <property name="nativeName">col13</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">15</property>
+                    <property name="name">col14</property>
+                    <property name="nativeName">col14</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+                <structure>
+                    <property name="position">16</property>
+                    <property name="name">col15</property>
+                    <property name="nativeName">col15</property>
+                    <property name="dataType">decimal</property>
+                    <property name="nativeDataType">3</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[select "sequence" as seq, branch as branch, nap_document_type as nap_document_type, document_number as document_number, document_date as document_date, counterparty_vat_number as counterparty_vat_number, counterparty_name as counterparty_name, subject as subject, supply_type_art163a as supply_type_art163a, col09 as col09, col10 as col10, col11 as col11, col12 as col12, col13 as col13, col14 as col14, col15 as col15
+from bglocalization_bg_vat_purchase_line
+where bg_vat_return = ?
+order by "sequence"]]></xml-property>
+        </oda-data-set>
+    </data-sets>
+    <styles>
+        <style name="report" id="4">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">7pt</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <property name="orientation">landscape</property>
+            <property name="type">a4</property>
+            <property name="topMargin">0.3in</property>
+            <property name="leftMargin">0.35in</property>
+            <property name="rightMargin">0.3in</property>
+            <property name="bottomMargin">0.3in</property>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <text id="1386">
+            <property name="fontSize">13pt</property>
+            <property name="textAlign">center</property>
+            <property name="fontWeight">bold</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[Дневник на покупките на <value-of>params["CompanyName"].value</value-of>]]></text-property>
+        </text>
+        <text id="1387">
+            <property name="fontSize">9pt</property>
+            <property name="textAlign">center</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[ИН по ЗДДС <value-of>params["CompanyVatNumber"].value</value-of>]]></text-property>
+        </text>
+        <text id="1388">
+            <property name="fontSize">9pt</property>
+            <property name="textAlign">center</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[Данъчен период <value-of>params["PeriodLabel"].value</value-of> г.]]></text-property>
+        </text>
+        <text id="1389">
+            <property name="fontSize">4pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[&nbsp;]]></text-property>
+        </text>
+        <table id="1390">
+            <property name="width">100%</property>
+            <property name="borderBottomColor">#000000</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">0.5pt</property>
+            <property name="borderTopColor">#000000</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">0.5pt</property>
+            <property name="borderLeftColor">#000000</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">0.5pt</property>
+            <property name="borderRightColor">#000000</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">0.5pt</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">seq</property>
+                    <expression name="expression" type="javascript">dataSetRow["seq"]</expression>
+                    <property name="dataType">integer</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">branch</property>
+                    <expression name="expression" type="javascript">dataSetRow["branch"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">nap_document_type</property>
+                    <expression name="expression" type="javascript">dataSetRow["nap_document_type"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">document_number</property>
+                    <expression name="expression" type="javascript">dataSetRow["document_number"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">document_date</property>
+                    <expression name="expression" type="javascript">dataSetRow["document_date"]</expression>
+                    <property name="dataType">date</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">counterparty_vat_number</property>
+                    <expression name="expression" type="javascript">dataSetRow["counterparty_vat_number"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">counterparty_name</property>
+                    <expression name="expression" type="javascript">dataSetRow["counterparty_name"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">subject</property>
+                    <expression name="expression" type="javascript">dataSetRow["subject"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">supply_type_art163a</property>
+                    <expression name="expression" type="javascript">dataSetRow["supply_type_art163a"]</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">col09</property>
+                    <expression name="expression" type="javascript">dataSetRow["col09"]</expression>
+                    <property name="dataType">decimal</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">col10</property>
+                    <expression name="expression" type="javascript">dataSetRow["col10"]</expression>
+                    <property name="dataType">decimal</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">col11</property>
+                    <expression name="expression" type="javascript">dataSetRow["col11"]</expression>
+                    <property name="dataType">decimal</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">col12</property>
+                    <expression name="expression" type="javascript">dataSetRow["col12"]</expression>
+                    <property name="dataType">decimal</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">col13</property>
+                    <expression name="expression" type="javascript">dataSetRow["col13"]</expression>
+                    <property name="dataType">decimal</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">col14</property>
+                    <expression name="expression" type="javascript">dataSetRow["col14"]</expression>
+                    <property name="dataType">decimal</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">col15</property>
+                    <expression name="expression" type="javascript">dataSetRow["col15"]</expression>
+                    <property name="dataType">decimal</property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">sum_col09</property>
+                    <property name="dataType">decimal</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <expression name="expression" type="javascript">dataSetRow["col09"]</expression>
+                </structure>
+                <structure>
+                    <property name="name">sum_col10</property>
+                    <property name="dataType">decimal</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <expression name="expression" type="javascript">dataSetRow["col10"]</expression>
+                </structure>
+                <structure>
+                    <property name="name">sum_col11</property>
+                    <property name="dataType">decimal</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <expression name="expression" type="javascript">dataSetRow["col11"]</expression>
+                </structure>
+                <structure>
+                    <property name="name">sum_col12</property>
+                    <property name="dataType">decimal</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <expression name="expression" type="javascript">dataSetRow["col12"]</expression>
+                </structure>
+                <structure>
+                    <property name="name">sum_col13</property>
+                    <property name="dataType">decimal</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <expression name="expression" type="javascript">dataSetRow["col13"]</expression>
+                </structure>
+                <structure>
+                    <property name="name">sum_col14</property>
+                    <property name="dataType">decimal</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <expression name="expression" type="javascript">dataSetRow["col14"]</expression>
+                </structure>
+                <structure>
+                    <property name="name">sum_col15</property>
+                    <property name="dataType">decimal</property>
+                    <property name="aggregateFunction">SUM</property>
+                    <expression name="expression" type="javascript">dataSetRow["col15"]</expression>
+                </structure>
+            </list-property>
+            <property name="dataSet">Data Set</property>
+            <column id="1250"/>
+            <column id="1251"/>
+            <column id="1252"/>
+            <column id="1253"/>
+            <column id="1254"/>
+            <column id="1255"/>
+            <column id="1256"/>
+            <column id="1257"/>
+            <column id="1258"/>
+            <column id="1259"/>
+            <column id="1260"/>
+            <column id="1261"/>
+            <column id="1262"/>
+            <column id="1263"/>
+            <column id="1264"/>
+            <column id="1265"/>
+            <header>
+                <row id="1391">
+                    <property name="backgroundColor">#E8E8E8</property>
+                    <cell id="1266">
+                        <label id="1267">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">Пореден номер</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1268">
+                        <label id="1269">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">Клон</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1270">
+                        <label id="1271">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">Вид на документа</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1272">
+                        <label id="1273">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">Номер на документа</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1274">
+                        <label id="1275">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">Дата на документа</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1276">
+                        <label id="1277">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">Идентификационен номер на контрагента</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1278">
+                        <label id="1279">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">Име на контрагента</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1280">
+                        <label id="1281">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">Вид на стоката/услугата</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1282">
+                        <label id="1283">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">Доставка по чл.163а ЗДДС</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1284">
+                        <label id="1285">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">ДО и данък на получените доставки, ВОП, доставки по чл.82 ал.2-6 без право на данъчен кредит или без данък</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1286">
+                        <label id="1287">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">ДО на получените доставки с право на пълен данъчен кредит</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1288">
+                        <label id="1289">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">ДДС с право на пълен данъчен кредит</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1290">
+                        <label id="1291">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">ДО на получените доставки с право на частичен данъчен кредит</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1292">
+                        <label id="1293">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">ДДС с право на частичен данъчен кредит</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1294">
+                        <label id="1295">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">Годишна корекция по чл.73, ал.8 (+/-)</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1296">
+                        <label id="1297">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">ДО при придобиване на стоки от посредник в тристранна операция</text-property>
+                        </label>
+                    </cell>
+                </row>
+                <row id="1392">
+                    <property name="backgroundColor">#E8E8E8</property>
+                    <cell id="1298">
+                        <label id="1299">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">1</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1300">
+                        <label id="1301">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">2</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1302">
+                        <label id="1303">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">3</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1304">
+                        <label id="1305">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">4</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1306">
+                        <label id="1307">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">5</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1308">
+                        <label id="1309">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">6</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1310">
+                        <label id="1311">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">7</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1312">
+                        <label id="1313">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">8</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1314">
+                        <label id="1315">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">8а</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1316">
+                        <label id="1317">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">9</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1318">
+                        <label id="1319">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">10</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1320">
+                        <label id="1321">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">11</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1322">
+                        <label id="1323">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">12</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1324">
+                        <label id="1325">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">13</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1326">
+                        <label id="1327">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">14</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1328">
+                        <label id="1329">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">center</property>
+                            <text-property name="text">15</text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="1393">
+                    <cell id="1330">
+                        <data id="1331">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">left</property>
+                            <property name="resultSetColumn">seq</property>
+                        </data>
+                    </cell>
+                    <cell id="1332">
+                        <data id="1333">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">left</property>
+                            <property name="resultSetColumn">branch</property>
+                        </data>
+                    </cell>
+                    <cell id="1334">
+                        <data id="1335">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">left</property>
+                            <property name="resultSetColumn">nap_document_type</property>
+                        </data>
+                    </cell>
+                    <cell id="1336">
+                        <data id="1337">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">left</property>
+                            <property name="resultSetColumn">document_number</property>
+                        </data>
+                    </cell>
+                    <cell id="1338">
+                        <data id="1339">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">left</property>
+                            <property name="resultSetColumn">document_date</property>
+                        </data>
+                    </cell>
+                    <cell id="1340">
+                        <data id="1341">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">left</property>
+                            <property name="resultSetColumn">counterparty_vat_number</property>
+                        </data>
+                    </cell>
+                    <cell id="1342">
+                        <data id="1343">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">left</property>
+                            <property name="resultSetColumn">counterparty_name</property>
+                        </data>
+                    </cell>
+                    <cell id="1344">
+                        <data id="1345">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">left</property>
+                            <property name="resultSetColumn">subject</property>
+                        </data>
+                    </cell>
+                    <cell id="1346">
+                        <data id="1347">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">left</property>
+                            <property name="resultSetColumn">supply_type_art163a</property>
+                        </data>
+                    </cell>
+                    <cell id="1348">
+                        <data id="1349">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">col09</property>
+                        </data>
+                    </cell>
+                    <cell id="1350">
+                        <data id="1351">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">col10</property>
+                        </data>
+                    </cell>
+                    <cell id="1352">
+                        <data id="1353">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">col11</property>
+                        </data>
+                    </cell>
+                    <cell id="1354">
+                        <data id="1355">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">col12</property>
+                        </data>
+                    </cell>
+                    <cell id="1356">
+                        <data id="1357">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">col13</property>
+                        </data>
+                    </cell>
+                    <cell id="1358">
+                        <data id="1359">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">col14</property>
+                        </data>
+                    </cell>
+                    <cell id="1360">
+                        <data id="1361">
+                            <property name="fontSize">5pt</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">col15</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="1394">
+                    <property name="backgroundColor">#F0F0F0</property>
+                    <cell id="1362">
+                        <label id="1363">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <text-property name="text">Общо</text-property>
+                        </label>
+                    </cell>
+                    <cell id="1364"/>
+                    <cell id="1365"/>
+                    <cell id="1366"/>
+                    <cell id="1367"/>
+                    <cell id="1368"/>
+                    <cell id="1369"/>
+                    <cell id="1370"/>
+                    <cell id="1371"/>
+                    <cell id="1372">
+                        <data id="1373">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">sum_col09</property>
+                        </data>
+                    </cell>
+                    <cell id="1374">
+                        <data id="1375">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">sum_col10</property>
+                        </data>
+                    </cell>
+                    <cell id="1376">
+                        <data id="1377">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">sum_col11</property>
+                        </data>
+                    </cell>
+                    <cell id="1378">
+                        <data id="1379">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">sum_col12</property>
+                        </data>
+                    </cell>
+                    <cell id="1380">
+                        <data id="1381">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">sum_col13</property>
+                        </data>
+                    </cell>
+                    <cell id="1382">
+                        <data id="1383">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">sum_col14</property>
+                        </data>
+                    </cell>
+                    <cell id="1384">
+                        <data id="1385">
+                            <property name="fontSize">5pt</property>
+                            <property name="fontWeight">bold</property>
+                            <property name="textAlign">right</property>
+                            <property name="resultSetColumn">sum_col15</property>
+                        </data>
+                    </cell>
+                </row>
+            </footer>
+        </table>
+        <text id="1395">
+            <property name="fontSize">10pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[&nbsp;]]></text-property>
+        </text>
+        <text id="1396">
+            <property name="fontSize">8pt</property>
+            <property name="textAlign">left</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[Гл. счетоводител: ...........................&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Управител: ...........................]]></text-property>
+        </text>
+    </body>
+</report>

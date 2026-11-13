@@ -1,0 +1,35 @@
+= Views Collaboration
+:toc:
+:toc-title:
+
+> 🏷️ Available in Axelor Enterprise edition
+
+Views collaboration allows to see users that are seeing/editing/updating the current opened record.
+
+== Overview
+
+If you open a record at the same time as another user, their profile picture will appear to the right
+of the record's toolbar.
+
+By default, a green border surrounds the profile picture. This means that the user is simply consulting the record.
+
+image::collaboration-user-idle.png[]
+
+If the user is editing the record, the border turns orange.
+
+image::collaboration-user-edit.png[]
+
+If the user saves their changes, the border turns red: the data on your page is no longer
+up to date with the database and you may need to refresh your page.
+
+image::collaboration-user-save.png[]
+
+== Options
+
+Feature can be disabled with `view.collaboration.enabled` property. By default, it is enabled.
+On groups, there is a boolean `canViewCollaboration` to determine whether members
+can view collaboration (`true` by default).
+
+== Limitation
+
+Only records displayed on top form are supported. Popup and others record rendering aren't supported.

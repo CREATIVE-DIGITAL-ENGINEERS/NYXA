@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views https://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <selection name="select.user.navigation">
+    <option value="visible">Visible</option>
+    <option value="hidden">Hidden</option>
+    <option value="collapse">Collapse</option>
+  </selection>
+
+  <grid name="group-grid" title="Groups" model="com.axelor.auth.db.Group">
+    <field name="name" />
+    <field name="code" />
+    <field name="navigation" />
+  </grid>
+
+  <form name="group-form" title="Group" model="com.axelor.auth.db.Group">
+    <toolbar>
+      <button name="showPermissions" title="Show permissions" onClick="action-group-view-permissions" hideIf="permissions == null || permissions.length == 0" />
+    </toolbar>
+    <panel title="Overview">
+      <field name="name" onChange="action-condition-group-validName" validIf="name.length >= 2"/>
+      <field name="code" onChange="action-condition-group-validCode" validIf="code.length >= 2" readonlyIf="id &amp;&amp; code == 'admins'"/>
+      <field name="navigation"/>
+      <field name="homeAction" widget="ref-text" target="com.axelor.meta.db.MetaAction" target-name="name" domain="self.type = 'action-view' and self.home = true" />
+      <field name="technicalStaff"/>
+      <field name="viewCustomizationPermission"/>
+    </panel>
+    <panel-tabs>
+      <panel-related field="roles" form-view="role-form" grid-view="role-grid"/>
+      <panel-related field="permissions" grid-view="simple-permission-grid" form-view="permission-form"/>
+      <panel-related field="metaPermissions"/>
+      <panel-related field="menus" grid-view="simple-meta-menu-grid" form-view="meta-menu-form"/>
+      <panel-related field="views" grid-view="simple-meta-view-grid" form-view="meta-view-form"/>
+    </panel-tabs>
+  </form>
+
+  <action-condition name="action-condition-group-validName">
+    <check error="Name length should be greater than 2." field="name" if="name?.length() &lt; 2" />
+  </action-condition>
+
+  <action-condition name="action-condition-group-validCode">
+    <check error="Code length should be greater than 2." field="code" if="code?.length() &lt; 2" />
+  </action-condition>
+
+  <action-view name="action-group-view-permissions" title="Permissions" model="com.axelor.auth.db.Permission">
+    <view type="grid" name="permission-grid" />
+    <view type="form" name="permission-form" />
+    <domain>self.id IN (:permissions)</domain>
+    <context name="permissions" expr="eval: permissions.collect { it.id }" />
+  </action-view>
+
+</object-views>

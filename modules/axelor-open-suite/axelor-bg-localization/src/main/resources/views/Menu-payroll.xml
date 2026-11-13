@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ МОДУЛЪТ НЯМА СВОЙ КОРЕН — РАЗДЕЛИТЕЛЯТ Е ИНСТИТУЦИЯТА ═══
+
+    Българската локализация няма собствен top-level корен. Менютата ѝ са разпределени по органа,
+    пред който се отчита човекът, отварящ екрана:
+
+      → НАП (`nap-root`, nyxa-nap-submissions) — Д1, Д6, регистърът по ЗДДФЛ, справките по чл. 73
+        ал. 1 и ал. 6, декларацията по чл. 55 и целият ДДС възел (виж Menu.xml);
+      → НОИ (`noi-root`, дефиниран по-долу) — болничните, удостоверенията по Приложение № 9 и
+        износът към НОИ;
+      → HR › Заплати (този възел) — всичко, което се ПРАВИ, а не се ПОДАВА: фишове, обезщетения,
+        самоосигуряващи се, декларирани часове, плюс двете конфигурационни подгрупи.
+
+    ⚠️ Корен с името на продукта не казва нищо за съдържанието си. „НАП“ и „НОИ“ казват
+    ПРЕД КОГО се отчита подаваното, а това е въпросът, по който операторът вече мисли: срокът,
+    форматът и санкцията идват от органа, не от модула, който е произвел файла.
+
+    ⚠️ ViewLoader внася и обновява, но не изтрива: меню, махнато от XML, остава в `meta_menu` на
+    заварена база, докато не бъде махнато на ръка.
+  -->
+
+  <!-- ═══ „ЗАПЛАТИ“ Е ДЕТЕ НА „HR“ ═══
+
+    Order 150: точно след „Employees Management“ (100) и преди „Recruitment“ (200) — заплатите се
+    правят от същия човек и в същия ден като договорите, а не някъде след атестациите.
+
+    ⚠️ groups="admins" — И ТОВА НЕ Е ПРЕДПАЗЛИВОСТ ПО НАВИК, А ИЗРИЧНО ОГРАНИЧЕНА ПУБЛИКА.
+    Последната клауза на MenuChecker#isAllowed пуска меню без ограничения само когато то ИМА
+    РОДИТЕЛ. `hr-root` носи роля „Admin“ (meta_metaMenu.csv на axelor-human-resource), а дете без
+    ограничения би се видяло от всеки, който е стигнал до `hr-root` — тоест публиката на заплатите
+    би се определяла от чужд CSV.
+
+    Изричното groups="admins" я заковава. То НЕ пречи на бъдещ заплатен слой:
+    isAllowed е ИЛИ — ред в meta_metaMenu с нова роля отваря менюто въпреки групата.
+  -->
+  <menuitem name="nyxa-payroll" parent="hr-root" title="Заплати" order="150" groups="admins"/>
+
+  <!-- Заплати › Проверка на осигуровки (диагностична форма) -->
+  <menuitem name="nyxa-payroll-contribution-preview" parent="nyxa-payroll"
+    title="Проверка на осигуровки" action="action-bg-contribution-preview" order="300"/>
+
+  <!-- Заплати › Заплатни години — ПРЯК ПЪТ, не ново действие.
+    ⚠️ ЦЕЛИ hr.conf.payroll.year от axelor-human-resource, което ВЕЧЕ носи всичко нужно: domain
+    self.typeSelect = 2, форма year-hr-form с нередактируем тип и асистента за генериране на периоди,
+    и action-year-hr-record-new, което слага 2 при нов запис. Собствено действие би било ТРЕТО копие
+    на един и същ domain (счетоводното е с typeSelect = 1, алокационното с 4) — а копие, което утре
+    се разсинхронизира, е точно видът дефект, който този модул гони.
+
+    ЗАЩО ВЪПРЕКИ ТОВА ИМА ПРЯК ПЪТ: истинското меню седи под Човешки ресурси › Управление на
+    служители › Конфигурация, тоест на място, където никой, който прави фиш, не го търси. Фишът иска
+    период — оттам и входът да е до фишовете.
+
+    ⚠️ УСЛОВИЕТО Е СЪЩОТО КАТО НА hr-root: без него менюто ще се вижда, докато целта му е скрита при
+    неинсталирано приложение „employee“, и щеше да води до празен екран. Условието се пази от
+    BgPayrollYearMenuTest и остава ТУК — прекият път не се мести и не губи `if`, макар родителят му
+    вече сам да седи под hr-root.
+
+    Меню за ПЕРИОДИ нарочно НЯМА: hr.conf.payroll.period вече съществува, а панелът с периодите е
+    вграден във формата на годината — там се и работи с тях. -->
+  <menuitem name="nyxa-payroll-year" parent="nyxa-payroll" title="Заплатни години"
+    action="hr.conf.payroll.year" order="90"
+    if="__config__.app.isApp('employee')"/>
+
+  <!-- Заплати › Фишове -->
+  <menuitem name="nyxa-payroll-payslip" parent="nyxa-payroll" title="Фишове"
+    action="bg.payslip.all" order="150"/>
+
+  <!-- Заплати › Обезщетения (документи) -->
+  <menuitem name="nyxa-payroll-compensation" parent="nyxa-payroll" title="Обезщетения"
+    action="bg.compensation.all" order="200"/>
+
+  <menuitem name="nyxa-payroll-declared-hours" parent="nyxa-payroll" title="Декларирани часове"
+    action="bg.declared.work.hours.all" order="350"/>
+
+  <!-- Заплати › Параметри -->
+  <menuitem name="nyxa-payroll-parameters" parent="nyxa-payroll" title="Параметри"
+    order="100"/>
+
+  <menuitem name="nyxa-payroll-insurance-contribution" parent="nyxa-payroll-parameters"
+    title="Осигурителни вноски" action="bg.insurance.contribution.all" order="100"/>
+
+  <menuitem name="nyxa-payroll-parameter" parent="nyxa-payroll-parameters"
+    title="Скаларни параметри" action="bg.payroll.parameter.all" order="200"/>
+
+  <menuitem name="nyxa-payroll-tzpb-rate" parent="nyxa-payroll-parameters"
+    title="ТЗПБ по дейности" action="bg.tzpb.rate.all" order="300"/>
+
+  <!-- Заплати › Номенклатури.
+    ⚠️ 210, А НЕ 200: на 200 стоеше и „Обезщетения“ (документите). Два възела с ЕДИН И СЪЩ (родител,
+    order) се подреждат помежду си от MenuItemComparator, тоест редът им е стабилен само докато
+    нищо не се пипне — а после се мени без промяна в този файл. -->
+  <menuitem name="nyxa-payroll-nomenclatures" parent="nyxa-payroll" title="Номенклатури"
+    order="210"/>
+
+  <menuitem name="nyxa-payroll-nkpd" parent="nyxa-payroll-nomenclatures"
+    title="НКПД длъжности" action="bg.nkpd.all" order="100"/>
+
+  <menuitem name="nyxa-payroll-nkid" parent="nyxa-payroll-nomenclatures"
+    title="НКИД дейности" action="bg.nkid.all" order="200"/>
+
+  <!-- ═══ НОИ — ВЪРХОВЕН ВЪЗЕЛ ═══
+
+    Подаваното към НОИ има свой ред, свой формат и свой орган — и се прави от човек, който в
+    този момент мисли за НОИ, а не за ведомостта.
+
+    Order 220 — веднага след НАП (210), по реда, по който двата органа се появяват в месеца.
+
+    ⚠️ Условието е СЪЩОТО като на hr-root. Трите екрана под него четат болнични, а болничният виси
+    на служител: без инсталирано приложение „employee“ менюто щеше да се вижда и да води доникъде.
+
+    ⚠️ groups="admins" — по същия довод като при „Заплати“ по-горе и по образеца на `nap-root`.
+    Top-level меню без роли и без групи днес се вижда само от админ (последната клауза на
+    MenuChecker#isAllowed иска РОДИТЕЛ), тоест атрибутът не стеснява нищо — той ЗАПИСВА намерението,
+    за да не се отвори при първия ред в meta_metaMenu, сложен по друг повод.
+  -->
+  <menuitem name="noi-root" title="НОИ" order="220" icon="heart-pulse-fill"
+    icon-background="#00796b" groups="admins" if="__config__.app.isApp('employee')"/>
+
+  <menuitem name="nyxa-payroll-sick-leave" parent="noi-root" title="Болнични"
+    action="bg.sick.leave.all" order="100"/>
+
+  <!-- ═══ „ПРИЛ. 9 ЗА ПОДАВАНЕ“ — СРОКЪТ И НАПОМНЯНЕТО ═══
+    Между болничните и удостоверенията: тук човек вижда кой лист чака удостоверение, до кога
+    (НПОПДОО чл. 12 т. 1 — до 10-о число на месеца след представянето, преместено на първия работен
+    ден) и докъде е стигнало подаването.
+
+    ⚠️ БРОЯЧЪТ (tag-get) Е НАПОМНЯНЕТО — без Quartz и без имейл. Смята се при всяко зареждане на
+    менюто: просрочените, днешните и тези до 3 работни дни, още неподадени. Списъкът и броячът
+    ползват ЕДИН филтър (BgApp9DueScope), иначе цифрата и редовете се разминават при първия
+    ограничен потребител — капанът на HRMenuTagService, който брои покрай правата.
+
+    Действието е action-method, а не action-view: домейнът (фирмите на потребителя) се строи от
+    същия Java клас, от който и броячът, и преди отварянето сроковете се опресняват. -->
+  <menuitem name="nyxa-noi-app9-due" parent="noi-root" title="Прил. 9 за подаване"
+    action="action-bg-app9-due-method-open" order="150" tag-style="important"
+    tag-get="com.axelor.apps.bglocalization.web.BgApp9DueController:dueMenuTag()"/>
+
+  <!-- Удостоверенията по Приложение № 9 — веднага след болничните, защото се подават ЗА ЛИСТ.
+    Обстоятелствата се въвеждат на самия болничен; този списък е за преглед „кои листове имат
+    удостоверение и с колко отказа“. ⚠️ Няма подаване към НОИ — това е Ф2. -->
+  <menuitem name="nyxa-payroll-app9" parent="noi-root" title="Удостоверения (Прил. № 9)"
+    action="bg.app9.declaration.all" order="200"/>
+
+  <!-- Износът към НОИ — веднага след удостоверенията, защото пакетът се прави ОТ ТЯХ.
+    ⚠️ Екранът НЕ подава: произвежда файла, проверява го офлайн срещу схемата на НОИ и го закача
+    като неизменяем артефакт. Подаването иска КЕП и се прави от човек през портала. -->
+  <menuitem name="nyxa-payroll-app9-export" parent="noi-root"
+    title="Експорт към НОИ (Прил. № 9)" action="bg.app9.export.all" order="300"/>
+
+  <!-- ПОДАВАНИЯТА КЪМ НОИ — отметките „подадено“ с входящия номер от портала (NapSubmission,
+    услуга noi_app9). Същата таблица като подаванията към НАП, но друг орган: „All submissions“
+    под НАП показва само услугите на НАП, а тези — тук. -->
+  <menuitem name="nyxa-noi-submissions" parent="noi-root" title="Подавания към НОИ"
+    action="bg.noi.submission.all" order="400"/>
+
+  <!-- ═══ НАП — ДВЕТЕ ДЕКЛАРАЦИИ ПО НАРЕДБА Н-13 ═══
+
+    ⚠️ Д1 И Д6 СА СЪСЕДНИ, и това не е подредба по номер: чл. 2 ал. 4 иска
+    РАВЕНСТВО между двете, тоест човекът, който сверява, ги отваря една след друга. Разделени, те се
+    подават поотделно — а тогава равенството се открива от НАП.
+
+    ⚠️ ПОД НАП, А НЕ ДО ФИШОВЕТЕ: същият орган, същият срок (25-о число) и същият канал; а
+    ведомостта не се губи: фишът и осигуровките остават на един клик оттатък, под HR › Заплати.
+
+    ⚠️ groups="admins" — `nap-root` днес е groups="admins", тоест децата му така или иначе се виждат
+    само от админ. Атрибутът е за УТРЕ: собственият коментар на nyxa-nap-submissions обещава
+    „Re-introduce the nap_* role groups here once they are reliably provisioned“, а NapReview е
+    роля за ПРЕГЛЕД на SAF-T. Отворен `nap-root` без този атрибут би ѝ подал и Д1 — тоест поименни
+    осигурителни данни на всяко лице.
+  -->
+  <menuitem name="nyxa-payroll-d1" parent="nap-root" title="Декларации обр. 1"
+    action="bg.d1.declaration.all" order="600" groups="admins"/>
+
+  <menuitem name="nyxa-payroll-d6" parent="nap-root" title="Декларации обр. 6"
+    action="bg.d6.declaration.all" order="610" groups="admins"/>
+
+  <!-- Третото меню: операторската конзола „избери генерираните Д1/Д6 → заключи чернова“. Отделно от
+    двете декларационни менюта (където се ГЕНЕРИРА), защото тук се ПОДАВА — един екран за прегледай →
+    заключи, а подписът/подаването остават човешки стъпки в портала. groups="admins" по същия довод
+    като при Д1/Д6 по-горе. -->
+  <menuitem name="nyxa-payroll-d1d6-filing" parent="nap-root" title="File D1/D6 with NAP"
+    action="bg.nap.filing.open" order="620" groups="admins"/>
+
+  <!-- Списъкът на вече създадените подавания на Д1/Д6 — без него заключена чернова или подаване с
+    неясен изход се отваря само веднага след „Създай и заключи чернова“. Само преглед и отваряне
+    (canNew="false" на грида): нови подавания се създават единствено от помощника по-горе. -->
+  <menuitem name="nyxa-payroll-d1d6-submissions" parent="nap-root" title="D1/D6 submissions"
+    action="bg.nap.d1d6.submissions" order="630" groups="admins"/>
+
+  <!-- ============ Actions ============ -->
+
+  <action-view name="bg.nap.d1d6.submissions" title="D1/D6 submissions"
+    model="com.axelor.apps.napsubmissions.db.NapSubmission">
+    <view type="grid" name="nap-submission-grid"/>
+    <view type="form" name="nap-submission-form"/>
+    <domain>self.serviceCodeSelect = 'declarations' AND self.serviceDocumentTypeSelect = 'DEC_1_6'</domain>
+  </action-view>
+
+  <action-view name="bg.insurance.contribution.all" title="Осигурителни вноски"
+    model="com.axelor.apps.bglocalization.db.BgInsuranceContribution">
+    <view type="grid" name="bg-insurance-contribution-grid"/>
+    <view type="form" name="bg-insurance-contribution-form"/>
+  </action-view>
+
+  <action-view name="bg.sick.leave.all" title="Болнични"
+    model="com.axelor.apps.bglocalization.db.BgSickLeave">
+    <view type="grid" name="bg-sick-leave-grid"/>
+    <view type="form" name="bg-sick-leave-form"/>
+  </action-view>
+
+  <action-view name="bg.app9.declaration.all" title="Удостоверения (Приложение № 9)"
+    model="com.axelor.apps.bglocalization.db.BgApp9Declaration">
+    <view type="grid" name="bg-app9-declaration-grid"/>
+    <view type="form" name="bg-app9-declaration-form"/>
+  </action-view>
+
+  <action-method name="action-bg-app9-due-method-open">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9DueController" method="openDueList"/>
+  </action-method>
+
+  <action-view name="bg.noi.submission.all" title="Подавания към НОИ"
+    model="com.axelor.apps.napsubmissions.db.NapSubmission">
+    <view type="grid" name="bg-noi-submission-grid"/>
+    <view type="form" name="bg-noi-submission-form"/>
+    <domain>self.serviceCodeSelect = 'noi_app9'</domain>
+  </action-view>
+
+  <action-view name="bg.app9.export.all" title="Експорт към НОИ (Приложение № 9)"
+    model="com.axelor.apps.bglocalization.db.BgApp9Export">
+    <view type="grid" name="bg-app9-export-grid"/>
+    <view type="form" name="bg-app9-export-form"/>
+  </action-view>
+
+  <action-view name="bg.declared.work.hours.all" title="Декларирани часове"
+    model="com.axelor.apps.bglocalization.db.BgDeclaredWorkHours">
+    <view type="grid" name="bg-declared-work-hours-grid"/>
+    <view type="form" name="bg-declared-work-hours-form"/>
+  </action-view>
+
+  <action-view name="bg.payroll.parameter.all" title="Параметри за заплати"
+    model="com.axelor.apps.bglocalization.db.BgPayrollParameter">
+    <view type="grid" name="bg-payroll-parameter-grid"/>
+    <view type="form" name="bg-payroll-parameter-form"/>
+  </action-view>
+
+  <action-view name="bg.tzpb.rate.all" title="Вноски ТЗПБ"
+    model="com.axelor.apps.bglocalization.db.BgTzpbRate">
+    <view type="grid" name="bg-tzpb-rate-grid"/>
+    <view type="form" name="bg-tzpb-rate-form"/>
+  </action-view>
+
+  <action-view name="bg.nkpd.all" title="НКПД"
+    model="com.axelor.apps.bglocalization.db.BgNkpd">
+    <view type="grid" name="bg-nkpd-grid"/>
+    <view type="form" name="bg-nkpd-form"/>
+  </action-view>
+
+  <action-view name="bg.nkid.all" title="НКИД дейности"
+    model="com.axelor.apps.bglocalization.db.BgNkid">
+    <view type="grid" name="bg-nkid-grid"/>
+    <view type="form" name="bg-nkid-form"/>
+  </action-view>
+
+</object-views>

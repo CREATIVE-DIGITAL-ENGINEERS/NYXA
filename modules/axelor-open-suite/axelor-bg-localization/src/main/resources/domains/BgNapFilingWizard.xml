@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ПРЕХОДЕН помощник за третото меню „Подаване Д1/Д6 към НАП“. НЕ се пази в базата (transient) и
+    НЕ е втори модел на подаване: същинското подаване си остава NapSubmission/NapSubmissionFile/
+    NapArtifact. Този екран само СЪБИРА избора (дружество, период, двата чекбокса „няма основание“ и
+    двете генерирани декларации) и подава на BgD1D6FilingService, който създава и ЗАКЛЮЧВА черновата. -->
+  <entity name="BgNapFilingWizard" transient="true">
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Company"/>
+
+    <!-- ЕИК по БУЛСТАТ на осигурителя — чете се от партньора (registrationCode), не се въвежда. -->
+    <string name="companyEik" title="EIK" readonly="true"/>
+
+    <!-- Периодът от образеца на НАП: година + от–до месец. Тук е ФИЛТЪР/намерение; същинският период
+      на подаването идва от избраната декларация и се сверява срещу този прозорец. -->
+    <integer name="periodYear" title="Year"/>
+    <integer name="periodFromMonth" title="From month"/>
+    <integer name="periodToMonth" title="To month"/>
+
+    <!-- Двата ОТДЕЛНИ чекбокса от образеца. ⚠️ „Няма основание за Д6“ РАЗРЕШАВА подаване само с Д1
+      (потвърдена комбинация); „няма основание за Д1“ води до само-Д6, което е НЕПОТВЪРДЕНО и се
+      блокира. Логиката е в BgD1D6FilingRules — чекбоксите не са начин да се заобиколи съвместното
+      подаване. -->
+    <boolean name="noBasisD1" title="No grounds for filing D1" default="false"/>
+    <boolean name="noBasisD6" title="No grounds for filing D6" default="false"/>
+
+    <!-- Двата избора — ГЕНЕРИРАНИ декларации, филтрирани по дружество и състояние. Без качване на
+      външни файлове: байтовете са точно тези, генерирани в Nyxa. -->
+    <many-to-one name="d1Declaration"
+      ref="com.axelor.apps.bglocalization.db.BgD1Declaration"
+      title="Form 1 declaration (generated)"/>
+    <many-to-one name="d6Declaration"
+      ref="com.axelor.apps.bglocalization.db.BgD6Declaration"
+      title="Form 6 declaration (generated)"/>
+
+  </entity>
+
+</domain-models>

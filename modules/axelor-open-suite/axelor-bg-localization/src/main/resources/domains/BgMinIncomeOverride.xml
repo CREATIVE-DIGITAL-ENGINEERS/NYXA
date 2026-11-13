@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Длъжностно-обвързан override на МОД реда. За редове 81, 83, 84, 85 от Приложение №1 (проф. футболист,
+    началник клиника/отделение, медицински сестри), при които правилният МОД ред зависи не само от КИД, а
+    и от длъжността (НКПД префикс). bgNkpdPrefix е префикс, не пълен код. -->
+  <entity name="BgMinIncomeOverride">
+    <string name="bgNkidCode" title="Код по НКИД" required="true"/>
+    <string name="bgNkpdPrefix" title="Префикс по НКПД" required="true"
+      help="Префикс на НКПД кода (не пълен код), напр. началото на длъжностната група."/>
+    <string name="bgMinIncomeRowCode" title="Ред по Приложение №1 (МОД)" required="true"/>
+
+    <unique-constraint columns="bgNkidCode,bgNkpdPrefix"/>
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,78 @@
+.icon {
+  display: inline-flex;
+}
+
+.iconHover {
+  display: none;
+}
+
+.button:hover {
+  .hideOnHover {
+    display: none;
+  }
+  .showOnHover {
+    display: inline-flex;
+  }
+}
+
+.button {
+  position: relative;
+}
+
+div.button[disabled] {
+  opacity: 0.6;
+}
+
+.icons {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.titleContent {
+  flex: 1;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  & > * {
+    vertical-align: middle;
+  }
+}
+
+.help {
+  display: flex;
+  justify-content: center;;
+}
+
+.help .title {
+  display: inline-flex;
+  max-width: calc(100% - 0.5rem);
+}
+
+.help::after {
+  position: relative;
+  content: "?";
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin: 0 2px;
+  vertical-align: super;
+}
+
+.link {
+  width: fit-content;
+  text-decoration: none;
+  padding-left: 0;
+  padding-right: 0;
+  max-width: 100%;
+  justify-content: start;
+  &:hover &,&:hover .titleText {
+    text-decoration: underline;
+  }
+}

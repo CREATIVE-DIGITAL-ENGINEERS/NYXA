@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="account" package="com.axelor.apps.account.db"/>
+
+  <!-- Bulgarian localization: VAT credit type per manual PURCHASE line, merged into com.axelor.apps.account.db.MoveLine.
+    The entity opening tag replicates the original MoveLine attributes exactly (implements + strategy) so
+    the merge keeps them. Drives which POKUPKI value column the line lands in. importId is inherited — do
+    NOT redeclare it here. -->
+  <entity name="MoveLine"
+    implements="com.axelor.apps.account.db.repo.AnalyticLine,com.axelor.apps.base.interfaces.Currenciable"
+    strategy="CLASS">
+
+    <string name="bgVatCreditType" title="Данъчен кредит (ДДС)"
+      selection="bg.vat.credit.type.select"/>
+
+    <!-- G3b: ръчният код за данък върху разходите (600) или при източника (700) в TaxInformation на
+      реда от дневника (Прил. 3 т. IV.8.2). Бие подразбирането на сметката; празно = автоматичната
+      логика (фиш, фактура с вид доход). Само кодове от TAX-IMP вид 600/700. -->
+    <string name="bgSaftTaxCode" title="Данък 600/700 (SAF-T)" selection="bg.saft.tax.code.select"
+      help="Код за данък върху разходите (600) или при източника (700) за SAF-T. Бие кода на сметката; празно — автоматично от фиша или фактурата."/>
+
+    <boolean name="bgImportLocked" transient="true" readonly="true" copy="false"/>
+    <string name="bgSourceCurrencyCode" title="Изходна валута на реда" readonly="true"/>
+    <decimal name="bgSourceCurrencyAmount" title="Изходна сума във валута"
+      precision="30" scale="10" readonly="true"/>
+    <decimal name="bgSourceExchangeRate" title="Изходен курс"
+      precision="30" scale="10" readonly="true"/>
+    <integer name="bgSourceAccountingId" title="Microinvest source AccountingID"
+      readonly="true" copy="false"/>
+    <entity-listener class="com.axelor.apps.bglocalization.service.migration.microinvest.accounting.MicroinvestLedgerListener"/>
+  </entity>
+
+</domain-models>

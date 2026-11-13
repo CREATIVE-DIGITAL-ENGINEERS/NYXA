@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Active-company scoping for the accounting menus. Why this file exists at all, given the permission
+    model: Axelor enforces record-level permissions in AuthSecurity, and AuthSecurity begins with `if (user
+    == null || AuthUtils.isAdmin(user)) return null;` — an administrator bypasses every condition by design,
+    so no permission row can ever scope one. In this database the only account grant is the unconditional
+    wildcard `perm.account.all`, held by the Admin role alone, and the only user is `admin`. That is why
+    "Suppl. Invoices shows every company's invoices" was still true after the permission migration: there
+    was nothing wrong with the permissions, they simply do not apply to the user looking at the list. A view
+    domain does apply to everyone, admins included, and it is the mechanism Axelor Open Suite itself uses
+    for this (see Dashboard.xml, `self.company = :active_company`). So each menu below re-declares the stock
+    action-view of the same name — a later module wins — with the stock domain plus the active company. Nothing
+    else about them changes: same views, same search-filters, same context, so the grids, forms and filters
+    behave exactly as before. Scope and limits, stated rather than implied: * These are the MENU entry points.
+    They do not restrict a direct REST call or a link to a record id — for a non-admin user that is what
+    the permission conditions in CompanyScopePermissionMigration cover, and for an administrator nothing
+    does, because Axelor deliberately exempts them. * `:_activeCompany` is the user's own active company,
+    the same expression the AI-OCR views already use. A user with no active company selected sees nothing
+    here rather than everything: for a multi-company install that is the safe direction, and the company
+    switcher is one click away. * MoveLine has no company field of its own, so it is scoped through its Move.
+    * BankStatement is deliberately absent: the entity has no company field at all (its lines carry bankDetails),
+    so there is nothing to scope by company and inventing a subquery here would be a guess about what "belongs"
+    to a company. BankReconciliation does have one and is handled in the permission migration, which reports
+    it on every boot. -->
+
+  <action-view name="invoice.root.purchase.supinvoices" title="Suppl. Invoices"
+    model="com.axelor.apps.account.db.Invoice">
+    <view type="grid" name="invoice-supplier-grid"/>
+    <view type="form" name="invoice-form"/>
+    <view-param name="search-filters" value="supplier-invoices-filters"/>
+    <domain>self.operationTypeSelect = 1 AND self.company = :_activeCompany</domain>
+    <context name="_operationTypeSelect" expr="eval:1"/>
+    <context name="_activeCompany" expr="eval: __user__?.activeCompany"/>
+    <context name="todayDate" expr="eval:__config__.date"/>
+  </action-view>
+
+  <action-view name="invoice.root.purchase.sup.credit.note" title="Suppl. Credit notes"
+    model="com.axelor.apps.account.db.Invoice">
+    <view type="grid" name="invoice-supplier-refund-grid"/>
+    <view type="form" name="invoice-form"/>
+    <view-param name="search-filters" value="supplier-refunds-filters"/>
+    <domain>self.operationTypeSelect = 2 AND self.company = :_activeCompany</domain>
+    <context name="_operationTypeSelect" expr="eval:2"/>
+    <context name="_operationSubTypeSelect" expr="eval:1"/>
+    <context name="_activeCompany" expr="eval: __user__?.activeCompany"/>
+    <context name="todayDate" expr="eval:__config__.date"/>
+  </action-view>
+
+  <action-view name="invoice.root.custinvoices" title="Cust. Invoices"
+    model="com.axelor.apps.account.db.Invoice">
+    <view type="grid" name="invoice-grid"/>
+    <view type="form" name="invoice-form"/>
+    <view-param name="search-filters" value="customer-invoices-filters"/>
+    <domain>self.operationTypeSelect = 3 AND self.company = :_activeCompany</domain>
+    <context name="_operationTypeSelect" expr="eval:3"/>
+    <context name="_activeCompany" expr="eval: __user__?.activeCompany"/>
+    <context name="todayDate" expr="eval:__config__.date"/>
+  </action-view>
+
+  <action-view name="invoice.root.custrefunds" title="Cust. Credit notes"
+    model="com.axelor.apps.account.db.Invoice">
+    <view type="grid" name="invoice-refund-grid"/>
+    <view type="form" name="invoice-form"/>
+    <view-param name="search-filters" value="customer-refunds-filters"/>
+    <domain>self.operationTypeSelect = 4 AND self.company = :_activeCompany</domain>
+    <context name="_operationTypeSelect" expr="eval:4"/>
+    <context name="_operationSubTypeSelect" expr="eval:1"/>
+    <context name="_activeCompany" expr="eval: __user__?.activeCompany"/>
+    <context name="todayDate" expr="eval:__config__.date"/>
+  </action-view>
+
+  <action-view name="account.root.move.move" title="Moves"
+    model="com.axelor.apps.account.db.Move">
+    <view type="grid" name="move-grid"/>
+    <view type="form" name="move-form"/>
+    <view-param name="search-filters" value="move-filters"/>
+    <domain>self.massEntryStatusSelect = 0 AND self.company = :_activeCompany</domain>
+    <context name="_activeCompany" expr="eval: __user__?.activeCompany"/>
+    <context name="_isActivateSimulatedMoves"
+      expr="eval:__user__?.activeCompany?.accountConfig?.isActivateSimulatedMove"/>
+  </action-view>
+
+  <action-view name="account.root.move.mass.entry.move" title="Mass entry"
+    model="com.axelor.apps.account.db.Move">
+    <view type="grid" name="move-mass-entry-grid"/>
+    <view type="form" name="move-mass-entry-form"/>
+    <view-param name="search-filters" value="move-filters"/>
+    <domain>self.massEntryStatusSelect != 0 AND self.company = :_activeCompany</domain>
+    <context name="_activeCompany" expr="eval: __user__?.activeCompany"/>
+    <context name="_isActivateSimulatedMoves"
+      expr="eval:__user__?.activeCompany?.accountConfig?.isActivateSimulatedMove"/>
+  </action-view>
+
+  <action-view name="account.root.move.move.line" title="Move lines"
+    model="com.axelor.apps.account.db.MoveLine">
+    <view type="grid" name="move-line-grid"/>
+    <view type="form" name="move-line-form"/>
+    <view-param name="search-filters" value="move-line-filters"/>
+    <domain>self.move.massEntryStatusSelect = 0 AND self.move.company = :_activeCompany</domain>
+    <context name="_activeCompany" expr="eval: __user__?.activeCompany"/>
+  </action-view>
+
+</object-views>

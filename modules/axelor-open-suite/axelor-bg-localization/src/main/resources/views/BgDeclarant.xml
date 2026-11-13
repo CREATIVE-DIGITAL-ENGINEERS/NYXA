@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="bg-declarant-grid" title="Декларатори"
+    model="com.axelor.apps.bglocalization.db.BgDeclarant">
+    <field name="company"/>
+    <field name="fullName"/>
+    <field name="declarantEgn"/>
+    <field name="isDefault"/>
+  </grid>
+
+  <form name="bg-declarant-form" title="Декларатор"
+    model="com.axelor.apps.bglocalization.db.BgDeclarant">
+    <panel name="mainPanel" colSpan="12">
+      <field name="company" colSpan="6"/>
+      <field name="isDefault" colSpan="6"/>
+      <field name="declarantNames" colSpan="6"/>
+      <field name="declarantEgn" colSpan="6" onChange="action-bg-declarant-validate-egn"/>
+      <field name="declarantCity" colSpan="6"/>
+      <field name="declarantPostCode" colSpan="6"
+        onChange="action-bg-declarant-validate-postcode"/>
+      <field name="declarantCapacity" colSpan="6"/>
+      <field name="declarantPosition" colSpan="6"/>
+      <field name="declarantAddress" colSpan="12"/>
+    </panel>
+  </form>
+
+  <action-view name="action-bg-declarant-view" title="Декларатори"
+    model="com.axelor.apps.bglocalization.db.BgDeclarant">
+    <view type="grid" name="bg-declarant-grid"/>
+    <view type="form" name="bg-declarant-form"/>
+  </action-view>
+
+  <!-- Declarant field validators (ЕГН/ЛНЧ checksum + postal code) via BgIdentifierValidator. Used by
+    bg-declarant-form and the Company editable grid. Self-closing <error message=.../>. -->
+  <action-validate name="action-bg-declarant-validate-egn">
+    <error message="Невалиден ЕГН/ЛНЧ на декларатора."
+      if="declarantEgn &amp;&amp; !com.axelor.apps.bglocalization.service.BgIdentifierValidator.isValidEgnOrLnch(declarantEgn)"/>
+  </action-validate>
+
+  <action-validate name="action-bg-declarant-validate-postcode">
+    <error message="Невалиден пощенски код на декларатора (изисква 4 цифри, 1000–9999)."
+      if="declarantPostCode &amp;&amp; !com.axelor.apps.bglocalization.service.BgIdentifierValidator.isValidPostalCode(declarantPostCode)"/>
+  </action-validate>
+
+</object-views>

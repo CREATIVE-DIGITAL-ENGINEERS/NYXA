@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views
+    http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Shows the BG Postbank XLSX import outcome on the standard Bank Statement form. The import itself
+    runs through the stock "Import" button: pick the "xlsx.bg.postbank" file format, attach the .xlsx to
+    "File", click Import. Lines are reviewed via the existing "See bank statement lines". No separate button/wizard. -->
+  <!-- Show the BG import status in the Bank Statements list, incl. the new "Дублирано". -->
+  <grid name="bank-statement-grid" title="Bank Statements"
+    id="bg-localization-bank-statement-grid" model="com.axelor.apps.bankpayment.db.BankStatement"
+    extension="true">
+    <extend target="//field[@name='statusSelect']">
+      <insert position="after">
+        <field name="bgImportStatusSelect" widget="single-select"/>
+        <!-- The upload this statement was generated from (PDF/OCR path). Blank for an XLSX import or a
+          hand-made statement. Read straight off the existing BankStatement.aiOcrUpload link. -->
+        <field name="aiOcrUpload.id" title="Upload ID" width="110" hidden="false"/>
+      </insert>
+    </extend>
+    <!-- The stock grid already carries the id column; only its title is generic. -->
+    <extend target="//field[@name='id']">
+      <attribute name="title" value="Record ID"/>
+    </extend>
+  </grid>
+
+  <form name="bank-statement-form" title="Bank Statement"
+    id="bg-localization-bank-statement-form" model="com.axelor.apps.bankpayment.db.BankStatement"
+    extension="true">
+    <!-- Same two ids as on the invoice and the move forms: the statement's own id, and the upload it was
+      generated from, with a way to open that upload. -->
+    <extend target="//panel[@name='bankStatementPanel']">
+      <insert position="before">
+        <panel name="bgOcrIdPanel" title="Nyxa ID" colSpan="12">
+          <!-- hidden="false" on both: the @Id property is hidden by default in the entity metadata,
+            here and on the upload the dotted field reads through. -->
+          <field name="id" title="Record ID" readonly="true" hidden="false" colSpan="3"
+            showIf="id"/>
+          <field name="aiOcrUpload.id" title="Upload ID" readonly="true" hidden="false" colSpan="3"
+            showIf="aiOcrUpload"/>
+          <button name="openOcrUploadBtn" title="Open Upload(s)" icon="fa-external-link"
+            colSpan="3" showIf="aiOcrUpload"
+            onClick="action-bg-localization-open-upload-for-bank-statement"/>
+          <!-- Carried only so the open action has it in context: the form shows the upload's id but
+            never the link itself, and a domain cannot bind a value the form never sent. Company is
+            NOT redeclared here — axelor-ai-banking already puts a visible, editable company field on
+            this form, and a second hidden declaration of it would fight that one. -->
+          <field name="aiOcrUpload" hidden="true"/>
+        </panel>
+      </insert>
+    </extend>
+    <extend target="/">
+      <attribute name="onLoad" value="action-bg-bank-statement-method-notify-duplicate"/>
+      <insert position="inside">
+        <panel name="bgPostbankImportPanel" title="Импорт на извлечение (Postbank XLSX)"
+          colSpan="12" showIf="bgImportStatusSelect">
+          <field name="bgImportStatusSelect" widget="single-select" colSpan="4"
+            readonly="true"/>
+          <button name="bgAutoCreateBankDetailsBtn" title="Auto create Bank Details"
+            icon="fa-university" colSpan="4" css="btn-primary" showIf="bgImportStatusSelect == 3"
+            onClick="action-bg-bank-statement-method-auto-create-bank-details"/>
+          <spacer colSpan="4"/>
+          <field name="bgStatementIban" colSpan="4" readonly="true"/>
+          <field name="bgImportReport" colSpan="12" readonly="true"/>
+        </panel>
+      </insert>
+    </extend>
+  </form>
+
+  <!-- Opens the upload this statement was generated from. The link is single-valued, so this compares
+    the SCALAR upload id taken straight off the form context — no subquery back through BankStatement,
+    which had to re-read the statement only to find a value the form already holds. The hidden company
+    and aiOcrUpload fields above are what put those two values in the context.
+
+    Company-scoped like the invoice and move actions: the statement being open is not on its own a
+    reason to show an upload from another company's books. -->
+  <action-view name="action-bg-localization-open-upload-for-bank-statement" title="OCR Upload"
+    model="com.axelor.apps.aiocr.db.AiOcrUpload">
+    <view type="grid" name="ai-ocr-upload-grid"/>
+    <view type="form" name="ai-ocr-upload-form"/>
+    <domain>self.id = :_uploadId AND self.company = :company</domain>
+    <context name="_uploadId" expr="eval: aiOcrUpload?.id"/>
+  </action-view>
+
+  <action-method name="action-bg-bank-statement-method-auto-create-bank-details">
+    <call class="com.axelor.apps.bglocalization.web.BgBankStatementController"
+      method="autoCreateBankDetails"/>
+  </action-method>
+
+  <action-method name="action-bg-bank-statement-method-notify-duplicate">
+    <call class="com.axelor.apps.bglocalization.web.BgBankStatementController"
+      method="notifyDuplicate"/>
+  </action-method>
+
+</object-views>

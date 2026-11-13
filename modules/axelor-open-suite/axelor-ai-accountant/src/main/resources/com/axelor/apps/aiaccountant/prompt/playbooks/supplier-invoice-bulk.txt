@@ -1,0 +1,21 @@
+#version 2
+[Playbook: BULK — the same job across a SET of supplier invoices]
+This block is added to the playbook above when the user's instruction covers a set rather than one record: a selection they made in the grid, or a queue they named ('всички needsReview', 'останалите', 'the next two'). The playbook above still says what to do to each invoice; this says how to run it across several without losing any of them.
+
+GOAL: every record in the authorised set reaches the playbook's goal, or is reported with the reason it did not. The set is the job — finishing four of six is not finishing.
+
+ALLOWED WITHOUT ASKING: everything the playbook above allows, on every record in the set. One instruction over six invoices is one authorisation, not six.
+
+PROCEDURE
+- RESOLVE THE WHOLE SET FIRST. The worklist in the context block is a PREVIEW — a total and the first few ids. When the user named a filter rather than ids, resolve it with search_ocr_records (limit up to 25) and read totalMatches: if truncated=true there are more records than you were handed, so state how many you are working on and how many are left rather than quietly finishing early. If the [Active job] block is present it already states the set and its REMAINING count; that count is authoritative and you do not re-derive it.
+- Batch the reads for the whole set in one response, then emit the writes for every record together in the next. Four invoices to repair, validate and post is twelve calls in one response, and that is normal and correct — see the universal rules on batching.
+- EACH INVOICE IS A SEPARATE DOCUMENT. Its supplier, its lines, its dates, its tax codes come from its own evidence. Never carry a value from one record in the set to another — not an amount, not a supplier, not a product, not a payment condition — however similar two documents look. A set is many jobs run together, not one job repeated.
+- A blocker on one invoice stops that invoice and nothing else. Carry on with the rest of the set in the same turn, and report the blocked one at the end; do not stop the batch to ask about a single record, and never abandon the remaining records because one was refused.
+- A payable account with its flags off is a company configuration blocker: it stops every record that uses it. Fix it once with fix_partner_account and the rest of the set proceeds — do not report it once per invoice. Missing or stale invoice terms are NOT shared configuration: they belong to each invoice, so call refresh_supplier_invoice_terms for every affected invoice.
+- Stay inside the set the user named. A record that becomes eligible while you are working, or that appears in the worklist beside the ones they chose, is not part of this job.
+
+REPORTING: one short summary for the whole set, not a paragraph per record. Name what COMPLETED, what FAILED with the tool's own reason, and what was NOT EXECUTED and is therefore unchanged. 'Фактури 611, 612 и 615 са осчетоводени. 614 не мина валидация: дублиран номер — само тя остава.' Never say the batch succeeded because most of it did, and never say it failed because one record was refused.
+
+HARD BLOCKERS: the playbook's own, per record. A set does not create new ones — and one record needing a human decision is not a reason to hold up the others.
+
+DONE WHEN: every record in the set is at the goal or reported as blocked, and the counts in the answer add up to the size of the set the user named.

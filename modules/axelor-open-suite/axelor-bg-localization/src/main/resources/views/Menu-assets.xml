@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Менютата на справките за активи, в СОБСТВЕН файл.
+
+    Отделен от Menu.xml нарочно: онзи файл е споделен с payroll частта и всяко добавяне там е
+    потенциален конфликт при мърдж. Базовите менюта не се пипат.
+
+    ⚠️ Родител има, тъй че менютата са ВИДИМИ за всяка група, която вижда родителя — top-level меню
+    без групи се вижда само от админ. Роли се дават единствено през meta_metaMenu.csv, не с атрибут
+    тук. Родителят account-root-asset-management живее в базовия axelor-account
+    (views/Menu.xml + apps/roles/account_metaMenu.csv). -->
+
+  <menuitem name="bg-asset-tax-differences" parent="account-root-asset-management"
+    title="Данъчни временни разлики (ГДД)" order="170"
+    action="action-bg-tax-difference-report-view"/>
+
+  <menuitem name="bg-asset-plan-report" parent="account-root-asset-management"
+    title="Амортизационен план (данъчен и счетоводен)" order="180"
+    action="action-bg-asset-plan-report-view"/>
+
+  <menuitem name="bg-asset-subsequent-cost" parent="account-root-asset-management"
+    title="Последващи разходи по активи (чл. 63 / чл. 64)" order="190"
+    action="action-bg-subsequent-cost-view"/>
+
+  <menuitem name="bg-asset-removal-account" parent="account-root-asset-management"
+    title="Сметки по причина за извеждане" order="200"
+    action="action-bg-asset-removal-account-view"/>
+
+</object-views>

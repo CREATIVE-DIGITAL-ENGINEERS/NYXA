@@ -1,0 +1,57 @@
+description = 'Axelor\'s Front-end'
+
+buildscript {
+    repositories repos
+    dependencies {
+        classpath "com.github.node-gradle:gradle-node-plugin:7.1.0"
+    }
+}
+
+apply plugin: 'base'
+apply plugin: 'com.github.node-gradle.node'
+
+node {
+    version = '20.15.1'
+    pnpmVersion = '9.14.4'
+    download = true
+}
+
+task buildFront(type: PnpmTask) {
+    group = 'axelor'
+    description = 'Build Front-end'
+
+    outputs.dir('dist')
+    inputs.files('package.json', 'pnpm-lock.yaml')
+    inputs.dir('src')
+    inputs.dir('public')
+
+    dependsOn 'installFrontDeps'
+    args = ["run", "build"]
+}
+
+task installFrontDeps(type: PnpmTask) {
+    group = 'axelor'
+    description = 'Install Front-end dependencies'
+
+    args = ['install']
+}
+
+task copyMonacoEditor {
+    group = 'axelor'
+    description = 'Copy Monaco editor static files into dist after front-end build'
+
+    dependsOn buildFront
+    outputs.upToDateWhen { false }
+
+    doLast {
+        project.delete("${projectDir}/dist/js/libs/monaco-editor/vs")
+        project.copy {
+            from "${projectDir}/node_modules/monaco-editor/min/vs"
+            into "${projectDir}/dist/js/libs/monaco-editor/vs"
+        }
+    }
+}
+
+clean {
+    delete "dist", "node_modules"
+}

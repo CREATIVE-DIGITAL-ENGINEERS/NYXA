@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="base" package="com.axelor.apps.base.db"/>
+
+  <!-- ВИДЪТ НА ЗАПАСА ЗА SAF-T НА НИВО ПРОДУКТ — override на семейството.
+
+    Празно значи „както семейството“. Нужно е, защото семейството смесва: в REST9 стоят и готовите
+    ястия (не са СМЗ), и хранителните продукти, от които се приготвят (СМЗ) — QA с. 85–86. Виж
+    BgSaftInventoryTypes.typeOf. -->
+  <entity name="Product">
+    <string name="bgSaftInventoryType"
+      title="SAF-T: вид на запаса (празно — както семейството)"
+      selection="bg.saft.inventory.type.select"/>
+  </entity>
+
+</domain-models>

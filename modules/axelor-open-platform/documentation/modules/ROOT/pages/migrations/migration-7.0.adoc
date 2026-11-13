@@ -1,0 +1,184 @@
+= 7.0 Migration Guide
+:toc:
+:toc-title:
+
+:product-version-changelog: https://github.com/axelor/axelor-open-platform/blob/7.0/CHANGELOG.md
+
+In this document, we will see the major steps to migrate from 6.1 to 7.0.
+
+NOTE: Please check the {product-version-changelog}[change log] for detailed list of fixes, changes and improvements
+introduced in 7.0
+
+== Migrate to new front-end built on top of React
+
+Current Angular front-end is now dropped in favor of new front-end built on top of React.
+
+Here are the following changes due to this change :
+
+- `npm-install` Gradle task has been removed.
+- input values aren't trimmed anymore : leading and trailing whitespaces are preserved.
+
+CAUTION: Due to the nature of the changes, some urls doesn't exist anymore :  `/login.jsp` -> `/#/login`.
+Make sure to update your browsers favorites links.
+
+== Font Awesome icons deprecated
+
+Font Awesome icons was used as main icons library. Now two library are used :
+https://marella.github.io/material-symbols/demo/[Material Symbols] and
+https://icons.getbootstrap.com/[Bootstrap Icons].
+
+Depending on the icons used, it will try to first use `Material Symbols` if the icon exist, then fallback to
+`Bootstrap icons`. To ensure easy migration steps, Font Awesome icons have been mapped to Bootstrap Icons.
+Please be aware that some Font Awesome icons don't have any equivalent in Bootstrap Icons, so an apps icon will be use
+instead. Missing icons will be log in console in non production mode.
+
+== Plain user passwords are no longer hashed upon startup
+
+For historical reasons, user passwords that were stored in plain text within the database were hashed upon startup. On
+databases with a large number of users, this could result in unnecessary time consumption during startup.
+
+To reset a forgotten admin password, update or insert an active admin user with a temporary password `admin123` in
+database using the hashed password:
+
+[source,sql]
+----
+UPDATE auth_user set password = '$shiro1$SHA-512$1024$NE+wqQq/TmjZMvfI7ENh/g==$V4yPw8T64UQ6GfJfxYq2hLsVrBY8D1v+bktfOxGdt4b/9BthpWPNUy/CBk6V9iA0nHpzYzJFWO8v/tZFtES8CA==' where code = 'admin';
+----
+
+Another way to generate passwords, is to use the Apache Command Line Hasher:
+
+[source,sh]
+----
+$ (cd /tmp && curl -sSL -O https://repo1.maven.org/maven2/org/apache/shiro/tools/shiro-tools-hasher/1.11.0/shiro-tools-hasher-1.11.0-cli.jar)
+$ java -jar /tmp/shiro-tools-hasher-1.11.0-cli.jar --algorithm SHA-512 --iterations 500000 -p
+Password to hash:
+Password to hash (confirm):
+$shiro1$SHA-512$500000$pbUIjvJh1moFNc98vH+YbA==$Wtu3fIgNIL4ab9jWp6DyRa7vW5Zo33knW7JNV9KFJj08lal4WHBmVJSOHxJ0w+7SwlPvJ25O1QYNVb6wgmTHnA==
+----
+
+Also, if you import users with passwords from any source, either password must be hashed or you can use helpers methods
+to encrypt it :
+
+- `com.axelor.auth.AuthService.encrypt(java.lang.String)` : Encrypt the given password text.
+- `com.axelor.auth.AuthService.encrypt(com.axelor.auth.db.User)` : Encrypt the password of the given user.
+- `com.axelor.auth.AuthService.encrypt(java.lang.Object, java.util.Map)` : Adapter method to be used with csv/xml data
+import in order to encrypt the password of the given user.
+
+== MailFlags table changes
+
+The flag associated to the user and message is now retrieved on backend. This avoids duplicated mail flags after
+reflagging messages. As part of the change, the message is also required and indexes as been reviewed.
+
+Run following SQL script to adjust MailFlag table changes :
+
+[source,sql]
+----
+ALTER TABLE mail_flags ALTER COLUMN MESSAGE SET NOT NULL;
+DROP INDEX mail_flags_message_idx;
+DROP INDEX mail_flags_user_id_idx;
+CREATE INDEX mail_flags_user_id_message_idx ON mail_flags (user_id, message);
+----
+
+== Fields that prevent dirty record
+
+Current way to prevent making record dirty when changing a field value, is to prefix the field name with `$`. The rules
+are :
+
+* in server side, setting the dummy field value, use `$` prefix but when accessing the dummy field value,
+don't use `$` prefix.
+* in client side, always accessing the dummy field value with the `$` prefix.
+
+This is causing confusion and misunderstood.
+
+To improve the usage, we introduce `x-dirty` attribute. This can be used on any fields, dummy or object fields.
+If the view field is marked as `x-dirty="false"`, the field value change will not mark current record dirty.
+
+The old dirty checking behavior of the `$` prefixed fields is now deprecated and will be removed during next major
+release.
+
+== React templates
+
+React templates can be used in favor of legacy Angular templates. They provide better integration with built-in UI
+components.
+
+If the template is wrapped inside `<></>` (react fragment), it is considered as React template :
+
+[source,xml]
+----
+<field ...>
+  <viewer>
+  <![CDATA[
+  <>
+    {some.value && <Box as="span">{some.value}</Box>}
+  </>
+  ]]>
+  </viewer>
+</field>
+----
+
+Following UI components are supported: `Box`, `Badge`, `Alert`, `AlertHeader`, `AlertLink`, `Button`, `ButtonGroup`,
+`Divider`, `Image`, `Link`, `List`, `ListItem`, `Panel`, `Popper`, `Scrollable`, `Table`, `TableBody`, `TableHead`,
+`TableFoot`, `TableRow`, `TableCell`, `TableCaption`, `Icon`.
+
+Translation in template can be allowed using `_t` helper : `<>{_t("Draft")}</>`
+
+React template no more rely on main record context but on the field context for reference field (legacy template was
+inconsistent). So templates should be now :
+
+[source,xml]
+----
+<!-- Legacy -->
+<field name="customer">
+<viewer><![CDATA[
+    <p>{{$get('customer.title.name')}}</p>
+]]></viewer>
+</field>
+
+<!-- React -->
+<field name="customer">
+<viewer><![CDATA[
+<>
+    <p>{$get('title.name')}</p>
+</>
+]]></viewer>
+</field>
+----
+
+Parent context can be used with `_parent` property :
+
+[source,xml]
+----
+<field name="customer">
+<viewer><![CDATA[
+<>
+    {_parent.some && <Box as="span">{_parent.$fmt("foo")}</Box>}
+</>
+]]></viewer>
+</field>
+----
+
+== Others Notable Changes
+
+Check the {product-version-changelog}[change log] for detailed list.
+
+- `x-show-bars` actions used to affect parent form. Now, they affect local grid context only
+- Collection editor without `x-viewer="true"` no more used in readonly
+- Changes in shortcuts
+- Some dependencies have been upgraded to newer versions
+- Remove top menus support
+- Drop custom style
+- Drop StaticResourceProvider
+- Remove `$context` variable in frontend eval expressions
+- `/ws/app/info` endpoint moved to `/ws/public/app/info`
+- Datetime fields value in tracking messages now stored in UTC
+- `sync` action to sync record is no longer needed, so it is now removed
+
+Due to the nature of front-end changes, some features haven't been implemented. We expect to
+reinstate them in a future version. Concerned features are :
+
+- Markdown widget
+- Phone widget with flag feature (_added in 7.1_)
+- Print Gantt view
+- Following chart types : `area`, `radar`, `scatter` (_added in 7.1_)
+- Views help link (_added in 7.1.6 & 7.2_)
+- Chart colors and shades configs (_added in 7.2.4_)

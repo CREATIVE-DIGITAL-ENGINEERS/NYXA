@@ -1,0 +1,26 @@
+plugins {
+	id 'com.axelor.app'
+}
+
+apply from: "../libs.gradle"
+apply from: "../version.gradle"
+
+apply {
+	version = openSuiteVersion
+}
+
+axelor {
+	title "Nyxa Security"
+	description "Role catalogue: the staff baseline and the capability roles, their permissions and menu grants, re-applied at every boot"
+}
+
+dependencies {
+	// The catalogue itself is data (roles, permissions, menu grants) that refers to other modules'
+	// models and menus by name. axelor-account is needed only for AccountConfig's closure role lists
+	// (ClosureRoleSeeder).
+	api project(":modules:axelor-base")
+	api project(":modules:axelor-account")
+	// AxelorAjaxRequestResolverTest: axelor-core keeps pac4j to itself (implementation). Same
+	// version as the platform's.
+	testImplementation "org.pac4j:pac4j-core:5.7.0"
+}

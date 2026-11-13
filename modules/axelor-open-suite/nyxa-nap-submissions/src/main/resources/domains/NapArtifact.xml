@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models
+    http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="napsubmissions" package="com.axelor.apps.napsubmissions.db"/>
+
+  <!-- The immutable source of truth for one regulatory file (payload, signed payload, detached signature,
+    НАП response, processing result, validation report, protocol...). Central registry: the SAF-T report
+    and every submission attempt reference the SAME artifact rather than duplicating files. Once finalized
+    (hashed/signed) the bytes must never change — the SHA-256 pins the exact content. Submissions link to
+    it via NapSubmissionArtifact / NapSubmissionFile. -->
+  <entity name="NapArtifact">
+
+    <string name="name" title="Name" namecolumn="true"/>
+    <string name="artifactTypeSelect" title="Type" selection="nap.artifact.type.select"
+      required="true"/>
+
+    <!-- WHICH AUTHORITY the file is addressed to: НАП (Д1/Д6, ДДС, SAF-T) or НОИ (Приложение № 9).
+
+      ⚠️ NULLABLE, AND DELIBERATELY NOT required, NOT unique, NOT defaulted at the column. The table
+      is populated on live installations; a required column on a populated table is a migration with
+      a downtime window, not a ddl-update. Rows written before this column existed keep a blank, and
+      a blank is read as "not stated" — Institution.of(null) returns null rather than НАП, because
+      defaulting a blank to НАП would turn silence into a claim about files nobody classified.
+
+      New rows always carry a value: NapArtifactService stamps it on every path. -->
+    <string name="institutionSelect" title="Institution" selection="nap.institution.select"/>
+
+    <many-to-one name="metaFile" title="File" ref="com.axelor.meta.db.MetaFile"
+      required="true"/>
+    <string name="originalFileName" title="Original filename" readonly="true"/>
+
+    <!-- Integrity: computed once at creation and never changed. -->
+    <string name="sha256" title="SHA-256" readonly="true"/>
+    <long name="byteLength" title="Byte length" readonly="true"/>
+    <string name="mimeType" title="MIME type" readonly="true"/>
+
+    <!-- Once true, the bytes/hash are locked: no service may replace the MetaFile or recompute hashes. -->
+    <boolean name="finalized" title="Finalized" default="true" readonly="true"/>
+
+    <!-- Optional owning report (submissions link via NapSubmissionArtifact). -->
+    <many-to-one name="saftReport" title="SAF-T report" ref="SaftReport"/>
+
+    <!-- WHOSE FILE IT IS: the company of the document or submission the file was made for. The
+      nyxa-security catalogue scopes reading by it (self.company = __user__.activeCompany) — before
+      this column the scope went through saftReport.company, and every Д1/Д6/Приложение № 9 file,
+      created with saftReport = null, was readable by no role but admin.
+
+      ⚠️ NULLABLE, AND DELIBERATELY NOT required, NOT defaulted at the column — same reason as
+      institutionSelect: the table is populated on live installations and ddl-update must add the
+      column without a downtime window. Existing rows are back-filled at every start-up, blank rows
+      only (BgNapArtifactCompanyBackfill, axelor-bg-localization), with
+      db/migration/2026-10-17-nap-artifact-company.sql as the manual equivalent; a row neither can
+      place stays blank, readable by admin only.
+
+      New rows carry a value on every path that knows its company (NapArtifactService). The one
+      deliberate blank is the SAF-T XSD (TYPE_SCHEMA): one shared row for all companies.
+
+      ⚠️ IMMUTABLE (decision of 17.10.2026): one company per file, never moved. Only the server sets
+      it — at creation, and the blank-only back-fill at start-up (BgNapArtifactCompanyBackfill) and
+      in the manual migration, both by bulk update. Any update that changes it — REST, UI, services,
+      admin included — is refused by NapArtifactImmutabilityListener (Hibernate PreUpdate, by the old
+      state); a client create or mass-update that sets it, by NapArtifactRequestGuard. The same
+      listener fixes the rest of the evidence: metaFile, sha256, byteLength, mimeType,
+      originalFileName, artifactTypeSelect, institutionSelect, finalized, saftReport. -->
+    <many-to-one name="company" title="Company" ref="com.axelor.apps.base.db.Company"
+      readonly="true"/>
+
+    <extra-code><![CDATA[
+      // institutionSelect (keep in sync with nap.institution.select and with Institution)
+      public static final String INSTITUTION_NAP = "nap";
+      public static final String INSTITUTION_NOI = "noi";
+
+      // artifactTypeSelect (keep in sync with nap.artifact.type.select)
+      public static final String TYPE_PAYLOAD = "payload";
+      public static final String TYPE_SIGNED_PAYLOAD = "signed_payload";
+      public static final String TYPE_SIGNATURE = "signature";
+      // The signer's public X.509 certificate, snapshotted at signing time (never a private key).
+      public static final String TYPE_CERTIFICATE = "certificate";
+      public static final String TYPE_RESPONSE = "response";
+      public static final String TYPE_PROCESSING_RESULT = "processing_result";
+      public static final String TYPE_VALIDATION_REPORT = "validation_report";
+      public static final String TYPE_PROTOCOL = "protocol";
+      // The official regulatory schema itself, stored so every generated file can be traced to the
+      // exact bytes it was validated against (SAF-T XSD 1.0.2 and any later version).
+      public static final String TYPE_SCHEMA = "schema";
+      public static final String TYPE_OTHER = "other";
+    ]]></extra-code>
+
+  </entity>
+
+</domain-models>

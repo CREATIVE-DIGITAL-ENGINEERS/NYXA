@@ -1,0 +1,123 @@
+plugins {
+	id 'com.axelor.app'
+}
+
+apply from: "../libs.gradle"
+apply from: "../version.gradle"
+
+apply {
+	// Версията се сглобява автоматично (modules/axelor-open-suite/version.gradle): един и същ низ
+	// за всички модули, за nyxa.image.version и за етикета на образа. Няма ръчни суфикси — няма
+	// номер за вдигане и няма конфликт при сливане.
+	//
+	// ⚠️ РАЗЛИЧНАТА ВЕРСИЯ Е ТОЧНО КАКВОТО ПРЕЗАРЕЖДА ИЗГЛЕДИТЕ. Самият Axelor само записва версията
+	// в MetaModule.moduleVersion и никъде не я сравнява. ModuleViewSyncService (axelor-base, през
+	// StartupEvent) обаче сверява разгърнатата версия срещу записаната и ре-импортва view XML —
+	// изгледи, менюта, селекции,
+	// action-и — на разминалите се модули. Тоест обикновен рестарт след деплой СТИГА, а
+	// `gradlew database --update` остава само за локално презареждане без нова версия.
+	// Подробно: ModuleViewSyncService.
+	//
+	// ⚠️ И НЯМА КАКВО ДА СЕ ВДИГА НА РЪКА: версията идва от NYXA_VERSION (база + брояч на пайплайна),
+	// тоест всеки CI билд вече носи различен низ. Ако след деплой изгледите не се обновят, гледай
+	// `view.sync.on-version-change` в конфигурацията и дали контейнерът наистина е рестартиран с
+	// НОВ образ — не липсващ bump.
+	//
+	// ⚠️ Презареждането на view XML НЕ носи начални данни и НЕ прави схема:
+	//   • Начални данни идват само през uninstall → App Install (капан 9): нито boot, нито App
+	//     Install при АКТИВНО приложение внасят новите редове. Нова година в производствения
+	//     календар иска точно това (виж README).
+	//   • Required колони върху заварена таблица искат db/migration/*.sql ПРЕДИ старта; ddl=update
+	//     сам създава само нулируемите.
+	version = openSuiteVersion
+}
+
+
+axelor {
+	title "Axelor BG Localization"
+	description "Bulgarian localization module (payroll, social security, KT contracts)"
+}
+
+dependencies {
+	api project(":modules:axelor-human-resource")
+	// WS-2: the VAT/NAP document collector reads posted Move/Invoice accounting entities.
+	api project(":modules:axelor-account")
+	// Bank statement import (BG Postbank XLSX) reuses the stock BankStatement/BankStatementLine model.
+	api project(":modules:axelor-bank-payment")
+	// Implements the OCR bank-statement extension point so an OCR'd PDF bank statement (detected in
+	// the generic AI-OCR intake) is routed to Bank Statements. One-way dependency (no cycle: ai-ocr
+	// depends only on account/budget), and it owns the BG Bank Statement fields the creator sets.
+	api project(":modules:axelor-ai-ocr")
+	// Само за полето BankStatement.company, което axelor-ai-banking добавя към извлечението:
+	// създателят на извлечение от OCR го попълва от компанията на качването, защото intake работи в
+	// нишка без потребител и активна компания оттам не се извежда. Еднопосочно и без цикъл:
+	// ai-banking зависи от bank-payment и ai-accountant, а ai-accountant — само от axelor-base.
+	api project(":modules:axelor-ai-banking")
+	// Само за AiInvoiceFieldContributor: НАП полетата (вид на документа, доставка по чл.163а/167а) и
+	// редовите — данъчен кредит и вид доход по ЗДДФЛ — се декларират и записват ОТТУК, а генеричните
+	// invoice tools в ai-accounting не знаят нищо за българското законодателство. Обратната посока
+	// (ai-accounting да чете полетата directly) би вкарала данъчен режим на една държава в общия
+	// слой. Еднопосочно и без цикъл: ai-accounting зависи от account/budget/ai-accountant, а
+	// ai-accountant — само от axelor-base.
+	api project(":modules:axelor-ai-accounting")
+
+	// ═══ БЛОК Ф · ЗАКАЧАНЕТО НА Д1/Д6 КЪМ ТРАНСПОРТА ═══
+	// Официалният клиент на НАП Declarations API живее ТАМ и остава там: пакетирането, подписът,
+	// подаването и одитът са негови. Оттук идват само БАЙТОВЕТЕ (EMPL2021.TXT и файлът на обр. 6) и
+	// метаданните за файл (fileDocumentType, numRecords).
+	//
+	// ⚠️ ПОСОКАТА Е ЕДНОПОСОЧНА И ЦИКЪЛ НЯМА: nyxa-nap-submissions зависи САМО от axelor-base
+	// (виж build.gradle-а му) и нищо в него не знае за заплати. Обратната посока — транспортът да
+	// вика емитера — би вкарала данъчен модул в зависимостите на всяка бъдеща услуга към НАП.
+	//
+	// ⚠️ И ЗАЩО НЕ ПО ОБРАЗЕЦА НА ДДС-СТЕКА: той има СВОЙ шев (VatSubmissionGateway) с локален mock,
+	// защото реален договор за ДДС API няма. За Д1/Д6 договорът СЪЩЕСТВУВА и е реализиран — тоест
+	// втори шев тук би бил заобикаляне на готов транспорт.
+	api project(":modules:nyxa-nap-submissions")
+
+	// ═══ SEPA pain.001 · САМО ЗА КОМПИЛАЦИЯ ═══
+	//
+	// compileOnly, не implementation: jakarta.xml.bind вече Е на runtime classpath-а — axelor-bank-payment
+	// я носи като своя `implementation` зависимост и генераторът на файла живее ТАМ. Оттук се вика
+	// BankOrderService#generateFile, който ОБЯВЯВА JAXBException — и javac иска класа на изключението
+	// разрешим, за да провери извикването, дори когато то се лови като Exception. Тоест липсата беше
+	// компилационна, а не изпълнителна.
+	//
+	// ⚠️ И ЗАЩО НЕ `api project(":modules:axelor-bank-payment")` СТИГА. Стига за BankOrder и за услугите
+	// — те са публичният му API, — но НЕ за транзитивните му `implementation` зависимости: Gradle не ги
+	// изнася по устройство. Същият избор като при logback в axelor-ai-accountant точно по съседство.
+	compileOnly libs.jaxb_bind_api
+	// ⚠️ И ЗА ТЕСТОВЕТЕ ОТДЕЛНО: compileOnly НЕ се наследява от testCompileClasspath (за разлика от
+	// implementation). BgPayrollSepaFileTest вика СЪЩИЯ upstream генератор, тоест иска същия клас
+	// разрешим. В runtime classpath-а на тестовете библиотеката влиза транзитивно и без това.
+	testCompileOnly libs.jaxb_bind_api
+
+	// IBAN-ът на подаващия в SAF-T (S.BA.1) се проверява с валидатора на Axelor —
+	// BankDetailsService.validateIban, — който ОБЯВЯВА изключенията на iban4j; javac иска класовете им
+	// разрешими, а axelor-base държи iban4j като `implementation`, тоест не се наследява. Същият избор
+	// и същият alias като в axelor-ai-ocr — версиите не могат да се разминат.
+	implementation libs.iban4j
+
+	// САМО за тестове: BgZbdooManifestTest чете манифеста на изданието (YAML) и сверява базата срещу
+	// него. Библиотеката вече е в runtime classpath-а транзитивно и версията се управлява от
+	// платформата — тук се добавя единствено видимост при компилация на тестовете.
+	testImplementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml"
+
+	// САМО за тестове: BgVatProtocolPdfTest чете обратно текста на рендирания PDF на протокола по
+	// чл. 117. PDFBox вече е в runtime classpath-а (axelor-base го държи като `implementation`), но
+	// не се наследява при компилация — същият alias и същата версия.
+	testImplementation libs.pdfbox
+
+	// testImplementation is not exported transitively from axelor-ai-ocr, so it must be declared
+	// here too: BgAddressGeocodeServiceTest mocks NominatimHttpClient/BgCityCentroidService/
+	// BgCityPostcodeService to exercise the safe-fallback orchestration without any live network
+	// call or DB. Same alias/version axelor-ai-ocr already uses.
+	testImplementation libs.mockito
+
+	// The Microinvest accounting-import tests post Moves and read them back, which HSQLDB cannot do:
+	// the Move.xml extension in this module declares ocrUploadIds as a PostgreSQL-only
+	// array_to_string(array_agg(...)) formula that Hibernate inlines into every Move select. They run
+	// against a scratch PostgreSQL database instead (persistence unit "testPostgres"), so the driver
+	// has to be on the TEST runtime classpath — the app gets it from the container image, not here.
+	testRuntimeOnly "org.postgresql:postgresql:42.7.11"
+}

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- Microinvest -> Nyxa one-time migration. Same
+    pattern as BgPayrollLedgerWizard: the form works on a transient context, buttons never call
+    save() on this record. Remove this entity together with the importer once all client companies
+    are migrated; it is not meant to be a permanent feature. -->
+  <entity name="MicroinvestImportWizard">
+
+    <!-- The JSON export produced by the Microinvest export tool for one client company,
+      run externally against the read-only SQL Server source; there is no live connection from
+      Nyxa to Microinvest. Same upload pattern as ImportConfiguration.dataMetaFile. -->
+    <many-to-one name="sourceFile" title="Export file (.json)" required="true"
+      ref="com.axelor.meta.db.MetaFile"/>
+
+    <string name="reportText" title="Report" large="true" multiline="true" transient="true"/>
+
+    <!-- Названието на АКТИВНАТА компания, в която ще се пише. Показва се преди качването на файл:
+      импортът никога не създава компания, а пише само в активната (виж MicroinvestCompanyGuard). -->
+    <string name="activeCompanyInfo" title="Целева компания" large="true" multiline="true"
+      transient="true"/>
+
+    <integer name="employeesFoundCount" title="Employees found in source" transient="true"/>
+    <integer name="sourceRecordCount" title="Source records" transient="true"/>
+    <integer name="createdCount" title="Created" transient="true"/>
+    <integer name="updatedCount" title="Reused (already present)" transient="true"/>
+    <integer name="skippedCount" title="Skipped (intentional)" transient="true"/>
+    <integer name="blockedCount" title="Blocked (prerequisite)" transient="true"/>
+    <integer name="failedCount" title="Failed" transient="true"/>
+
+  </entity>
+
+</domain-models>

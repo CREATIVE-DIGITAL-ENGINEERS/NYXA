@@ -1,0 +1,113 @@
+# Keys that still have more than one distinct Bulgarian value across modules and are NOT settled
+# by the root app (nyxa custom_bg.csv / messages_bg.csv). BgConflictRatchetTest allows exactly these.
+# The list may only shrink: settle a key in the root layer, then delete its line here.
+Accept
+Accepted
+Account config
+Account configuration
+Account management list
+Accounting cut off generation report :
+Add a new sale order line
+Amount Tax
+Amount Tax (via percentages)
+Analytic Axis By company
+Analytic distribution lines
+App Supplychain
+Bank Details
+Bank details
+Bank reconciliation
+Book resource
+Cancel Reasons
+Cancel reason
+Cashier Credit Regulation account
+Cashier Debit Regulation account
+Check
+Comment
+Companies
+Completed
+Condition
+Correction
+Cpte Ana. AXIS1
+Cpte Ana. AXIS2
+Cpte Ana. AXIS3
+Cpte Ana. AXIS4
+Cpte Ana. AXIS5
+Daily
+Date to respect delays
+Deallocate
+Default unit
+Define sub bill of material
+Discount rate
+Display
+Disposal
+Dms file
+Due Date
+Due date
+Enable product description copy
+Enabled
+Failed
+Fill from Sirene API
+Filter on supplier
+Fiscal Year
+Fiscal year
+Follow-up
+Invoice term
+Invoice.expenseTaxAmount
+Invoice.expenseTitle
+Invoice.timesheetDuration
+Invoice.timesheetTitle
+Journal
+Journals
+Line
+Log Times
+MO's comment from sale order line
+Manual
+Manuf order
+Merged MO
+Ms.
+Multiple quantities
+New line
+Outcome
+Outsourced
+Payment schedule line
+Payment schedule lines
+Payment voucher
+Payment vouchers
+Period type
+Printings
+Product Accounting Family
+Production note
+Public Holiday Planning
+Purchase price W.T.
+Rate
+Real
+Reference already existing
+Rejected
+Remove lines
+Report
+Reverse charged
+Run calculation
+Sale quotation
+Schedule lines
+Separate in a new quotation
+Seq.
+Serial Nbr
+Sex
+Source
+Standby
+Status select
+Sub Total gross profit
+Sub Total markup
+Sub margin rate
+Suppliers requests
+Timesheet Lines
+Timesheet lines
+To
+To Invoice
+To invoice
+Type select
+Validate
+Validated
+Ventilated
+Waiting Timesheet lines
+Workshop

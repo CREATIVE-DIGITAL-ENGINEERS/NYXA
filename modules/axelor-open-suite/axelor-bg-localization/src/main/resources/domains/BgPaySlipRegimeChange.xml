@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_7.4.xsd">
+
+  <module name="bg-localization" package="com.axelor.apps.bglocalization.db"/>
+
+  <!-- ЕДНА ПРОМЯНА НА ЗАМРАЗЕНИЯ РЕЖИМ (ИЛИ НА ДНИТЕ НА КАРВА) В КОРИГИРАЩО ИЛИ ЗАЛИЧАВАЩО КОПИЕ —
+    поле, старо, ново, кой, кога.
+
+    ⚠️ САМО ДОБАВЯНЕ. Редът не се редактира и не се трие: той е следата, по която проверяващ разбира
+    защо коригиращата декларация осигурява по друг режим от оригинала (неотбелязан ТЕЛК, грешен вид
+    осигурен). Пише го BgPaySlipRegimeAudit при запис на копието и при „Попълни от текущите данни“.
+
+    ⚠️ СТОЙНОСТИТЕ СА ТЕКСТ, а не типизирани колони: полетата на режима са низове, числа, дати и
+    признаци, а следата трябва да се чете като изречение, не да се смята. -->
+  <entity name="BgPaySlipRegimeChange">
+    <many-to-one name="paySlip" title="Фиш" required="true"
+      ref="com.axelor.apps.bglocalization.db.BgPaySlip"/>
+    <string name="fieldName" title="Поле (код)" required="true" readonly="true"/>
+    <string name="fieldTitle" title="Поле" readonly="true"/>
+    <string name="oldValue" title="Беше" readonly="true"/>
+    <string name="newValue" title="Стана" readonly="true"/>
+    <many-to-one name="changedBy" title="Кой" ref="com.axelor.auth.db.User" readonly="true"/>
+    <datetime name="changedOn" title="Кога" readonly="true"/>
+    <string name="source" title="Как" selection="bg.payslip.regime.change.source.select"
+      readonly="true"/>
+    <!-- При попълване: ПОВОДЪТ — „от текущите данни“ или „при отразяване на болничен лист № …“. -->
+    <string name="note" title="Повод" readonly="true"/>
+  </entity>
+
+</domain-models>

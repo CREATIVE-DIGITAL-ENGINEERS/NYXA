@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <grid name="bg-employee-child-grid" title="Деца"
+    model="com.axelor.apps.bglocalization.db.BgEmployeeChild">
+    <field name="fullName"/>
+    <field name="bgEgn"/>
+    <field name="birthDate"/>
+    <field name="isDisabled"/>
+  </grid>
+
+  <form name="bg-employee-child-form" title="Дете"
+    model="com.axelor.apps.bglocalization.db.BgEmployeeChild">
+    <panel name="mainPanel" colSpan="12">
+      <field name="fullName" colSpan="12"/>
+      <field name="bgEgn"/>
+      <field name="birthDate"/>
+      <field name="isDisabled"/>
+      <field name="disabilityValidTo" showIf="isDisabled"/>
+    </panel>
+  </form>
+
+</object-views>

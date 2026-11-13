@@ -1,0 +1,3 @@
+"name";"job";"cron";"active";"description"
+"ai-ocr-poller";"com.axelor.apps.aiocr.job.AiOcrPollJob";"0 0/1 * * * ?";"true";"Poll queued AI-OCR uploads and build draft supplier invoices"
+"ai-ocr-quarantine-sweep";"com.axelor.apps.aiocr.job.OcrFileQuarantineSweepJob";"0 30 * * * ?";"true";"Reclaim leftover quarantined OCR file blobs (retry for failed post-commit deletions)"

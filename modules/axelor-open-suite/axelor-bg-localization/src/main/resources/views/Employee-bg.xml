@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ОБЩО ПРАВИЛО ЗА ЦЕЛИЯ ФАЙЛ. AOP прилага <extend> само върху ЕДИН възел: ComputedViewXmlProcessor.processExtend()
+    вика evaluateXPath(..., XPathConstants.NODE), т.е. взима ПЪРВИЯ по документен ред и мълчи за останалите.
+    Стандартният employee-form има двойна структура — съветник (stepByStepSelect 1..4, панели *SBSPanel)
+    и класически изглед (stepByStepSelect == 5) — и почти всяко поле е декларирано ДВА пъти. Затова всеки
+    таргет тук е panel-scoped и е повторен по веднъж на всяко срещане. Гол //field[@name='X'] покрива само
+    съветника (той е по-горе във файла) и оставя класическия изглед непроменен. Броят срещания е сверен срещу
+    axelor-human-resource/src/main/resources/views/Employee.xml. -->
+
+  <form name="employee-form" title="Employee" id="bg-localization-employee-form"
+    model="com.axelor.apps.hr.db.Employee" extension="true">
+    <extend target="/">
+      <attribute name="onSave"
+        value="action-bg-localization-employee-method-validate-personal-id"/>
+      <attribute name="onNew"
+        value="action-group-employee-on-new,action-bg-employee-default-country-of-birth-bg"/>
+    </extend>
+    <!-- bgLocalizationPanel се вмъква като БРАТ на personalInfoPanel, не като негово дете — а братята
+      НЕ наследяват showIf. personalInfoPanel е showIf="stepByStepSelect == 5"; вмъкнат панел без условие
+      би се показвал под всяка стъпка на съветника (1..4) и пак в класическия изглед. Всеки стандартен
+      панел носи собственото си условие за стъпка; повтаряме същото условие, за да се държи като съседа си.
+      Съветникът остава чист — ЕГН/осигуряване не са част от 4-те стъпки, а validatePersonalId прескача празна
+      стойност, така че записът в стъпките не се чупи. -->
+    <extend target="//panel[@name='personalInfoPanel']">
+      <insert position="after">
+        <panel name="bgLocalizationPanel" colSpan="12" showIf="stepByStepSelect == 5">
+          <panel name="bgIdentificationPanel" title="Идентификация" colSpan="12">
+            <field name="bgPersonalIdNumber"/>
+            <field name="bgPersonalIdType"/>
+            <!-- Личният номер, внесен от Microinvest (MicroinvestImportWizard) — тук, за да е видим
+              за ТРЗ. -->
+            <field name="bgPersonnelNumber"/>
+          </panel>
+          <panel name="bgIdCardPanel" title="Лична карта" colSpan="12">
+            <field name="bgIdCardNumber"/>
+            <field name="bgIdCardIssuedBy"/>
+            <field name="bgIdCardIssueDate"/>
+            <field name="bgIdCardValidTo"/>
+          </panel>
+          <panel name="bgInsurancePanel" title="Осигуряване" colSpan="12">
+            <field name="bgLaborCategory"/>
+            <field name="bgInsuranceStatus"/>
+            <field name="bgBornAfter1959"/>
+            <field name="bgPensionChoice"/>
+            <field name="bgIsPensioner"/>
+            <field name="bgIsSelfInsured"/>
+            <!-- Избраният осигурителен доход има смисъл само за СОЛ — за наето лице базата е възнаграждението,
+              не избор. -->
+            <field name="bgSolInsurableIncome" showIf="bgIsSelfInsured"/>
+            <field name="bgMinIncomeOverride"
+              help="Прилага се само в изключителни случаи, когато таблицата по Приложение №1 не покрива конкретната длъжност. Стойността бие таблицата, но не отменя минималната работна заплата."/>
+            <!-- ⚠️ ФЛАГЪТ Е ПРЕД СТОЙНОСТТА, И ТОВА Е НАРОЧНО. Празното поле и декларираната нула
+              са едно и също число за базата, но различен отговор по чл. 40 ал. 1 КСО: нула месеца
+              значи „няма право на обезщетение“, а непопълнено значи „още не знаем“. Затова
+              стойността се въвежда само след като операторът е обявил, че я декларира. -->
+            <field name="bgInsuranceServiceDeclared" colSpan="6"/>
+            <field name="bgInsuranceServiceMonths" colSpan="6"
+              showIf="bgInsuranceServiceDeclared"
+              help="Признат осигурителен стаж на ЛИЦЕТО в месеци, сумарно по всички негови правоотношения. Различен от признатия трудов стаж по договора: неплатеният отпуск над 30 дни не се зачита за нито един от двата, а платеният се зачита за трудов."/>
+            <field name="bgInsuranceServiceAsOf" colSpan="6"
+              showIf="bgInsuranceServiceDeclared"
+              help="Датата, към която са верни месеците отляво. Правото на обезщетение се определя към НАЧАЛОТО на неработоспособността: стажът към тази дата се извежда от месеците плюс потвърдените фишове след тази дата. Начало на болничен преди тази дата или месец без потвърден фиш → отказ."/>
+          </panel>
+          <!-- ЛИЧНАТА ПЛАТЕЖНА СМЕТКА ЗА ОБЕЗЩЕТЕНИЯ ОТ ДОО — т. 26 на Приложение № 9.
+            ⚠️ ОТДЕЛНА ОТ „Bank details“ НА СЛУЖИТЕЛЯ, и това не е дублиране: там е сметката, по
+            която ДРУЖЕСТВОТО плаща (ползва се и от импорта на банкови извлечения), а тази е
+            сметката, по която НОИ плаща ДИРЕКТНО на лицето. Лице със сменена банка има двете
+            различни, и НОИ иска онази, която лицето е декларирало пред него. -->
+          <panel name="bgBenefitAccountPanel" title="Обезщетения от ДОО" colSpan="12">
+            <field name="bgBenefitIban" colSpan="6"
+              help="Личната платежна сметка на лицето за изплащане на паричните обезщетения от ДОО — пълни т. 26 на удостоверението по Приложение № 9. ⚠️ Различна от „Bank details“: там е сметката, по която дружеството плаща заплатата. Т. 26 се попълва само при ПЪРВОТО представяне на удостоверение; промяната се удостоверява отделно."/>
+          </panel>
+          <panel name="bgChildrenPanel" title="Деца" colSpan="12">
+            <field name="bgChildren" colSpan="12" showTitle="false"
+              grid-view="bg-employee-child-grid" form-view="bg-employee-child-form"/>
+          </panel>
+          <!-- Отделен панел от „Осигуряване", защото това е ДАНЪЧЕН вход (ЗДДФЛ), не осигурителен —
+            намалената работоспособност не влияе на осигурителните вноски, а на месечната данъчна основа (чл. 18
+            ЗДДФЛ). Слоят ще расте: облекчения за деца (чл. 22в/22г), дарения (чл. 22), лични вноски за застраховка
+            живот (чл. 19) — всички те влизат тук, не при осигуряването. -->
+          <panel name="bgTaxReliefPanel" title="Данъчни облекчения" colSpan="12">
+            <field name="bgDisabilityRelief" colSpan="6"/>
+            <!-- Датата има смисъл само при активно облекчение; стойността се пази в БД дори скрита. -->
+            <field name="bgDisabilityValidUntil" colSpan="6" showIf="bgDisabilityRelief"/>
+          </panel>
+        </panel>
+      </insert>
+    </extend>
+    <!-- Презиме в трипартитния БГ ред на contactPartner editor-а (bgMiddleName е Partner поле → връзва
+      се в editor-а). Ред: обръщение(2) + собствено(4) + презиме(3) + фамилия(3). БЕЗ Guice/override — само
+      view. ВНИМАНИЕ, това е капанът тук: panel-scoped таргет НЕ е достатъчен, когато самото име на панела
+      се повтаря. contactDetailsPanel съществува ДВА пъти — веднъж в editor-а на contactSBSPanel (съветник)
+      и веднъж в editor-а на editContactPanel (класически изглед, режим редакция). Затова //panel[@name='contactDetailsPanel']/field[...]
+      пак резолва към ЕДИН възел (първия по документен ред = съветника) и презимето би липсвало точно в класическия
+      изглед, където се редактират реалните служители. Разграничаването става по УНИКАЛНИЯ РОДИТЕЛ, не по панела:
+      contactSBSPanel и editContactPanel са уникални. Оттам четири extend-а вместо два. Общото правило: scope-вай
+      нагоре, докато таргетът стане уникален, и го докажи с BgViewExtendTargetTest — не по име на панел „защото
+      звучи достатъчно специфично". -->
+    <extend
+      target="//panel[@name='contactSBSPanel']//panel[@name='contactDetailsPanel']/field[@name='firstName']">
+      <attribute name="colSpan" value="4"/>
+      <insert position="after">
+        <field name="bgMiddleName" colSpan="3"/>
+      </insert>
+    </extend>
+    <extend
+      target="//panel[@name='contactSBSPanel']//panel[@name='contactDetailsPanel']/field[@name='name']">
+      <attribute name="colSpan" value="3"/>
+    </extend>
+    <extend
+      target="//panel[@name='editContactPanel']//panel[@name='contactDetailsPanel']/field[@name='firstName']">
+      <attribute name="colSpan" value="4"/>
+      <insert position="after">
+        <field name="bgMiddleName" colSpan="3"/>
+      </insert>
+    </extend>
+    <extend
+      target="//panel[@name='editContactPanel']//panel[@name='contactDetailsPanel']/field[@name='name']">
+      <attribute name="colSpan" value="3"/>
+    </extend>
+
+    <!-- Пол: закачаме bg-собствената селекция bg.employee.sex.select (F→жена, M→мъж). Panel-scoped,
+      защото sexSelect е на две места (SBS + класически) — гол //field би покрил само едното.
+      DPAE.xml НЕ се пипа (френски модул). -->
+    <extend target="//panel[@name='personalInfoSBSPanel']/field[@name='sexSelect']">
+      <attribute name="selection" value="bg.employee.sex.select"/>
+    </extend>
+    <extend target="//panel[@name='personalInfoPanel']/field[@name='sexSelect']">
+      <attribute name="selection" value="bg.employee.sex.select"/>
+    </extend>
+
+    <!-- Скриване на generic/дублиращи полета (данните остават в БД, само UI). departmentOfBirth
+      = френско админ. понятие без BG аналог; maritalName = ненужно; socialSecurityNumber = дублира ЕГН (bgPersonalIdNumber);
+      profitSharingBeneficiary = 0 бизнес логика. Всяко от четирите е по ДВА пъти в стандартната форма — първите
+      три в personalInfoSBSPanel (съветник, стъпка 1) и personalInfoPanel (класически), profitSharingBeneficiary
+      в contractualInfoSBSPanel (съветник, стъпка 2) и contractualInfoPanel (класически, таб „Employment contracts").
+      Затова по два extend-а на поле. -->
+    <extend target="//panel[@name='personalInfoSBSPanel']/field[@name='departmentOfBirth']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//panel[@name='personalInfoPanel']/field[@name='departmentOfBirth']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//panel[@name='personalInfoSBSPanel']/field[@name='maritalName']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//panel[@name='personalInfoPanel']/field[@name='maritalName']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend
+      target="//panel[@name='personalInfoSBSPanel']/field[@name='socialSecurityNumber']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//panel[@name='personalInfoPanel']/field[@name='socialSecurityNumber']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend
+      target="//panel[@name='contractualInfoSBSPanel']/field[@name='profitSharingBeneficiary']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend
+      target="//panel[@name='contractualInfoPanel']/field[@name='profitSharingBeneficiary']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+
+    <!-- hourlyRate е само за business-project фактуриране (НЕ payroll — ТРЗ смята часова ставка отделно
+      от bgBaseSalary/норма). Преименуване, за да не се бърка с ТРЗ. Също два пъти: contractualInfoSBSPanel
+      (стъпка 2) и contractualInfoPanel (класически). Гол таргет би преименувал само съветника, а в реално
+      ползвания класически изглед полето би останало „Hourly rate". -->
+    <extend target="//panel[@name='contractualInfoSBSPanel']/field[@name='hourlyRate']">
+      <attribute name="title" value="Часова ставка за фактуриране"/>
+    </extend>
+    <extend target="//panel[@name='contractualInfoPanel']/field[@name='hourlyRate']">
+      <attribute name="title" value="Часова ставка за фактуриране"/>
+    </extend>
+
+    <!-- imposedDayEventsPlanning (UI title "Imposed holidays planning") — мъртво поле,
+      0 Java четене (реалната логика само през publicHolidayEventsPlanning). Само view hidden. Двете срещания
+      са в РАЗЛИЧНО ВЛОЖЕНИ панели: в съветника е внук на rhInfoSBSPanel (през безименен <panel colSpan="12">),
+      затова descendant-ос //, а не /; в класическия изглед е пряко дете на planningPanel (вътре в contractualInfoPanel). -->
+    <extend target="//panel[@name='rhInfoSBSPanel']//field[@name='imposedDayEventsPlanning']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//panel[@name='planningPanel']/field[@name='imposedDayEventsPlanning']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+
+    <!-- bonusCoef (0 BG употреба — френски бонус). Два пъти: contractualInfoSBSPanel
+      (стъпка 2) и contractualInfoPanel (класически) — гол //field би скрил само съветника. -->
+    <extend target="//panel[@name='contractualInfoSBSPanel']/field[@name='bonusCoef']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+    <extend target="//panel[@name='contractualInfoPanel']/field[@name='bonusCoef']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+
+    <!-- „Завършете" минава през СПОДЕЛЕНА услуга, не през action-record.
+      Стандартният бутон вика action-employee-record-finish-sbs, чието цяло тяло е stepByStepSelect = 5.
+      Това е единственото нещо, което „завършва" служителя — всички обикновени панели на формата
+      (вкл. bgLocalizationPanel по-горе) са showIf="stepByStepSelect == 5". Служител, създаден
+      директно през репозитория (напр. от Microinvest импорта), иначе би изглеждал празен: би
+      останал на стъпка 1 от съветник, който никой не е отварял.
+      Правилото живее в BgEmployeeCompletionService и ДВАТА пътя (бутонът и импортът) минават
+      през него — иначе второ копие на правилото неизбежно се разминава. Веригата validate/save на
+      бутона е запазена: контролерът само попълва стойности във формата. -->
+    <extend target="//panel[@name='stepByStepControlsPanel']/button[@name='finishBtn']">
+      <attribute name="onClick"
+        value="validate,action-bg-localization-employee-method-finish-sbs,save"/>
+    </extend>
+
+    <!-- Целият панел „Medical visit". ЕДИНСТВЕНО срещане в стандартната форма — panel-tabs/mainPanelTab,
+      няма SBS дубликат, защото медицинските прегледи не са част от съветника. Затова тук един extend е достатъчен
+      и липсата на втори НЕ е пропуск. ВНИМАНИЕ: съществува ОТДЕЛЕН панел medicalVisitDatePanel (друго име,
+      същото заглавие „Medical visit") в readonly sidebar-а на contactPanel. Той НЕ се пипа тук; скриването и на
+      него е отделно решение. -->
+    <extend target="//panel[@name='medicalVisitPanel']">
+      <attribute name="hidden" value="true"/>
+    </extend>
+  </form>
+
+  <action-method name="action-bg-localization-employee-method-validate-personal-id">
+    <call class="com.axelor.apps.bglocalization.web.EmployeeBgController"
+      method="validatePersonalId"/>
+  </action-method>
+
+  <action-method name="action-bg-localization-employee-method-finish-sbs">
+    <call class="com.axelor.apps.bglocalization.web.EmployeeBgController"
+      method="finishStepByStep"/>
+  </action-method>
+
+  <!-- Default countryOfBirth to Bulgaria on a NEW employee so the cityOfBirth dropdown (filtered by
+    countryOfBirth via action-employee-attrs-city-of-birth-on-select) shows the imported BG City dataset
+    without the user first having to pick the country. Only applied when empty, so stock onNew is respected.
+    Same pattern as action-bg-address-default-country-bg in Address-bg.xml. -->
+  <action-record name="action-bg-employee-default-country-of-birth-bg"
+    model="com.axelor.apps.hr.db.Employee">
+    <field name="countryOfBirth" if="!countryOfBirth"
+      expr="eval: com.axelor.inject.Beans.get(com.axelor.apps.base.db.repo.CountryRepository.class).all().filter('upper(self.alpha2Code) = ?', 'BG').fetchOne()"/>
+  </action-record>
+
+</object-views>

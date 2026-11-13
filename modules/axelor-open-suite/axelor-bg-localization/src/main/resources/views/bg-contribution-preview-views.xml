@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- Диагностична форма само за преглед (transient модел). Ново view, не extend — не опира до multi-match
+    XPath капана. -->
+  <form name="bg-contribution-preview-form" title="Проверка на осигуровки"
+    model="com.axelor.apps.bglocalization.db.BgContributionPreview">
+    <panel name="inputPanel" title="Вход" colSpan="12">
+      <field name="employee"/>
+      <field name="company"/>
+      <field name="previewDate"/>
+      <field name="insuredTypeCode"/>
+      <field name="laborCategory"/>
+      <field name="solScope"/>
+      <field name="compensationTypeCode"/>
+      <field name="grossSalary"/>
+      <button name="calculateBtn" title="Изчисли"
+        onClick="action-bg-contribution-preview-calculate" colSpan="4"/>
+    </panel>
+    <panel name="resultPanel" title="Резултат" colSpan="12">
+      <field name="resultText" showTitle="false" colSpan="12" widget="text" height="24"
+        readonly="true"/>
+    </panel>
+  </form>
+
+  <action-method name="action-bg-contribution-preview-calculate">
+    <call class="com.axelor.apps.bglocalization.web.BgContributionPreviewController"
+      method="calculate"/>
+  </action-method>
+
+  <action-view name="action-bg-contribution-preview" title="Проверка на осигуровки"
+    model="com.axelor.apps.bglocalization.db.BgContributionPreview">
+    <view type="form" name="bg-contribution-preview-form"/>
+    <view-param name="forceEdit" value="true"/>
+  </action-view>
+
+</object-views>

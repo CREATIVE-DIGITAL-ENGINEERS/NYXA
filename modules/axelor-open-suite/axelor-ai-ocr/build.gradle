@@ -1,0 +1,48 @@
+plugins {
+	id 'com.axelor.app'
+}
+
+apply from: "../libs.gradle"
+apply from: "../version.gradle"
+
+apply {
+	version = openSuiteVersion
+}
+
+axelor {
+	title "Axelor AI OCR"
+	description "AI OCR document review and approval queue for supplier invoices"
+}
+
+dependencies {
+	api project(":modules:axelor-account")
+	// Needed to extend the tail of the Invoice repository chain (BudgetInvoiceRepository) so a
+	// supplier-invoice delete can clear its OCR upload/file references. No cycle: budget does not
+	// depend on ai-ocr.
+	api project(":modules:axelor-budget")
+
+	// AI Accountant: post-OCR correction/reconciliation of uncertain extractions, and the read tools
+	// this module contributes to the assistant. No cycle: ai-accountant depends only on axelor-base.
+	api project(":modules:axelor-ai-accountant")
+
+	// The shared invoice services (search, detail, readiness, header/line edit, lifecycle, creation).
+	// A supplier invoice and a customer invoice are the same entity with the same lifecycle, so that
+	// logic lives ONCE, there, and this module's OCR tools delegate to it — keeping only what is
+	// genuinely about the scanned document: the upload, the extraction, the reconciliation against
+	// what was read. No cycle: ai-accounting depends on account/budget/ai-accountant and knows
+	// nothing about OCR; what it needs from here arrives through AiInvoiceReadinessContributor.
+	api project(":modules:axelor-ai-accounting")
+
+	// PDF page extraction + region cropping for the multi-document PDF splitter (BgOcrPdfSegmenter
+	// decides boundaries from the single Azure OCR result; PdfSplitService writes the slice PDFs).
+	implementation libs.pdfbox
+
+	// Same IBAN library axelor-base uses, and for the same reason: BankDetailsService.validateIban
+	// declares iban4j's exception types, so calling Axelor's own validator (rather than writing a
+	// second one) needs them on this module's compile classpath. axelor-base keeps iban4j
+	// 'implementation', so it is not inherited. Version comes from the shared libs.gradle alias, so
+	// the two cannot drift apart.
+	implementation libs.iban4j
+
+	testImplementation libs.mockito
+}

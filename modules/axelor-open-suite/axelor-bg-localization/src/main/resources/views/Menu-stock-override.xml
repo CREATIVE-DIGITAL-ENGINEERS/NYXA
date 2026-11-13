@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ═══ „ПРИЧИНИ ЗА КОРЕКЦИЯ НА ЗАПАСИТЕ“ — МЕНЮТО И СПИСЪКЪТ В МНОЖЕСТВЕНО ЧИСЛО ═══
+
+    axelor-stock ползва ЕДИН ключ „Stock Correction Reason“ за менюто, за action-view-а (заглавието
+    на таба със списъка) и за формата на една причина. Преводът е по буквалния ключ, тоест един текст
+    за трите места. Затова менюто и списъкът — „Stock Correction Reasons“ („Причини за
+    корекция на запасите“, вече преведен в axelor-stock), формата — „Stock Correction Reason“
+    („Причина за корекция на запасите“, custom_bg.csv на nyxa).
+
+    Механизмът е този на Menu-account-move-override.xml: `id` ражда втори ред със същото `name` и
+    приоритет на чуждия + 1, а MetaMenuRepository/MetaActionRepository#findByName и
+    MenuUtils#fetchMetaMenu вземат реда с най-висок приоритет. Преопределящият ред ЗАМЕСТВА чуждия
+    изцяло — затова parent, action, order, моделът и изгледите са дословно като в axelor-stock
+    (Menu.xml); сменено е само `title`. Id-тата на менюто и действието са различни: object-views.xsd
+    иска уникално id в целия файл, а невалиден файл се изхвърля цял (BgViewSchemaTest). Пазач:
+    BgUiMenuTranslationsTest. -->
+  <action-view id="bg-override-action-stock-root-conf-stock-correction-reason"
+    name="stock.root.conf.stock.correction.reason" title="Stock Correction Reasons"
+    model="com.axelor.apps.stock.db.StockCorrectionReason">
+    <view type="grid" name="stock-correction-reason-grid"/>
+    <view type="form" name="stock-correction-reason-form"/>
+  </action-view>
+
+  <menuitem id="bg-override-stock-root-conf-stock-correction-reason"
+    name="stock-root-conf-stock-correction-reason" title="Stock Correction Reasons"
+    parent="stock-root-conf" action="stock.root.conf.stock.correction.reason" order="1000"/>
+
+</object-views>

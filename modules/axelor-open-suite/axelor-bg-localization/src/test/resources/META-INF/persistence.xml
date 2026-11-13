@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="testUnit" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+    <properties>
+      <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:test"/>
+      <property name="javax.persistence.jdbc.user" value="admin"/>
+      <property name="javax.persistence.jdbc.password" value=""/>
+      <property name="hibernate.hbm2ddl.auto" value="create"/>
+      <!-- Only DB NOT NULL constraints matter for these repository/transaction tests; bean validation
+        is disabled so fixtures need not populate every UI-required field. -->
+      <property name="javax.persistence.validation.mode" value="none"/>
+    </properties>
+  </persistence-unit>
+
+  <!-- PostgreSQL-backed unit for the Microinvest accounting import. ⚠️ HSQLDB CANNOT run these tests.
+    The bg-localization extension of Move.xml declares the formula field ocrUploadIds using PostgreSQL-only
+    array_to_string(array_agg(...)), which Hibernate inlines into EVERY select of the Move entity — so on
+    HSQLDB any query that selects a Move dies with "unexpected token: SELECT". Posting a Move and reading
+    it back is exactly what these tests do. Points at a SCRATCH database (nyxa_mi_test), never the real "nyxa"
+    one, and the credentials are development defaults — not a secret. The host port is 55432 so that a PostgreSQL
+    16 container matching production can run next to a native PostgreSQL that owns 5432. Every value here
+    is overridable with -Dhibernate.connection.* : Axelor's SettingsBuilder puts SystemSettingSource last,
+    and JpaModule forwards every "hibernate.*" setting into the persistence unit, so system properties win
+    over this file. -->
+  <persistence-unit name="testPostgres" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+    <properties>
+      <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+      <property name="javax.persistence.jdbc.url"
+        value="jdbc:postgresql://127.0.0.1:55432/nyxa_mi_test"/>
+      <property name="javax.persistence.jdbc.user" value="nyxa"/>
+      <property name="javax.persistence.jdbc.password" value="nyxa"/>
+      <!-- ⚠️ "none", and measured rather than chosen for taste: dropping and recreating the whole Open
+        Suite model (996 tables and their constraints) over this connection takes ~25 minutes, one statement
+        per round trip, and integrationTest uses forkEvery = 1 so EVERY test class would pay it again. The tests
+        truncate their own tables between methods instead, so they do not need a fresh schema — only a correct
+        one. Create or refresh the scratch schema after any domain change with: psql -c "DROP SCHEMA public CASCADE;
+        CREATE SCHEMA public" (on nyxa_mi_test) gradlew :modules:axelor-bg-localization:integrationTest -Dhibernate.hbm2ddl.auto=create
+        The system property wins over this file (SettingsBuilder puts SystemSettingSource last). MicroinvestAccountingLedgerTest
+        asserts the schema is not stale before it runs. -->
+      <property name="hibernate.hbm2ddl.auto" value="none"/>
+      <property name="javax.persistence.validation.mode" value="none"/>
+    </properties>
+  </persistence-unit>
+
+  <!-- PostgreSQL unit for the demo data test (BgDemoDataPostgresIntegrationTest): the SAME settings
+    as the application's own unit (root src/main/resources/META-INF/persistence.xml) — no validation.mode,
+    so bean validation is "auto" and Hibernate sizes the columns from @Size (meta_translation.message_key
+    is 1024, not 255 — with "none" the first boot dies on "value too long"). The database is the test's OWN,
+    empty at first: url/user/password come from -Ddemo.db.*; never the shared "nyxa" or any deployed environment's
+    database. -->
+  <persistence-unit name="demoPostgres" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+    <properties>
+      <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+      <property name="javax.persistence.jdbc.url"
+        value="jdbc:postgresql://127.0.0.1:5432/nyxa_demo_test"/>
+      <property name="hibernate.hbm2ddl.auto" value="update"/>
+    </properties>
+  </persistence-unit>
+</persistence>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
+
+  <!-- ============ ИЗНОС КЪМ НОИ (Приложение № 9) + ДНЕВНИК НА БОЛНИЧНИТЕ ============
+    ⚠️ ТОЗИ ЕКРАН НЕ ПОДАВА. Той произвежда файла „Данни за паричните обезщетения“, проверява го
+    ОФЛАЙН срещу схемата на НОИ и го закача като неизменяем артефакт. Подаването иска КЕП и се
+    прави от човек през портала на НОИ; бутонът „Отбележи като подаден“ записва ЧОВЕШКОТО действие,
+    а не машинно. -->
+
+  <grid name="bg-app9-export-grid" title="Експорт към НОИ (Приложение № 9)"
+    model="com.axelor.apps.bglocalization.db.BgApp9Export" orderBy="-bgExportDate">
+    <hilite color="success" if="statusSelect == 'SUBMITTED'"/>
+    <hilite color="info" if="statusSelect == 'GENERATED'"/>
+    <hilite color="default" if="statusSelect == 'CANCELLED'"/>
+    <field name="name"/>
+    <field name="company"/>
+    <field name="bgPeriodFrom"/>
+    <field name="bgPeriodTo"/>
+    <field name="nssiRoCode"/>
+    <field name="statusSelect"/>
+    <field name="bgExportDate"/>
+    <field name="bgNoiArtifact"/>
+  </grid>
+
+  <form name="bg-app9-export-form" title="Експорт към НОИ (Приложение № 9)"
+    model="com.axelor.apps.bglocalization.db.BgApp9Export" onNew="action-bg-app9-export-defaults,action-bg-app9-export-record-default-declarant">
+
+    <panel name="statusPanel" showTitle="false" colSpan="12">
+      <field name="statusSelect" widget="NavSelect" colSpan="12" readonly="true"/>
+    </panel>
+
+    <panel name="headerPanel" title="Експортът">
+      <field name="name"/>
+      <field name="company" onChange="action-bg-app9-export-record-default-declarant"/>
+      <field name="bgDeclarant" domain="self.company = :company"
+        help="Длъжностното лице във файла на Приложение № 9. По подразбиране е деклараторът „по подразбиране“ на дружеството (Дружество › Декларатори); сменя се изрично."/>
+      <field name="bgPeriodFrom"
+        help="Прозорецът се мери по МЕСЕЦ ЗА ЕКСПОРТ на листа, когато е попълнен, и по началото на отпуска, когато не е. Лист за юли, донесен през септември, влиза в септемврийския пакет."/>
+      <field name="bgPeriodTo"/>
+      <field name="bgExportDate"/>
+      <field name="bgCertificateDate"/>
+      <field name="bgFileSequence"
+        help="Числото n в името Pril9_ddmmyyyy_n.xml — поредността на файла ЗА ДАТАТА."/>
+      <!-- Подаден износ не се генерира наново — услугата го отказва
+        (BgApp9ExportService#refuseExportRegeneration), а бутонът не го предлага. -->
+      <button name="generateBtn" title="Генерирай файла" showIf="statusSelect != 'SUBMITTED'"
+        onClick="save,action-bg-app9-export-method-generate,save"
+        help="Емитер, офлайн валидация срещу схемата на НОИ, и закачане като НЕИЗМЕНЯЕМ файл с отпечатък SHA-256. При липси СПИРА и изброява какво да се попълни."/>
+      <!-- ⚠️ БЕЗ save ПРЕДИ ДЕЙСТВИЕТО: входящият номер и датата са transient и записът ги губи. -->
+      <field name="bgNoiIncomingNumber" readonly="true" showIf="bgNoiIncomingNumber"
+        help="Входящият номер от отметката „подадено в НОИ“ — чете се от самото подаване."/>
+      <field name="bgNoiSubmittedDate" readonly="true" showIf="bgNoiSubmittedDate"
+        help="Датата от портала на НОИ — пази се като дата, без час."/>
+      <field name="bgPortalIncomingNumber" showIf="statusSelect != 'SUBMITTED'"/>
+      <field name="bgPortalSubmittedDate" showIf="statusSelect != 'SUBMITTED'"/>
+      <button name="submitBtn" title="Отбележи като подаден"
+        onClick="action-bg-app9-export-method-mark-submitted"
+        readonlyIf="bgNoiArtifact == null" showIf="statusSelect != 'SUBMITTED'"
+        help="⚠️ ОТБЕЛЯЗВАНЕ, а не подаване. Приложението не изпраща към НОИ и не подписва с КЕП. Иска входящия номер и датата от портала; отбелязва всички удостоверения във файла."/>
+    </panel>
+
+    <panel name="fileHeaderPanel" title="Заглавна част на файла">
+      <static name="fileHeaderNote" colSpan="12">
+        <![CDATA[<><Alert variant="info">Тези полета са ЕДНИ за целия файл. Изискванията за прием отхвърлят файл, който не съдържа данни само с един и същ ЕИК на осигурителя.</Alert></>]]>
+      </static>
+      <field name="nssiRoCode"
+        help="Задължителен за прием: стойност от 1 до 28 по номенклатурата NSSI_RO. ⚠️ Няма носител никъде другаде в модела — съответствието област ↔ териториално поделение е номенклатура на НОИ и не се изважда от адреса."/>
+      <field name="nssiRoName"/>
+      <field name="bgIsDelegated"/>
+      <field name="bgIsThroughKasa"/>
+      <field name="bgKasaMemberBulstat" showIf="bgIsThroughKasa"
+        help="ЕИК на члена на касата — попълва се само когато подаването е през осигурителна каса."/>
+      <field name="bgSourceFlag" readonly="true"
+        help="„Флаг на източник“ (Source), КАКТО Е ИЗЛЯЗЪЛ във файла при последното успешно генериране — само за показ. Източникът е ЕДИН: настройката „ЕИК на разработчика на софтуера“ (Настройки › Българска локализация), същата като за поле 53 на Д1 — ЕИК на РАЗРАБОТЧИКА, не на осигурителя (Приложение № 1 на НОИ, 03/2024). Празна настройка → файлът се отказва с назована причина."/>
+    </panel>
+
+    <!-- ⚠️ ДНЕВНИКЪТ Е СНИМКА, А НЕ ИЗГЛЕД. Той описва какво е имало в прозореца В МОМЕНТА на
+      генерирането — включително листовете, които НЕ са влезли, и причината за това. Построен като
+      заявка, той щеше да се мени при всяка поправка на болничен и да не се връзва с подаденото. -->
+    <panel name="journalPanel" title="Дневник на болничните" colSpan="12">
+      <static name="journalNote" colSpan="12">
+        <![CDATA[<><Alert variant="info">Описът на болничните листове в прозореца. Колоните „Дни осигурител“ и „Дни НОИ“ са НАШИЯТ разбив (Ф0); във файла т. 9 носи техния СБОР, защото официалният ред не дели по платец. Лист с липси остава в описа с причината — тихо изпуснат лист изглежда като лист, който не е съществувал.</Alert></>]]>
+      </static>
+      <field name="bgExportLineList" colSpan="12" showTitle="false" readonly="true"
+        grid-view="bg-app9-export-line-grid" form-view="bg-app9-export-line-form"/>
+    </panel>
+
+    <panel name="outputPanel" title="Файл и проверки" colSpan="12">
+      <field name="bgNoiArtifact" readonly="true"
+        help="Неизменяемият файл през общото ядро „институция“ — същият път, по който минават Д1, Д6 и ДДС файловете към НАП. Отпечатъкът SHA-256 се смята веднъж, при създаването."/>
+      <field name="bgGeneratedOn" readonly="true"/>
+      <field name="bgLastAttempt" colSpan="12" readonly="true"
+        help="Кога, кой и с какъв изход е последният опит — и при отказ. При отказ файл НЕ се закача; закаченият по-горе е от последния УСПЕШЕН опит."/>
+      <field name="bgEmissionGaps" colSpan="12" readonly="true"/>
+      <field name="bgValidationReport" colSpan="12" readonly="true"/>
+    </panel>
+
+  </form>
+
+  <!-- ============ Дневникът ============ -->
+
+  <grid name="bg-app9-export-line-grid" title="Дневник на болничните"
+    model="com.axelor.apps.bglocalization.db.BgApp9ExportLine">
+    <hilite color="warning" if="bgGapCount &gt; 0"/>
+    <field name="bgChartNumber" width="140"/>
+    <field name="employee"/>
+    <field name="bgLeaveFrom"/>
+    <field name="bgLeaveTo"/>
+    <field name="bgEmployerDays" width="110"/>
+    <field name="bgNoiDays" width="110"/>
+    <field name="bgDeclarationStatus"/>
+    <field name="bgIncluded" width="90"/>
+    <field name="bgGapCount" width="80"/>
+  </grid>
+
+  <form name="bg-app9-export-line-form" title="Ред от дневника"
+    model="com.axelor.apps.bglocalization.db.BgApp9ExportLine" readonlyIf="true">
+    <panel name="mainPanel" title="Листът">
+      <field name="bgChartNumber"/>
+      <field name="employee"/>
+      <field name="sickLeave"/>
+      <field name="bgApp9Declaration"/>
+      <field name="bgLeaveFrom"/>
+      <field name="bgLeaveTo"/>
+      <field name="bgEmployerDays"/>
+      <field name="bgNoiDays"/>
+      <field name="bgDeclarationStatus"/>
+      <field name="bgIncluded"/>
+      <field name="bgGapCount"/>
+      <field name="bgNote" colSpan="12"/>
+    </panel>
+  </form>
+
+  <!-- Днешната дата на двете дати: износът обичайно се прави в деня, в който се подава. -->
+  <action-record name="action-bg-app9-export-defaults"
+    model="com.axelor.apps.bglocalization.db.BgApp9Export">
+    <field name="bgExportDate" expr="eval: __date__"/>
+    <field name="bgCertificateDate" expr="eval: __date__"/>
+    <field name="bgFileSequence" expr="eval: 1"/>
+  </action-record>
+
+  <!-- Деклараторът по подразбиране = isDefault на дружеството, НЕ първият по id. Само екранът. -->
+  <action-record name="action-bg-app9-export-record-default-declarant"
+    model="com.axelor.apps.bglocalization.db.BgApp9Export">
+    <field name="bgDeclarant"
+      expr="eval: company == null ? null : __repo__(BgDeclarant).all().filter('self.company = ?1 AND self.isDefault = true', company).fetchOne()"/>
+  </action-record>
+
+  <action-method name="action-bg-app9-export-method-generate">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9ExportController" method="generate"/>
+  </action-method>
+
+  <action-method name="action-bg-app9-export-method-mark-submitted">
+    <call class="com.axelor.apps.bglocalization.web.BgApp9ExportController"
+      method="markSubmitted"/>
+  </action-method>
+
+</object-views>
